@@ -1,10 +1,10 @@
 {
  "schema": "ahos.paper.signal_breadth.v1",
- "generated_at": "2026-10-25T17:08:31Z",
+ "generated_at": "2026-10-25T18:18:59Z",
  "paper_only": true,
  "edge_claimed": false,
  "minimum_changed": false,
- "close_rows": 30,
+ "close_rows": 31,
  "missing_rows": 0,
  "signal_count_min": 6,
  "signal_count_max": 14,
@@ -26,6 +26,10 @@
    "rows": 2
   },
   {
+   "signals": 10,
+   "rows": 1
+  },
+  {
    "signals": 11,
    "rows": 5
   },
@@ -42,9 +46,9 @@
    "rows": 2
   }
  ],
- "weight_sum_min": 0.4764,
+ "weight_sum_min": 0.4332,
  "weight_sum_max": 1.0499,
- "weight_sum_below_1": 23,
- "weight_sum_below_half": 1,
+ "weight_sum_below_1": 24,
+ "weight_sum_below_half": 2,
  "status": "RECORDED_BREADTH"
 }

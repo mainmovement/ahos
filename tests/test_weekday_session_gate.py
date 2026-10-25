@@ -825,3 +825,57 @@ def test_a_matching_lesson_count_is_not_written_back(tmp_path):
     assert version["live_file_version"] == 2 and version["opens_at_live_version"] == 0
     assert version["still_open"] == [{"symbol": "BTC", "weights_version": 1}]
     assert version["version_rewritten"] is False and version["edge_claimed"] is False
+
+
+def test_a_history_gap_is_not_filled_and_a_posterior_is_not_a_probability(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_paper_route, measure_posterior_inputs, measure_weight_path,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "signal_weights.json").write_text(json.dumps({
+        "version": 2,
+        "weights": {"candles": 0.12},
+        "history": [{"version": 1, "weights": {"candles": 0.12}}],
+    }), encoding="utf-8")
+    row = {
+        "event": "OPEN", "symbol": "BTC", "oms": "ACCEPTED_PAPER",
+        "brain": {
+            "weights_version": 2,
+            "contributions": [
+                {"signal": "candles", "weight": 0.12},
+                {"signal": "event_shock", "weight": 0.0},
+            ],
+            "council_debate": {"posterior_prob_up": 0.55, "status": "APPROVED_SOROUSH_BL"},
+        },
+    }
+    log = paper / "paper_trades.jsonl"
+    log.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    path = measure_weight_path(tmp_path)
+    assert path["status"] == "PATH_DIFFERS"
+    assert path["matched_weights"] == 1 and path["absent_keys"] == 1
+    assert path["numeric_mismatch"] == 0 and path["absent_names"] == ["event_shock"]
+    assert path["history_rewritten"] is False and path["absence_filled"] is False
+    assert path["edge_claimed"] is False
+    stored = json.loads((paper / "signal_weights.json").read_text(encoding="utf-8"))
+    assert "event_shock" not in stored["history"][0]["weights"]
+    route = measure_paper_route(tmp_path)
+    assert route["status"] == "PAPER_ROUTE_NOT_A_FILL"
+    assert route["accepted_paper"] == 1 and route["broker_claimed"] is False
+    assert route["route_changed"] is False
+    posterior = measure_posterior_inputs(tmp_path)
+    assert posterior["status"] == "POSTERIOR_WITHOUT_INPUTS"
+    assert posterior["posterior_rows"] == 1 and posterior["bull_rows"] == 0
+    assert posterior["bear_rows"] == 0 and posterior["value_copied"] is False
+    assert posterior["treated_as_probability"] is False
+    assert "0.55" not in json.dumps(posterior)
+    row["brain"]["contributions"][0]["weight"] = 0.2
+    log.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    differed = measure_weight_path(tmp_path)
+    assert differed["numeric_mismatch"] == 1 and differed["mismatch_names"] == ["candles"]
+    assert differed["mismatch_versions"] == [2]
+    again = json.loads((paper / "signal_weights.json").read_text(encoding="utf-8"))
+    assert again["history"][0]["weights"]["candles"] == 0.12

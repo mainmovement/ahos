@@ -3893,6 +3893,204 @@ def write_entry_version(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _is_num(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def measure_weight_path(root: Path) -> dict[str, Any]:
+    """Compare a logged entry weight with the prior history snapshot. A gap is not an edge."""
+    from architecture.markets.signal_brain import DEFAULT_WEIGHTS
+
+    doc = _weights_doc(root)
+    by_version: dict[int, dict[str, Any]] = {}
+    if isinstance(doc, dict) and isinstance(doc.get("history"), list):
+        for item in doc["history"]:
+            if not isinstance(item, dict) or not isinstance(item.get("weights"), dict):
+                continue
+            version = item.get("version")
+            if _is_num(version) and float(version).is_integer():
+                by_version[int(version)] = item["weights"]
+    matched = mismatch = absent = no_history = unversioned = opens = 0
+    absent_names: set[str] = set()
+    mismatch_names: set[str] = set()
+    mismatch_versions: set[int] = set()
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        opens += 1
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        version = brain.get("weights_version")
+        if not _is_num(version) or not float(version).is_integer():
+            unversioned += 1
+            continue
+        version = int(version)
+        snapshot: dict[str, Any] | None
+        if version == 1:
+            snapshot = dict(DEFAULT_WEIGHTS)
+        else:
+            snapshot = by_version.get(version - 1)
+        if snapshot is None:
+            no_history += 1
+            continue
+        contribs = brain.get("contributions") if isinstance(brain.get("contributions"), list) else []
+        for item in contribs:
+            if not isinstance(item, dict) or not isinstance(item.get("signal"), str) or not _is_num(item.get("weight")):
+                continue
+            expected = snapshot.get(item["signal"])
+            if not _is_num(expected):
+                absent += 1
+                absent_names.add(item["signal"])
+                continue
+            if abs(float(item["weight"]) - float(expected)) <= 1e-9:
+                matched += 1
+            else:
+                mismatch += 1
+                mismatch_names.add(item["signal"])
+                mismatch_versions.add(version)
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif doc is None and any(True for _ in by_version) is False and unversioned == opens:
+        status = "VERSION_MISSING"
+    elif no_history:
+        status = "HISTORY_GAP"
+    elif mismatch or absent:
+        status = "PATH_DIFFERS"
+    elif matched:
+        status = "PATH_MATCHES"
+    else:
+        status = "VERSION_MISSING"
+    return {
+        "paper_only": True,
+        "history_rewritten": False,
+        "absence_filled": False,
+        "edge_claimed": False,
+        "open_rows": opens,
+        "matched_weights": matched,
+        "numeric_mismatch": mismatch,
+        "absent_keys": absent,
+        "no_history": no_history,
+        "absent_names": sorted(absent_names),
+        "mismatch_names": sorted(mismatch_names),
+        "mismatch_versions": sorted(mismatch_versions),
+        "status": status,
+    }
+
+
+def write_weight_path(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.weight_path.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_weight_path(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "weight_path.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_paper_route(root: Path) -> dict[str, Any]:
+    """ACCEPTED_PAPER is the paper router. It is not a broker fill."""
+    accepted = missing = other = opens = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        opens += 1
+        route = row.get("oms")
+        if route is None:
+            missing += 1
+        elif route == "ACCEPTED_PAPER":
+            accepted += 1
+        else:
+            other += 1
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif other:
+        status = "OTHER_ROUTE"
+    elif accepted:
+        status = "PAPER_ROUTE_NOT_A_FILL"
+    else:
+        status = "OMS_FIELD_ABSENT"
+    return {
+        "paper_only": True,
+        "broker_claimed": False,
+        "route_changed": False,
+        "edge_claimed": False,
+        "open_rows": opens,
+        "accepted_paper": accepted,
+        "missing_rows": missing,
+        "other_rows": other,
+        "status": status,
+    }
+
+
+def write_paper_route(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.paper_route.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_paper_route(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "paper_route.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_posterior_inputs(root: Path) -> dict[str, Any]:
+    """A stored posterior without the bull and bear inputs is not a probability."""
+    stored = missing = posterior = bull = bear = opens = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        opens += 1
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        debate = brain.get("council_debate")
+        if not isinstance(debate, dict):
+            missing += 1
+            continue
+        stored += 1
+        if "posterior_prob_up" in debate:
+            posterior += 1
+        if "bull_prob" in debate:
+            bull += 1
+        if "bear_prob" in debate:
+            bear += 1
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif stored == 0:
+        status = "NO_STORED_DEBATE"
+    elif posterior and bull == 0 and bear == 0:
+        status = "POSTERIOR_WITHOUT_INPUTS"
+    elif bull or bear:
+        status = "INPUTS_STORED"
+    else:
+        status = "NO_POSTERIOR_KEY"
+    return {
+        "paper_only": True,
+        "value_copied": False,
+        "treated_as_probability": False,
+        "edge_claimed": False,
+        "open_rows": opens,
+        "stored_rows": stored,
+        "missing_rows": missing,
+        "posterior_rows": posterior,
+        "bull_rows": bull,
+        "bear_rows": bear,
+        "status": status,
+    }
+
+
+def write_posterior_inputs(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.posterior_inputs.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_posterior_inputs(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "posterior_inputs.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

@@ -1,0 +1,15 @@
+{
+ "schema": "ahos.paper.posterior_inputs.v1",
+ "generated_at": "2026-10-25T18:18:58Z",
+ "paper_only": true,
+ "value_copied": false,
+ "treated_as_probability": false,
+ "edge_claimed": false,
+ "open_rows": 33,
+ "stored_rows": 30,
+ "missing_rows": 3,
+ "posterior_rows": 30,
+ "bull_rows": 0,
+ "bear_rows": 0,
+ "status": "POSTERIOR_WITHOUT_INPUTS"
+}

@@ -1,13 +1,13 @@
 {
  "schema": "ahos.paper.entry_version.v1",
- "generated_at": "2026-10-25T17:08:28Z",
+ "generated_at": "2026-10-25T18:18:54Z",
  "paper_only": true,
  "version_rewritten": false,
  "edge_claimed": false,
- "open_rows": 32,
+ "open_rows": 33,
  "missing_version": 0,
- "distinct_versions": 13,
- "live_file_version": 22,
+ "distinct_versions": 14,
+ "live_file_version": 23,
  "opens_at_live_version": 1,
  "version_counts": {
   "1": 12,
@@ -22,12 +22,13 @@
   "16": 1,
   "18": 2,
   "19": 1,
-  "22": 1
+  "22": 1,
+  "23": 1
  },
  "still_open": [
   {
    "symbol": "BTC",
-   "weights_version": 22
+   "weights_version": 23
   },
   {
    "symbol": "UNI",

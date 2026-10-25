@@ -943,3 +943,31 @@ Scope: Lane B measurement and the Arena read-only lines. Lane A was not edited. 
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export UNI was 1.83 hours old and BTC was 0.52 hours old. This stage did not open or close either position. Closed paper trades remain 30.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 90 checks, drift [], unknown []. Skip census at this export: 4241 rows, `MARKET_CLOSED_OR_STALE` 4013. Whitehat CLEAN, 6 checks. pytest 78 passed. Node stage6 bridge 6/6. Thirty closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
 - **Verification:** `scripts/validate_imports.py` started 2026-10-25T17:09:38Z and exited 0. 373 modules imported cleanly. 4345 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 34 weight path, paper route, posterior inputs
+
+Scope: Lane B measurement and the Arena read-only lines. Lane A was not edited. The weight history was not rewritten. `event_shock` was not inserted. No broker was called. UNI was not closed. The paper trader was not restarted.
+
+### WP-34.1 — a logged weight that differs from the prior snapshot is not an edge
+- **Draft:** Compare each open contribution weight with the history snapshot from the previous version. Version 1 uses the defaults. A missing key is not stored zero. Do not fill the key and do not rewrite either side.
+- **Critique 1:** 298 weights match. 9 differ, on versions 11 and 18, for candles, large_trades, macro, mtf_trend, news, and zscore_mr. 21 contributions name event_shock, and the history rows lack that key. `absence_filled` is false. `history_rewritten` is false.
+- **Critique 2 (meta):** Where the prior snapshot and the same-version snapshot differ, 70 logged weights match the prior snapshot and 0 match the same-version snapshot. 7 match neither. The 9 gaps against the prior snapshot are at least a thousandth, so they are not float dust. A gap is not skill and it is not a reason to edit the file.
+- **Result:** `reports/grok/PAPER/weight_path.json`. Status `PATH_DIFFERS`.
+
+### WP-34.2 — ACCEPTED_PAPER is not a broker fill
+- **Draft:** Count the OMS field on opens. Do not call a broker and do not backfill the rows that have no field.
+- **Critique 1:** 30 opens say ACCEPTED_PAPER. 3 have no OMS field. 0 say anything else. Broker connectivity stays unverified.
+- **Critique 2 (meta):** The word is the paper router. It does not establish a venue fill.
+- **Result:** `reports/grok/PAPER/paper_route.json`. Status `PAPER_ROUTE_NOT_A_FILL`. `broker_claimed` false.
+
+### WP-34.3 — a stored posterior without inputs is not a probability
+- **Draft:** Count the posterior key and the bull and bear input keys. Do not copy the stored number.
+- **Critique 1:** 30 debates have `posterior_prob_up`. 0 have `bull_prob` or `bear_prob`. 3 opens have no debate. The receipt does not contain the stored number.
+- **Critique 2 (meta):** Without the inputs, the stored number cannot be audited as a probability. It is not an edge.
+- **Result:** `reports/grok/PAPER/posterior_inputs.json`. Status `POSTERIOR_WITHOUT_INPUTS`. `value_copied` false. `treated_as_probability` false.
+
+### WP-34.4 — checks 91 to 93
+- **Draft:** Each check recomputes the log. A receipt that rewrites history, claims a broker fill, or copies a posterior fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. The running process closed BTC as SIGNAL_REVERSAL and later opened it again. This stage did not close it, did not relabel it, and did not open it. Closed paper trades are 31. Reversal gross is 3 positive and 14 negative. Overall gross is 10 positive and 21 negative. The lesson replay still matches. The live weight file is version 23 because the daemon appended a lesson. This stage did not rewrite it. At the export UNI was 3.01 hours old, entered at version 19, and the new BTC open was 0.10 hours old at version 23. Neither position was closed.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 93 checks, drift [], unknown []. Skip census at this export: 4367 rows, `MARKET_CLOSED_OR_STALE` 4106. Whitehat CLEAN, 6 checks. pytest 79 passed. Node stage6 bridge 6/6. Thirty-one closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-25T18:08:15Z and stayed silent after the artifact section. That validator was stopped. The paper-trader and gold-soak processes were not stopped. The import gate remains `NOT_VERIFIED`. This is not a product defect.

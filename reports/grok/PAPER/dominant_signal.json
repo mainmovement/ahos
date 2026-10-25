@@ -1,12 +1,12 @@
 {
  "schema": "ahos.paper.dominant_signal.v1",
- "generated_at": "2026-10-25T17:08:27Z",
+ "generated_at": "2026-10-25T18:18:54Z",
  "paper_only": true,
  "skill_claimed": false,
- "close_rows": 30,
- "scored_rows": 30,
+ "close_rows": 31,
+ "scored_rows": 31,
  "missing_rows": 0,
- "sign_matches_side": 30,
+ "sign_matches_side": 31,
  "signals": [
   {
    "signal": "mtf_trend",
@@ -20,6 +20,11 @@
   },
   {
    "signal": "large_trades",
+   "rows": 1,
+   "sign_matches_side": 1
+  },
+  {
+   "signal": "order_flow",
    "rows": 1,
    "sign_matches_side": 1
   }

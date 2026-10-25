@@ -1,9 +1,9 @@
 {
  "schema": "ahos.paper.side_book.v1",
- "generated_at": "2026-10-25T17:08:31Z",
+ "generated_at": "2026-10-25T18:18:59Z",
  "paper_only": true,
  "edge_claimed": false,
- "close_rows": 30,
+ "close_rows": 31,
  "missing_rows": 0,
  "sides": [
   {
@@ -15,12 +15,12 @@
   },
   {
    "side": "SHORT",
-   "closes": 23,
-   "realized_pnl_usd": -0.0703,
+   "closes": 24,
+   "realized_pnl_usd": -0.0932,
    "wins": 7,
-   "losses": 16
+   "losses": 17
   }
  ],
- "realized_pnl_usd": -0.2565,
+ "realized_pnl_usd": -0.2794,
  "status": "RECORDED_SPLIT"
 }

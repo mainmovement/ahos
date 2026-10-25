@@ -1,0 +1,29 @@
+{
+ "schema": "ahos.paper.weight_path.v1",
+ "generated_at": "2026-10-25T18:19:01Z",
+ "paper_only": true,
+ "history_rewritten": false,
+ "absence_filled": false,
+ "edge_claimed": false,
+ "open_rows": 33,
+ "matched_weights": 298,
+ "numeric_mismatch": 9,
+ "absent_keys": 21,
+ "no_history": 0,
+ "absent_names": [
+  "event_shock"
+ ],
+ "mismatch_names": [
+  "candles",
+  "large_trades",
+  "macro",
+  "mtf_trend",
+  "news",
+  "zscore_mr"
+ ],
+ "mismatch_versions": [
+  11,
+  18
+ ],
+ "status": "PATH_DIFFERS"
+}

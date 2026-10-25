@@ -1,10 +1,10 @@
 {
  "schema": "ahos.paper.book_descriptive.v1",
- "generated_at": "2026-10-25T17:08:26Z",
+ "generated_at": "2026-10-25T18:18:52Z",
  "paper_only": true,
  "dsr_claimed": false,
  "edge_claimed": false,
- "close_rows": 30,
+ "close_rows": 31,
  "source_not_eligible": true,
  "sharpe_sign": -1,
  "sortino_sign": -1,

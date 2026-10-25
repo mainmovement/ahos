@@ -881,6 +881,18 @@ def _ua_root(tmp_path):
         "missing_version": 1, "distinct_versions": 0, "live_file_version": None,
         "opens_at_live_version": 0, "version_counts": {},
         "still_open": [{"symbol": "BTC", "weights_version": None}], "status": "VERSION_MISSING"})
+    w("reports/grok/PAPER/weight_path.json", {
+        "paper_only": True, "history_rewritten": False, "absence_filled": False, "edge_claimed": False,
+        "open_rows": 1, "matched_weights": 0, "numeric_mismatch": 0, "absent_keys": 0, "no_history": 0,
+        "absent_names": [], "mismatch_names": [], "mismatch_versions": [], "status": "VERSION_MISSING"})
+    w("reports/grok/PAPER/paper_route.json", {
+        "paper_only": True, "broker_claimed": False, "route_changed": False, "edge_claimed": False,
+        "open_rows": 1, "accepted_paper": 0, "missing_rows": 1, "other_rows": 0,
+        "status": "OMS_FIELD_ABSENT"})
+    w("reports/grok/PAPER/posterior_inputs.json", {
+        "paper_only": True, "value_copied": False, "treated_as_probability": False, "edge_claimed": False,
+        "open_rows": 1, "stored_rows": 0, "missing_rows": 1, "posterior_rows": 0, "bull_rows": 0,
+        "bear_rows": 0, "status": "NO_STORED_DEBATE"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

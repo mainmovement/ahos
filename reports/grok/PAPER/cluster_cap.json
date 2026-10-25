@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.cluster_cap.v1",
- "generated_at": "2026-10-25T17:08:26Z",
+ "generated_at": "2026-10-25T18:18:53Z",
  "paper_only": true,
  "caps_changed": false,
  "positions_closed": false,
@@ -14,8 +14,8 @@
   "fx": 0.15,
   "metals": 0.2
  },
- "open_rows": 32,
- "scored_rows": 32,
+ "open_rows": 33,
+ "scored_rows": 33,
  "missing_rows": 0,
  "above_cluster": 0,
  "above_gross": 0,

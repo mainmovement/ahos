@@ -1,15 +1,15 @@
 {
  "schema": "ahos.paper.signal_dissent.v1",
- "generated_at": "2026-10-25T17:08:32Z",
+ "generated_at": "2026-10-25T18:18:59Z",
  "paper_only": true,
  "skill_claimed": false,
  "signals_removed": false,
- "close_rows": 30,
+ "close_rows": 31,
  "missing_rows": 0,
- "contribution_agree": 122,
- "contribution_oppose": 64,
- "contribution_zero": 115,
- "closes_with_opposition": 28,
+ "contribution_agree": 127,
+ "contribution_oppose": 66,
+ "contribution_zero": 118,
+ "closes_with_opposition": 29,
  "opposition_weight_share_min": 0.0,
  "opposition_weight_share_max": 0.43,
  "zero_weight_share_min": 0.0,
@@ -38,45 +38,45 @@
   },
   {
    "signal": "event_shock",
-   "present": 26,
+   "present": 27,
    "agree": 0,
    "oppose": 0,
-   "zero": 26
+   "zero": 27
   },
   {
    "signal": "exchange_netflow",
-   "present": 9,
-   "agree": 2,
+   "present": 10,
+   "agree": 3,
    "oppose": 7,
    "zero": 0
   },
   {
    "signal": "funding_oi",
-   "present": 19,
+   "present": 20,
    "agree": 5,
-   "oppose": 14,
+   "oppose": 15,
    "zero": 0
   },
   {
    "signal": "large_trades",
-   "present": 20,
-   "agree": 11,
+   "present": 21,
+   "agree": 12,
    "oppose": 1,
    "zero": 8
   },
   {
    "signal": "macro",
-   "present": 28,
-   "agree": 21,
+   "present": 29,
+   "agree": 22,
    "oppose": 7,
    "zero": 0
   },
   {
    "signal": "macro_event",
-   "present": 27,
+   "present": 28,
    "agree": 0,
    "oppose": 0,
-   "zero": 27
+   "zero": 28
   },
   {
    "signal": "mtf_trend",
@@ -87,31 +87,31 @@
   },
   {
    "signal": "news",
-   "present": 30,
-   "agree": 24,
+   "present": 31,
+   "agree": 25,
    "oppose": 6,
    "zero": 0
   },
   {
    "signal": "order_flow",
-   "present": 19,
-   "agree": 13,
+   "present": 20,
+   "agree": 14,
    "oppose": 6,
    "zero": 0
   },
   {
    "signal": "stablecoin",
-   "present": 16,
+   "present": 17,
    "agree": 3,
-   "oppose": 5,
+   "oppose": 6,
    "zero": 8
   },
   {
    "signal": "stablecoin_impulse",
-   "present": 18,
+   "present": 19,
    "agree": 0,
    "oppose": 0,
-   "zero": 18
+   "zero": 19
   },
   {
    "signal": "whale_mempool",

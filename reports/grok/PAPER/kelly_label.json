@@ -1,11 +1,11 @@
 {
  "schema": "ahos.paper.kelly_label.v1",
- "generated_at": "2026-10-25T17:08:29Z",
+ "generated_at": "2026-10-25T18:18:56Z",
  "paper_only": true,
  "kelly_switched_on": false,
- "open_rows": 32,
+ "open_rows": 33,
  "label_counts": {
-  "OFF (n<30 closed trades, §6)": 32
+  "OFF (n<30 closed trades, §6)": 33
  },
  "numeric_rows": 0,
  "missing_rows": 0,

@@ -1,16 +1,16 @@
 {
  "schema": "ahos.paper.witness_reason.v1",
- "generated_at": "2026-10-25T17:08:33Z",
+ "generated_at": "2026-10-25T18:19:01Z",
  "paper_only": true,
  "exit_rule_changed": false,
- "close_rows": 30,
+ "close_rows": 31,
  "missing_rows": 0,
  "conflict_rows": 12,
  "conflict_verdict_conflict": 12,
- "other_rows": 18,
- "other_verdict_verified": 18,
- "open_rows": 32,
- "open_verified": 32,
+ "other_rows": 19,
+ "other_verdict_verified": 19,
+ "open_rows": 33,
+ "open_verified": 33,
  "open_missing": 0,
  "status": "VERDICT_MATCHES_REASON"
 }

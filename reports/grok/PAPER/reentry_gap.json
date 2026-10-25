@@ -1,10 +1,10 @@
 {
  "schema": "ahos.paper.reentry_gap.v1",
- "generated_at": "2026-10-25T17:08:30Z",
+ "generated_at": "2026-10-25T18:18:58Z",
  "paper_only": true,
  "cooldown_added": false,
  "edge_claimed": false,
- "reentry_rows": 27,
+ "reentry_rows": 28,
  "distinct_symbols": 5,
  "min_gap_hours": 0.07,
  "missing_stamp": 0,
