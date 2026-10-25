@@ -971,3 +971,31 @@ Scope: Lane B measurement and the Arena read-only lines. Lane A was not edited. 
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. The running process closed BTC as SIGNAL_REVERSAL and later opened it again. This stage did not close it, did not relabel it, and did not open it. Closed paper trades are 31. Reversal gross is 3 positive and 14 negative. Overall gross is 10 positive and 21 negative. The lesson replay still matches. The live weight file is version 23 because the daemon appended a lesson. This stage did not rewrite it. At the export UNI was 3.01 hours old, entered at version 19, and the new BTC open was 0.10 hours old at version 23. Neither position was closed.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 93 checks, drift [], unknown []. Skip census at this export: 4367 rows, `MARKET_CLOSED_OR_STALE` 4106. Whitehat CLEAN, 6 checks. pytest 79 passed. Node stage6 bridge 6/6. Thirty-one closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
 - **Verification:** `scripts/validate_imports.py` started 2026-10-25T18:08:15Z and stayed silent after the artifact section. That validator was stopped. The paper-trader and gold-soak processes were not stopped. The import gate remains `NOT_VERIFIED`. This is not a product defect.
+
+## 2026-10-25 — Stage 35 posterior blend, partial field, close route
+
+Scope: Lane B measurement and the Arena read-only lines. Lane A was not edited. The debate blobs were not rewritten. The posterior number was not copied. The partial field was not backfilled. No broker was called. UNI and BTC were not closed. The paper trader was not restarted.
+
+### WP-35.1 — a posterior that matches the live blend is still a rescaling
+- **Draft:** Recompute the live debate function from the stored composite and the stored reference counts. Compare the stored posterior and the stored log odds. Do not copy either number. Do not change the formula.
+- **Critique 1:** 33 opens. 30 debates. 30 posteriors match the blend. 0 differ. 30 log odds match the blend. 0 differ. 3 opens have no debate.
+- **Critique 2 (meta):** The match says the stored number is the commutative blend of a rescaled composite. It is not a calibrated probability and it is not an edge.
+- **Result:** `reports/grok/PAPER/posterior_blend.json`. Status `BLEND_OF_A_RESCALE`. `value_copied` false. `treated_as_probability` false.
+
+### WP-35.2 — a missing partial flag is not a partial close
+- **Draft:** Count the partial key on closes. Do not write false onto a row that lacks the key.
+- **Critique 1:** 31 closes. The key is absent on 31. True rows are 0. False rows are 0. The current source writes the boolean for a later process. This process has not stored it.
+- **Critique 2 (meta):** Absence is not a count of partial closes and it is not evidence the rule is gone from source.
+- **Result:** `reports/grok/PAPER/partial_field.json`. Status `PARTIAL_FIELD_ABSENT`. `backfilled` false. `partial_inferred` false.
+
+### WP-35.3 — ACCEPTED_PAPER on a close is not a broker fill
+- **Draft:** Count the OMS field on closes. Do not call a broker.
+- **Critique 1:** 31 closes say ACCEPTED_PAPER. 0 are missing. 0 say anything else.
+- **Critique 2 (meta):** The word is the paper router on the way out. It does not establish a venue fill. Broker connectivity stays unverified.
+- **Result:** `reports/grok/PAPER/close_route.json`. Status `CLOSE_ROUTE_NOT_A_FILL`. `broker_claimed` false.
+
+### WP-35.4 — checks 94 to 96
+- **Draft:** Each check recomputes the log. A receipt that copies a posterior, backfills the partial flag, or claims a broker fill fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export UNI was 3.22 hours old at version 19 and BTC was 0.31 hours old at version 23. Neither was closed. Closed paper trades remain 31.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 96 checks, drift [], unknown []. Skip census at this export: 4391 rows, `MARKET_CLOSED_OR_STALE` 4124. Whitehat CLEAN, 6 checks. pytest 80 passed. Node stage6 bridge 6/6. Thirty-one closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-25T18:32:50Z and exited 0. 373 modules imported cleanly. 4351 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped.

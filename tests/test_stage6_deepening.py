@@ -893,6 +893,19 @@ def _ua_root(tmp_path):
         "paper_only": True, "value_copied": False, "treated_as_probability": False, "edge_claimed": False,
         "open_rows": 1, "stored_rows": 0, "missing_rows": 1, "posterior_rows": 0, "bull_rows": 0,
         "bear_rows": 0, "status": "NO_STORED_DEBATE"})
+    w("reports/grok/PAPER/posterior_blend.json", {
+        "paper_only": True, "value_copied": False, "treated_as_probability": False,
+        "formula_changed": False, "edge_claimed": False, "open_rows": 1, "stored_rows": 0,
+        "missing_rows": 1, "blend_match": 0, "blend_differ": 0, "odds_match": 0, "odds_differ": 0,
+        "status": "NO_STORED_DEBATE"})
+    w("reports/grok/PAPER/partial_field.json", {
+        "paper_only": True, "backfilled": False, "partial_inferred": False, "edge_claimed": False,
+        "close_rows": 0, "absent_rows": 0, "true_rows": 0, "false_rows": 0, "other_rows": 0,
+        "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/close_route.json", {
+        "paper_only": True, "broker_claimed": False, "route_changed": False, "edge_claimed": False,
+        "close_rows": 0, "accepted_paper": 0, "missing_rows": 0, "other_rows": 0,
+        "status": "NO_CLOSED_ROWS"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

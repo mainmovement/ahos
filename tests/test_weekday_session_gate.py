@@ -879,3 +879,53 @@ def test_a_history_gap_is_not_filled_and_a_posterior_is_not_a_probability(tmp_pa
     assert differed["mismatch_versions"] == [2]
     again = json.loads((paper / "signal_weights.json").read_text(encoding="utf-8"))
     assert again["history"][0]["weights"]["candles"] == 0.12
+
+
+def test_a_matching_blend_is_not_a_probability_and_a_missing_partial_is_not_filled(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        _blend_of_composite, measure_close_route, measure_partial_field, measure_posterior_blend,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    expected = _blend_of_composite(0.4, 2, 1)
+    assert expected is not None and expected["posterior"] != 0.99
+    row = {
+        "event": "OPEN", "symbol": "BTC", "oms": "ACCEPTED_PAPER",
+        "brain": {
+            "composite": 0.4,
+            "council_debate": {
+                "posterior_prob_up": expected["posterior"],
+                "log_odds": expected["log_odds"],
+                "bull_refs_count": 2,
+                "bear_refs_count": 1,
+            },
+        },
+    }
+    close = {"event": "CLOSE", "symbol": "BTC", "oms": "ACCEPTED_PAPER", "reason": "SIGNAL_REVERSAL"}
+    log = paper / "paper_trades.jsonl"
+    log.write_text(json.dumps(row) + "\n" + json.dumps(close) + "\n", encoding="utf-8")
+    blend = measure_posterior_blend(tmp_path)
+    assert blend["status"] == "BLEND_OF_A_RESCALE"
+    assert blend["blend_match"] == 1 and blend["odds_match"] == 1
+    assert blend["blend_differ"] == 0 and blend["odds_differ"] == 0
+    assert blend["value_copied"] is False and blend["treated_as_probability"] is False
+    assert blend["formula_changed"] is False and blend["edge_claimed"] is False
+    dumped = json.dumps(blend)
+    assert "0.99" not in dumped and "posterior_prob_up" not in dumped
+    partial = measure_partial_field(tmp_path)
+    assert partial["status"] == "PARTIAL_FIELD_ABSENT"
+    assert partial["absent_rows"] == 1 and partial["true_rows"] == 0
+    assert partial["backfilled"] is False and partial["partial_inferred"] is False
+    assert "partial" not in json.loads(log.read_text(encoding="utf-8").splitlines()[1])
+    route = measure_close_route(tmp_path)
+    assert route["status"] == "CLOSE_ROUTE_NOT_A_FILL"
+    assert route["accepted_paper"] == 1 and route["broker_claimed"] is False
+    assert route["route_changed"] is False and route["edge_claimed"] is False
+    row["brain"]["council_debate"]["posterior_prob_up"] = 0.99
+    log.write_text(json.dumps(row) + "\n" + json.dumps(close) + "\n", encoding="utf-8")
+    differed = measure_posterior_blend(tmp_path)
+    assert differed["status"] == "NOT_THE_BLEND" and differed["blend_differ"] == 1
+    assert "0.99" not in json.dumps(differed)

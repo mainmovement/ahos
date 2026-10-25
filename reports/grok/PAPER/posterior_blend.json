@@ -1,0 +1,17 @@
+{
+ "schema": "ahos.paper.posterior_blend.v1",
+ "generated_at": "2026-10-25T18:31:57Z",
+ "paper_only": true,
+ "value_copied": false,
+ "treated_as_probability": false,
+ "formula_changed": false,
+ "edge_claimed": false,
+ "open_rows": 33,
+ "stored_rows": 30,
+ "missing_rows": 3,
+ "blend_match": 30,
+ "blend_differ": 0,
+ "odds_match": 30,
+ "odds_differ": 0,
+ "status": "BLEND_OF_A_RESCALE"
+}

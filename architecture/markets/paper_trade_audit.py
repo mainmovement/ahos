@@ -4091,6 +4091,199 @@ def write_posterior_inputs(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _blend_of_composite(comp: float, bull_n: int, bear_n: int) -> dict[str, Any] | None:
+    """The live debate function. A stored number is compared with it and not copied."""
+    if bull_n < 1 or bear_n < 1:
+        return None
+    from architecture.markets.council_gate import soroush_blind_debate_and_bl
+
+    bull = max(0.05, min(0.95, 0.5 + 0.4 * comp))
+    bear = max(0.05, min(0.95, 0.5 - 0.4 * comp))
+    fresh = soroush_blind_debate_and_bl(
+        symbol="RECOMPUTE",
+        bull_prob=bull,
+        bear_prob=bear,
+        bull_evidence_refs=[f"r{i}" for i in range(bull_n)],
+        bear_evidence_refs=[f"r{i}" for i in range(bear_n)],
+        devils_advocate_dissent="recompute",
+    )
+    posterior = fresh.get("posterior_prob_up")
+    odds = fresh.get("log_odds")
+    if not _is_num(posterior) or not _is_num(odds):
+        return None
+    return {"posterior": float(posterior), "log_odds": float(odds)}
+
+
+def measure_posterior_blend(root: Path) -> dict[str, Any]:
+    """A stored posterior that matches the live blend is still a rescaling, not a probability."""
+    opens = stored = missing = blend_match = blend_differ = odds_match = odds_differ = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        opens += 1
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        debate = brain.get("council_debate")
+        if not isinstance(debate, dict):
+            missing += 1
+            continue
+        stored += 1
+        comp = brain.get("composite")
+        bull_n = debate.get("bull_refs_count")
+        bear_n = debate.get("bear_refs_count")
+        posterior = debate.get("posterior_prob_up")
+        odds = debate.get("log_odds")
+        if (not _is_num(comp) or not isinstance(bull_n, int) or isinstance(bull_n, bool)
+                or not isinstance(bear_n, int) or isinstance(bear_n, bool)
+                or not _is_num(posterior) or not _is_num(odds)):
+            blend_differ += 1
+            odds_differ += 1
+            continue
+        expected = _blend_of_composite(float(comp), bull_n, bear_n)
+        if expected is None:
+            blend_differ += 1
+            odds_differ += 1
+            continue
+        if abs(float(posterior) - expected["posterior"]) <= 1e-4:
+            blend_match += 1
+        else:
+            blend_differ += 1
+        if abs(float(odds) - expected["log_odds"]) <= 1e-4:
+            odds_match += 1
+        else:
+            odds_differ += 1
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif stored == 0:
+        status = "NO_STORED_DEBATE"
+    elif blend_differ or odds_differ:
+        status = "NOT_THE_BLEND"
+    elif blend_match == stored and odds_match == stored:
+        status = "BLEND_OF_A_RESCALE"
+    else:
+        status = "INCOMPLETE"
+    return {
+        "paper_only": True,
+        "value_copied": False,
+        "treated_as_probability": False,
+        "formula_changed": False,
+        "edge_claimed": False,
+        "open_rows": opens,
+        "stored_rows": stored,
+        "missing_rows": missing,
+        "blend_match": blend_match,
+        "blend_differ": blend_differ,
+        "odds_match": odds_match,
+        "odds_differ": odds_differ,
+        "status": status,
+    }
+
+
+def write_posterior_blend(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.posterior_blend.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_posterior_blend(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "posterior_blend.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_partial_field(root: Path) -> dict[str, Any]:
+    """A missing partial flag is not a partial close and is not backfilled."""
+    closes = absent = true_rows = false_rows = other = 0
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        closes += 1
+        if "partial" not in row:
+            absent += 1
+        elif row.get("partial") is True:
+            true_rows += 1
+        elif row.get("partial") is False:
+            false_rows += 1
+        else:
+            other += 1
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif absent == closes:
+        status = "PARTIAL_FIELD_ABSENT"
+    else:
+        status = "PARTIAL_FIELD_PRESENT"
+    return {
+        "paper_only": True,
+        "backfilled": False,
+        "partial_inferred": False,
+        "edge_claimed": False,
+        "close_rows": closes,
+        "absent_rows": absent,
+        "true_rows": true_rows,
+        "false_rows": false_rows,
+        "other_rows": other,
+        "status": status,
+    }
+
+
+def write_partial_field(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.partial_field.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_partial_field(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "partial_field.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_close_route(root: Path) -> dict[str, Any]:
+    """ACCEPTED_PAPER on a close is the paper router. It is not a broker fill."""
+    accepted = missing = other = closes = 0
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        closes += 1
+        route = row.get("oms")
+        if route is None:
+            missing += 1
+        elif route == "ACCEPTED_PAPER":
+            accepted += 1
+        else:
+            other += 1
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif other:
+        status = "OTHER_ROUTE"
+    elif accepted:
+        status = "CLOSE_ROUTE_NOT_A_FILL"
+    else:
+        status = "OMS_FIELD_ABSENT"
+    return {
+        "paper_only": True,
+        "broker_claimed": False,
+        "route_changed": False,
+        "edge_claimed": False,
+        "close_rows": closes,
+        "accepted_paper": accepted,
+        "missing_rows": missing,
+        "other_rows": other,
+        "status": status,
+    }
+
+
+def write_close_route(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.close_route.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_close_route(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "close_route.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

@@ -1,0 +1,14 @@
+{
+ "schema": "ahos.paper.partial_field.v1",
+ "generated_at": "2026-10-25T18:31:57Z",
+ "paper_only": true,
+ "backfilled": false,
+ "partial_inferred": false,
+ "edge_claimed": false,
+ "close_rows": 31,
+ "absent_rows": 31,
+ "true_rows": 0,
+ "false_rows": 0,
+ "other_rows": 0,
+ "status": "PARTIAL_FIELD_ABSENT"
+}
