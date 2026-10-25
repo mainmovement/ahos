@@ -454,3 +454,35 @@ def test_quote_age_stays_inside_the_gate_and_addresses_are_not_copied(tmp_path):
     assert logged_source("geckoterminal:0xabc") == "geckoterminal"
     assert logged_source("coingecko:bitcoin") == "coingecko:bitcoin"
     assert logged_source(None) is None
+
+
+def test_refusals_stay_on_their_side_of_the_gate_and_size_stays_inside(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_quantity_identity, measure_refusal_gate, measure_size_cap,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({"event": "NO_TRADE", "reason": "COMPOSITE_BELOW_ENTRY", "composite": 0.2}),
+        json.dumps({"event": "NO_TRADE", "reason": "HIGHER_TF_DISAGREES", "composite": -0.3}),
+        json.dumps({
+            "event": "OPEN", "symbol": "BTC", "desk": "CRYPTO", "qty": 0.01, "fill_price": 100.0,
+            "notional_usd": 1.0, "equity_at_open_usd": 100.0, "stop_pct": 0.02,
+            "brain": {"regime": {"size_mult": 1.0}}}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "BTC", "qty": 0.1, "entry_price": 100.0, "notional_usd": 10.0}),
+    ]) + "\n", encoding="utf-8")
+    refusal = measure_refusal_gate(tmp_path)
+    assert refusal["status"] == "GATE_HELD" and refusal["gate_changed"] is False
+    assert refusal["below_inside"] == 1 and refusal["below_outside"] == 0
+    assert refusal["other_at_or_above"] == 1 and refusal["below_abs_max"] == 0.2
+    qty = measure_quantity_identity(tmp_path)
+    assert qty["status"] == "QTY_MATCHES" and qty["added_to_cash_gap"] is False
+    assert qty["within_band"] == 2 and qty["beyond_band"] == 0 and qty["max_abs_gap"] == 0.0
+    size = measure_size_cap(tmp_path)
+    assert size["status"] == "INSIDE_DESK_AND_RISK" and size["caps_changed"] is False
+    assert size["kelly_switched_on"] is False and size["event_size_defaulted"] == 1
+    assert size["risk_above"] == 0 and size["desk_above"] == 0

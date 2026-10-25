@@ -2140,6 +2140,209 @@ def write_book_overlap(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_refusal_gate(root: Path) -> dict[str, Any]:
+    """A below-entry refusal is inside 0.25. Any other refusal has already cleared it."""
+    from architecture.markets.paper_trader import ENTRY
+
+    below = below_inside = below_outside = other = other_above = missing = 0
+    below_abs: list[float] = []
+    other_abs: list[float] = []
+    for row in _log_rows(root):
+        if row.get("event") != "NO_TRADE":
+            continue
+        comp = row.get("composite")
+        if not isinstance(comp, (int, float)):
+            missing += 1
+            continue
+        mag = abs(float(comp))
+        if row.get("reason") == "COMPOSITE_BELOW_ENTRY":
+            below += 1
+            below_abs.append(mag)
+            if mag < ENTRY:
+                below_inside += 1
+            else:
+                below_outside += 1
+        else:
+            other += 1
+            other_abs.append(mag)
+            if mag >= ENTRY:
+                other_above += 1
+    rows = below + other + missing
+    if rows == 0:
+        status = "NO_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif below_outside == 0 and other_above == other:
+        status = "GATE_HELD"
+    else:
+        status = "GATE_BROKEN"
+    return {
+        "paper_only": True,
+        "gate_changed": False,
+        "threshold": ENTRY,
+        "rows": rows,
+        "missing_rows": missing,
+        "below_rows": below,
+        "below_inside": below_inside,
+        "below_outside": below_outside,
+        "other_rows": other,
+        "other_at_or_above": other_above,
+        "below_abs_max": None if not below_abs else round(max(below_abs), 4),
+        "other_abs_min": None if not other_abs else round(min(other_abs), 4),
+        "status": status,
+    }
+
+
+def write_refusal_gate(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.refusal_gate.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_refusal_gate(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "refusal_gate.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_quantity_identity(root: Path) -> dict[str, Any]:
+    """Quantity times the entry fill against notional. The dust is not a cash gap."""
+    band = 1e-6
+    within = beyond = missing = opens = closes = 0
+    gaps: list[float] = []
+    for row in _log_rows(root):
+        event = row.get("event")
+        if event == "OPEN":
+            opens += 1
+            left, right = row.get("fill_price"), row.get("qty")
+        elif event == "CLOSE":
+            closes += 1
+            left, right = row.get("entry_price"), row.get("qty")
+        else:
+            continue
+        notional = row.get("notional_usd")
+        if not all(isinstance(v, (int, float)) and v for v in (left, right, notional)):
+            missing += 1
+            continue
+        gap = abs(float(right) * float(left) - float(notional))
+        gaps.append(gap)
+        if gap <= band:
+            within += 1
+        else:
+            beyond += 1
+    if opens == 0 and closes == 0:
+        status = "NO_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif beyond == 0:
+        status = "QTY_MATCHES"
+    else:
+        status = "QTY_BEYOND"
+    return {
+        "paper_only": True,
+        "added_to_cash_gap": False,
+        "qty_band": band,
+        "open_rows": opens,
+        "close_rows": closes,
+        "missing_rows": missing,
+        "within_band": within,
+        "beyond_band": beyond,
+        "max_abs_gap": None if not gaps else round(max(gaps), 8),
+        "status": status,
+    }
+
+
+def write_quantity_identity(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.quantity_identity.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_quantity_identity(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "quantity_identity.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_size_cap(root: Path) -> dict[str, Any]:
+    """Notional against the risk line and the desk line. Neither cap is changed."""
+    from architecture.markets.paper_trader import DESK_WEIGHTS, INSTRUMENTS, RISK_PER_TRADE
+
+    money_band = 0.01
+    per_n = {desk: max(1, sum(1 for spec in INSTRUMENTS.values() if spec[0] == desk)) for desk in DESK_WEIGHTS}
+    missing = defaulted = risk_above = desk_above = scored = 0
+    risk_ratios: list[float] = []
+    desk_ratios: list[float] = []
+    opens = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        opens += 1
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        regime = brain.get("regime") if isinstance(brain.get("regime"), dict) else {}
+        size_mult = regime.get("size_mult")
+        event_mult = brain.get("event_size_mult")
+        equity = row.get("equity_at_open_usd")
+        stop = row.get("stop_pct")
+        notional = row.get("notional_usd")
+        desk = row.get("desk")
+        if (desk not in DESK_WEIGHTS or not isinstance(size_mult, (int, float)) or not size_mult
+                or not isinstance(equity, (int, float)) or not equity
+                or not isinstance(stop, (int, float)) or not stop
+                or not isinstance(notional, (int, float))):
+            missing += 1
+            continue
+        if not isinstance(event_mult, (int, float)):
+            defaulted += 1
+            event_mult = 1.0
+        risk_line = float(equity) * RISK_PER_TRADE / float(stop) * float(size_mult) * float(event_mult)
+        desk_line = float(equity) * DESK_WEIGHTS[desk] / per_n[desk] * float(size_mult) * float(event_mult)
+        scored += 1
+        if risk_line:
+            risk_ratios.append(float(notional) / risk_line)
+        if desk_line:
+            desk_ratios.append(float(notional) / desk_line)
+        if float(notional) > risk_line + money_band:
+            risk_above += 1
+        if float(notional) > desk_line + money_band:
+            desk_above += 1
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif risk_above == 0 and desk_above == 0:
+        status = "INSIDE_DESK_AND_RISK"
+    else:
+        status = "ABOVE_CAP"
+    return {
+        "paper_only": True,
+        "caps_changed": False,
+        "kelly_switched_on": False,
+        "money_band": money_band,
+        "open_rows": opens,
+        "scored_rows": scored,
+        "missing_rows": missing,
+        "event_size_defaulted": defaulted,
+        "risk_above": risk_above,
+        "desk_above": desk_above,
+        "risk_ratio_max": None if not risk_ratios else round(max(risk_ratios), 4),
+        "desk_ratio_max": None if not desk_ratios else round(max(desk_ratios), 4),
+        "status": status,
+    }
+
+
+def write_size_cap(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.size_cap.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_size_cap(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "size_cap.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

@@ -1,0 +1,17 @@
+{
+ "schema": "ahos.paper.refusal_gate.v1",
+ "generated_at": "2026-10-25T10:48:29Z",
+ "paper_only": true,
+ "gate_changed": false,
+ "threshold": 0.25,
+ "rows": 86,
+ "missing_rows": 0,
+ "below_rows": 85,
+ "below_inside": 85,
+ "below_outside": 0,
+ "other_rows": 1,
+ "other_at_or_above": 1,
+ "below_abs_max": 0.2496,
+ "other_abs_min": 0.2589,
+ "status": "GATE_HELD"
+}

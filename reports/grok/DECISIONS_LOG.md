@@ -701,3 +701,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the three statuses and does not copy an address. Each missing file stays a not-run sentence.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 63 checks, drift [], unknown []. Skip census at this export: 3621 rows, `MARKET_CLOSED_OR_STALE` 3466. Whitehat CLEAN, 6 checks. pytest 69 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4318 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 25 refusal gate, quantity identity, size cap
+
+### WP-25.1 — refusals sit on the correct side of 0.25
+- **Draft:** A `COMPOSITE_BELOW_ENTRY` row must have absolute composite under 0.25. Any other refusal must already be at or above 0.25. Do not move the gate.
+- **Critique 1:** 85 below-entry rows, all inside. The largest absolute composite among them is 0.2496. The one other refusal is `HIGHER_TF_DISAGREES` at 0.2589.
+- **Critique 2 (meta):** That one row cleared the magnitude gate and was refused for the higher timeframe. It is not a reason to lower 0.25.
+- **Result:** `reports/grok/PAPER/refusal_gate.json`. Status `GATE_HELD`. `gate_changed` false.
+
+### WP-25.2 — quantity times the entry fill matches notional
+- **Draft:** On an open, quantity times the fill. On a close, quantity times the entry fill. The band is 0.000001. Do not add the dust to the cash gap.
+- **Critique 1:** 30 opens and 26 closes, 56 inside the band, 0 beyond it. The widest gap is 0.00000023.
+- **Critique 2 (meta):** This is the fill identity. It is not a second cash discrepancy.
+- **Result:** `reports/grok/PAPER/quantity_identity.json`. Status `QTY_MATCHES`. `added_to_cash_gap` false.
+
+### WP-25.3 — notional stays inside the desk line and the risk line
+- **Draft:** Compare each open with the desk line and the risk line, including the stored size multiplier. A missing event multiplier uses the code default of 1 and is counted. Do not write that default back. Do not change the caps. Do not turn Kelly on.
+- **Critique 1:** 30 opens scored. 0 above either line. 4 early opens had no stored event multiplier. The desk-line ratio reaches 1.0, so the desk line is the ceiling that was touched. The risk-line ratio reaches 0.3333, so the risk line did not bind.
+- **Critique 2 (meta):** Touching the desk line is not a reason to raise the desk weight. At 2026-10-25T10:43:37Z the four open shorts were 3.76 to 4.87 hours old, inside both hold limits, and they were not closed.
+- **Result:** `reports/grok/PAPER/size_cap.json`. Status `INSIDE_DESK_AND_RISK`. `caps_changed` false. `kelly_switched_on` false.
+
+### WP-25.4 — checks 64 to 66
+- **Draft:** Each check recomputes the log. A refusal receipt that moves the gate fails. A quantity receipt that adds itself to the cash gap fails. A size receipt that changes a cap or turns Kelly on fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 66 checks, drift [], unknown []. Skip census at this export: 3652 rows, `MARKET_CLOSED_OR_STALE` 3493. Whitehat CLEAN, 6 checks. pytest 70 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4321 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

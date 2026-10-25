@@ -769,6 +769,19 @@ def _ua_root(tmp_path):
         "paper_only": True, "positions_closed": False, "overlap_opens": 0, "unpaired_closes": 0,
         "close_rows": 0, "opened_at_matches_open_ts": 0, "closed_at_matches_ts": 0,
         "still_open": ["BTC"], "status": "NO_OVERLAP"})
+    w("reports/grok/PAPER/refusal_gate.json", {
+        "paper_only": True, "gate_changed": False, "threshold": 0.25, "rows": 0, "missing_rows": 0,
+        "below_rows": 0, "below_inside": 0, "below_outside": 0, "other_rows": 0,
+        "other_at_or_above": 0, "below_abs_max": None, "other_abs_min": None, "status": "NO_ROWS"})
+    w("reports/grok/PAPER/quantity_identity.json", {
+        "paper_only": True, "added_to_cash_gap": False, "qty_band": 1e-6, "open_rows": 1,
+        "close_rows": 0, "missing_rows": 1, "within_band": 0, "beyond_band": 0,
+        "max_abs_gap": None, "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/size_cap.json", {
+        "paper_only": True, "caps_changed": False, "kelly_switched_on": False, "money_band": 0.01,
+        "open_rows": 1, "scored_rows": 0, "missing_rows": 1, "event_size_defaulted": 0,
+        "risk_above": 0, "desk_above": 0, "risk_ratio_max": None, "desk_ratio_max": None,
+        "status": "INCOMPLETE"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

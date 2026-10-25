@@ -1,0 +1,17 @@
+{
+ "schema": "ahos.paper.size_cap.v1",
+ "generated_at": "2026-10-25T10:48:29Z",
+ "paper_only": true,
+ "caps_changed": false,
+ "kelly_switched_on": false,
+ "money_band": 0.01,
+ "open_rows": 30,
+ "scored_rows": 30,
+ "missing_rows": 0,
+ "event_size_defaulted": 4,
+ "risk_above": 0,
+ "desk_above": 0,
+ "risk_ratio_max": 0.3333,
+ "desk_ratio_max": 1.0,
+ "status": "INSIDE_DESK_AND_RISK"
+}
