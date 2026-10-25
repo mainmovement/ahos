@@ -175,8 +175,8 @@
     {
       "stage": "Stage 15",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "9520323",
+      "arena_commit": "e3ab4a4",
       "conflict_rows": 12,
       "gap_min": 0.0041,
       "gap_max": 0.01416,
