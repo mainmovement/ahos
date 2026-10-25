@@ -635,8 +635,8 @@
     {
       "stage": "Stage 28",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "cbf0d0e",
+      "arena_commit": "ca47e71",
       "fill_status": "FILL_FORMULA",
       "fill_open_rows": 30,
       "fill_close_rows": 27,
