@@ -524,8 +524,8 @@
     {
       "stage": "Stage 25",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "45ec1dc",
+      "arena_commit": "d00f9ca",
       "refusal_status": "GATE_HELD",
       "below_rows": 85,
       "below_inside": 85,
