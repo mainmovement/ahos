@@ -758,8 +758,8 @@
     {
       "stage": "Stage 31",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "f4b1732",
+      "arena_commit": "c40c2d3",
       "promotion_status": "STORED_WORD_IS_NOT_A_PROMOTION",
       "close_rows": 30,
       "ci_lower_positive": false,
