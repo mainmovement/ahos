@@ -467,3 +467,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the counts and says the exit rule was not changed.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 36 checks, drift [], unknown []. Whitehat CLEAN. pytest 61 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4291 files, VALIDATION PASSED).
+
+## 2026-10-25 — Stage 16 applicable tolerance and DEX round trip
+
+### WP-16.1 — score each conflict with the tolerance that governed it
+- **Draft:** Spot symbols keep `TOLERANCE` or `DEFAULT_TOL` 0.004. Symbols whose name starts with `DEX_` use `POOL_PRICE_TOL` 0.01. The close row does not store the tolerance, so the receipt says the value is inferred from current code. The exit branch is not edited.
+- **Critique 1:** Quant: 12 exits. Mapped spot 8, pool 4. Within the applicable tolerance: 0. Within the spot default, including the pool rows: 0. Inconsistent with the current tolerance: 0. Smallest mapped excess 0.0001. Smallest pool excess 0.0002. Gap 0.0041 to 0.01416. Prior conflict rows: 0 on all 12. Council: nothing is promoted. Lane A untouched.
+- **Critique 2 (meta):** Stage 15 compared the four DEX_LINK gaps with 0.004. Those gaps are 0.0102, 0.01416, 0.01038, and 0.01111, so they also sit above 0.01. The count of exits inside tolerance stays 0. The denominator was the thing that was wrong. Neither tolerance is loosened.
+- **Result:** `reports/grok/PAPER/witness_conflict_anatomy.json` schema v2. `exit_rule_changed` false.
+
+### WP-16.2 — name the witness venue, not the pool
+- **Draft:** Count `source_b` by the text before the first colon. Do not write the rest of the source string into the receipt.
+- **Critique 1:** kraken 8, dexscreener 4. That matches the mapped rows and the pool rows.
+- **Critique 2 (meta):** The venue label is not a second price and it is not a pool address. A later reader cannot reconstruct the pool from this receipt.
+- **Result:** `source_kinds` on the same conflict receipt. `tolerance_source` is `INFERRED_FROM_CURRENT_CODE_NOT_STORED_ON_THE_ROW`.
+
+### WP-16.3 — DEX_LINK opens and closes
+- **Draft:** Count OPEN and CLOSE rows whose symbol starts with `DEX_`, and sum the recorded close pnl. Label the sum as the log.
+- **Critique 1:** DEX_LINK has 4 opens and 4 closes. Open minus close is 0. Recorded pnl is -0.1231 USD. `edge_claimed` is false. No other `DEX_` symbol is in the log.
+- **Critique 2 (meta):** The running paper-trader status file still omits the PB_TOKEN desk because that process was not restarted. The round-trip figure is the log, not that status file, and it is not an edge.
+- **Result:** `reports/grok/PAPER/dex_roundtrip.json`.
+
+### WP-16.4 — check 37
+- **Draft:** The conflict check now recomputes the applicable-tolerance fields. A new check recomputes the DEX round trip and fails if the receipt claims an edge. The skip census was rewritten in the same process as the audit because the log grew.
+- **Critique 1:** The panel copies the split and the round-trip sum and says the sum is not an edge. The missing-file line stays a not-run sentence.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 37 checks, drift [], unknown []. Whitehat CLEAN, 6 checks. pytest 61 passed. Node stage6 bridge 6/6. Skip rows at this export: 3440. Dominant reason `MARKET_CLOSED_OR_STALE`: 3290. Closed paper trades remain 26 of 30.
+- **Verification:** The first `scripts/validate_imports.py` process was stopped during `check_imports` before it printed `== IMPORTS ==`. The rerun exited 0 (373 modules, evidence HOLD, Lane A 36/36, 4292 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

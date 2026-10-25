@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T08:20:00Z",
-  "current_stage": "Stage 16",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 16) in full. Do not rerun Stage 15. Start with a diagnostic sweep, then four work packages. Do not loosen the witness-conflict exit. Do not rewrite the ledger to itemize historical fees.",
+  "updated_at": "2026-10-25T08:36:00Z",
+  "current_stage": "Stage 17",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 17) in full. Do not rerun Stage 16. Do not loosen the spot tolerance or the pool tolerance. Do not restart the paper trader to refresh the desk label. Do not rewrite the ledger to itemize historical fees.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -200,6 +200,39 @@
       "node_selftests": "stage6 bridge 6/6",
       "whitehat": "CLEAN",
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 16",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "conflict_rows": 12,
+      "mapped_rows": 8,
+      "dex_rows": 4,
+      "spot_default_tolerance": 0.004,
+      "pool_price_tolerance": 0.01,
+      "within_applicable_tolerance": 0,
+      "within_spot_default": 0,
+      "inconsistent_with_current_tolerance": 0,
+      "mapped_excess_min": 0.0001,
+      "dex_excess_min": 0.0002,
+      "source_kinds": {"kraken": 8, "dexscreener": 4},
+      "tolerance_source": "INFERRED_FROM_CURRENT_CODE_NOT_STORED_ON_THE_ROW",
+      "dex_link_opens": 4,
+      "dex_link_closes": 4,
+      "dex_link_realized_pnl_usd": -0.1231,
+      "edge_claimed": false,
+      "skip_rows_at_export": 3440,
+      "stale_skips_at_export": 3290,
+      "exit_rule_changed": false,
+      "closed_paper_trades": 26,
+      "unification": "37/37 UNIFIED_CLEAN",
+      "pytest": "61 passed (test_weekday_session_gate.py + test_stage6_deepening.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "validate_imports": "rerun exit 0; 373 modules; evidence HOLD; Lane A 36/36; 4292 files; the first process was stopped before == IMPORTS ==",
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -207,14 +240,14 @@
     "Batch 8 admitted DSR is 0.0. PBO 0.4889 is batch8_admitted_only and does not promote a FAIL gate",
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
-    "Closed paper trades are 26 of 30. All 12 witness-conflict exits are the first CONFLICT row for that symbol. Gaps are 0.0041 to 0.01416, none inside tolerance. DEX_LINK accounts for 4. The exit rule was not loosened",
+    "Closed paper trades are 26 of 30. All 12 witness-conflict exits are the first CONFLICT row. Eight spot rows use tolerance 0.004, smallest excess 0.0001. Four DEX_LINK rows use pool tolerance 0.01, smallest excess 0.0002. None are inside the tolerance that governed them. The close row does not store the tolerance. The exit rule was not loosened. DEX_LINK is 4 opens and 4 closes, recorded pnl -0.1231 USD, and that sum is not an edge",
     "Open fees 0.181288 USD and close fees 0.305656 USD are itemized on the paper log and on none of the ledger fills. Close PnL on the ledger is already net of fees. The books were not rewritten",
     "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested",
     "Broker connectivity is not verified",
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 16: diagnostic sweep, then four work packages",
-    "Stage 17-20: the next measured gap, four work packages each turn"
+    "Stage 17: diagnostic sweep, then four work packages",
+    "Stage 18-20: the next measured gap, four work packages each turn"
   ]
 }

@@ -1,6 +1,6 @@
 {
- "schema": "ahos.paper.witness_conflict_anatomy.v1",
- "generated_at": "2026-10-25T08:13:28Z",
+ "schema": "ahos.paper.witness_conflict_anatomy.v2",
+ "generated_at": "2026-10-25T08:27:39Z",
  "paper_only": true,
  "exit_rule_changed": false,
  "rule": "FAIL_CLOSED_ON_RECORDED_DISAGREEMENT",
@@ -10,6 +10,19 @@
  "gap_max": 0.01416,
  "gap_upper_median": 0.00548,
  "within_tolerance": 0,
+ "within_spot_default": 0,
+ "inconsistent_with_current_tolerance": 0,
+ "dex_rows": 4,
+ "mapped_rows": 8,
+ "dex_excess_min": 0.0002,
+ "mapped_excess_min": 0.0001,
+ "source_kinds": {
+  "kraken": 8,
+  "dexscreener": 4
+ },
+ "pool_price_tolerance": 0.01,
+ "spot_default_tolerance": 0.004,
+ "tolerance_source": "INFERRED_FROM_CURRENT_CODE_NOT_STORED_ON_THE_ROW",
  "prior_conflict_zero": 12,
  "prior_conflict_one": 0,
  "prior_conflict_more": 0,

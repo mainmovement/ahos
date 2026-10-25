@@ -269,6 +269,12 @@ def measure_conflict_anatomy(root: Path) -> dict[str, Any]:
     from collections import Counter, defaultdict
 
     from architecture.markets.second_source import DEFAULT_TOL, TOLERANCE
+    from architecture.markets.token_safety_live import POOL_PRICE_TOL
+
+    def applicable(symbol: str) -> float:
+        if symbol.startswith("DEX_"):
+            return POOL_PRICE_TOL
+        return TOLERANCE.get(symbol, DEFAULT_TOL)
 
     rows = _log_rows(root)
     by_symbol: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -277,13 +283,25 @@ def measure_conflict_anatomy(root: Path) -> dict[str, Any]:
             by_symbol[str(row["symbol"])].append(row)
     gaps: list[float] = []
     holds: list[float] = []
-    missing = within = prior_zero = prior_one = prior_more = 0
+    missing = within = within_spot = inconsistent = prior_zero = prior_one = prior_more = 0
+    dex_rows = mapped_rows = 0
+    dex_excess: list[float] = []
+    mapped_excess: list[float] = []
     symbols: Counter[str] = Counter()
+    kinds: Counter[str] = Counter()
     for seq in by_symbol.values():
         for index, row in enumerate(seq):
             if row.get("event") != "CLOSE" or row.get("reason") != "WITNESS_CONFLICT_EXIT":
                 continue
-            symbols[str(row.get("symbol"))] += 1
+            symbol = str(row.get("symbol"))
+            symbols[symbol] += 1
+            dex = symbol.startswith("DEX_")
+            if dex:
+                dex_rows += 1
+            else:
+                mapped_rows += 1
+            raw_source = str((row.get("witness") or {}).get("source_b") or "")
+            kinds[raw_source.split(":", 1)[0] or "UNLABELED"] += 1
             prior = 0
             cursor = index - 1
             while cursor >= 0 and (seq[cursor].get("witness") or {}).get("verdict") == "CONFLICT":
@@ -296,13 +314,19 @@ def measure_conflict_anatomy(root: Path) -> dict[str, Any]:
             else:
                 prior_more += 1
             gap = (row.get("witness") or {}).get("gap")
-            tol = TOLERANCE.get(str(row.get("symbol")), DEFAULT_TOL)
+            tol = applicable(symbol)
+            spot_tol = TOLERANCE.get(symbol, DEFAULT_TOL)
             if not isinstance(gap, (int, float)):
                 missing += 1
             else:
                 gaps.append(float(gap))
-                if float(gap) - tol <= 0:
+                excess = round(float(gap) - tol, 5)
+                (dex_excess if dex else mapped_excess).append(excess)
+                if excess <= 0:
                     within += 1
+                    inconsistent += 1
+                if float(gap) - spot_tol <= 0:
+                    within_spot += 1
             held = _hold_hours(row)
             if held is not None:
                 holds.append(held)
@@ -317,6 +341,16 @@ def measure_conflict_anatomy(root: Path) -> dict[str, Any]:
         "gap_max": ordered[-1] if ordered else None,
         "gap_upper_median": ordered[len(ordered) // 2] if ordered else None,
         "within_tolerance": within,
+        "within_spot_default": within_spot,
+        "inconsistent_with_current_tolerance": inconsistent,
+        "dex_rows": dex_rows,
+        "mapped_rows": mapped_rows,
+        "dex_excess_min": min(dex_excess) if dex_excess else None,
+        "mapped_excess_min": min(mapped_excess) if mapped_excess else None,
+        "source_kinds": dict(kinds),
+        "pool_price_tolerance": POOL_PRICE_TOL,
+        "spot_default_tolerance": DEFAULT_TOL,
+        "tolerance_source": "INFERRED_FROM_CURRENT_CODE_NOT_STORED_ON_THE_ROW",
         "prior_conflict_zero": prior_zero,
         "prior_conflict_one": prior_one,
         "prior_conflict_more": prior_more,
@@ -328,7 +362,7 @@ def measure_conflict_anatomy(root: Path) -> dict[str, Any]:
 
 def write_conflict_anatomy(root: Path) -> dict[str, Any]:
     snap = {
-        "schema": "ahos.paper.witness_conflict_anatomy.v1",
+        "schema": "ahos.paper.witness_conflict_anatomy.v2",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         **measure_conflict_anatomy(root),
     }
@@ -383,6 +417,52 @@ def measure_reversal_anatomy(root: Path) -> dict[str, Any]:
         "hold_hours_max": max(holds) if holds else None,
         "status": status,
     }
+
+
+def measure_dex_roundtrip(root: Path) -> dict[str, Any]:
+    """Recorded open and close counts for DEX_ symbols. The pnl sum is the log, not an edge."""
+    from collections import defaultdict
+
+    opens: dict[str, int] = defaultdict(int)
+    closes: dict[str, int] = defaultdict(int)
+    pnl: dict[str, float] = defaultdict(float)
+    for row in _log_rows(root):
+        symbol = str(row.get("symbol") or "")
+        if not symbol.startswith("DEX_"):
+            continue
+        if row.get("event") == "OPEN":
+            opens[symbol] += 1
+        elif row.get("event") == "CLOSE":
+            closes[symbol] += 1
+            if isinstance(row.get("realized_pnl_usd"), (int, float)):
+                pnl[symbol] += float(row["realized_pnl_usd"])
+    names = sorted(set(opens) | set(closes))
+    table = [{
+        "symbol": name,
+        "opens": opens[name],
+        "closes": closes[name],
+        "open_minus_close": opens[name] - closes[name],
+        "realized_pnl_usd": round(pnl[name], 4),
+    } for name in names]
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "symbols": table,
+        "flat": all(item["open_minus_close"] == 0 for item in table),
+        "realized_pnl_usd": round(sum(item["realized_pnl_usd"] for item in table), 4),
+    }
+
+
+def write_dex_roundtrip(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.dex_roundtrip.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_dex_roundtrip(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "dex_roundtrip.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
 
 
 def write_reversal_anatomy(root: Path) -> dict[str, Any]:

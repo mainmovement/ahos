@@ -777,6 +777,8 @@ def _stage15_checks(root: Path) -> list[dict[str, Any]]:
         ("witness.conflict_anatomy", Path("reports") / "grok" / "PAPER" / "witness_conflict_anatomy.json",
          measure_conflict_anatomy,
          ("rows", "gap_missing", "gap_min", "gap_max", "gap_upper_median", "within_tolerance",
+          "within_spot_default", "inconsistent_with_current_tolerance", "dex_rows", "mapped_rows",
+          "source_kinds", "tolerance_source", "pool_price_tolerance",
           "prior_conflict_zero", "prior_conflict_one", "prior_conflict_more", "symbols", "rule")),
         ("execution.reversal_anatomy", Path("reports") / "grok" / "PAPER" / "reversal_anatomy.json",
          measure_reversal_anatomy,
@@ -806,6 +808,26 @@ def _stage15_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage16_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.paper_trade_audit import measure_dex_roundtrip
+
+    rel = Path("reports") / "grok" / "PAPER" / "dex_roundtrip.json"
+    doc = _json(root, rel)
+    if not isinstance(doc, dict):
+        return [_check("token.dex_roundtrip", "UNKNOWN", {"file": False}, [str(rel)])]
+    fresh = measure_dex_roundtrip(root)
+    problems = []
+    if doc.get("paper_only") is not True or doc.get("edge_claimed") is not False:
+        problems.append("the round trip claims an edge or left paper mode")
+    for key in ("symbols", "flat", "realized_pnl_usd"):
+        if doc.get(key) != fresh[key]:
+            problems.append(f"{key} does not match the log")
+    return [_check("token.dex_roundtrip", _pass_fail(not problems),
+                   {"symbols": len(fresh["symbols"]), "flat": fresh["flat"],
+                    "realized_pnl_usd": fresh["realized_pnl_usd"], "problems": problems[:6]},
+                   [str(rel)])]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -829,6 +851,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage13_checks(root)
     checks += _stage14_checks(root)
     checks += _stage15_checks(root)
+    checks += _stage16_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

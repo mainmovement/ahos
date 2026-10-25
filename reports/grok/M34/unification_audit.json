@@ -1,13 +1,13 @@
 {
   "schema": "ahos.unification_audit.v1",
-  "generated_at": "2026-10-25T08:16:50Z",
+  "generated_at": "2026-10-25T08:27:42Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "read_only": true,
   "overall_status": "UNIFIED_CLEAN",
-  "checks_total": 36,
+  "checks_total": 37,
   "checks_by_status": {
-    "PASS": 36
+    "PASS": 37
   },
   "drift": [],
   "unknown": [],
@@ -85,8 +85,8 @@
         "initial_capital_usd": 100.0,
         "sum_close_realized_pnl_usd": -0.1381,
         "realized_equity_usd": 99.86,
-        "unrealized_pnl_usd": -0.0528,
-        "mark_to_market_equity_usd": 99.8072,
+        "unrealized_pnl_usd": -0.0132,
+        "mark_to_market_equity_usd": 99.8468,
         "tolerance_usd": 0.01
       },
       "surfaces": [
@@ -518,11 +518,24 @@
       "id": "execution.skip_census",
       "status": "PASS",
       "detail": {
-        "rows": 3420,
+        "rows": 3440,
         "problems": []
       },
       "surfaces": [
         "reports\\grok\\PAPER\\skip_census.json"
+      ]
+    },
+    {
+      "id": "token.dex_roundtrip",
+      "status": "PASS",
+      "detail": {
+        "symbols": 1,
+        "flat": true,
+        "realized_pnl_usd": -0.1231,
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\dex_roundtrip.json"
       ]
     }
   ],
@@ -544,5 +557,5 @@
     "M56 tournament contenders are FIXTURE_ILLUSTRATIVE returns; its 'DSR' is a haircut Sharpe, not a probability.",
     "Edge is unproven until >= 30 real OOS closed trades with DSR > 0.95 and PBO < 0.50."
   ],
-  "summary_fa": "همهٔ 36 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
+  "summary_fa": "همهٔ 37 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
 }

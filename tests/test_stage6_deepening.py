@@ -662,8 +662,13 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/witness_conflict_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "rule": "FAIL_CLOSED_ON_RECORDED_DISAGREEMENT",
         "rows": 0, "gap_missing": 0, "gap_min": None, "gap_max": None, "gap_upper_median": None,
-        "within_tolerance": 0, "prior_conflict_zero": 0, "prior_conflict_one": 0, "prior_conflict_more": 0,
+        "within_tolerance": 0, "within_spot_default": 0, "inconsistent_with_current_tolerance": 0,
+        "dex_rows": 0, "mapped_rows": 0, "source_kinds": {}, "pool_price_tolerance": 0.01,
+        "tolerance_source": "INFERRED_FROM_CURRENT_CODE_NOT_STORED_ON_THE_ROW",
+        "prior_conflict_zero": 0, "prior_conflict_one": 0, "prior_conflict_more": 0,
         "symbols": {}})
+    w("reports/grok/PAPER/dex_roundtrip.json", {
+        "paper_only": True, "edge_claimed": False, "symbols": [], "flat": True, "realized_pnl_usd": 0.0})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,
