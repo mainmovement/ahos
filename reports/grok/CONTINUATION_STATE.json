@@ -561,8 +561,8 @@
     {
       "stage": "Stage 26",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "69dd444",
+      "arena_commit": "1af405a",
       "adv_status": "CAP_HELD",
       "adv_stored_rows": 27,
       "adv_missing_object": 3,
