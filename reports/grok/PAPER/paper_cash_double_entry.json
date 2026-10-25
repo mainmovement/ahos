@@ -1,0 +1,17 @@
+{
+ "schema": "ahos.treasury.paper_cash_double_entry.v1",
+ "generated_at": "2026-10-25T07:43:11Z",
+ "paper_only": true,
+ "recorded_on_ledger": false,
+ "chain_verdict": "CHAIN_INTACT",
+ "open_close_rows": 56,
+ "ledger_fills": 56,
+ "unlinked_rows": 0,
+ "orphan_fills": 0,
+ "field_mismatches": 0,
+ "jsonl_realized_pnl_usd": -0.1381,
+ "ledger_realized_pnl_usd": -0.1381,
+ "discrepancy_usd": 0.0,
+ "tolerance_usd": 0.01,
+ "verdict": "MEASURED_ZERO"
+}

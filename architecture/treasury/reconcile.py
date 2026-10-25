@@ -553,3 +553,101 @@ def _short_depeg(d: DepegVerdict | None) -> str:
         return "not evaluated"
     dev = f"{d.deviation_pct:.4f}%" if d.deviation_pct is not None else "—"
     return f"{d.state}, deviation {dev} from $1"
+
+
+CASH_TOL_USD = 0.01
+_MATCH_FIELDS = ("event", "symbol", "side")
+
+
+def paper_cash_double_entry(root: Path) -> dict[str, Any]:
+    """Compare paper OPEN/CLOSE cash with the one mission ledger. This does not record or halt.
+
+    A close's cash is ``realized_pnl_usd``. The discrepancy is the jsonl sum minus the linked
+    ledger sum. Unlinked rows stay in the report and keep the verdict off MEASURED_ZERO.
+    """
+    import json
+    from datetime import datetime, timezone
+
+    from architecture.mission.ledger import LedgerTamperError, MissionLedger
+
+    root = Path(root)
+    trades_path = root / "reports" / "grok" / "PAPER" / "paper_trades.jsonl"
+    ledger_path = root / "data" / "mission_ledger" / "mission_ledger.jsonl"
+    rows: list[dict[str, Any]] = []
+    if trades_path.is_file():
+        for line in trades_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(row, dict) and row.get("event") in ("OPEN", "CLOSE"):
+                rows.append(row)
+    chain_verdict = "MISSING"
+    fills: dict[str, dict[str, Any]] = {}
+    if ledger_path.is_file():
+        led = MissionLedger(ledger_path)
+        try:
+            chain = led.verify()
+            chain_verdict = str(chain.get("verdict") or "CHAIN_INTACT")
+        except LedgerTamperError as exc:
+            chain_verdict = f"TAMPERED:{type(exc).__name__}"
+        else:
+            for entry in led.entries():
+                payload = entry.get("payload") if isinstance(entry.get("payload"), dict) else {}
+                if entry.get("kind") == "DECISION" and payload.get("type") == "PAPER_FILL":
+                    fills[str(entry.get("entry_hash"))] = payload
+    unlinked = 0
+    mismatched = 0
+    jsonl_pnl = 0.0
+    ledger_pnl = 0.0
+    linked_hashes: set[str] = set()
+    for row in rows:
+        digest = str(row.get("ledger_hash") or "")
+        payload = fills.get(digest)
+        if payload is None:
+            unlinked += 1
+            if row.get("event") == "CLOSE" and isinstance(row.get("realized_pnl_usd"), (int, float)):
+                jsonl_pnl += float(row["realized_pnl_usd"])
+            continue
+        linked_hashes.add(digest)
+        if any(payload.get(key) != row.get(key) for key in _MATCH_FIELDS):
+            mismatched += 1
+        if row.get("event") == "CLOSE":
+            left = float(row.get("realized_pnl_usd") or 0.0)
+            right = float(payload.get("realized_pnl_usd") or 0.0)
+            jsonl_pnl += left
+            ledger_pnl += right
+            if abs(left - right) > CASH_TOL_USD:
+                mismatched += 1
+    orphans = len(set(fills) - linked_hashes)
+    discrepancy = round(jsonl_pnl - ledger_pnl, 6)
+    if not str(chain_verdict).startswith("CHAIN_INTACT"):
+        verdict = "CHAIN_NOT_INTACT"
+    elif unlinked or orphans or mismatched or abs(discrepancy) > CASH_TOL_USD:
+        verdict = "MEASURED_NONZERO" if abs(discrepancy) > CASH_TOL_USD else "INCOMPLETE"
+    else:
+        verdict = "MEASURED_ZERO"
+    snap = {
+        "schema": "ahos.treasury.paper_cash_double_entry.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "paper_only": True,
+        "recorded_on_ledger": False,
+        "chain_verdict": chain_verdict,
+        "open_close_rows": len(rows),
+        "ledger_fills": len(fills),
+        "unlinked_rows": unlinked,
+        "orphan_fills": orphans,
+        "field_mismatches": mismatched,
+        "jsonl_realized_pnl_usd": round(jsonl_pnl, 6),
+        "ledger_realized_pnl_usd": round(ledger_pnl, 6),
+        "discrepancy_usd": discrepancy,
+        "tolerance_usd": CASH_TOL_USD,
+        "verdict": verdict,
+    }
+    path = root / "reports" / "grok" / "PAPER" / "paper_cash_double_entry.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap

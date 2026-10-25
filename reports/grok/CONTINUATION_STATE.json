@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T01:05:00Z",
-  "current_stage": "Stage 13",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 13) in full. Do not rerun Stage 12.",
+  "updated_at": "2026-10-25T07:40:00Z",
+  "current_stage": "Stage 14",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 14) in full. Do not rerun Stage 13. Stage 14 starts with a diagnostic sweep and then four work packages. Cash desks were closed on this Sunday audit; do not invent a weekday print.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -120,6 +120,32 @@
       "node_selftests": "stage6 bridge 6/6",
       "whitehat": "CLEAN",
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 13",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "discrepancy_usd": 0.0,
+      "verdict": "MEASURED_ZERO",
+      "open_close_rows": 56,
+      "ledger_fills": 56,
+      "unlinked_rows": 0,
+      "orphan_fills": 0,
+      "recorded_on_ledger": false,
+      "chain_verdict": "CHAIN_INTACT",
+      "tehran_weekday": "Sunday",
+      "weekend_tehran": true,
+      "probe_age_s": 48911.6,
+      "probe_stale": true,
+      "tradable_symbols": [],
+      "cash_symbols_open": [],
+      "network_fetch": false,
+      "unification": "30/30 UNIFIED_CLEAN",
+      "pytest": "59 passed (test_weekday_session_gate.py + test_stage6_deepening.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -130,10 +156,10 @@
     "Closed paper trades are 20 of 30",
     "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested",
     "Broker connectivity is not verified",
-    "Sunday session: cash equity and listed commodity desks are closed"
+    "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 13: weekday two-source session audit and treasury reconciliation, unification 30/30",
-    "Stage 14-20: diagnostic sweep then four work packages each turn"
+    "Stage 14: diagnostic sweep, then four work packages",
+    "Stage 15-20: the next measured gap, four work packages each turn"
   ]
 }

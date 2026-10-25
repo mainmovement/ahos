@@ -402,3 +402,17 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** Rebuilding the snapshot would mint new citation hashes and was not needed. The audit reads the file that is already on disk.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 28 checks, drift [], unknown []. Whitehat CLEAN. pytest 65 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4284 files, VALIDATION PASSED). Two earlier probes were stopped during the evidence bisect and are not the result.
+
+## 2026-10-25 — Stage 13 cash identity and Sunday session
+
+### WP-13.1 — paper cash against the one ledger
+- **Draft:** Sum `realized_pnl_usd` on paper CLOSE rows and on the linked mission-ledger PAPER_FILL rows. The difference is the discrepancy. Unlinked rows and orphan fills keep the verdict off MEASURED_ZERO. The function does not call `record` or `halt`.
+- **Critique 1:** Quant: tolerance is 0.01 USD, the same tolerance as the equity check. Witness: the chain verdict is copied from `MissionLedger.verify`. Council: nothing is promoted. SRE: the live ledger is read, not appended. Lane A untouched.
+- **Critique 2 (meta):** The live books matched. 56 OPEN/CLOSE rows, 56 fills, 0 unlinked, 0 orphans, 0 field mismatches, discrepancy 0.0, chain CHAIN_INTACT, `recorded_on_ledger` false.
+- **Result:** `reports/grok/PAPER/paper_cash_double_entry.json`.
+
+### WP-13.2 — Sunday is not a weekday print
+- **Draft:** The session clock is recomputed for the call time. The stored witness probe is labeled stale when it is older than 20 minutes, and a stale VERIFIED quote is not a live witness. Cash desks on a Tehran weekend are not tradable. No price fetch.
+- **Critique 1:** A Saturday VERIFIED row for BTC and XAU stays in `stored_verdict` and does not open the desk. Crypto has no cash venue, so it is also not tradable while the probe is stale.
+- **Critique 2 (meta):** Generated on Sunday. `weekend_tehran` true. Probe age 48911.6 seconds. `cash_symbols_open` empty. `tradable_symbols` empty. Unification is UNIFIED_CLEAN, 30 checks, drift [], unknown []. Whitehat CLEAN. pytest 59 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4286 files, VALIDATION PASSED).

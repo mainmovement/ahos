@@ -18,3 +18,49 @@ def test_tehran_offset():
     u = datetime(2026, 10, 24, 4, 30, tzinfo=timezone.utc)
     t = tehran_now(u)
     assert t.hour == 8
+
+
+def test_sunday_stale_probe_does_not_open_a_cash_desk(tmp_path):
+    import json
+    from architecture.markets.weekday_witness_probe import build_weekday_two_source_audit
+    moment = datetime(2026, 10, 25, 7, 38, tzinfo=timezone.utc)
+    probe = tmp_path / "reports" / "grok" / "PAPER" / "weekday_witness_probe.json"
+    probe.parent.mkdir(parents=True)
+    probe.write_text(json.dumps({
+        "session_gate": {"utc": "2026-10-24T18:08:00Z"},
+        "by_desk": {"CRYPTO": [{"symbol": "BTC", "verdict": "VERIFIED"}],
+                    "GOLD": [{"symbol": "XAU", "verdict": "VERIFIED"}]},
+    }), encoding="utf-8")
+    snap = build_weekday_two_source_audit(tmp_path, moment)
+    assert snap["weekend_tehran"] is True and snap["network_fetch"] is False
+    assert snap["tradable_symbols"] == []
+    btc = next(row for row in snap["rows"] if row["symbol"] == "BTC")
+    xau = next(row for row in snap["rows"] if row["symbol"] == "XAU")
+    assert btc["stored_verdict"] == "VERIFIED" and btc["live_witness"] == "STALE_STORED_PROBE"
+    assert xau["session_open"] is False and xau["tradable_for_paper"] is False
+
+
+def test_linked_close_cash_is_zero_and_a_different_pnl_is_not(tmp_path):
+    import json
+    from architecture.mission.ledger import MissionLedger
+    from architecture.treasury.reconcile import paper_cash_double_entry
+    ledger_path = tmp_path / "data" / "mission_ledger" / "mission_ledger.jsonl"
+    ledger_path.parent.mkdir(parents=True)
+    ledger = MissionLedger(ledger_path)
+    entry = ledger.decision({"type": "PAPER_FILL", "event": "CLOSE", "symbol": "BTC", "side": "LONG",
+                             "realized_pnl_usd": 1.25}, agent="agent:paper_trader")
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text(json.dumps({
+        "event": "CLOSE", "symbol": "BTC", "side": "LONG", "ledger_hash": entry["entry_hash"],
+        "realized_pnl_usd": 1.25,
+    }) + "\n", encoding="utf-8")
+    snap = paper_cash_double_entry(tmp_path)
+    assert snap["verdict"] == "MEASURED_ZERO" and snap["discrepancy_usd"] == 0.0
+    assert snap["recorded_on_ledger"] is False
+    (paper / "paper_trades.jsonl").write_text(json.dumps({
+        "event": "CLOSE", "symbol": "BTC", "side": "LONG", "ledger_hash": entry["entry_hash"],
+        "realized_pnl_usd": 2.0,
+    }) + "\n", encoding="utf-8")
+    drifted = paper_cash_double_entry(tmp_path)
+    assert drifted["verdict"] == "MEASURED_NONZERO" and drifted["discrepancy_usd"] == 0.75

@@ -643,6 +643,15 @@ def _ua_root(tmp_path):
             {"reason": "lane_a_import", "pytest_passed": False, "applied_to_main": False, "pushed": False},
             {"reason": "isolated_worktree_pytest_pass", "pytest_passed": True, "applied_to_main": False, "pushed": False},
         ]})
+    from architecture.markets.paper_trader import INSTRUMENTS
+    w("reports/grok/PAPER/paper_cash_double_entry.json", {
+        "paper_only": True, "recorded_on_ledger": False, "verdict": "MEASURED_ZERO",
+        "discrepancy_usd": 0.0, "unlinked_rows": 0, "orphan_fills": 0})
+    w("reports/grok/PAPER/weekday_two_source_audit.json", {
+        "paper_only": True, "network_fetch": False, "weekend_tehran": True,
+        "rows": [{"symbol": s, "desk": desk, "session_open": False, "tradable_for_paper": False,
+                  "probe_stale": True, "live_witness": "NO_STORED_PROBE"}
+                 for s, (desk, _fee, _slip) in INSTRUMENTS.items()]})
     w("reports/grok/M57/science_to_desk_snapshot.json", {
         "paper_only": True, "pillars_total": 7, "validated_claims_total": 0,
         "matrix": [{"validated_claims": 0,

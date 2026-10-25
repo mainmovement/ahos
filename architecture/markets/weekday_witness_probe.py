@@ -101,3 +101,100 @@ def build_witness_probe_payload(
             "adv_cap_checks": drill.get("adv_cap_checks"),
         }
     return payload
+
+
+def build_weekday_two_source_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
+    """Session clock for now, plus the stored witness only as a stale or fresh label.
+
+    A stored VERIFIED quote older than the paper freshness window is not a live witness.
+    Cash desks on a Tehran weekend are not tradable. This function does not fetch prices.
+    """
+    import json
+
+    from architecture.markets.paper_trader import INSTRUMENTS, MAX_TRADE_AGE_S
+    from architecture.markets.weekday_session_gate import CASH_DESKS, SYMBOL_VENUE
+
+    root = Path(root)
+    moment = now or datetime.now(timezone.utc)
+    sess = session_report(moment)
+    venues = sess.get("venues") if isinstance(sess.get("venues"), dict) else {}
+    probe_path = root / "reports" / "grok" / "PAPER" / "weekday_witness_probe.json"
+    probe: dict[str, Any] = {}
+    if probe_path.is_file():
+        try:
+            loaded = json.loads(probe_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                probe = loaded
+        except ValueError:
+            probe = {}
+    stored: dict[str, dict[str, Any]] = {}
+    for rows in (probe.get("by_desk") or {}).values():
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            if isinstance(row, dict) and row.get("symbol"):
+                stored[str(row["symbol"])] = row
+    probe_utc = ((probe.get("session_gate") or {}) if isinstance(probe.get("session_gate"), dict) else {}).get("utc")
+    probe_ts = None
+    if isinstance(probe_utc, str):
+        try:
+            probe_ts = datetime.strptime(probe_utc, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        except ValueError:
+            probe_ts = None
+    probe_age_s = None if probe_ts is None else (moment - probe_ts).total_seconds()
+    probe_stale = probe_age_s is None or probe_age_s > MAX_TRADE_AGE_S
+    weekend = bool(sess.get("weekend_tehran"))
+    out_rows = []
+    for sym, (desk, _fee, _slip) in INSTRUMENTS.items():
+        venue = SYMBOL_VENUE.get(sym)
+        venue_row = venues.get(venue) if venue else None
+        session_open = bool(venue_row.get("open")) if isinstance(venue_row, dict) else False
+        prior = stored.get(sym) or {}
+        stored_verdict = prior.get("verdict") if prior else None
+        if probe_stale:
+            live_witness = "STALE_STORED_PROBE" if stored_verdict else "NO_STORED_PROBE"
+        elif stored_verdict in ("VERIFIED", "CONFLICT", "UNRESOLVED"):
+            live_witness = stored_verdict
+        else:
+            live_witness = "NO_STORED_PROBE"
+        if weekend and desk in CASH_DESKS:
+            reason = "WEEKEND_CASH_SESSION"
+        elif venue and not session_open:
+            reason = "SESSION_CLOSED"
+        elif live_witness != "VERIFIED":
+            reason = live_witness
+        else:
+            reason = "OK"
+        tradable = reason == "OK"
+        out_rows.append({
+            "symbol": sym,
+            "desk": desk,
+            "venue": venue,
+            "session_open": session_open,
+            "stored_verdict": stored_verdict,
+            "live_witness": live_witness,
+            "probe_stale": probe_stale,
+            "tradable_for_paper": tradable,
+            "tradable_reason": reason,
+        })
+    cash_open = [r["symbol"] for r in out_rows if r["desk"] in CASH_DESKS and r["session_open"]]
+    snap = {
+        "schema": "ahos.weekday_two_source_audit.v1",
+        "generated_at": moment.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "paper_only": True,
+        "network_fetch": False,
+        "weekend_tehran": weekend,
+        "tehran_weekday": sess.get("tehran_weekday"),
+        "probe_as_of": probe_utc,
+        "probe_age_s": None if probe_age_s is None else round(probe_age_s, 1),
+        "probe_stale": probe_stale,
+        "symbols": [r["symbol"] for r in out_rows],
+        "cash_symbols_open": cash_open,
+        "tradable_symbols": [r["symbol"] for r in out_rows if r["tradable_for_paper"]],
+        "rows": out_rows,
+        "summary_fa": sess.get("summary_fa"),
+    }
+    path = root / "reports" / "grok" / "PAPER" / "weekday_two_source_audit.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap

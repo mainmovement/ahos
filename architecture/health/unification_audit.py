@@ -660,6 +660,55 @@ def _stage12_checks(root: Path) -> list[dict[str, Any]]:
     return [diag_check, science_check]
 
 
+def _stage13_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.paper_trader import INSTRUMENTS
+    from architecture.markets.weekday_session_gate import CASH_DESKS
+
+    cash = _json(root, Path("reports") / "grok" / "PAPER" / "paper_cash_double_entry.json")
+    session = _json(root, Path("reports") / "grok" / "PAPER" / "weekday_two_source_audit.json")
+    cash_surface = ["reports/grok/PAPER/paper_cash_double_entry.json"]
+    session_surface = ["reports/grok/PAPER/weekday_two_source_audit.json"]
+    if not isinstance(cash, dict):
+        cash_check = _check("treasury.double_entry", "UNKNOWN", {"file": False}, cash_surface)
+    else:
+        problems = []
+        if cash.get("paper_only") is not True or cash.get("recorded_on_ledger") is not False:
+            problems.append("the cash compare wrote the ledger or left paper mode")
+        if cash.get("verdict") != "MEASURED_ZERO":
+            problems.append(f"verdict is {cash.get('verdict')}")
+        if not isinstance(cash.get("discrepancy_usd"), (int, float)) or abs(float(cash.get("discrepancy_usd") or 0)) > 0.01:
+            problems.append("discrepancy is not zero")
+        if int(cash.get("unlinked_rows") or 0) or int(cash.get("orphan_fills") or 0):
+            problems.append("a fill is unlinked or orphaned")
+        cash_check = _check("treasury.double_entry", _pass_fail(not problems),
+                            {"verdict": cash.get("verdict"), "discrepancy_usd": cash.get("discrepancy_usd"),
+                             "unlinked_rows": cash.get("unlinked_rows"), "problems": problems}, cash_surface)
+    if not isinstance(session, dict):
+        session_check = _check("session.weekday_two_source", "UNKNOWN", {"file": False}, session_surface)
+    else:
+        rows = session.get("rows") if isinstance(session.get("rows"), list) else []
+        problems = []
+        if session.get("paper_only") is not True or session.get("network_fetch") is not False:
+            problems.append("the session audit fetched or left paper mode")
+        symbols = [r.get("symbol") for r in rows if isinstance(r, dict)]
+        if symbols != list(INSTRUMENTS):
+            problems.append("symbol list is not the paper instrument map")
+        if session.get("weekend_tehran") is True:
+            for row in rows:
+                if not isinstance(row, dict) or row.get("desk") not in CASH_DESKS:
+                    continue
+                if row.get("tradable_for_paper") or row.get("session_open"):
+                    problems.append(f"{row.get('symbol')} is open on a weekend")
+        for row in rows:
+            if isinstance(row, dict) and row.get("probe_stale") is True and row.get("live_witness") == "VERIFIED":
+                problems.append(f"{row.get('symbol')} treats a stale probe as verified")
+        session_check = _check("session.weekday_two_source", _pass_fail(not problems),
+                               {"weekend_tehran": session.get("weekend_tehran"),
+                                "tradable_symbols": session.get("tradable_symbols"),
+                                "problems": problems[:8]}, session_surface)
+    return [cash_check, session_check]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -680,6 +729,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage10_checks(root)
     checks += _stage11_checks(root)
     checks += _stage12_checks(root)
+    checks += _stage13_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")
