@@ -91,8 +91,8 @@
     {
       "stage": "Stage 11",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "cd3f9a7",
+      "arena_commit": "8887ffe",
       "rows": 14,
       "judge_brier": null,
       "ece_judge": null,
