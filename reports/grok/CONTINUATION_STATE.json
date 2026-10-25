@@ -880,8 +880,8 @@
     {
       "stage": "Stage 34",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "2b13ed8",
+      "arena_commit": "1696824",
       "weight_path_status": "PATH_DIFFERS",
       "matched_weights": 298,
       "numeric_mismatch": 9,
