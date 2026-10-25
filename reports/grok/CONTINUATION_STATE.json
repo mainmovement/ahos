@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T21:12:00Z",
-  "current_stage": "Stage 39",
-  "resume_instruction": "On ادامه بده or continue, record the Stage 39 work-commit hashes and move current_stage to Stage 40. Do not reimplement the ahead-quote skip. Do not rerun Stage 38. Do not relabel historical MARKET_CLOSED_OR_STALE rows. Do not backfill freshness or session_state. Do not lower the 1200-second stale gate. Do not close BTC, EURUSD, SOL, or UNI. Do not restart the paper trader or the gold soak. The running process has not loaded the Stage 38 fields, the Stage 39 ahead skip, or the audit shrink guard. Do not treat 31 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability.",
+  "updated_at": "2026-10-25T21:14:00Z",
+  "current_stage": "Stage 40",
+  "resume_instruction": "On ادامه بده or continue, inspect the repository and the live artifacts for a new measured correctness gap before editing. Do not rerun Stage 38 or Stage 39. Do not relabel historical MARKET_CLOSED_OR_STALE rows. Do not backfill freshness or session_state. Do not lower the 1200-second stale gate. Do not close BTC, EURUSD, SOL, or UNI. Do not restart the paper trader or the gold soak. The running process has not loaded the Stage 38 fields, the Stage 39 ahead skip, or the audit shrink guard. Do not add a unification check only to raise the count. Do not treat 31 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -1393,7 +1393,7 @@
     {
       "stage": "Stage 39",
       "status": "COMPLETE",
-      "commit": null,
+      "commit": "35e3df4",
       "arena_commit": null,
       "status_word": "QUOTE_TIME_AHEAD",
       "historical_clock_ahead": 0,
@@ -1422,7 +1422,6 @@
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 39 hash commit: record the work-commit hashes and do not reimplement the ahead-quote skip",
     "Stage 40: the next measured gap, only after a fresh look; do not invent a check to raise the audit count"
   ]
 }
