@@ -388,3 +388,17 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The bridge copies `judge_brier` and does not invent a pass. A missing file says the council has not been run. pytest is two files. No `next build`.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 26 checks, drift [], unknown []. Whitehat CLEAN. pytest 64 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4283 files, VALIDATION PASSED).
+
+## 2026-10-25 — Stage 12 AST diagnostics and seven pillars
+
+### WP-12.1 — three candidates, none applied
+- **Draft:** Parse each candidate before pytest. A syntax error is recorded and not executed. An import of `discovery` or `paper_trading` is refused. `eval` and `exec` are refused. The third candidate is a one-line function run in a temporary directory. The receipt is a new file, so the older M46 receipt is left as it was.
+- **Critique 1:** Quant: this is not a strategy trial. Witness: the winner is the isolated pass. OSINT: none. Council: nothing is promoted. Persian: the line says the candidates were not applied to the main branch. University: no claim of a fix. SRE: the temporary directory is under the configured temp path. Lane A files were not edited.
+- **Critique 2 (meta):** The syntax candidate stopped at line 1. The Lane A import never reached pytest. The passing candidate stayed `applied_to_main` false and `pushed` false.
+- **Result:** `reports/grok/M46/stage12_ast_diagnostics.json`.
+
+### WP-12.2 — seven pillars stay proposals
+- **Draft:** Check 28 reads the existing science snapshot. It requires seven pillars, `asku_` on every proposal, status `PROPOSED_NOT_PREREGISTERED`, and `validated_claims_total` 0. The snapshot was not regenerated.
+- **Critique 1:** Rebuilding the snapshot would mint new citation hashes and was not needed. The audit reads the file that is already on disk.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 28 checks, drift [], unknown []. Whitehat CLEAN. pytest 65 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4284 files, VALIDATION PASSED). Two earlier probes were stopped during the evidence bisect and are not the result.

@@ -1,0 +1,47 @@
+{
+  "schema": "ahos.stage12.ast_diagnostics.v1",
+  "generated_at": "2026-10-25T00:40:00Z",
+  "paper_only": true,
+  "redacted_error": "stage12 diagnostic",
+  "evidence_refs": [
+    "reports/grok/M15/council_debate_matrix.json"
+  ],
+  "candidates_tested": 3,
+  "winner_candidate_id": "ok",
+  "applied_to_main": false,
+  "pushed": false,
+  "candidates": [
+    {
+      "candidate_id": "syntax",
+      "target_branch": "debug/syntax",
+      "proposal_accepted": true,
+      "reason": "syntax_error:1",
+      "ast_status": "syntax_error:1",
+      "pytest_passed": false,
+      "applied_to_main": false,
+      "pushed": false
+    },
+    {
+      "candidate_id": "lane_a",
+      "target_branch": "debug/lane-a",
+      "proposal_accepted": true,
+      "reason": "lane_a_import",
+      "ast_status": "lane_a_import",
+      "pytest_passed": false,
+      "applied_to_main": false,
+      "pushed": false
+    },
+    {
+      "candidate_id": "ok",
+      "target_branch": "debug/ok",
+      "proposal_accepted": true,
+      "reason": "isolated_worktree_pytest_pass",
+      "ast_status": "ast_ok",
+      "pytest_passed": true,
+      "pytest_summary": ".                                                                        [100%]\n1 passed in 0.01s",
+      "applied_to_main": false,
+      "pushed": false
+    }
+  ],
+  "n": 3
+}

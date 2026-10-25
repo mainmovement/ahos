@@ -618,8 +618,6 @@ def _ua_root(tmp_path):
     w("reports/grok/M56/tournament_snapshot.json", {"leader_dsr": 16.75, "data_source": "FIXTURE_ILLUSTRATIVE",
                                                     "dsr_semantics": "HAIRCUT_ANNUALIZED_SHARPE"})
     w("reports/grok/M57/whole_ahos_organ_evolution.json", {"exam_score_evidence": "STATIC_UNVERIFIED: constants"})
-    w("reports/grok/M57/science_to_desk_snapshot.json", {"organ_static_curricula": "STATIC_UNVERIFIED_CLAIM",
-                                                         "validated_claims_total": 0, "matrix": [{"validated_claims": 0}]})
     w("reports/grok/M28/batch6_research.json", {"n_trials_prior": 89, "n_trials_counted_in_dsr": 89, "candidates": [],
                                                 "screened": [{"hypothesis_id": "H30", "counted_in_dsr": False}]})
     w("reports/grok/M28/map_elites_grid.json", {"cells_occupied": 0, "grid": {"macro_weekly": {"crisis_defensive": None}}})
@@ -638,6 +636,19 @@ def _ua_root(tmp_path):
                   "swap_gate_passed": False, "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
                   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD", "seats": [{}, {}, {}, {}, {}]}
                  for s in COUNCIL_SYMBOLS]})
+    w("reports/grok/M46/stage12_ast_diagnostics.json", {
+        "paper_only": True, "n": 3, "candidates_tested": 3, "applied_to_main": False, "pushed": False,
+        "candidates": [
+            {"reason": "syntax_error:1", "pytest_passed": False, "applied_to_main": False, "pushed": False},
+            {"reason": "lane_a_import", "pytest_passed": False, "applied_to_main": False, "pushed": False},
+            {"reason": "isolated_worktree_pytest_pass", "pytest_passed": True, "applied_to_main": False, "pushed": False},
+        ]})
+    w("reports/grok/M57/science_to_desk_snapshot.json", {
+        "paper_only": True, "pillars_total": 7, "validated_claims_total": 0,
+        "matrix": [{"validated_claims": 0,
+                    "proposed_hypotheses": [{"asku_ref": "asku_abc", "status": "PROPOSED_NOT_PREREGISTERED"}]}
+                   for _ in range(7)],
+        "organ_static_curricula": "STATIC_UNVERIFIED_CLAIM"})
     w("reports/grok/M12/cognitive_graph_snapshot.json", {"registry_agents": 1, "authority_violations": [],
                                                          "verdict_counts": {"HOLD": 1}, "agents": [
         {"agent_id": "AG-01", "verdict": "HOLD", "authority_ok": True}]})

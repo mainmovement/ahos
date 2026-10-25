@@ -608,6 +608,58 @@ def _stage11_checks(root: Path) -> list[dict[str, Any]]:
     ]
 
 
+def _stage12_checks(root: Path) -> list[dict[str, Any]]:
+    diag = _json(root, Path("reports") / "grok" / "M46" / "stage12_ast_diagnostics.json")
+    science = _json(root, SCIENCE_REL)
+    diag_surface = ["reports/grok/M46/stage12_ast_diagnostics.json"]
+    science_surface = [str(SCIENCE_REL)]
+    if not isinstance(diag, dict):
+        diag_check = _check("health.ast_diagnostics", "UNKNOWN", {"file": False}, diag_surface)
+    else:
+        rows = diag.get("candidates") or []
+        reasons = {r.get("reason") for r in rows if isinstance(r, dict)}
+        problems = []
+        if diag.get("paper_only") is not True or diag.get("n") != 3 or diag.get("candidates_tested") != 3:
+            problems.append("diagnostic is not a three-candidate paper receipt")
+        if diag.get("applied_to_main") is not False or diag.get("pushed") is not False:
+            problems.append("the cycle was applied or pushed")
+        if any(r.get("applied_to_main") or r.get("pushed") for r in rows if isinstance(r, dict)):
+            problems.append("a candidate was applied or pushed")
+        if not any(str(reason).startswith("syntax_error") for reason in reasons):
+            problems.append("no syntax refusal")
+        if "lane_a_import" not in reasons:
+            problems.append("no lane A refusal")
+        if not any(r.get("pytest_passed") is True and r.get("applied_to_main") is False for r in rows if isinstance(r, dict)):
+            problems.append("no isolated pass that stayed unapplied")
+        diag_check = _check("health.ast_diagnostics", _pass_fail(not problems),
+                            {"n": diag.get("n"), "problems": problems}, diag_surface)
+    if not isinstance(science, dict):
+        science_check = _check("science.seven_pillars", "UNKNOWN", {"file": False}, science_surface)
+    else:
+        matrix = science.get("matrix") or []
+        problems = []
+        if science.get("paper_only") is not True or science.get("pillars_total") != 7 or len(matrix) != 7:
+            problems.append("pillar count is not 7")
+        if science.get("validated_claims_total") != 0:
+            problems.append("validated claims are not zero")
+        for row in matrix:
+            if not isinstance(row, dict):
+                problems.append("matrix row is not an object")
+                continue
+            for item in row.get("proposed_hypotheses") or []:
+                if not isinstance(item, dict):
+                    continue
+                if not str(item.get("asku_ref") or "").startswith("asku_"):
+                    problems.append("a proposal has no asku ref")
+                if item.get("status") != "PROPOSED_NOT_PREREGISTERED":
+                    problems.append("a proposal is not labeled unregistered")
+        science_check = _check("science.seven_pillars", _pass_fail(not problems),
+                               {"pillars": science.get("pillars_total"),
+                                "validated_claims_total": science.get("validated_claims_total"),
+                                "problems": problems[:6]}, science_surface)
+    return [diag_check, science_check]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -627,6 +679,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage9_checks(root)
     checks += _stage10_checks(root)
     checks += _stage11_checks(root)
+    checks += _stage12_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

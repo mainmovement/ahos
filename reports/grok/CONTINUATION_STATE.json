@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T00:40:00Z",
-  "current_stage": "Stage 12",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 12) in full. Do not rerun Stage 11.",
+  "updated_at": "2026-10-25T01:05:00Z",
+  "current_stage": "Stage 13",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 13) in full. Do not rerun Stage 12.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -103,6 +103,23 @@
       "node_selftests": "stage6 bridge 6/6",
       "whitehat": "CLEAN",
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 12",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "n": 3,
+      "winner": "ok",
+      "applied_to_main": false,
+      "pushed": false,
+      "pillars": 7,
+      "validated_claims_total": 0,
+      "unification": "28/28 UNIFIED_CLEAN",
+      "pytest": "65 passed (test_stage4_closures.py + test_stage6_deepening.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -116,7 +133,6 @@
     "Sunday session: cash equity and listed commodity desks are closed"
   ],
   "next_wave_queue": [
-    "Stage 12: self-debug worktree and seven-pillar science receipts, unification 28/28",
     "Stage 13: weekday two-source session audit and treasury reconciliation, unification 30/30",
     "Stage 14-20: diagnostic sweep then four work packages each turn"
   ]

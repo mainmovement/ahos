@@ -54,6 +54,7 @@ def propose_patch(
     return DebugProposal(True, "proposal only", redacted, False, False, target_branch)
 
 
+import ast
 import json
 import subprocess
 import sys
@@ -61,6 +62,28 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
+
+_LANE_A_ROOTS = frozenset({"discovery", "paper_trading"})
+
+
+def ast_screen(source: str) -> tuple[bool, str]:
+    """Parse a candidate before it is executed. A Lane A import is refused."""
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        return False, f"syntax_error:{exc.lineno}"
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            names = [alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            names = [node.module or ""]
+        else:
+            names = []
+        if any(name.split(".")[0] in _LANE_A_ROOTS for name in names):
+            return False, "lane_a_import"
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in {"eval", "exec"}:
+            return False, "eval_or_exec"
+    return True, "ast_ok"
 
 
 def run_self_debug_worktree_cycle(
@@ -99,6 +122,21 @@ def run_self_debug_worktree_cycle(
                 "target_branch": t_branch,
                 "proposal_accepted": False,
                 "reason": prop.reason,
+                "ast_status": "not_screened",
+                "pytest_passed": False,
+                "applied_to_main": False,
+                "pushed": False,
+            })
+            continue
+
+        ast_ok, ast_status = ast_screen(diff_src + "\n" + test_src)
+        if not ast_ok:
+            evaluated.append({
+                "candidate_id": cid,
+                "target_branch": t_branch,
+                "proposal_accepted": True,
+                "reason": ast_status,
+                "ast_status": ast_status,
                 "pytest_passed": False,
                 "applied_to_main": False,
                 "pushed": False,
@@ -130,6 +168,7 @@ def run_self_debug_worktree_cycle(
             "target_branch": t_branch,
             "proposal_accepted": True,
             "reason": "isolated_worktree_pytest_pass" if pytest_ok else "isolated_worktree_pytest_fail",
+            "ast_status": ast_status,
             "pytest_passed": pytest_ok,
             "pytest_summary": pytest_output,
             "applied_to_main": False,
@@ -152,4 +191,29 @@ def run_self_debug_worktree_cycle(
         out = Path(root) / "reports" / "grok" / "M46" / "self_debug_receipt.json"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(receipt, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return receipt
+
+
+def run_stage12_ast_diagnostics(root: Path) -> dict[str, Any]:
+    """Three candidates: one syntax error, one Lane A import, one isolated pass. Nothing is applied."""
+    receipt = run_self_debug_worktree_cycle(
+        error="stage12 diagnostic",
+        evidence_refs=["reports/grok/M15/council_debate_matrix.json"],
+        candidates=[
+            {"id": "syntax", "target_branch": "debug/syntax", "target_paths": ["calc.py"],
+             "patched_code": "def f(\n", "test_code": "def test_f():\n    assert True\n"},
+            {"id": "lane_a", "target_branch": "debug/lane-a", "target_paths": ["calc.py"],
+             "patched_code": "import discovery\ndef f():\n    return 1\n",
+             "test_code": "def test_f():\n    assert True\n"},
+            {"id": "ok", "target_branch": "debug/ok", "target_paths": ["calc.py"],
+             "patched_code": "def f(x):\n    return x + 1\n",
+             "test_code": "from module_under_test import f\ndef test_f():\n    assert f(2) == 3\n"},
+        ],
+        root=None,
+    )
+    receipt["schema"] = "ahos.stage12.ast_diagnostics.v1"
+    receipt["n"] = 3
+    path = Path(root) / "reports" / "grok" / "M46" / "stage12_ast_diagnostics.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(receipt, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return receipt

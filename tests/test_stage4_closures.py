@@ -125,6 +125,19 @@ def test_m14_m46_m70_5_self_debug_worktree(tmp_path: Path) -> None:
     assert "[REDACTED]" in m46["redacted_error"]
     assert m46["winner_candidate_id"] == "c_ok"
     assert m46["applied_to_main"] is False and m46["pushed"] is False
+    assert m46["candidates"][1]["ast_status"] == "ast_ok"
+
+
+def test_stage12_diagnostics_refuse_syntax_and_lane_a(tmp_path: Path) -> None:
+    from architecture.health.self_debug import ast_screen, run_stage12_ast_diagnostics
+    assert ast_screen("def f(:\n")[0] is False
+    assert ast_screen("import discovery\n")[1] == "lane_a_import"
+    snap = run_stage12_ast_diagnostics(tmp_path)
+    reasons = {row["reason"] for row in snap["candidates"]}
+    assert snap["n"] == 3 and snap["applied_to_main"] is False and snap["pushed"] is False
+    assert any(reason.startswith("syntax_error") for reason in reasons)
+    assert "lane_a_import" in reasons
+    assert snap["winner_candidate_id"] == "ok"
 
 
 def test_m16_irt_asku_and_m50_heldout_exam(tmp_path: Path) -> None:
