@@ -237,8 +237,8 @@
     {
       "stage": "Stage 17",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "1a56e71",
+      "arena_commit": "881b69c",
       "close_rows": 26,
       "account_realized_pnl_usd": -0.1381,
       "rounded_desk_sum_usd": -0.14,
