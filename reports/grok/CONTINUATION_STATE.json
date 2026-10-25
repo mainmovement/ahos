@@ -124,8 +124,8 @@
     {
       "stage": "Stage 13",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "42ad3a6",
+      "arena_commit": "e98f868",
       "discrepancy_usd": 0.0,
       "verdict": "MEASURED_ZERO",
       "open_close_rows": 56,
