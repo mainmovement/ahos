@@ -596,8 +596,8 @@
     {
       "stage": "Stage 27",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "54e3f88",
+      "arena_commit": "aa469be",
       "debate_status": "STORED_CLAIM_NOT_AUTHORITY",
       "debate_stored_rows": 27,
       "debate_missing_rows": 3,
