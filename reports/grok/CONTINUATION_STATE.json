@@ -312,8 +312,8 @@
     {
       "stage": "Stage 19",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "fdbefcf",
+      "arena_commit": "06541db",
       "contribution_status": "IDENTITY_WITHIN_ROUNDING",
       "max_abs_gap": 0.00016,
       "beyond_rounding": 0,
