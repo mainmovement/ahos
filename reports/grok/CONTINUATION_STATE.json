@@ -978,8 +978,8 @@
     {
       "stage": "Stage 36",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "f3dbd4c",
+      "arena_commit": "1a442a0",
       "sentence_status": "SENTENCE_FOLLOWS_THE_TRADE",
       "paper_rows": 31,
       "follows_trade": 31,
