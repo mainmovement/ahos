@@ -493,3 +493,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the split and the round-trip sum and says the sum is not an edge. The missing-file line stays a not-run sentence.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 37 checks, drift [], unknown []. Whitehat CLEAN, 6 checks. pytest 61 passed. Node stage6 bridge 6/6. Skip rows at this export: 3440. Dominant reason `MARKET_CLOSED_OR_STALE`: 3290. Closed paper trades remain 26 of 30.
 - **Verification:** The first `scripts/validate_imports.py` process was stopped during `check_imports` before it printed `== IMPORTS ==`. The rerun exited 0 (373 modules, evidence HOLD, Lane A 36/36, 4292 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 17 symbol book, open book, and stored witness fields
+
+### WP-17.1 — keep opposite signs inside a desk
+- **Draft:** Sum recorded close pnl by symbol and by reason. Desk totals are the sum of those symbols. Do not round the symbols away. Do not call the sum an edge.
+- **Critique 1:** Quant: 26 closes, account pnl -0.1381 USD. Rounded desk sum -0.14. Unassigned desks 0. BTC -0.0901 (reversal -0.1657 on 5, take-profit 0.1144 on 1, conflict -0.0388 on 1). ETH -0.0397 (conflict 0.083 on 4, reversal -0.1227 on 2). SOL 0.0336 (conflict 0.0946 on 3, reversal -0.061 on 2). UNI 0.0812 (take-profit 0.1746 on 1, reversal -0.0934 on 3). DEX_LINK -0.1231, all 4 conflict. PB_TOKEN rounded -0.04 is UNI plus DEX_LINK. CRYPTO rounded -0.10 is BTC plus ETH plus SOL. Council: nothing is promoted. Lane A untouched.
+- **Critique 2 (meta):** A positive conflict sum on ETH or SOL is the log for those rows. It is not evidence that the conflict exit has an edge, and it is not a reason to loosen either tolerance.
+- **Result:** `reports/grok/PAPER/symbol_book.json`. `edge_claimed` false.
+
+### WP-17.2 — four open shorts are inside both hold limits
+- **Draft:** Match OPEN and CLOSE in order. The open time is `opened_at` when the row has it, otherwise the row's `ts`. Compare that age with the 12 hour time-stop mark and the 24 hour max-hold mark. Do not turn age into an exit.
+- **Critique 1:** Four unmatched opens: UNI 2026-10-25T05:51:15Z, BTC 2026-10-25T06:39:35Z, SOL 2026-10-25T06:51:45Z, ETH 2026-10-25T06:57:50Z. All SHORT. Status `INSIDE_BOTH_LIMITS`. Unmatched closes 0. The positions file names the same four symbols. `exit_inferred` false.
+- **Critique 2 (meta):** These four rows are younger than both limits, so their still being open does not test the time-stop or max-hold code. The running process was not restarted. Missing `opened_at` is not labeled as beyond the limit; the log time `ts` is used.
+- **Result:** `reports/grok/PAPER/open_book.json`.
+
+### WP-17.3 — copy tolerance later, count what is stored now
+- **Draft:** Count close rows that already store `tolerance` or `pair`. Teach `logged_witness` to copy those two fields on a future start when they are present, and to drop a pair that contains an address. Do not change the exit branch.
+- **Critique 1:** 26 closes. Stored tolerance 0. Stored pair 0. Address-shaped pairs stored 0. The unit check copies `POOL-POOL` and tolerance 0.01, and it omits a `pool32:` pair.
+- **Critique 2 (meta):** The running interpreter has not loaded `logged_witness`. Historical rows were not rewritten. A stored field will appear only on rows written after the next process start.
+- **Result:** `reports/grok/PAPER/stored_witness_fields.json`. `daemon_restarted` false.
+
+### WP-17.4 — checks 38 to 40
+- **Draft:** Each new check recomputes the log. A symbol book that claims an edge fails. An open book that infers an exit fails. A stored-field receipt that says the exit rule changed fails. The skip census is rewritten in the same process as the audit.
+- **Critique 1:** The panel copies the symbol count, the open-book status, and the stored-field counts. Each missing file stays a not-run sentence.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 40 checks, drift [], unknown []. The clean export's skip census is 3480 rows, of which `MARKET_CLOSED_OR_STALE` is 3329. One earlier export in the same turn drifted because the log grew, and it was rewritten rather than loosened. Whitehat CLEAN, 6 checks. pytest 62 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4295 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

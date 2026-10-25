@@ -494,6 +494,201 @@ def measure_skip_census(root: Path) -> dict[str, Any]:
     }
 
 
+def measure_symbol_book(root: Path) -> dict[str, Any]:
+    """Per-symbol close pnl. Desk totals are the sum, so opposite signs stay visible."""
+    from collections import defaultdict
+
+    from architecture.markets.paper_account import DESKS
+
+    known = set(DESKS)
+    raw_symbol: dict[str, dict[str, Any]] = {}
+    raw_desk: dict[str, float] = defaultdict(float)
+    desk_closes: dict[str, int] = defaultdict(int)
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        symbol = str(row.get("symbol") or "MISSING")
+        desk = str(row.get("desk") or "MISSING")
+        pnl = float(row["realized_pnl_usd"]) if isinstance(row.get("realized_pnl_usd"), (int, float)) else 0.0
+        item = raw_symbol.setdefault(symbol, {"desk": desk, "closes": 0, "pnl": 0.0, "reasons": defaultdict(lambda: [0, 0.0])})
+        item["closes"] += 1
+        item["pnl"] += pnl
+        reason = str(row.get("reason") or "MISSING")
+        item["reasons"][reason][0] += 1
+        item["reasons"][reason][1] += pnl
+        raw_desk[desk] += pnl
+        desk_closes[desk] += 1
+    symbols = []
+    for symbol in sorted(raw_symbol):
+        item = raw_symbol[symbol]
+        symbols.append({
+            "symbol": symbol,
+            "desk": item["desk"],
+            "closes": item["closes"],
+            "realized_pnl_usd": round(item["pnl"], 4),
+            "reasons": [{
+                "reason": reason,
+                "n": item["reasons"][reason][0],
+                "realized_pnl_usd": round(item["reasons"][reason][1], 4),
+            } for reason in sorted(item["reasons"])],
+        })
+    desks = []
+    for desk in sorted(raw_desk):
+        desks.append({
+            "desk": desk,
+            "closes": desk_closes[desk],
+            "realized_pnl_usd": round(raw_desk[desk], 4),
+            "rounded_usd": round(raw_desk[desk], 2),
+            "assigned": desk in known,
+        })
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "close_rows": sum(item["closes"] for item in symbols),
+        "symbols": symbols,
+        "desks": desks,
+        "account_realized_pnl_usd": round(sum(raw_desk.values()), 4),
+        "rounded_desk_sum_usd": round(sum(item["rounded_usd"] for item in desks), 2),
+        "unassigned_desks": sum(1 for item in desks if not item["assigned"]),
+    }
+
+
+def write_symbol_book(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.symbol_book.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_symbol_book(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "symbol_book.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_open_book(root: Path, now: datetime | None = None) -> dict[str, Any]:
+    """Unmatched OPEN rows. Age is not an exit order."""
+    from collections import defaultdict, deque
+
+    from architecture.markets.paper_trader import MAX_HOLD_S, TIME_STOP_HOLD_FRAC
+
+    now = now or datetime.now(timezone.utc)
+    queues: dict[str, deque] = defaultdict(deque)
+    unmatched = 0
+    for row in _log_rows(root):
+        symbol = str(row.get("symbol") or "")
+        if row.get("event") == "OPEN":
+            queues[symbol].append(row)
+        elif row.get("event") == "CLOSE" and queues[symbol]:
+            queues[symbol].popleft()
+        elif row.get("event") == "CLOSE":
+            unmatched += 1
+    time_stop_h = MAX_HOLD_S * TIME_STOP_HOLD_FRAC / 3600.0
+    max_h = MAX_HOLD_S / 3600.0
+    opens = []
+    unknown_age = False
+    beyond = False
+    for symbol in sorted(queues):
+        for row in queues[symbol]:
+            opened = row.get("opened_at") or row.get("ts")
+            try:
+                started = datetime.strptime(str(opened), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+                hours = (now - started).total_seconds() / 3600.0
+            except (TypeError, ValueError):
+                hours = None
+            if hours is None:
+                unknown_age = True
+            elif hours > time_stop_h or hours > max_h:
+                beyond = True
+            opens.append({
+                "symbol": symbol,
+                "desk": row.get("desk"),
+                "side": row.get("side"),
+                "open_time": opened,
+            })
+    path = Path(root) / "reports" / "grok" / "PAPER" / "paper_positions.json"
+    file_symbols = None
+    if path.is_file():
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except ValueError:
+            doc = None
+        positions = doc.get("positions") if isinstance(doc, dict) else None
+        if isinstance(positions, dict):
+            file_symbols = sorted(str(key) for key in positions)
+    log_symbols = sorted({item["symbol"] for item in opens})
+    if not opens:
+        status = "NO_OPEN_ROWS"
+    elif beyond:
+        status = "AT_OR_BEYOND_A_HOLD_LIMIT"
+    elif unknown_age:
+        status = "OPEN_AGE_UNKNOWN"
+    else:
+        status = "INSIDE_BOTH_LIMITS"
+    return {
+        "paper_only": True,
+        "exit_inferred": False,
+        "daemon_restarted": False,
+        "time_stop_hours": time_stop_h,
+        "max_hold_hours": max_h,
+        "open_rows": opens,
+        "unmatched_closes": unmatched,
+        "status": status,
+        "positions_file_symbols": file_symbols,
+        "log_matches_positions_file": file_symbols == log_symbols,
+    }
+
+
+def write_open_book(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.open_book.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_open_book(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "open_book.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_stored_witness_fields(root: Path) -> dict[str, Any]:
+    """Count tolerance and pair fields actually stored on close rows."""
+    tolerance = pair = address_pair = 0
+    closes = 0
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        closes += 1
+        witness = row.get("witness") if isinstance(row.get("witness"), dict) else {}
+        if "tolerance" in witness:
+            tolerance += 1
+        stored_pair = witness.get("pair")
+        if isinstance(stored_pair, str):
+            pair += 1
+            if "0x" in stored_pair.lower() or "pool32:" in stored_pair:
+                address_pair += 1
+    return {
+        "paper_only": True,
+        "exit_rule_changed": False,
+        "daemon_restarted": False,
+        "close_rows": closes,
+        "tolerance_stored": tolerance,
+        "pair_stored": pair,
+        "address_shaped_pair_stored": address_pair,
+    }
+
+
+def write_stored_witness_fields(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.stored_witness_fields.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_stored_witness_fields(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "stored_witness_fields.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

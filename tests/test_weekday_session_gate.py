@@ -135,3 +135,52 @@ def test_conflict_and_reversal_anatomies_match_the_log(tmp_path):
     assert reversal["signed_composite_min"] == -0.3 and reversal["exit_rule_changed"] is False
     skips = write_skip_census(tmp_path)
     assert skips["dominant_reason"] == "MARKET_CLOSED_OR_STALE" and skips["event_rows"] == 1
+
+
+def test_symbol_book_keeps_opposite_signs_and_open_rows_are_not_exits(tmp_path):
+    import json
+    from datetime import datetime, timezone
+
+    from architecture.markets.paper_trade_audit import (
+        measure_open_book, measure_stored_witness_fields, measure_symbol_book,
+    )
+    from architecture.markets.paper_trader import logged_witness
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({"event": "OPEN", "symbol": "UNI", "desk": "PB_TOKEN", "side": "LONG",
+                    "opened_at": "2026-10-25T00:00:00Z"}),
+        json.dumps({"event": "CLOSE", "symbol": "UNI", "desk": "PB_TOKEN", "reason": "TAKE_PROFIT",
+                    "realized_pnl_usd": 0.1746}),
+        json.dumps({"event": "OPEN", "symbol": "DEX_LINK", "desk": "PB_TOKEN", "side": "LONG",
+                    "opened_at": "2026-10-25T01:00:00Z"}),
+        json.dumps({"event": "CLOSE", "symbol": "DEX_LINK", "desk": "PB_TOKEN", "reason": "WITNESS_CONFLICT_EXIT",
+                    "realized_pnl_usd": -0.1231, "witness": {"verdict": "CONFLICT", "gap": 0.0102}}),
+        json.dumps({"event": "OPEN", "symbol": "ETH", "desk": "CRYPTO", "side": "SHORT",
+                    "opened_at": "2026-10-25T06:00:00Z"}),
+    ]) + "\n", encoding="utf-8")
+    (paper / "paper_positions.json").write_text(json.dumps({"positions": {"ETH": {"desk": "CRYPTO"}}}), encoding="utf-8")
+    book = measure_symbol_book(tmp_path)
+    by_symbol = {item["symbol"]: item["realized_pnl_usd"] for item in book["symbols"]}
+    assert by_symbol["UNI"] == 0.1746 and by_symbol["DEX_LINK"] == -0.1231
+    assert book["account_realized_pnl_usd"] == 0.0515 and book["edge_claimed"] is False
+    assert book["unassigned_desks"] == 0
+    pb = next(item for item in book["desks"] if item["desk"] == "PB_TOKEN")
+    assert pb["realized_pnl_usd"] == 0.0515 and pb["rounded_usd"] == 0.05
+    opened = measure_open_book(tmp_path, now=datetime(2026, 10, 25, 8, 0, tzinfo=timezone.utc))
+    assert opened["status"] == "INSIDE_BOTH_LIMITS" and opened["exit_inferred"] is False
+    assert opened["open_rows"] == [{"symbol": "ETH", "desk": "CRYPTO", "side": "SHORT", "open_time": "2026-10-25T06:00:00Z"}]
+    assert opened["log_matches_positions_file"] is True and opened["unmatched_closes"] == 0
+    stored = measure_stored_witness_fields(tmp_path)
+    assert stored["tolerance_stored"] == 0 and stored["pair_stored"] == 0 and stored["exit_rule_changed"] is False
+    copied = logged_witness({
+        "verdict": "CONFLICT", "source_b": "dexscreener:pool", "price_b": 1.0, "gap": 0.011,
+        "tolerance": 0.01, "pair": "POOL-POOL", "diagnostics": {"pool": "0xabc"},
+    })
+    assert copied["tolerance"] == 0.01 and copied["pair"] == "POOL-POOL" and "diagnostics" not in copied
+    hidden = logged_witness({
+        "verdict": "CONFLICT", "source_b": "dexscreener:pool", "price_b": 1.0, "gap": 0.011,
+        "pair": "pool32:0123456789abcdef",
+    })
+    assert "pair" not in hidden and "tolerance" not in hidden

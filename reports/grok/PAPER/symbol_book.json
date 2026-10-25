@@ -1,0 +1,118 @@
+{
+ "schema": "ahos.paper.symbol_book.v1",
+ "generated_at": "2026-10-25T08:52:55Z",
+ "paper_only": true,
+ "edge_claimed": false,
+ "close_rows": 26,
+ "symbols": [
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closes": 7,
+   "realized_pnl_usd": -0.0901,
+   "reasons": [
+    {
+     "reason": "SIGNAL_REVERSAL",
+     "n": 5,
+     "realized_pnl_usd": -0.1657
+    },
+    {
+     "reason": "TAKE_PROFIT",
+     "n": 1,
+     "realized_pnl_usd": 0.1144
+    },
+    {
+     "reason": "WITNESS_CONFLICT_EXIT",
+     "n": 1,
+     "realized_pnl_usd": -0.0388
+    }
+   ]
+  },
+  {
+   "symbol": "DEX_LINK",
+   "desk": "PB_TOKEN",
+   "closes": 4,
+   "realized_pnl_usd": -0.1231,
+   "reasons": [
+    {
+     "reason": "WITNESS_CONFLICT_EXIT",
+     "n": 4,
+     "realized_pnl_usd": -0.1231
+    }
+   ]
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closes": 6,
+   "realized_pnl_usd": -0.0397,
+   "reasons": [
+    {
+     "reason": "SIGNAL_REVERSAL",
+     "n": 2,
+     "realized_pnl_usd": -0.1227
+    },
+    {
+     "reason": "WITNESS_CONFLICT_EXIT",
+     "n": 4,
+     "realized_pnl_usd": 0.083
+    }
+   ]
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closes": 5,
+   "realized_pnl_usd": 0.0336,
+   "reasons": [
+    {
+     "reason": "SIGNAL_REVERSAL",
+     "n": 2,
+     "realized_pnl_usd": -0.061
+    },
+    {
+     "reason": "WITNESS_CONFLICT_EXIT",
+     "n": 3,
+     "realized_pnl_usd": 0.0946
+    }
+   ]
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closes": 4,
+   "realized_pnl_usd": 0.0812,
+   "reasons": [
+    {
+     "reason": "SIGNAL_REVERSAL",
+     "n": 3,
+     "realized_pnl_usd": -0.0934
+    },
+    {
+     "reason": "TAKE_PROFIT",
+     "n": 1,
+     "realized_pnl_usd": 0.1746
+    }
+   ]
+  }
+ ],
+ "desks": [
+  {
+   "desk": "CRYPTO",
+   "closes": 18,
+   "realized_pnl_usd": -0.0962,
+   "rounded_usd": -0.1,
+   "assigned": true
+  },
+  {
+   "desk": "PB_TOKEN",
+   "closes": 8,
+   "realized_pnl_usd": -0.0419,
+   "rounded_usd": -0.04,
+   "assigned": true
+  }
+ ],
+ "account_realized_pnl_usd": -0.1381,
+ "rounded_desk_sum_usd": -0.14,
+ "unassigned_desks": 0
+}

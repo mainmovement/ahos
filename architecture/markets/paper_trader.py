@@ -64,6 +64,26 @@ CLUSTER_OF_DESK = {
     "FOREX": "fx",
 }
 CLUSTER_CAPS = {"crypto": 0.35, "metals": 0.20, "energy": 0.20, "equities": 0.40, "fx": 0.15}
+
+
+def logged_witness(witness: dict) -> dict:
+    """Copy the fields the paper log is allowed to keep.
+
+    Tolerance and pair are copied only when the witness already has them.
+    A pair that carries an address is left off the log. The exit rule does
+    not read this copy.
+    """
+    out = {k: witness[k] for k in ("verdict", "source_b", "price_b", "gap")}
+    for key in ("tolerance", "pair"):
+        value = witness.get(key)
+        if value is None:
+            continue
+        if key == "pair" and isinstance(value, str) and ("0x" in value.lower() or "pool32:" in value):
+            continue
+        out[key] = value
+    return out
+
+
 MAX_TRADE_AGE_S = 20 * 60
 ENTRY = 0.25
 RISK_PER_TRADE = 0.005
@@ -427,7 +447,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         price = q.get("price")
         w = wit[sym]
         base = {"ts": _iso(t), "symbol": sym, "desk": desk, "paper_only": True, "source": q.get("source"),
-                "market_time": q.get("market_time"), "witness": {k: w[k] for k in ("verdict", "source_b", "price_b", "gap")}}
+                "market_time": q.get("market_time"), "witness": logged_witness(w)}
         mt = _parse(q.get("market_time"))
         pos = positions.get(sym)
         if not isinstance(price, (int, float)) or price <= 0:

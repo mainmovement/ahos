@@ -669,6 +669,17 @@ def _ua_root(tmp_path):
         "symbols": {}})
     w("reports/grok/PAPER/dex_roundtrip.json", {
         "paper_only": True, "edge_claimed": False, "symbols": [], "flat": True, "realized_pnl_usd": 0.0})
+    w("reports/grok/PAPER/symbol_book.json", {
+        "paper_only": True, "edge_claimed": False, "close_rows": 0, "symbols": [], "desks": [],
+        "account_realized_pnl_usd": 0.0, "rounded_desk_sum_usd": 0.0, "unassigned_desks": 0})
+    w("reports/grok/PAPER/open_book.json", {
+        "paper_only": True, "exit_inferred": False, "time_stop_hours": 12.0, "max_hold_hours": 24.0,
+        "open_rows": [{"symbol": "BTC", "desk": None, "side": None, "open_time": "2026-10-24T00:36:00Z"}],
+        "unmatched_closes": 0, "status": "AT_OR_BEYOND_A_HOLD_LIMIT",
+        "positions_file_symbols": ["BTC"], "log_matches_positions_file": True})
+    w("reports/grok/PAPER/stored_witness_fields.json", {
+        "paper_only": True, "exit_rule_changed": False, "close_rows": 0,
+        "tolerance_stored": 0, "pair_stored": 0, "address_shaped_pair_stored": 0})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,
