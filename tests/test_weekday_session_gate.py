@@ -415,3 +415,42 @@ def test_witness_reason_matches_and_the_fee_splits(tmp_path):
     assert equity["status"] == "WITHIN_ONE_CENT" and equity["equity_rewritten"] is False
     assert equity["beyond_cent"] == 0 and equity["max_abs_gap"] == 0.0
     assert equity["end_equity_usd"] == 99.97 and equity["added_to_cash_gap"] is False
+
+
+def test_quote_age_stays_inside_the_gate_and_addresses_are_not_copied(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_book_overlap, measure_quote_age, measure_source_address,
+    )
+    from architecture.markets.paper_trader import logged_source
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({
+            "event": "OPEN", "symbol": "BTC", "ts": "2026-10-25T00:00:00Z",
+            "market_time": "2026-10-25T00:00:10Z", "source": "coingecko:bitcoin"}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "BTC", "ts": "2026-10-25T00:10:00Z",
+            "market_time": "2026-10-25T00:09:00Z", "opened_at": "2026-10-25T00:00:00Z",
+            "closed_at": "2026-10-25T00:10:00Z", "source": "coingecko:bitcoin"}),
+        json.dumps({
+            "event": "OPEN", "symbol": "DEX_LINK", "ts": "2026-10-25T00:20:00Z",
+            "market_time": "2026-10-25T00:20:00Z", "source": "geckoterminal:0xabc"}),
+    ]) + "\n", encoding="utf-8")
+    age = measure_quote_age(tmp_path)
+    assert age["status"] == "WITHIN_STALE_GATE" and age["gate_changed"] is False
+    assert age["open_over_gate"] == 0 and age["close_over_gate"] == 0
+    assert age["open_clock_ahead"] == 1 and age["open_ahead_max_s"] == 10.0
+    source = measure_source_address(tmp_path)
+    assert source["status"] == "ADDRESS_ON_LOG" and source["log_rewritten"] is False
+    assert source["open_with_address"] == 1 and source["close_with_address"] == 0
+    assert "0x" not in json.dumps(source).lower()
+    book = measure_book_overlap(tmp_path)
+    assert book["status"] == "NO_OVERLAP" and book["positions_closed"] is False
+    assert book["overlap_opens"] == 0 and book["still_open"] == ["DEX_LINK"]
+    assert book["opened_at_matches_open_ts"] == 1 and book["closed_at_matches_ts"] == 1
+    assert logged_source("geckoterminal:0xabc") == "geckoterminal"
+    assert logged_source("coingecko:bitcoin") == "coingecko:bitcoin"
+    assert logged_source(None) is None

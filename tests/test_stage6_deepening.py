@@ -756,6 +756,19 @@ def _ua_root(tmp_path):
         "initial_capital_usd": 100.0, "cent_band": 0.01, "open_rows": 1, "missing_rows": 1,
         "within_cent": 0, "beyond_cent": 0, "max_abs_gap": None, "end_equity_usd": 100.0,
         "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/quote_age.json", {
+        "paper_only": True, "gate_changed": False, "gate_seconds": 1200, "open_rows": 1,
+        "close_rows": 0, "open_missing": 1, "close_missing": 0, "open_over_gate": 0,
+        "close_over_gate": 0, "open_clock_ahead": 0, "close_clock_ahead": 0,
+        "open_age_max_s": None, "close_age_max_s": None, "open_ahead_max_s": None,
+        "close_ahead_max_s": None, "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/source_address.json", {
+        "paper_only": True, "log_rewritten": False, "open_with_address": 0, "close_with_address": 0,
+        "kinds": [{"kind": "MISSING", "open_rows": 1, "close_rows": 0}], "status": "NO_ADDRESS"})
+    w("reports/grok/PAPER/book_overlap.json", {
+        "paper_only": True, "positions_closed": False, "overlap_opens": 0, "unpaired_closes": 0,
+        "close_rows": 0, "opened_at_matches_open_ts": 0, "closed_at_matches_ts": 0,
+        "still_open": ["BTC"], "status": "NO_OVERLAP"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

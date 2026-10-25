@@ -1946,6 +1946,200 @@ def write_equity_replay(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _parse_stamp(value: object) -> datetime | None:
+    try:
+        return datetime.strptime(str(value), "%Y-%m-%dT%H:%M:%SZ")
+    except (TypeError, ValueError):
+        return None
+
+
+def measure_quote_age(root: Path) -> dict[str, Any]:
+    """Age of the stored quote at the log stamp. The stale gate is not changed."""
+    from architecture.markets.paper_trader import MAX_TRADE_AGE_S
+
+    cells = {
+        "OPEN": {"rows": 0, "missing": 0, "over_gate": 0, "clock_ahead": 0, "ages": [], "ahead": []},
+        "CLOSE": {"rows": 0, "missing": 0, "over_gate": 0, "clock_ahead": 0, "ages": [], "ahead": []},
+    }
+    for row in _log_rows(root):
+        event = row.get("event")
+        if event not in cells:
+            continue
+        cell = cells[event]
+        cell["rows"] += 1
+        stamped = _parse_stamp(row.get("ts"))
+        market = _parse_stamp(row.get("market_time"))
+        if stamped is None or market is None:
+            cell["missing"] += 1
+            continue
+        age = (stamped - market).total_seconds()
+        cell["ages"].append(age)
+        if age > MAX_TRADE_AGE_S:
+            cell["over_gate"] += 1
+        if age < 0:
+            cell["clock_ahead"] += 1
+            cell["ahead"].append(-age)
+    opens, closes = cells["OPEN"], cells["CLOSE"]
+    if opens["rows"] == 0 and closes["rows"] == 0:
+        status = "NO_ROWS"
+    elif opens["missing"] or closes["missing"]:
+        status = "INCOMPLETE"
+    elif opens["over_gate"] == 0 and closes["over_gate"] == 0:
+        status = "WITHIN_STALE_GATE"
+    else:
+        status = "BEYOND_STALE_GATE"
+    def _max(values: list[float]) -> float | None:
+        return None if not values else round(max(values), 1)
+
+    return {
+        "paper_only": True,
+        "gate_changed": False,
+        "gate_seconds": MAX_TRADE_AGE_S,
+        "open_rows": opens["rows"],
+        "close_rows": closes["rows"],
+        "open_missing": opens["missing"],
+        "close_missing": closes["missing"],
+        "open_over_gate": opens["over_gate"],
+        "close_over_gate": closes["over_gate"],
+        "open_clock_ahead": opens["clock_ahead"],
+        "close_clock_ahead": closes["clock_ahead"],
+        "open_age_max_s": _max(opens["ages"]),
+        "close_age_max_s": _max(closes["ages"]),
+        "open_ahead_max_s": _max(opens["ahead"]),
+        "close_ahead_max_s": _max(closes["ahead"]),
+        "status": status,
+    }
+
+
+def write_quote_age(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.quote_age.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_quote_age(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "quote_age.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def _source_kind(source: object) -> str:
+    text = str(source or "")
+    kind = text.split(":", 1)[0] if text else "MISSING"
+    if "0x" in kind.lower() or not kind:
+        return "ADDRESS_SHAPED_KIND"
+    return kind
+
+
+def measure_source_address(root: Path) -> dict[str, Any]:
+    """Count log sources that still carry an address. The receipt does not copy it."""
+    from collections import defaultdict
+
+    counts: dict[str, list[int]] = defaultdict(lambda: [0, 0])
+    open_addr = close_addr = 0
+    for row in _log_rows(root):
+        event = row.get("event")
+        if event not in ("OPEN", "CLOSE"):
+            continue
+        source = str(row.get("source") or "")
+        kind = _source_kind(source)
+        slot = 0 if event == "OPEN" else 1
+        counts[kind][slot] += 1
+        if "0x" in source.lower():
+            if event == "OPEN":
+                open_addr += 1
+            else:
+                close_addr += 1
+    kinds = [{
+        "kind": kind,
+        "open_rows": counts[kind][0],
+        "close_rows": counts[kind][1],
+    } for kind in sorted(counts)]
+    if open_addr or close_addr:
+        status = "ADDRESS_ON_LOG"
+    elif not kinds:
+        status = "NO_ROWS"
+    else:
+        status = "NO_ADDRESS"
+    return {
+        "paper_only": True,
+        "log_rewritten": False,
+        "open_with_address": open_addr,
+        "close_with_address": close_addr,
+        "kinds": kinds,
+        "status": status,
+    }
+
+
+def write_source_address(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.source_address.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_source_address(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "source_address.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(snap, ensure_ascii=False, indent=1)
+    if "0x" in text.lower():
+        raise RuntimeError("source address receipt copied an address")
+    path.write_text(text, encoding="utf-8")
+    return snap
+
+
+def measure_book_overlap(root: Path) -> dict[str, Any]:
+    """One open per symbol until it closes. Nothing is closed from this count."""
+    from collections import defaultdict, deque
+
+    queues: dict[str, deque] = defaultdict(deque)
+    overlap = unpaired = opened_match = closed_match = closes = 0
+    for row in _log_rows(root):
+        symbol = str(row.get("symbol") or "")
+        if row.get("event") == "OPEN":
+            if queues[symbol]:
+                overlap += 1
+            queues[symbol].append(row)
+        elif row.get("event") == "CLOSE":
+            closes += 1
+            opened = queues[symbol].popleft() if queues[symbol] else None
+            if opened is None:
+                unpaired += 1
+                continue
+            if row.get("opened_at") == opened.get("ts"):
+                opened_match += 1
+            if row.get("closed_at") == row.get("ts"):
+                closed_match += 1
+    still_open = sorted(symbol for symbol, queue in queues.items() if queue)
+    if overlap or unpaired:
+        status = "OVERLAP"
+    elif closes == 0 and not still_open:
+        status = "NO_ROWS"
+    else:
+        status = "NO_OVERLAP"
+    return {
+        "paper_only": True,
+        "positions_closed": False,
+        "overlap_opens": overlap,
+        "unpaired_closes": unpaired,
+        "close_rows": closes,
+        "opened_at_matches_open_ts": opened_match,
+        "closed_at_matches_ts": closed_match,
+        "still_open": still_open,
+        "status": status,
+    }
+
+
+def write_book_overlap(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.book_overlap.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_book_overlap(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "book_overlap.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

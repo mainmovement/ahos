@@ -84,6 +84,19 @@ def logged_witness(witness: dict) -> dict:
     return out
 
 
+def logged_source(source: object) -> str | None:
+    """Keep the venue label. A source that carries an address is reduced to that label."""
+    if source is None:
+        return None
+    text = str(source)
+    if "0x" in text.lower() or "pool32:" in text.lower():
+        kind = text.split(":", 1)[0]
+        if not kind or "0x" in kind.lower():
+            return None
+        return kind
+    return text
+
+
 MAX_TRADE_AGE_S = 20 * 60
 ENTRY = 0.25
 RISK_PER_TRADE = 0.005
@@ -446,7 +459,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         q = quotes.get(sym) or {}
         price = q.get("price")
         w = wit[sym]
-        base = {"ts": _iso(t), "symbol": sym, "desk": desk, "paper_only": True, "source": q.get("source"),
+        base = {"ts": _iso(t), "symbol": sym, "desk": desk, "paper_only": True, "source": logged_source(q.get("source")),
                 "market_time": q.get("market_time"), "witness": logged_witness(w)}
         mt = _parse(q.get("market_time"))
         pos = positions.get(sym)

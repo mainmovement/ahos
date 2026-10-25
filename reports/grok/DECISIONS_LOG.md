@@ -675,3 +675,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 60 checks, drift [], unknown []. Skip census at this export: 3601 rows, `MARKET_CLOSED_OR_STALE` 3447. Whitehat CLEAN, 6 checks. pytest 68 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4315 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 24 quote age, source address, book overlap
+
+### WP-24.1 — executed quotes are inside the stale gate
+- **Draft:** Age is the log stamp minus `market_time`. The gate stays 1200 seconds. A negative age is the quote stamp sitting ahead of the log stamp.
+- **Critique 1:** 30 opens and 26 closes. None are older than the gate. The oldest open quote is 337 seconds. The oldest close quote is 308 seconds. 9 opens are ahead by at most 16 seconds. 10 closes are ahead by at most 22 seconds.
+- **Critique 2 (meta):** A quote stamp a few seconds ahead of the log is clock skew. It is not a fresh-quote proof and it is not a stale fill. The gate was not widened.
+- **Result:** `reports/grok/PAPER/quote_age.json`. Status `WITHIN_STALE_GATE`. `gate_changed` false.
+
+### WP-24.2 — four DEX rows still carry an address, and the receipt does not
+- **Draft:** Count OPEN and CLOSE sources that contain an address. Store only the venue label. Do not rewrite the historical rows. New log rows from the next process start keep the label and drop the address.
+- **Critique 1:** 4 opens and 4 closes still have an address on the log. Venue counts are coingecko 21/18, geckoterminal 4/4, yahoo_finance 5/4. The receipt text has no address. `logged_source` returns the label only.
+- **Critique 2 (meta):** The running paper trader has not loaded that copy. Historical rows stay as they were written. The count is the log, not a claim that the address is already gone.
+- **Result:** `reports/grok/PAPER/source_address.json`. Status `ADDRESS_ON_LOG`. `log_rewritten` false.
+
+### WP-24.3 — no symbol is open twice
+- **Draft:** An OPEN while the same symbol is already unmatched is an overlap. `opened_at` must equal the matched open stamp. `closed_at` must equal the close stamp. Do not close the remaining opens.
+- **Critique 1:** Overlap 0. Unpaired closes 0. All 26 closes match both stamps. Still open: BTC, ETH, SOL, UNI.
+- **Critique 2 (meta):** A clean FIFO book is not an exit signal. The four opens stay open.
+- **Result:** `reports/grok/PAPER/book_overlap.json`. Status `NO_OVERLAP`. `positions_closed` false.
+
+### WP-24.4 — checks 61 to 63
+- **Draft:** Each check recomputes the log. A quote receipt that changes the gate fails. A source receipt that copies an address or rewrites the log fails. A book receipt that closes a position fails.
+- **Critique 1:** The panel copies the three statuses and does not copy an address. Each missing file stays a not-run sentence.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 63 checks, drift [], unknown []. Skip census at this export: 3621 rows, `MARKET_CLOSED_OR_STALE` 3466. Whitehat CLEAN, 6 checks. pytest 69 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4318 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
