@@ -351,8 +351,8 @@
     {
       "stage": "Stage 20",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "4c5777e",
+      "arena_commit": "933d63a",
       "path_status": "PATH_RECORDED",
       "reversal_signed_exit": [-0.4533, -0.253],
       "reversal_at_or_beyond": 12,
