@@ -718,6 +718,17 @@ def _ua_root(tmp_path):
         "signal_count_min": None, "signal_count_max": None, "signal_counts": [],
         "weight_sum_min": None, "weight_sum_max": None, "weight_sum_below_1": 0,
         "weight_sum_below_half": 0, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/exit_trigger.json", {
+        "paper_only": True, "exit_rule_changed": False, "take_multiple": 1.5, "close_rows": 0,
+        "take_profit_rows": 0, "take_profit_quote_beyond": 0, "fill_inside_take_line": 0,
+        "other_quote_beyond": 0, "stop_crossed": 0, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/signal_dissent.json", {
+        "paper_only": True, "signals_removed": False, "close_rows": 0, "contribution_agree": 0,
+        "contribution_oppose": 0, "contribution_zero": 0, "closes_with_opposition": 0,
+        "always_zero": [], "always_opposes": [], "never_agrees": [], "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/exit_slippage.json", {
+        "paper_only": True, "added_to_cash_gap": False, "edge_claimed": False, "close_rows": 0,
+        "drag_sum": 0.0, "reasons": [], "status": "NO_CLOSED_ROWS"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

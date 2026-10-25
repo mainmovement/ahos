@@ -1,0 +1,15 @@
+{
+ "schema": "ahos.paper.exit_trigger.v1",
+ "generated_at": "2026-10-25T09:42:00Z",
+ "paper_only": true,
+ "exit_rule_changed": false,
+ "take_multiple": 1.5,
+ "close_rows": 26,
+ "missing_rows": 0,
+ "take_profit_rows": 2,
+ "take_profit_quote_beyond": 2,
+ "fill_inside_take_line": 1,
+ "other_quote_beyond": 0,
+ "stop_crossed": 0,
+ "status": "RULE_CONSISTENT"
+}

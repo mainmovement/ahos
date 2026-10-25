@@ -1,0 +1,28 @@
+{
+ "schema": "ahos.paper.exit_slippage.v1",
+ "generated_at": "2026-10-25T09:42:01Z",
+ "paper_only": true,
+ "edge_claimed": false,
+ "added_to_cash_gap": false,
+ "close_rows": 26,
+ "missing_rows": 0,
+ "drag_sum": 0.022539,
+ "reasons": [
+  {
+   "reason": "SIGNAL_REVERSAL",
+   "rows": 12,
+   "drag": 0.008127
+  },
+  {
+   "reason": "TAKE_PROFIT",
+   "rows": 2,
+   "drag": 0.001453
+  },
+  {
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "rows": 12,
+   "drag": 0.012959
+  }
+ ],
+ "status": "DRAG_RECORDED"
+}

@@ -597,3 +597,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the path status, the hold status, and the signal-count range. Each missing file stays a not-run sentence.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 51 checks, drift [], unknown []. Skip census at this export: 3530 rows, `MARKET_CLOSED_OR_STALE` 3379. Whitehat CLEAN, 6 checks. pytest 65 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4306 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 21 quote trigger, signal dissent, exit slippage
+
+### WP-21.1 — take profit is the quote, and the fill can sit inside the line
+- **Draft:** Divide the signed quote move and the signed fill move by the stop stored on the matched open. The take-profit multiple stays 1.5. A stop is crossed only when the quote ratio is at or below -1.
+- **Critique 1:** Quant: both take-profits have a quote ratio at or above 1.5. One of those fills is inside the line. No other close reaches 1.5. No close reaches the stop line. Council: nothing is promoted. Lane A untouched.
+- **Critique 2 (meta):** The fill is after slippage, so it can print inside a line the quote already crossed. That does not move the trigger from the quote to the fill, and it does not change the exit order.
+- **Result:** `reports/grok/PAPER/exit_trigger.json`. Status `RULE_CONSISTENT`. `exit_rule_changed` false.
+
+### WP-21.2 — opposing and zero scores stay in the average
+- **Draft:** Count every stored contribution as same-side, opposing, or zero. Name signals that are zero on every row, and signals that oppose on every row. Remove none of them.
+- **Critique 1:** 101 same-side, 56 opposing, 99 zero. 24 of 26 closes carry some opposing weight. That share runs from 0 to 0.43. Zero-score weight share runs from 0 to 0.3188. Always zero: `event_shock`, `macro_event`, `stablecoin_impulse`, `whale_mempool`. Always opposes: `exchange_netflow`. `zscore_mr` never agrees: it is either zero or opposed.
+- **Critique 2 (meta):** A zero score still sits in the divisor. Deleting it would change the composite and the gate. The same-side count includes the large term already measured. It is not a new skill.
+- **Result:** `reports/grok/PAPER/signal_dissent.json`. Status `DISSENT_RECORDED`. `signals_removed` false. `skill_claimed` false.
+
+### WP-21.3 — quote-minus-fill is a return drag
+- **Draft:** Sum signed quote move minus signed fill move, by reason. Do not add the sum to the cash gap and do not call it dollars.
+- **Critique 1:** Drag sum 0.022539 in return units. Reversal 0.008127. Take profit 0.001453. Conflict 0.012959.
+- **Critique 2 (meta):** This is the fill sitting worse than the quote. It is not a second fee and it is not an edge.
+- **Result:** `reports/grok/PAPER/exit_slippage.json`. Status `DRAG_RECORDED`. `added_to_cash_gap` false.
+
+### WP-21.4 — checks 52 to 54
+- **Draft:** Each check recomputes the log. A trigger receipt that changes the exit rule fails. A dissent receipt that removes a signal fails. A slippage receipt that adds itself to the cash gap fails.
+- **Critique 1:** The panel copies the trigger status, the dissent counts, and the drag sum. Each missing file stays a not-run sentence.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 54 checks, drift [], unknown []. Skip census at this export: 3550 rows, `MARKET_CLOSED_OR_STALE` 3399. Whitehat CLEAN, 6 checks. pytest 66 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4309 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

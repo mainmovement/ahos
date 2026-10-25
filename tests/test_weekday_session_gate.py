@@ -299,3 +299,44 @@ def test_conflict_exit_can_stay_positive_without_becoming_a_reversal(tmp_path):
     assert breadth["minimum_changed"] is False and breadth["edge_claimed"] is False
     assert breadth["signal_count_min"] == 1 and breadth["signal_count_max"] == 2
     assert breadth["weight_sum_below_1"] == 2 and breadth["weight_sum_below_half"] == 1
+
+
+def test_take_profit_uses_the_quote_and_dissent_removes_nothing(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_exit_slippage, measure_exit_trigger, measure_signal_dissent,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({"event": "OPEN", "symbol": "ETH", "stop_pct": 0.02}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "ETH", "side": "LONG", "reason": "TAKE_PROFIT",
+            "entry_price": 100.0, "quote_price": 103.0, "fill_price": 102.5,
+            "entry_brain": {"contributions": [
+                {"signal": "mtf_trend", "score": 0.5, "weight": 0.5},
+                {"signal": "macro_event", "score": 0.0, "weight": 0.3},
+                {"signal": "zscore_mr", "score": -0.2, "weight": 0.2}]}}),
+        json.dumps({"event": "OPEN", "symbol": "BTC", "stop_pct": 0.02}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "BTC", "side": "LONG", "reason": "WITNESS_CONFLICT_EXIT",
+            "entry_price": 100.0, "quote_price": 100.5, "fill_price": 100.4,
+            "entry_brain": {"contributions": [
+                {"signal": "mtf_trend", "score": 0.4, "weight": 0.6},
+                {"signal": "exchange_netflow", "score": -0.1, "weight": 0.4}]}}),
+    ]) + "\n", encoding="utf-8")
+    trigger = measure_exit_trigger(tmp_path)
+    assert trigger["status"] == "RULE_CONSISTENT" and trigger["exit_rule_changed"] is False
+    assert trigger["take_profit_quote_beyond"] == 1 and trigger["fill_inside_take_line"] == 1
+    assert trigger["other_quote_beyond"] == 0 and trigger["stop_crossed"] == 0
+    dissent = measure_signal_dissent(tmp_path)
+    assert dissent["signals_removed"] is False and dissent["skill_claimed"] is False
+    assert dissent["contribution_agree"] == 2 and dissent["contribution_oppose"] == 2
+    assert dissent["contribution_zero"] == 1 and dissent["closes_with_opposition"] == 2
+    assert dissent["always_zero"] == ["macro_event"]
+    assert dissent["always_opposes"] == ["exchange_netflow", "zscore_mr"]
+    slip = measure_exit_slippage(tmp_path)
+    assert slip["added_to_cash_gap"] is False and slip["edge_claimed"] is False
+    assert slip["drag_sum"] == 0.006 and slip["status"] == "DRAG_RECORDED"

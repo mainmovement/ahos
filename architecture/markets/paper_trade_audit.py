@@ -1343,6 +1343,239 @@ def write_signal_breadth(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _paired_closes(root: Path) -> list[tuple[dict[str, Any], dict[str, Any] | None]]:
+    from collections import defaultdict, deque
+
+    queues: dict[str, deque] = defaultdict(deque)
+    pairs = []
+    for row in _log_rows(root):
+        symbol = str(row.get("symbol") or "")
+        if row.get("event") == "OPEN":
+            queues[symbol].append(row)
+        elif row.get("event") == "CLOSE":
+            pairs.append((row, queues[symbol].popleft() if queues[symbol] else None))
+    return pairs
+
+
+def _direction(row: dict[str, Any]) -> float | None:
+    if row.get("side") == "LONG":
+        return 1.0
+    if row.get("side") == "SHORT":
+        return -1.0
+    return None
+
+
+def measure_exit_trigger(root: Path) -> dict[str, Any]:
+    """Quote move against the stored stop. The take-profit line is the quote, not the fill."""
+    from architecture.markets.paper_trader import TAKE_MULT
+
+    take_rows = take_beyond = fill_inside = other_beyond = stop_crossed = missing = 0
+    closes = _paired_closes(root)
+    for row, opened in closes:
+        direction = _direction(row)
+        entry = row.get("entry_price")
+        quote = row.get("quote_price")
+        fill = row.get("fill_price")
+        stop = (opened or {}).get("stop_pct") if isinstance(opened, dict) else None
+        if (direction is None or not isinstance(entry, (int, float)) or not entry
+                or not isinstance(quote, (int, float)) or not isinstance(fill, (int, float))
+                or not isinstance(stop, (int, float)) or not stop):
+            missing += 1
+            continue
+        quote_ratio = (float(quote) - float(entry)) / float(entry) * direction / float(stop)
+        fill_ratio = (float(fill) - float(entry)) / float(entry) * direction / float(stop)
+        is_take = row.get("reason") == "TAKE_PROFIT"
+        if is_take:
+            take_rows += 1
+        if quote_ratio >= TAKE_MULT:
+            if is_take:
+                take_beyond += 1
+            else:
+                other_beyond += 1
+            if fill_ratio < TAKE_MULT:
+                fill_inside += 1
+        if quote_ratio <= -1:
+            stop_crossed += 1
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif take_beyond == take_rows and other_beyond == 0 and stop_crossed == 0:
+        status = "RULE_CONSISTENT"
+    else:
+        status = "RULE_INCONSISTENT"
+    return {
+        "paper_only": True,
+        "exit_rule_changed": False,
+        "take_multiple": TAKE_MULT,
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "take_profit_rows": take_rows,
+        "take_profit_quote_beyond": take_beyond,
+        "fill_inside_take_line": fill_inside,
+        "other_quote_beyond": other_beyond,
+        "stop_crossed": stop_crossed,
+        "status": status,
+    }
+
+
+def write_exit_trigger(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.exit_trigger.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_exit_trigger(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "exit_trigger.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_signal_dissent(root: Path) -> dict[str, Any]:
+    """Same-side, opposing, and zero scores. No signal is removed."""
+    from collections import defaultdict
+
+    cells: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0, 0])
+    agree = oppose = zero = 0
+    shares_opp: list[float] = []
+    shares_zero: list[float] = []
+    closes = _close_brains(root)
+    missing = 0
+    for row in closes:
+        direction = _direction(row)
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+        contributions = [item for item in (brain.get("contributions") or []) if isinstance(item, dict)]
+        if direction is None or not contributions:
+            missing += 1
+            continue
+        weight = sum(float(item.get("weight") or 0) for item in contributions)
+        opposed = diluted = 0.0
+        for item in contributions:
+            name = str(item.get("signal") or "MISSING")
+            score = float(item.get("score") or 0)
+            item_weight = float(item.get("weight") or 0)
+            cells[name][0] += 1
+            if score == 0:
+                zero += 1
+                diluted += item_weight
+                cells[name][3] += 1
+            elif score * direction > 0:
+                agree += 1
+                cells[name][1] += 1
+            else:
+                oppose += 1
+                opposed += item_weight
+                cells[name][2] += 1
+        base = weight or 1.0
+        shares_opp.append(opposed / base)
+        shares_zero.append(diluted / base)
+    signals = [{
+        "signal": name,
+        "present": cells[name][0],
+        "agree": cells[name][1],
+        "oppose": cells[name][2],
+        "zero": cells[name][3],
+    } for name in sorted(cells)]
+    always_zero = [item["signal"] for item in signals if item["agree"] == 0 and item["oppose"] == 0]
+    always_opposes = [item["signal"] for item in signals if item["agree"] == 0 and item["oppose"] == item["present"] and item["oppose"] > 0]
+    never_agrees = [item["signal"] for item in signals if item["agree"] == 0]
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    else:
+        status = "DISSENT_RECORDED"
+    return {
+        "paper_only": True,
+        "skill_claimed": False,
+        "signals_removed": False,
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "contribution_agree": agree,
+        "contribution_oppose": oppose,
+        "contribution_zero": zero,
+        "closes_with_opposition": sum(1 for value in shares_opp if value > 0),
+        "opposition_weight_share_min": None if not shares_opp else round(min(shares_opp), 4),
+        "opposition_weight_share_max": None if not shares_opp else round(max(shares_opp), 4),
+        "zero_weight_share_min": None if not shares_zero else round(min(shares_zero), 4),
+        "zero_weight_share_max": None if not shares_zero else round(max(shares_zero), 4),
+        "always_zero": always_zero,
+        "always_opposes": always_opposes,
+        "never_agrees": never_agrees,
+        "signals": signals,
+        "status": status,
+    }
+
+
+def write_signal_dissent(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.signal_dissent.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_signal_dissent(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "signal_dissent.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_exit_slippage(root: Path) -> dict[str, Any]:
+    """Signed quote move minus signed fill move. This drag is not a cash gap."""
+    from collections import defaultdict
+
+    drag = defaultdict(float)
+    counts = defaultdict(int)
+    missing = 0
+    closes = _paired_closes(root)
+    for row, _opened in closes:
+        direction = _direction(row)
+        entry = row.get("entry_price")
+        quote = row.get("quote_price")
+        fill = row.get("fill_price")
+        if (direction is None or not isinstance(entry, (int, float)) or not entry
+                or not isinstance(quote, (int, float)) or not isinstance(fill, (int, float))):
+            missing += 1
+            continue
+        quote_move = (float(quote) - float(entry)) / float(entry) * direction
+        fill_move = (float(fill) - float(entry)) / float(entry) * direction
+        reason = str(row.get("reason") or "MISSING")
+        drag[reason] += quote_move - fill_move
+        counts[reason] += 1
+    reasons = [{
+        "reason": reason,
+        "rows": counts[reason],
+        "drag": round(drag[reason], 6),
+    } for reason in sorted(drag)]
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    else:
+        status = "DRAG_RECORDED"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "added_to_cash_gap": False,
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "drag_sum": round(sum(drag.values()), 6),
+        "reasons": reasons,
+        "status": status,
+    }
+
+
+def write_exit_slippage(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.exit_slippage.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_exit_slippage(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "exit_slippage.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

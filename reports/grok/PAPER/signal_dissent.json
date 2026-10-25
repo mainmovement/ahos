@@ -1,0 +1,135 @@
+{
+ "schema": "ahos.paper.signal_dissent.v1",
+ "generated_at": "2026-10-25T09:42:01Z",
+ "paper_only": true,
+ "skill_claimed": false,
+ "signals_removed": false,
+ "close_rows": 26,
+ "missing_rows": 0,
+ "contribution_agree": 101,
+ "contribution_oppose": 56,
+ "contribution_zero": 99,
+ "closes_with_opposition": 24,
+ "opposition_weight_share_min": 0.0,
+ "opposition_weight_share_max": 0.43,
+ "zero_weight_share_min": 0.0,
+ "zero_weight_share_max": 0.3188,
+ "always_zero": [
+  "event_shock",
+  "macro_event",
+  "stablecoin_impulse",
+  "whale_mempool"
+ ],
+ "always_opposes": [
+  "exchange_netflow"
+ ],
+ "never_agrees": [
+  "event_shock",
+  "exchange_netflow",
+  "macro_event",
+  "stablecoin_impulse",
+  "whale_mempool",
+  "zscore_mr"
+ ],
+ "signals": [
+  {
+   "signal": "candles",
+   "present": 25,
+   "agree": 13,
+   "oppose": 2,
+   "zero": 10
+  },
+  {
+   "signal": "event_shock",
+   "present": 22,
+   "agree": 0,
+   "oppose": 0,
+   "zero": 22
+  },
+  {
+   "signal": "exchange_netflow",
+   "present": 7,
+   "agree": 0,
+   "oppose": 7,
+   "zero": 0
+  },
+  {
+   "signal": "funding_oi",
+   "present": 16,
+   "agree": 5,
+   "oppose": 11,
+   "zero": 0
+  },
+  {
+   "signal": "large_trades",
+   "present": 17,
+   "agree": 9,
+   "oppose": 1,
+   "zero": 7
+  },
+  {
+   "signal": "macro",
+   "present": 24,
+   "agree": 17,
+   "oppose": 7,
+   "zero": 0
+  },
+  {
+   "signal": "macro_event",
+   "present": 23,
+   "agree": 0,
+   "oppose": 0,
+   "zero": 23
+  },
+  {
+   "signal": "mtf_trend",
+   "present": 25,
+   "agree": 25,
+   "oppose": 0,
+   "zero": 0
+  },
+  {
+   "signal": "news",
+   "present": 26,
+   "agree": 20,
+   "oppose": 6,
+   "zero": 0
+  },
+  {
+   "signal": "order_flow",
+   "present": 16,
+   "agree": 10,
+   "oppose": 6,
+   "zero": 0
+  },
+  {
+   "signal": "stablecoin",
+   "present": 13,
+   "agree": 2,
+   "oppose": 5,
+   "zero": 6
+  },
+  {
+   "signal": "stablecoin_impulse",
+   "present": 15,
+   "agree": 0,
+   "oppose": 0,
+   "zero": 15
+  },
+  {
+   "signal": "whale_mempool",
+   "present": 2,
+   "agree": 0,
+   "oppose": 0,
+   "zero": 2
+  },
+  {
+   "signal": "zscore_mr",
+   "present": 25,
+   "agree": 0,
+   "oppose": 11,
+   "zero": 14
+  }
+ ],
+ "status": "DISSENT_RECORDED"
+}
