@@ -489,8 +489,8 @@
     {
       "stage": "Stage 24",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "a26c005",
+      "arena_commit": "5694f33",
       "quote_status": "WITHIN_STALE_GATE",
       "open_over_gate": 0,
       "close_over_gate": 0,
