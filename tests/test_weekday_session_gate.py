@@ -377,3 +377,41 @@ def test_missing_path_is_not_zero_and_the_cost_table_holds(tmp_path):
     assert cost["status"] == "SCHEDULE_HELD" and cost["schedule_changed"] is False
     assert cost["edge_claimed"] is False and cost["close_fee_compared"] is False
     assert cost["open_fee_mismatch"] == 0 and cost["close_slip_mismatch"] == 0
+
+
+def test_witness_reason_matches_and_the_fee_splits(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_equity_replay, measure_fee_decomposition, measure_witness_reason,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({
+            "event": "OPEN", "symbol": "ETH", "notional_usd": 10.0, "fee_usd": 0.01,
+            "equity_at_open_usd": 100.0, "witness": {"verdict": "VERIFIED"}}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "ETH", "side": "LONG", "reason": "TAKE_PROFIT",
+            "notional_usd": 10.0, "qty": 0.1, "fill_price": 102.0, "fees_usd": 0.0202,
+            "realized_pnl_usd": -0.02, "witness": {"verdict": "VERIFIED"}}),
+        json.dumps({
+            "event": "OPEN", "symbol": "BTC", "notional_usd": 10.0, "fee_usd": 0.01,
+            "equity_at_open_usd": 99.98, "witness": {"verdict": "VERIFIED"}}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "BTC", "side": "LONG", "reason": "WITNESS_CONFLICT_EXIT",
+            "notional_usd": 10.0, "qty": 0.2, "fill_price": 50.0, "fees_usd": 0.02,
+            "realized_pnl_usd": -0.01, "witness": {"verdict": "CONFLICT"}}),
+    ]) + "\n", encoding="utf-8")
+    witness = measure_witness_reason(tmp_path)
+    assert witness["status"] == "VERDICT_MATCHES_REASON" and witness["exit_rule_changed"] is False
+    assert witness["conflict_rows"] == 1 and witness["conflict_verdict_conflict"] == 1
+    assert witness["other_verdict_verified"] == 1 and witness["open_verified"] == 2
+    fee = measure_fee_decomposition(tmp_path)
+    assert fee["status"] == "FEE_DECOMPOSED" and fee["added_to_cash_gap"] is False
+    assert fee["within_band"] == 2 and fee["beyond_band"] == 0 and fee["edge_claimed"] is False
+    equity = measure_equity_replay(tmp_path)
+    assert equity["status"] == "WITHIN_ONE_CENT" and equity["equity_rewritten"] is False
+    assert equity["beyond_cent"] == 0 and equity["max_abs_gap"] == 0.0
+    assert equity["end_equity_usd"] == 99.97 and equity["added_to_cash_gap"] is False

@@ -1759,6 +1759,193 @@ def write_cost_schedule(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_witness_reason(root: Path) -> dict[str, Any]:
+    """The stored verdict against the exit reason. The exit order is not changed."""
+    conflict = conflict_ok = other = other_ok = missing = 0
+    opens = open_ok = open_missing = 0
+    for row in _log_rows(root):
+        event = row.get("event")
+        witness = row.get("witness") if isinstance(row.get("witness"), dict) else None
+        verdict = witness.get("verdict") if witness else None
+        if event == "OPEN":
+            opens += 1
+            if verdict == "VERIFIED":
+                open_ok += 1
+            else:
+                open_missing += 1
+            continue
+        if event != "CLOSE":
+            continue
+        reason = row.get("reason")
+        if not reason or verdict is None:
+            missing += 1
+            continue
+        if reason == "WITNESS_CONFLICT_EXIT":
+            conflict += 1
+            if verdict == "CONFLICT":
+                conflict_ok += 1
+        else:
+            other += 1
+            if verdict == "VERIFIED":
+                other_ok += 1
+    closes = conflict + other + missing
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif missing or conflict_ok != conflict or other_ok != other or open_missing:
+        status = "INCOMPLETE" if missing or open_missing else "VERDICT_MISMATCH"
+    else:
+        status = "VERDICT_MATCHES_REASON"
+    return {
+        "paper_only": True,
+        "exit_rule_changed": False,
+        "close_rows": closes,
+        "missing_rows": missing,
+        "conflict_rows": conflict,
+        "conflict_verdict_conflict": conflict_ok,
+        "other_rows": other,
+        "other_verdict_verified": other_ok,
+        "open_rows": opens,
+        "open_verified": open_ok,
+        "open_missing": open_missing,
+        "status": status,
+    }
+
+
+def write_witness_reason(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.witness_reason.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_witness_reason(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "witness_reason.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_fee_decomposition(root: Path) -> dict[str, Any]:
+    """Close fee against the open fee plus the exit fee. This is not a cash gap."""
+    band = 1e-6
+    within = beyond = missing = fraction_not_one = 0
+    gaps: list[float] = []
+    for row, opened in _paired_closes(root):
+        schedule = _cost_schedule(str(row.get("symbol") or ""))
+        fees = row.get("fees_usd")
+        fill = row.get("fill_price")
+        qty = row.get("qty")
+        close_notional = row.get("notional_usd")
+        open_fee = (opened or {}).get("fee_usd") if isinstance(opened, dict) else None
+        open_notional = (opened or {}).get("notional_usd") if isinstance(opened, dict) else None
+        if (schedule is None or not isinstance(fees, (int, float)) or not isinstance(fill, (int, float))
+                or not isinstance(qty, (int, float)) or not isinstance(open_fee, (int, float))
+                or not isinstance(close_notional, (int, float)) or not isinstance(open_notional, (int, float))
+                or not open_notional):
+            missing += 1
+            continue
+        fraction = float(close_notional) / float(open_notional)
+        if abs(fraction - 1.0) > 1e-4:
+            fraction_not_one += 1
+        gap = abs(float(fees) - (float(open_fee) * fraction + float(fill) * float(qty) * schedule[0]))
+        gaps.append(gap)
+        if gap <= band:
+            within += 1
+        else:
+            beyond += 1
+    closes = within + beyond + missing
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif beyond == 0:
+        status = "FEE_DECOMPOSED"
+    else:
+        status = "FEE_BEYOND_BAND"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "added_to_cash_gap": False,
+        "fee_band": band,
+        "close_rows": closes,
+        "missing_rows": missing,
+        "within_band": within,
+        "beyond_band": beyond,
+        "fraction_not_one": fraction_not_one,
+        "max_abs_gap": None if not gaps else round(max(gaps), 8),
+        "status": status,
+    }
+
+
+def write_fee_decomposition(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.fee_decomposition.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_fee_decomposition(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "fee_decomposition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_equity_replay(root: Path) -> dict[str, Any]:
+    """Logged equity at each open against the sum of earlier close pnl. The residual is not a cash gap."""
+    from architecture.markets.paper_account import INITIAL_CAPITAL_USD
+
+    cent = 0.01
+    equity = float(INITIAL_CAPITAL_USD)
+    missing = within = beyond = opens = 0
+    gaps: list[float] = []
+    for row in _log_rows(root):
+        if row.get("event") == "OPEN":
+            opens += 1
+            logged = row.get("equity_at_open_usd")
+            if not isinstance(logged, (int, float)):
+                missing += 1
+                continue
+            gap = abs(float(logged) - equity)
+            gaps.append(gap)
+            if gap <= cent:
+                within += 1
+            else:
+                beyond += 1
+        elif row.get("event") == "CLOSE" and isinstance(row.get("realized_pnl_usd"), (int, float)):
+            equity += float(row["realized_pnl_usd"])
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif beyond == 0:
+        status = "WITHIN_ONE_CENT"
+    else:
+        status = "BEYOND_ONE_CENT"
+    return {
+        "paper_only": True,
+        "equity_rewritten": False,
+        "added_to_cash_gap": False,
+        "initial_capital_usd": float(INITIAL_CAPITAL_USD),
+        "cent_band": cent,
+        "open_rows": opens,
+        "missing_rows": missing,
+        "within_cent": within,
+        "beyond_cent": beyond,
+        "max_abs_gap": None if not gaps else round(max(gaps), 4),
+        "end_equity_usd": round(equity, 4),
+        "status": status,
+    }
+
+
+def write_equity_replay(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.equity_replay.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_equity_replay(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "equity_replay.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

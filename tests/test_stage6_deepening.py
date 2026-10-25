@@ -742,6 +742,20 @@ def _ua_root(tmp_path):
         "paper_only": True, "edge_claimed": False, "schedule_changed": False, "open_rows": 1,
         "close_rows": 0, "missing_rows": 1, "open_fee_mismatch": 0, "open_slip_mismatch": 0,
         "close_slip_mismatch": 0, "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/witness_reason.json", {
+        "paper_only": True, "exit_rule_changed": False, "close_rows": 0, "missing_rows": 0,
+        "conflict_rows": 0, "conflict_verdict_conflict": 0, "other_rows": 0,
+        "other_verdict_verified": 0, "open_rows": 1, "open_verified": 0, "open_missing": 1,
+        "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/fee_decomposition.json", {
+        "paper_only": True, "edge_claimed": False, "added_to_cash_gap": False, "fee_band": 1e-6,
+        "close_rows": 0, "missing_rows": 0, "within_band": 0, "beyond_band": 0,
+        "fraction_not_one": 0, "max_abs_gap": None, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/equity_replay.json", {
+        "paper_only": True, "equity_rewritten": False, "added_to_cash_gap": False,
+        "initial_capital_usd": 100.0, "cent_band": 0.01, "open_rows": 1, "missing_rows": 1,
+        "within_cent": 0, "beyond_cent": 0, "max_abs_gap": None, "end_equity_usd": 100.0,
+        "status": "INCOMPLETE"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

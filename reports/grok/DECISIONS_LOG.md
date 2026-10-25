@@ -649,3 +649,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 57 checks, drift [], unknown []. Skip census at this export: 3580 rows, `MARKET_CLOSED_OR_STALE` 3427. Whitehat CLEAN, 6 checks. pytest 67 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4312 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 23 witness reason, fee split, equity replay
+
+### WP-23.1 — the stored verdict matches the exit reason
+- **Draft:** A conflict exit must carry verdict CONFLICT. Every other close must carry VERIFIED. Every open must carry VERIFIED. Do not change which rule fires first.
+- **Critique 1:** 12 conflict exits, all CONFLICT. 14 other closes, all VERIFIED. 30 opens, all VERIFIED. No close is missing a verdict.
+- **Critique 2 (meta):** A take-profit or a reversal with VERIFIED is the earlier rule winning. It is not a conflict that was skipped. The exit order stays as it is.
+- **Result:** `reports/grok/PAPER/witness_reason.json`. Status `VERDICT_MATCHES_REASON`. `exit_rule_changed` false.
+
+### WP-23.2 — the close fee is the open fee plus the exit fee
+- **Draft:** Rebuild each close fee as the matched open fee plus fill times quantity times the instrument fee. The band is 0.000001. Do not divide the close fee by notional.
+- **Critique 1:** 26 closes inside the band. 0 beyond it. The widest gap is 0.00000049. Every close notional equals its open notional, so no partial is hiding in the ratio.
+- **Critique 2 (meta):** This split explains the fee. It does not add a new cash gap and it is not an edge. The table itself was already checked.
+- **Result:** `reports/grok/PAPER/fee_decomposition.json`. Status `FEE_DECOMPOSED`. `added_to_cash_gap` false.
+
+### WP-23.3 — equity at open replays from the rounded closes
+- **Draft:** Start from the initial capital and add each close pnl in log order. Compare that running sum with `equity_at_open_usd`. One cent is the band. Do not rewrite the stamps.
+- **Critique 1:** 30 opens are inside one cent. 0 are outside. The widest gap is 0.0045 USD. The sum of the rounded closes ends at 99.8619.
+- **Critique 2 (meta):** The earlier cash identity was zero on the ledger. This 0.0045 is the open stamp against the rounded pnl sum. It is not a second cash gap.
+- **Result:** `reports/grok/PAPER/equity_replay.json`. Status `WITHIN_ONE_CENT`. `equity_rewritten` false.
+
+### WP-23.4 — checks 58 to 60
+- **Draft:** Each check recomputes the log. A witness receipt that changes the exit rule fails. A fee receipt that adds itself to the cash gap fails. An equity receipt that rewrites the stamps fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 60 checks, drift [], unknown []. Skip census at this export: 3601 rows, `MARKET_CLOSED_OR_STALE` 3447. Whitehat CLEAN, 6 checks. pytest 68 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4315 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

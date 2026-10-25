@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T11:05:00Z",
-  "current_stage": "Stage 23",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 23) in full. Do not rerun Stage 22. Do not treat a missing path key as zero marks and do not backfill mae or mfe. Do not change the 1.5 take multiple. Do not treat the fee table as an edge. Do not move the take-profit trigger from the quote to the fill. Do not delete a zero-score signal or exchange_netflow. Do not add the slippage drag to the cash gap. Do not delay a witness-conflict exit until the score flips. Do not rescale weight sums up to 1. Do not lower the 0.25 entry gate. Do not turn Kelly on. Do not close the open shorts. Do not restart the paper trader.",
+  "updated_at": "2026-10-25T11:20:00Z",
+  "current_stage": "Stage 24",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 24) in full. Do not rerun Stage 23. Do not relabel a VERIFIED exit as a conflict. Do not add the fee split or the 0.0045 equity residual to the cash gap. Do not rewrite equity stamps. Do not treat a missing path key as zero marks and do not backfill mae or mfe. Do not change the 1.5 take multiple. Do not treat the fee table as an edge. Do not move the take-profit trigger from the quote to the fill. Do not delete a zero-score signal or exchange_netflow. Do not add the slippage drag to the cash gap. Do not delay a witness-conflict exit until the score flips. Do not rescale weight sums up to 1. Do not lower the 0.25 entry gate. Do not turn Kelly on. Do not close the open shorts. Do not restart the paper trader.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -452,6 +452,39 @@
       "validate_imports": "exit 0; 373 modules; evidence HOLD; Lane A 36/36; 4312 files",
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 23",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "witness_status": "VERDICT_MATCHES_REASON",
+      "conflict_rows": 12,
+      "conflict_verdict_conflict": 12,
+      "other_rows": 14,
+      "other_verdict_verified": 14,
+      "open_verified": 30,
+      "open_missing": 0,
+      "exit_rule_changed": false,
+      "fee_status": "FEE_DECOMPOSED",
+      "fee_within_band": 26,
+      "fee_max_abs_gap": 4.9e-7,
+      "fraction_not_one": 0,
+      "added_to_cash_gap": false,
+      "equity_status": "WITHIN_ONE_CENT",
+      "equity_max_abs_gap": 0.0045,
+      "end_equity_usd": 99.8619,
+      "equity_rewritten": false,
+      "skip_rows_at_export": 3601,
+      "stale_skips_at_export": 3447,
+      "closed_paper_trades": 26,
+      "unification": "60/60 UNIFIED_CLEAN",
+      "pytest": "68 passed (test_weekday_session_gate.py + test_stage6_deepening.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "validate_imports": "exit 0; 373 modules; evidence HOLD; Lane A 36/36; 4315 files",
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -459,14 +492,14 @@
     "Batch 8 admitted DSR is 0.0. PBO 0.4889 is batch8_admitted_only and does not promote a FAIL gate",
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
-    "Closed paper trades are 26 of 30. All 26 closes lack mae, mfe, path_points, and the partial key. That absence was not written back as zero. Every open take is within 0.00001 of stop times 1.5. Open fees and both slips match the instrument table. The close fee was not treated as that table",
+    "Closed paper trades are 26 of 30. All 12 conflict exits carry CONFLICT and the other 14 closes carry VERIFIED. Each close fee matches the open fee plus the exit fee within 0.00000049. Equity at open stays within one cent of the rounded pnl sum; the widest gap is 0.0045 and the replay ends at 99.8619. Neither gap was added to the cash identity",
     "Open fees 0.181288 USD and close fees 0.305656 USD are itemized on the paper log and on none of the ledger fills. Close PnL on the ledger is already net of fees. The books were not rewritten",
     "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested",
     "Broker connectivity is not verified",
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 23: diagnostic sweep, then four work packages",
-    "Stage 24: the next measured gap, four work packages"
+    "Stage 24: diagnostic sweep, then four work packages",
+    "Stage 25: the next measured gap, four work packages"
   ]
 }

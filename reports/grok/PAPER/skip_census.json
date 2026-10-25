@@ -1,12 +1,12 @@
 {
  "schema": "ahos.paper.skip_census.v1",
- "generated_at": "2026-10-25T10:00:33Z",
+ "generated_at": "2026-10-25T10:19:30Z",
  "paper_only": true,
- "event_rows": 3580,
+ "event_rows": 3601,
  "reason_counts": {
   "COMPOSITE_BELOW_ENTRY": 85,
-  "MARKET_CLOSED_OR_STALE": 3427,
-  "PRICE_UNAVAILABLE": 44,
+  "MARKET_CLOSED_OR_STALE": 3447,
+  "PRICE_UNAVAILABLE": 45,
   "WITNESS_CONFLICT": 23,
   "HIGHER_TF_DISAGREES": 1
  },
