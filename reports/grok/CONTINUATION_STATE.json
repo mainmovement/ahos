@@ -150,8 +150,8 @@
     {
       "stage": "Stage 14",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "2f13e81",
+      "arena_commit": "2eff31b",
       "fee_coverage": "ITEMIZED_ON_JSONL_NOT_ON_LEDGER",
       "open_rows_with_fee": 30,
       "open_fee_usd_sum": 0.181288,
