@@ -1,0 +1,13 @@
+{
+ "schema": "ahos.paper.regime_multiple.v1",
+ "generated_at": "2026-10-25T14:23:00Z",
+ "paper_only": true,
+ "multiple_changed": false,
+ "open_rows": 30,
+ "matched_rows": 30,
+ "mismatched_rows": 0,
+ "missing_rows": 0,
+ "haircut_rows": 0,
+ "unknown_rows": 1,
+ "status": "MULTIPLE_MATCHES"
+}

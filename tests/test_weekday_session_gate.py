@@ -486,3 +486,39 @@ def test_refusals_stay_on_their_side_of_the_gate_and_size_stays_inside(tmp_path)
     assert size["status"] == "INSIDE_DESK_AND_RISK" and size["caps_changed"] is False
     assert size["kelly_switched_on"] is False and size["event_size_defaulted"] == 1
     assert size["risk_above"] == 0 and size["desk_above"] == 0
+
+
+def test_adv_cap_and_regime_multiple_match_the_stored_open(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_adv_cap, measure_higher_tf, measure_regime_multiple,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({
+            "event": "OPEN", "symbol": "BTC", "side": "LONG",
+            "brain": {
+                "regime": {"regime": "NORMAL", "size_mult": 1.0},
+                "adv_cap": {
+                    "allowed": True, "notional_usd": 1.0, "cap_1pct_usd": 100.0,
+                    "adv_source": "vendor_24h_volume", "participation_rate": 0.0001,
+                },
+                "signals": [{"name": "mtf_trend", "evidence": {"higher_tf_sign": 1}}],
+            }}),
+        json.dumps({
+            "event": "OPEN", "symbol": "ETH", "side": "SHORT",
+            "brain": {"regime": {"regime": "UNKNOWN", "size_mult": 0.5}}}),
+    ]) + "\n", encoding="utf-8")
+    adv = measure_adv_cap(tmp_path)
+    assert adv["status"] == "CAP_HELD" and adv["cap_changed"] is False and adv["edge_claimed"] is False
+    assert adv["stored_rows"] == 1 and adv["missing_object"] == 1 and adv["assumed_floor_rows"] == 0
+    assert adv["allowed_mismatch"] == 0 and "0x" not in json.dumps(adv).lower()
+    regime = measure_regime_multiple(tmp_path)
+    assert regime["status"] == "MULTIPLE_MATCHES" and regime["multiple_changed"] is False
+    assert regime["matched_rows"] == 2 and regime["unknown_rows"] == 1 and regime["haircut_rows"] == 0
+    higher = measure_higher_tf(tmp_path)
+    assert higher["status"] == "SIGN_AGREES" and higher["rule_changed"] is False
+    assert higher["agree_rows"] == 1 and higher["disagree_rows"] == 0 and higher["missing_rows"] == 1

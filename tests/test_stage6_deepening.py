@@ -782,6 +782,18 @@ def _ua_root(tmp_path):
         "open_rows": 1, "scored_rows": 0, "missing_rows": 1, "event_size_defaulted": 0,
         "risk_above": 0, "desk_above": 0, "risk_ratio_max": None, "desk_ratio_max": None,
         "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/adv_cap.json", {
+        "paper_only": True, "cap_changed": False, "edge_claimed": False, "open_rows": 1,
+        "stored_rows": 0, "missing_object": 1, "source_blank": 0, "assumed_floor_rows": 0,
+        "allowed_mismatch": 0, "rate_over_1pct": 0, "participation_rate_max": None,
+        "sources": [], "status": "NO_STORED_CAP"})
+    w("reports/grok/PAPER/regime_multiple.json", {
+        "paper_only": True, "multiple_changed": False, "open_rows": 1, "matched_rows": 0,
+        "mismatched_rows": 0, "missing_rows": 1, "haircut_rows": 0, "unknown_rows": 0,
+        "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/higher_tf.json", {
+        "paper_only": True, "rule_changed": False, "open_rows": 1, "agree_rows": 0,
+        "disagree_rows": 0, "missing_rows": 1, "status": "NO_STORED_SIGN"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

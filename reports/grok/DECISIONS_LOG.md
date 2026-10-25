@@ -727,3 +727,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 66 checks, drift [], unknown []. Skip census at this export: 3652 rows, `MARKET_CLOSED_OR_STALE` 3493. Whitehat CLEAN, 6 checks. pytest 70 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4321 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 26 volume cap, regime multiple, higher timeframe
+
+### WP-26.1 — stored participation stays under one percent
+- **Draft:** Where an open stores an ADV cap, the allowed flag must match notional against that cap, and the participation rate must be at most 0.01. Count the assumed 50-million floor separately. Do not change the cap. Do not copy an address.
+- **Critique 1:** 27 opens store a cap. 0 disagree with the inequality. 0 are over one percent. The largest participation rate is 0.00000036. 18 use the vendor 24-hour volume and 8 use five-minute volume scaled by 288. The assumed floor was used 0 times. 3 opens have no cap object. 1 stored object has a blank source.
+- **Critique 2 (meta):** A rate that small is the size of a paper notional against a large volume print. It is not evidence of liquidity skill, and the three opens without a cap were not filled in.
+- **Result:** `reports/grok/PAPER/adv_cap.json`. Status `CAP_HELD`. `cap_changed` false.
+
+### WP-26.2 — the size multiple matches the regime table
+- **Draft:** HIGH is 0.5, NORMAL is 1.0, LOW is 0.8, and UNKNOWN is 0.5. A stored depth-disagreement haircut would halve that. Do not add a haircut and do not change the table.
+- **Critique 1:** 30 opens match. 0 disagree. 1 is UNKNOWN at 0.5. Haircut rows are 0.
+- **Critique 2 (meta):** The running process did not store a haircut. Adding one now would change size without a new measurement of depth disagreement on these rows.
+- **Result:** `reports/grok/PAPER/regime_multiple.json`. Status `MULTIPLE_MATCHES`. `multiple_changed` false.
+
+### WP-26.3 — the stored higher timeframe agrees with the side
+- **Draft:** Where the open stores `higher_tf_sign`, it must match the side. A missing sign is counted and is not called a disagreement. Do not change the rule.
+- **Critique 1:** 29 opens agree. 0 disagree. 1 open has no stored sign.
+- **Critique 2 (meta):** This is the accept side of the rule that refused the one higher-timeframe row at 0.2589. It does not lower the entry gate.
+- **Result:** `reports/grok/PAPER/higher_tf.json`. Status `SIGN_AGREES`. `rule_changed` false.
+
+### WP-26.4 — checks 67 to 69
+- **Draft:** Each check recomputes the log. A volume receipt that changes the cap or copies an address fails. A regime receipt that changes the table fails. A higher-timeframe receipt that changes the rule fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At 2026-10-25T14:23:08Z the four open shorts were 7.42 to 8.53 hours old, still inside the 12-hour and 24-hour limits, and they were not closed.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 69 checks, drift [], unknown []. Skip census at this export: 3964 rows, `MARKET_CLOSED_OR_STALE` 3789. Whitehat CLEAN, 6 checks. pytest 71 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4324 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

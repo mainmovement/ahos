@@ -2343,6 +2343,200 @@ def write_size_cap(root: Path) -> dict[str, Any]:
     return snap
 
 
+_REGIME_SIZE = {"HIGH": 0.5, "NORMAL": 1.0, "LOW": 0.8, "UNKNOWN": 0.5}
+
+
+def measure_adv_cap(root: Path) -> dict[str, Any]:
+    """Stored participation against the one-percent cap. The cap is not changed."""
+    from collections import Counter
+
+    sources: Counter[str] = Counter()
+    missing_object = source_blank = floor = mismatch = over = stored = 0
+    rates: list[float] = []
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        adv = brain.get("adv_cap") if isinstance(brain.get("adv_cap"), dict) else None
+        if adv is None:
+            missing_object += 1
+            continue
+        stored += 1
+        raw = adv.get("adv_source")
+        label = str(raw or "BLANK")
+        if "0x" in label.lower():
+            label = "ADDRESS_SHAPED"
+        sources[label] += 1
+        if not raw:
+            source_blank += 1
+        if raw == "ASSUMED_FLOOR_50M_NO_VOLUME_IN_FEED":
+            floor += 1
+        rate = adv.get("participation_rate")
+        if isinstance(rate, (int, float)):
+            rates.append(float(rate))
+            if float(rate) > 0.01:
+                over += 1
+        notional = adv.get("notional_usd")
+        cap = adv.get("cap_1pct_usd")
+        if isinstance(notional, (int, float)) and isinstance(cap, (int, float)):
+            if bool(adv.get("allowed")) != (float(notional) <= float(cap)):
+                mismatch += 1
+        else:
+            mismatch += 1
+    opens = stored + missing_object
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif stored == 0:
+        status = "NO_STORED_CAP"
+    elif mismatch == 0 and over == 0 and floor == 0:
+        status = "CAP_HELD"
+    else:
+        status = "CAP_BROKEN"
+    return {
+        "paper_only": True,
+        "cap_changed": False,
+        "edge_claimed": False,
+        "open_rows": opens,
+        "stored_rows": stored,
+        "missing_object": missing_object,
+        "source_blank": source_blank,
+        "assumed_floor_rows": floor,
+        "allowed_mismatch": mismatch,
+        "rate_over_1pct": over,
+        "participation_rate_max": None if not rates else round(max(rates), 10),
+        "sources": [{"source": name, "rows": sources[name]} for name in sorted(sources)],
+        "status": status,
+    }
+
+
+def write_adv_cap(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.adv_cap.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_adv_cap(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "adv_cap.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(snap, ensure_ascii=False, indent=1)
+    if "0x" in text.lower():
+        raise RuntimeError("adv cap receipt copied an address")
+    path.write_text(text, encoding="utf-8")
+    return snap
+
+
+def measure_regime_multiple(root: Path) -> dict[str, Any]:
+    """Stored size multiple against the regime table. The table is not changed."""
+    matched = mismatched = missing = haircut = unknown = 0
+    opens = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        opens += 1
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        regime = brain.get("regime") if isinstance(brain.get("regime"), dict) else {}
+        label = regime.get("regime")
+        mult = regime.get("size_mult")
+        if label not in _REGIME_SIZE or not isinstance(mult, (int, float)):
+            missing += 1
+            continue
+        if label == "UNKNOWN":
+            unknown += 1
+        expected = _REGIME_SIZE[label]
+        if regime.get("depth_disagreement_haircut") is True:
+            haircut += 1
+            expected = round(expected * 0.5, 4)
+        if abs(float(mult) - expected) <= 1e-9:
+            matched += 1
+        else:
+            mismatched += 1
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif mismatched == 0:
+        status = "MULTIPLE_MATCHES"
+    else:
+        status = "MULTIPLE_MISMATCH"
+    return {
+        "paper_only": True,
+        "multiple_changed": False,
+        "open_rows": opens,
+        "matched_rows": matched,
+        "mismatched_rows": mismatched,
+        "missing_rows": missing,
+        "haircut_rows": haircut,
+        "unknown_rows": unknown,
+        "status": status,
+    }
+
+
+def write_regime_multiple(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.regime_multiple.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_regime_multiple(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "regime_multiple.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_higher_tf(root: Path) -> dict[str, Any]:
+    """Stored higher-timeframe sign against the open side. The rule is not changed."""
+    agree = disagree = missing = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        signals = brain.get("signals") if isinstance(brain.get("signals"), list) else []
+        higher = None
+        for item in signals:
+            if not isinstance(item, dict) or item.get("name") != "mtf_trend":
+                continue
+            evidence = item.get("evidence") if isinstance(item.get("evidence"), dict) else {}
+            higher = evidence.get("higher_tf_sign")
+        side = row.get("side")
+        if not isinstance(higher, (int, float)) or side not in ("LONG", "SHORT"):
+            missing += 1
+            continue
+        want = 1 if side == "LONG" else -1
+        if int(higher) == want:
+            agree += 1
+        else:
+            disagree += 1
+    opens = agree + disagree + missing
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif agree == 0 and disagree == 0:
+        status = "NO_STORED_SIGN"
+    elif disagree == 0:
+        status = "SIGN_AGREES"
+    else:
+        status = "SIGN_DISAGREES"
+    return {
+        "paper_only": True,
+        "rule_changed": False,
+        "open_rows": opens,
+        "agree_rows": agree,
+        "disagree_rows": disagree,
+        "missing_rows": missing,
+        "status": status,
+    }
+
+
+def write_higher_tf(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.higher_tf.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_higher_tf(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "higher_tf.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",
