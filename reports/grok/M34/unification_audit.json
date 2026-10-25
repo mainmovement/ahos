@@ -1,13 +1,13 @@
 {
   "schema": "ahos.unification_audit.v1",
-  "generated_at": "2026-10-25T07:45:00Z",
+  "generated_at": "2026-10-25T08:04:38Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "read_only": true,
   "overall_status": "UNIFIED_CLEAN",
-  "checks_total": 30,
+  "checks_total": 33,
   "checks_by_status": {
-    "PASS": 30
+    "PASS": 33
   },
   "drift": [],
   "unknown": [],
@@ -17,8 +17,8 @@
       "status": "PASS",
       "detail": {
         "verdict": "CHAIN_INTACT",
-        "entries": 1135,
-        "head_hash": "e5f0d7f2639023832b3f222d5d09fc009c78b7ff4e3a5e10deb0439e48de3529"
+        "entries": 1136,
+        "head_hash": "adc992dd091ac06d91c028e3fcae8f40610939f3b248648aad14c8014bc6ec68"
       },
       "surfaces": [
         "data\\mission_ledger\\mission_ledger.jsonl"
@@ -85,8 +85,8 @@
         "initial_capital_usd": 100.0,
         "sum_close_realized_pnl_usd": -0.1381,
         "realized_equity_usd": 99.86,
-        "unrealized_pnl_usd": -0.0946,
-        "mark_to_market_equity_usd": 99.7654,
+        "unrealized_pnl_usd": -0.0853,
+        "mark_to_market_equity_usd": 99.7747,
         "tolerance_usd": 0.01
       },
       "surfaces": [
@@ -124,14 +124,14 @@
       "status": "PASS",
       "detail": {
         "last_cycle": {
-          "ts": "2026-10-25T07:44:13Z",
-          "cycle": 1015,
+          "ts": "2026-10-25T07:59:13Z",
+          "cycle": 1016,
           "witness_state": "UNRESOLVED",
           "price_usd": null
         },
         "runlog_last": {
-          "ts": "2026-10-25T07:44:13Z",
-          "cycle": 1015,
+          "ts": "2026-10-25T07:59:13Z",
+          "cycle": 1016,
           "witness_state": "UNRESOLVED",
           "price_usd": null
         },
@@ -149,7 +149,7 @@
       "detail": {
         "ledger_checkpoint_bankroll_usd": 10000.0,
         "expected_usd": 10000.0,
-        "ledger_state_rows": 1016,
+        "ledger_state_rows": 1017,
         "note": "Gold soak is its own $10k paper account; it is never summed into the $100 paper trader."
       },
       "surfaces": [
@@ -342,11 +342,11 @@
       "id": "continuation.state",
       "status": "PASS",
       "detail": {
-        "current_stage": "Stage 14",
+        "current_stage": "Stage 15",
         "problems": [],
         "queue": [
-          "Stage 14: diagnostic sweep, then four work packages",
-          "Stage 15-20: the next measured gap, four work packages each turn"
+          "Stage 15: diagnostic sweep, then four work packages",
+          "Stage 16-20: the next measured gap, four work packages each turn"
         ]
       },
       "surfaces": [
@@ -446,6 +446,51 @@
       "surfaces": [
         "reports/grok/PAPER/weekday_two_source_audit.json"
       ]
+    },
+    {
+      "id": "treasury.fee_coverage",
+      "status": "PASS",
+      "detail": {
+        "coverage_status": "ITEMIZED_ON_JSONL_NOT_ON_LEDGER",
+        "open_fee_usd_sum": 0.181288,
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\fee_coverage.json"
+      ]
+    },
+    {
+      "id": "execution.exit_census",
+      "status": "PASS",
+      "detail": {
+        "close_rows": 26,
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\exit_reason_census.json"
+      ]
+    },
+    {
+      "id": "account.desk_coverage",
+      "status": "PASS",
+      "detail": {
+        "desks": [
+          "GOLD",
+          "OIL",
+          "CRYPTO",
+          "PB_TOKEN",
+          "US_EQUITIES",
+          "EU_EQUITIES",
+          "ASIA_EQUITIES",
+          "FOREX"
+        ],
+        "desk_sum": -0.14,
+        "realized_pnl_usd": -0.14,
+        "problems": []
+      },
+      "surfaces": [
+        "reports/grok/PAPER/paper_trades.jsonl"
+      ]
     }
   ],
   "hold_flag_counts": {
@@ -466,5 +511,5 @@
     "M56 tournament contenders are FIXTURE_ILLUSTRATIVE returns; its 'DSR' is a haircut Sharpe, not a probability.",
     "Edge is unproven until >= 30 real OOS closed trades with DSR > 0.95 and PBO < 0.50."
   ],
-  "summary_fa": "همهٔ 30 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
+  "summary_fa": "همهٔ 33 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
 }

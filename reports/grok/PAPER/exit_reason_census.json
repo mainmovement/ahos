@@ -1,0 +1,19 @@
+{
+ "schema": "ahos.paper.exit_reason_census.v1",
+ "generated_at": "2026-10-25T08:02:44Z",
+ "paper_only": true,
+ "close_rows": 26,
+ "partial_rows": 0,
+ "reason_counts": {
+  "WITNESS_CONFLICT_EXIT": 12,
+  "TAKE_PROFIT": 2,
+  "SIGNAL_REVERSAL": 12
+ },
+ "pnl_by_reason_usd": {
+  "WITNESS_CONFLICT_EXIT": 0.0157,
+  "TAKE_PROFIT": 0.289,
+  "SIGNAL_REVERSAL": -0.4428
+ },
+ "daemon_restarted": false,
+ "absence_note": "A reason that is not in this log was not observed. It is not evidence that the rule is absent from code the running process has not loaded."
+}

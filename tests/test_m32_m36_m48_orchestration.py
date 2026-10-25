@@ -10,7 +10,7 @@ def test_m32_reconcile_bridge_clean_and_drift_detection() -> None:
     clean = reconcile_desk_states()
     assert clean["paper_only"] is True
     assert clean["overall_verdict"] == "CLEAN"
-    assert clean["desks_reconciled"] == 7
+    assert clean["desks_reconciled"] == 8
 
     drifted = reconcile_desk_states(
         [

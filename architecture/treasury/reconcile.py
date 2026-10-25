@@ -651,3 +651,88 @@ def paper_cash_double_entry(root: Path) -> dict[str, Any]:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
     return snap
+
+
+def measure_fee_coverage(root: Path) -> dict[str, Any]:
+    """Count itemized fees on the paper log and on the ledger fills.
+
+    Close PnL on the ledger is already net of fees. This does not add the fee
+    sums to the cash discrepancy and it does not rewrite either book.
+    """
+    import json
+
+    root = Path(root)
+    opens = closes = 0
+    open_fee = close_fee = 0.0
+    trades = root / "reports" / "grok" / "PAPER" / "paper_trades.jsonl"
+    if trades.is_file():
+        for line in trades.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(row, dict):
+                continue
+            if row.get("event") == "OPEN" and isinstance(row.get("fee_usd"), (int, float)):
+                opens += 1
+                open_fee += float(row["fee_usd"])
+            elif row.get("event") == "CLOSE" and isinstance(row.get("fees_usd"), (int, float)):
+                closes += 1
+                close_fee += float(row["fees_usd"])
+    ledger_fills = with_fee = with_fees = 0
+    ledger = root / "data" / "mission_ledger" / "mission_ledger.jsonl"
+    if ledger.is_file():
+        for line in ledger.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            payload = entry.get("payload") if isinstance(entry.get("payload"), dict) else {}
+            if entry.get("kind") == "DECISION" and payload.get("type") == "PAPER_FILL":
+                ledger_fills += 1
+                if "fee_usd" in payload:
+                    with_fee += 1
+                if "fees_usd" in payload:
+                    with_fees += 1
+    if opens == 0 and closes == 0:
+        status = "NO_FILLS"
+    elif with_fee == 0 and with_fees == 0:
+        status = "ITEMIZED_ON_JSONL_NOT_ON_LEDGER"
+    elif with_fee == ledger_fills and with_fees == ledger_fills:
+        status = "ITEMIZED_ON_BOTH"
+    else:
+        status = "PARTIAL"
+    return {
+        "paper_only": True,
+        "rewritten": False,
+        "open_rows_with_fee": opens,
+        "open_fee_usd_sum": round(open_fee, 6),
+        "close_rows_with_fees": closes,
+        "close_fees_usd_sum": round(close_fee, 6),
+        "ledger_fills": ledger_fills,
+        "ledger_fills_with_fee_usd": with_fee,
+        "ledger_fills_with_fees_usd": with_fees,
+        "coverage_status": status,
+        "close_pnl_note": "Ledger close PnL is already net of fees. These sums are itemization, not a second cash gap.",
+    }
+
+
+def write_fee_coverage(root: Path) -> dict[str, Any]:
+    import json
+    from datetime import datetime, timezone
+
+    snap = {
+        "schema": "ahos.treasury.fee_coverage.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_fee_coverage(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "fee_coverage.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap

@@ -652,6 +652,13 @@ def _ua_root(tmp_path):
         "rows": [{"symbol": s, "desk": desk, "session_open": False, "tradable_for_paper": False,
                   "probe_stale": True, "live_witness": "NO_STORED_PROBE"}
                  for s, (desk, _fee, _slip) in INSTRUMENTS.items()]})
+    w("reports/grok/PAPER/fee_coverage.json", {
+        "paper_only": True, "rewritten": False, "open_rows_with_fee": 0, "open_fee_usd_sum": 0.0,
+        "close_rows_with_fees": 0, "close_fees_usd_sum": 0.0, "ledger_fills_with_fee_usd": 0,
+        "ledger_fills_with_fees_usd": 0, "coverage_status": "NO_FILLS"})
+    w("reports/grok/PAPER/exit_reason_census.json", {
+        "paper_only": True, "close_rows": 0, "partial_rows": 0, "reason_counts": {},
+        "daemon_restarted": False, "absence_note": "not observed in this log"})
     w("reports/grok/M57/science_to_desk_snapshot.json", {
         "paper_only": True, "pillars_total": 7, "validated_claims_total": 0,
         "matrix": [{"validated_claims": 0,

@@ -64,3 +64,28 @@ def test_linked_close_cash_is_zero_and_a_different_pnl_is_not(tmp_path):
     }) + "\n", encoding="utf-8")
     drifted = paper_cash_double_entry(tmp_path)
     assert drifted["verdict"] == "MEASURED_NONZERO" and drifted["discrepancy_usd"] == 0.75
+
+
+def test_fee_coverage_stays_a_label_and_pb_token_joins_the_desk_map(tmp_path):
+    import json
+    from architecture.markets.paper_account import paper_account_summary
+    from architecture.markets.paper_trade_audit import write_exit_reason_census
+    from architecture.treasury.reconcile import write_fee_coverage
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text(
+        json.dumps({"event": "OPEN", "symbol": "UNI", "desk": "PB_TOKEN", "fee_usd": 0.1}) + "\n"
+        + json.dumps({"event": "CLOSE", "symbol": "UNI", "desk": "PB_TOKEN", "reason": "SIGNAL_REVERSAL",
+                      "fees_usd": 0.2, "realized_pnl_usd": -0.05, "partial": False}) + "\n",
+        encoding="utf-8")
+    fee = write_fee_coverage(tmp_path)
+    assert fee["coverage_status"] == "ITEMIZED_ON_JSONL_NOT_ON_LEDGER"
+    assert fee["open_fee_usd_sum"] == 0.1 and fee["close_fees_usd_sum"] == 0.2
+    assert fee["rewritten"] is False and fee["ledger_fills_with_fee_usd"] == 0
+    census = write_exit_reason_census(tmp_path)
+    assert census["close_rows"] == 1 and census["reason_counts"] == {"SIGNAL_REVERSAL": 1}
+    assert census["partial_rows"] == 0 and census["daemon_restarted"] is False
+    summary = paper_account_summary(tmp_path)
+    assert "PB_TOKEN" in summary["per_desk_realized_pnl_usd"]
+    assert summary["per_desk_realized_pnl_usd"]["PB_TOKEN"] == -0.05
+    assert abs(sum(summary["per_desk_realized_pnl_usd"].values()) - summary["realized_pnl_usd"]) <= 0.02

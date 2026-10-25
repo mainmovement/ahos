@@ -416,3 +416,28 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** A Saturday VERIFIED row for BTC and XAU stays in `stored_verdict` and does not open the desk. Crypto has no cash venue, so it is also not tradable while the probe is stale.
 - **Critique 2 (meta):** Generated on Sunday. `weekend_tehran` true. Probe age 48911.6 seconds. `cash_symbols_open` empty. `tradable_symbols` empty. Unification is UNIFIED_CLEAN, 30 checks, drift [], unknown []. Whitehat CLEAN. pytest 59 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4286 files, VALIDATION PASSED).
+
+## 2026-10-25 — Stage 14 fee itemization, desk map, exit census
+
+### WP-14.1 — fees are itemized on the log only
+- **Draft:** Count `fee_usd` on OPEN rows and `fees_usd` on CLOSE rows. Count how many ledger PAPER_FILL payloads carry those keys. Do not add the sums to the cash discrepancy. Do not rewrite the ledger and do not change the fill writer.
+- **Critique 1:** Quant: the sums are the recorded numbers, 0.181288 and 0.305656. Witness: 0 of 56 fills carry either key. Council: nothing is promoted. SRE: read only. Lane A untouched.
+- **Critique 2 (meta):** Close PnL on the ledger is already net of fees, so this is an itemization gap. Calling it a second cash discrepancy would double-count the same cost.
+- **Result:** `reports/grok/PAPER/fee_coverage.json`, status `ITEMIZED_ON_JSONL_NOT_ON_LEDGER`.
+
+### WP-14.2 — PB_TOKEN joins the desk map
+- **Draft:** Eight PB_TOKEN closes, rounded desk pnl -0.04 USD, were inside the account total and absent from `per_desk`. Add the desk and the reconcile label `M33-PB-TOKEN-PAPER`. The bridge now reconciles 8 desks. The test expectation moves from 7 to 8 because the desk is real.
+- **Critique 1:** The rounded desk sum equals the rounded account pnl, -0.14 USD.
+- **Critique 2 (meta):** The label is not a new mission ledger. It names the row.
+
+### WP-14.3 — exit reasons in this log
+- **Draft:** Census the CLOSE reasons and their recorded pnl. Partial rows are counted separately. `daemon_restarted` stays false. A reason missing from the log is labeled as not observed.
+- **Critique 1:** 26 closes. WITNESS_CONFLICT_EXIT 12, pnl 0.0157. TAKE_PROFIT 2, pnl 0.289. SIGNAL_REVERSAL 12, pnl -0.4428. Partial 0. These sums are the log, not an edge.
+- **Critique 2 (meta):** Chandelier, partial-take, and time-stop do not appear. The running process was not restarted, so their absence is not a test of the code loaded at the next start.
+- **Result:** `reports/grok/PAPER/exit_reason_census.json`.
+
+### WP-14.4 — checks 31 to 33
+- **Draft:** The fee and census checks recompute the books and fail if the receipt disagrees. The desk check requires PB_TOKEN and a per-desk sum within 0.02 USD of the account pnl.
+- **Critique 1:** The bridge copies the sums and says the fee line is not a second cash gap.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 33 checks, drift [], unknown []. Whitehat CLEAN. pytest 61 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4288 files, VALIDATION PASSED).

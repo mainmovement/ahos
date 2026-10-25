@@ -31,7 +31,7 @@ def reconcile_desk_states(
     *,
     tolerance_usd: float = 0.01,
 ) -> dict[str, Any]:
-    """Reconcile reported desk equity & PnL against ledger checkpoints across all 7 paper desks (per-desk realized PnL from real paper trades)."""
+    """Reconcile reported desk equity and PnL against the paper account, including the PB_TOKEN desk."""
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     _ = get_project_root()
 
@@ -40,6 +40,7 @@ def reconcile_desk_states(
 
         summary = paper_account_summary(get_project_root())
         mids = {"GOLD": "M13-GOLD-SOAK", "OIL": "M13.1-OIL-PAPER", "CRYPTO": "M13.3-CRYPTO-PAPER",
+                "PB_TOKEN": "M33-PB-TOKEN-PAPER",
                 "US_EQUITIES": "M13.4-US-EQ-PAPER", "EU_EQUITIES": "M13.5-EU-EQ-PAPER",
                 "ASIA_EQUITIES": "M13.6-ASIA-EQ-PAPER", "FOREX": "M19-FOREX-PAPER"}
         rows = [

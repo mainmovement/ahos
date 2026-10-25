@@ -184,3 +184,54 @@ def export_paper_trade_audit_snapshot(root: Path) -> dict[str, Any]:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return payload
+
+
+def measure_exit_reason_census(root: Path) -> dict[str, Any]:
+    """Count recorded close reasons. A reason absent from the log was not observed there."""
+    import json
+    from collections import defaultdict
+
+    counts: dict[str, int] = defaultdict(int)
+    pnl: dict[str, float] = defaultdict(float)
+    partial = 0
+    closes = 0
+    path = Path(root) / LEDGER_REL
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(row, dict) or row.get("event") != "CLOSE":
+                continue
+            closes += 1
+            reason = str(row.get("reason") or "UNLABELED")
+            counts[reason] += 1
+            if isinstance(row.get("realized_pnl_usd"), (int, float)):
+                pnl[reason] += float(row["realized_pnl_usd"])
+            if row.get("partial") is True:
+                partial += 1
+    return {
+        "paper_only": True,
+        "close_rows": closes,
+        "partial_rows": partial,
+        "reason_counts": dict(counts),
+        "pnl_by_reason_usd": {k: round(v, 4) for k, v in pnl.items()},
+        "daemon_restarted": False,
+        "absence_note": "A reason that is not in this log was not observed. It is not evidence that the rule is absent from code the running process has not loaded.",
+    }
+
+
+def write_exit_reason_census(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.exit_reason_census.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_exit_reason_census(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "exit_reason_census.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap

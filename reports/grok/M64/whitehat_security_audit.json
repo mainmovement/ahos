@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-25T07:44:07Z",
+  "generated_at": "2026-10-25T08:03:54Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "overall_verdict": "CLEAN",
@@ -70,9 +70,9 @@
       "verdict": "CLEAN",
       "entries": {
         "schema": "ahos.mission_ledger.v1",
-        "path": "G:\\robat\\_tmp\\tmp755ep29y\\ledger_copy.jsonl",
-        "entries": 1134,
-        "head_hash": "b001f3bc5da69d204139fd67064ff0c242f708c93653f937e3a29da5b3009993",
+        "path": "G:\\robat\\_tmp\\tmplda8w3yh\\ledger_copy.jsonl",
+        "entries": 1136,
+        "head_hash": "adc992dd091ac06d91c028e3fcae8f40610939f3b248648aad14c8014bc6ec68",
         "torn_tail": false,
         "verdict": "CHAIN_INTACT"
       }

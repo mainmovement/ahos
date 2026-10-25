@@ -709,6 +709,65 @@ def _stage13_checks(root: Path) -> list[dict[str, Any]]:
     return [cash_check, session_check]
 
 
+def _stage14_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.paper_account import DESKS, paper_account_summary
+    from architecture.markets.paper_trade_audit import measure_exit_reason_census
+    from architecture.treasury.reconcile import measure_fee_coverage
+
+    fee_path = Path("reports") / "grok" / "PAPER" / "fee_coverage.json"
+    census_path = Path("reports") / "grok" / "PAPER" / "exit_reason_census.json"
+    fee = _json(root, fee_path)
+    census = _json(root, census_path)
+    if not isinstance(fee, dict):
+        fee_check = _check("treasury.fee_coverage", "UNKNOWN", {"file": False}, [str(fee_path)])
+    else:
+        fresh = measure_fee_coverage(root)
+        keys = ("open_rows_with_fee", "open_fee_usd_sum", "close_rows_with_fees", "close_fees_usd_sum",
+                "ledger_fills_with_fee_usd", "ledger_fills_with_fees_usd", "coverage_status")
+        problems = []
+        if fee.get("paper_only") is not True or fee.get("rewritten") is not False:
+            problems.append("fee coverage was rewritten or left paper mode")
+        for key in keys:
+            if fee.get(key) != fresh[key]:
+                problems.append(f"{key} does not match the books")
+        fee_check = _check("treasury.fee_coverage", _pass_fail(not problems),
+                           {"coverage_status": fee.get("coverage_status"),
+                            "open_fee_usd_sum": fee.get("open_fee_usd_sum"),
+                            "problems": problems[:6]}, [str(fee_path)])
+    if not isinstance(census, dict):
+        census_check = _check("execution.exit_census", "UNKNOWN", {"file": False}, [str(census_path)])
+    else:
+        fresh_c = measure_exit_reason_census(root)
+        problems = []
+        if census.get("paper_only") is not True or census.get("daemon_restarted") is not False:
+            problems.append("census claims a restarted daemon or left paper mode")
+        if not census.get("absence_note"):
+            problems.append("absence of a reason is unlabeled")
+        if census.get("close_rows") != fresh_c["close_rows"] or census.get("partial_rows") != fresh_c["partial_rows"]:
+            problems.append("close or partial count does not match the log")
+        if census.get("reason_counts") != fresh_c["reason_counts"]:
+            problems.append("reason counts do not match the log")
+        if sum(int(v) for v in (census.get("reason_counts") or {}).values()) != int(census.get("close_rows") or 0):
+            problems.append("reason counts do not add up to the closes")
+        census_check = _check("execution.exit_census", _pass_fail(not problems),
+                              {"close_rows": census.get("close_rows"), "problems": problems[:6]},
+                              [str(census_path)])
+    summary = paper_account_summary(root)
+    per = summary.get("per_desk_realized_pnl_usd") or {}
+    desk_problems = []
+    if "PB_TOKEN" not in DESKS or "PB_TOKEN" not in per:
+        desk_problems.append("PB_TOKEN is missing from the desk map")
+    desk_sum = round(sum(float(v) for v in per.values()), 2)
+    if abs(desk_sum - float(summary.get("realized_pnl_usd") or 0.0)) > 0.02:
+        desk_problems.append("per-desk pnl does not add up to the account pnl")
+    desk_check = _check("account.desk_coverage", _pass_fail(not desk_problems),
+                        {"desks": list(per), "desk_sum": desk_sum,
+                         "realized_pnl_usd": summary.get("realized_pnl_usd"),
+                         "problems": desk_problems},
+                        ["reports/grok/PAPER/paper_trades.jsonl"])
+    return [fee_check, census_check, desk_check]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -730,6 +789,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage11_checks(root)
     checks += _stage12_checks(root)
     checks += _stage13_checks(root)
+    checks += _stage14_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

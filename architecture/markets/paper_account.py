@@ -13,7 +13,7 @@ from typing import Any
 PAPER_ONLY: bool = True
 INITIAL_CAPITAL_USD = 100.0
 LEDGER_REL = Path("reports") / "grok" / "PAPER" / "paper_trades.jsonl"
-DESKS = ("GOLD", "OIL", "CRYPTO", "US_EQUITIES", "EU_EQUITIES", "ASIA_EQUITIES", "FOREX")
+DESKS = ("GOLD", "OIL", "CRYPTO", "PB_TOKEN", "US_EQUITIES", "EU_EQUITIES", "ASIA_EQUITIES", "FOREX")
 
 
 def load_paper_trades(root: Path) -> list[dict[str, Any]]:

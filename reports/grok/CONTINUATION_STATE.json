@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T07:40:00Z",
-  "current_stage": "Stage 14",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 14) in full. Do not rerun Stage 13. Stage 14 starts with a diagnostic sweep and then four work packages. Cash desks were closed on this Sunday audit; do not invent a weekday print.",
+  "updated_at": "2026-10-25T08:10:00Z",
+  "current_stage": "Stage 15",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 15) in full. Do not rerun Stage 14. Start with a diagnostic sweep, then four work packages. Do not rewrite the ledger to itemize historical fees.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -146,6 +146,31 @@
       "node_selftests": "stage6 bridge 6/6",
       "whitehat": "CLEAN",
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 14",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "fee_coverage": "ITEMIZED_ON_JSONL_NOT_ON_LEDGER",
+      "open_rows_with_fee": 30,
+      "open_fee_usd_sum": 0.181288,
+      "close_rows_with_fees": 26,
+      "close_fees_usd_sum": 0.305656,
+      "ledger_fills_with_fee_fields": 0,
+      "exit_close_rows": 26,
+      "partial_rows": 0,
+      "witness_conflict_exits": 12,
+      "take_profit_exits": 2,
+      "signal_reversal_exits": 12,
+      "pb_token_realized_pnl_usd": -0.04,
+      "account_realized_pnl_usd": -0.14,
+      "unification": "33/33 UNIFIED_CLEAN",
+      "pytest": "61 passed",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -153,13 +178,14 @@
     "Batch 8 admitted DSR is 0.0. PBO 0.4889 is batch8_admitted_only and does not promote a FAIL gate",
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
-    "Closed paper trades are 20 of 30",
+    "Closed paper trades are 26 of 30. Twelve closes are WITNESS_CONFLICT_EXIT and twelve are SIGNAL_REVERSAL. Two are TAKE_PROFIT. Partial closes are 0",
+    "Open fees 0.181288 USD and close fees 0.305656 USD are itemized on the paper log and on none of the ledger fills. Close PnL on the ledger is already net of fees. The books were not rewritten",
     "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested",
     "Broker connectivity is not verified",
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 14: diagnostic sweep, then four work packages",
-    "Stage 15-20: the next measured gap, four work packages each turn"
+    "Stage 15: diagnostic sweep, then four work packages",
+    "Stage 16-20: the next measured gap, four work packages each turn"
   ]
 }
