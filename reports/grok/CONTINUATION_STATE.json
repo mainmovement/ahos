@@ -456,8 +456,8 @@
     {
       "stage": "Stage 23",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "65d2ac6",
+      "arena_commit": "141121c",
       "witness_status": "VERDICT_MATCHES_REASON",
       "conflict_rows": 12,
       "conflict_verdict_conflict": 12,
