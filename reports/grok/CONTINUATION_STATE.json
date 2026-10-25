@@ -107,8 +107,8 @@
     {
       "stage": "Stage 12",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "e91a998",
+      "arena_commit": "cacd245",
       "n": 3,
       "winner": "ok",
       "applied_to_main": false,
