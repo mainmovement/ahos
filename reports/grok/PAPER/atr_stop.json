@@ -1,0 +1,16 @@
+{
+ "schema": "ahos.paper.atr_stop.v1",
+ "generated_at": "2026-10-25T16:05:02Z",
+ "paper_only": true,
+ "floor_changed": false,
+ "atr_verified": false,
+ "edge_claimed": false,
+ "min_stop": 0.01,
+ "open_rows": 31,
+ "missing_rows": 0,
+ "on_floor": 8,
+ "above_floor": 23,
+ "below_floor": 0,
+ "atr_stored_rows": 0,
+ "status": "ATR_NOT_STORED"
+}

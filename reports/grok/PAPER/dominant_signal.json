@@ -1,17 +1,17 @@
 {
  "schema": "ahos.paper.dominant_signal.v1",
- "generated_at": "2026-10-25T15:08:19Z",
+ "generated_at": "2026-10-25T16:05:04Z",
  "paper_only": true,
  "skill_claimed": false,
- "close_rows": 27,
- "scored_rows": 27,
+ "close_rows": 30,
+ "scored_rows": 30,
  "missing_rows": 0,
- "sign_matches_side": 27,
+ "sign_matches_side": 30,
  "signals": [
   {
    "signal": "mtf_trend",
-   "rows": 25,
-   "sign_matches_side": 25
+   "rows": 28,
+   "sign_matches_side": 28
   },
   {
    "signal": "candles",

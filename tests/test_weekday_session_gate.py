@@ -654,3 +654,39 @@ def test_stop_floor_holds_and_a_missing_funding_z_is_not_a_pass(tmp_path):
     assert loss["status"] == "INSIDE_LIMIT" and loss["limits_changed"] is False
     assert loss["daemon_halted"] is False and loss["marks_included"] is False
     assert loss["day_breaches"] == 0 and loss["week_breaches"] == 0
+
+
+def test_a_stop_above_the_floor_is_not_atr_and_a_witness_skip_is_not_an_exit(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_atr_stop, measure_skip_address, measure_witness_skip, write_skip_address,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    rows = [
+        {"event": "OPEN", "symbol": "BTC", "stop_pct": 0.01,
+         "brain": {"signals": [{"evidence": {"matrix_status": "PRESENT"}}]}},
+        {"event": "OPEN", "symbol": "ETH", "stop_pct": 0.02, "brain": {}},
+        {"event": "SKIP", "symbol": "SOL", "reason": "WITNESS_CONFLICT",
+         "source": "geckoterminal:0xabc", "witness": {"verdict": "CONFLICT", "pair": "SOL"}},
+        {"event": "HOLD", "symbol": "BTC"},
+        {"event": "NO_TRADE", "symbol": "ETH", "reason": "COMPOSITE_BELOW_ENTRY"},
+    ]
+    (paper / "paper_trades.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    atr = measure_atr_stop(tmp_path)
+    assert atr["status"] == "ATR_NOT_STORED" and atr["atr_verified"] is False
+    assert atr["floor_changed"] is False and atr["on_floor"] == 1 and atr["above_floor"] == 1
+    assert atr["atr_stored_rows"] == 0
+    addr = write_skip_address(tmp_path)
+    assert addr["status"] == "ADDRESS_ON_LOG" and addr["log_rewritten"] is False
+    assert addr["address_sources"] == 1 and addr["address_pairs"] == 0
+    assert addr["kinds"] == [{"kind": "geckoterminal", "rows": 1}]
+    assert "0x" not in json.dumps(addr).lower()
+    witness = measure_witness_skip(tmp_path)
+    assert witness["status"] == "ENTRY_BLOCK_NOT_AN_EXIT"
+    assert witness["exit_relabeled"] is False and witness["treated_as_security_pass"] is False
+    assert witness["witness_rows"] == 1
+    assert measure_skip_address(tmp_path)["address_sources"] == 1

@@ -1,13 +1,13 @@
 {
  "schema": "ahos.paper.quantity_identity.v1",
- "generated_at": "2026-10-25T15:08:22Z",
+ "generated_at": "2026-10-25T16:05:06Z",
  "paper_only": true,
  "added_to_cash_gap": false,
  "qty_band": 1e-06,
- "open_rows": 30,
- "close_rows": 27,
+ "open_rows": 31,
+ "close_rows": 30,
  "missing_rows": 0,
- "within_band": 57,
+ "within_band": 61,
  "beyond_band": 0,
  "max_abs_gap": 2.3e-07,
  "status": "QTY_MATCHES"

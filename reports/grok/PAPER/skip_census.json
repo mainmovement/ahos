@@ -1,14 +1,15 @@
 {
  "schema": "ahos.paper.skip_census.v1",
- "generated_at": "2026-10-25T15:18:35Z",
+ "generated_at": "2026-10-25T16:05:07Z",
  "paper_only": true,
- "event_rows": 4047,
+ "event_rows": 4127,
  "reason_counts": {
-  "COMPOSITE_BELOW_ENTRY": 87,
-  "MARKET_CLOSED_OR_STALE": 3865,
-  "PRICE_UNAVAILABLE": 71,
+  "COMPOSITE_BELOW_ENTRY": 96,
+  "MARKET_CLOSED_OR_STALE": 3929,
+  "PRICE_UNAVAILABLE": 77,
   "WITNESS_CONFLICT": 23,
-  "HIGHER_TF_DISAGREES": 1
+  "HIGHER_TF_DISAGREES": 1,
+  "NEWS_EVENT_RISK": 1
  },
  "dominant_reason": "MARKET_CLOSED_OR_STALE"
 }

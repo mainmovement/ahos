@@ -3142,6 +3142,166 @@ def write_loss_limit(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _atr_key(value: Any) -> bool:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            parts = str(key).lower().replace("-", "_").split("_")
+            if "atr" in parts or _atr_key(item):
+                return True
+        return False
+    if isinstance(value, list):
+        return any(_atr_key(item) for item in value)
+    return False
+
+
+def measure_atr_stop(root: Path) -> dict[str, Any]:
+    """A stop above the floor is not proof of two times ATR. The ATR is not stored."""
+    from architecture.markets.paper_trader import MIN_STOP
+
+    on_floor = above = below = missing = atr_stored = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        if _atr_key(row.get("brain")):
+            atr_stored += 1
+        stop = row.get("stop_pct")
+        if not isinstance(stop, (int, float)):
+            missing += 1
+            continue
+        if abs(float(stop) - MIN_STOP) <= 1e-9:
+            on_floor += 1
+        elif float(stop) > MIN_STOP:
+            above += 1
+        else:
+            below += 1
+    opens = on_floor + above + below + missing
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif missing or below:
+        status = "INCOMPLETE"
+    elif atr_stored == 0:
+        status = "ATR_NOT_STORED"
+    else:
+        status = "ATR_STORED"
+    return {
+        "paper_only": True,
+        "floor_changed": False,
+        "atr_verified": False,
+        "edge_claimed": False,
+        "min_stop": MIN_STOP,
+        "open_rows": opens,
+        "missing_rows": missing,
+        "on_floor": on_floor,
+        "above_floor": above,
+        "below_floor": below,
+        "atr_stored_rows": atr_stored,
+        "status": status,
+    }
+
+
+def write_atr_stop(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.atr_stop.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_atr_stop(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "atr_stop.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_skip_address(root: Path) -> dict[str, Any]:
+    """Count address-shaped sources on skips, holds, and refusals. Do not copy one."""
+    from collections import Counter
+
+    addr_source = addr_pair = unlabeled = 0
+    kinds: Counter[str] = Counter()
+    for row in _log_rows(root):
+        if row.get("event") not in ("SKIP", "HOLD", "NO_TRADE"):
+            continue
+        source = str(row.get("source") or "")
+        if "0x" in source.lower() or "pool32:" in source.lower():
+            addr_source += 1
+            kind = source.split(":", 1)[0]
+            if kind and "0x" not in kind.lower() and "pool32" not in kind.lower():
+                kinds[kind] += 1
+            else:
+                unlabeled += 1
+        witness = row.get("witness") if isinstance(row.get("witness"), dict) else {}
+        pair = witness.get("pair")
+        if isinstance(pair, str) and ("0x" in pair.lower() or "pool32:" in pair.lower()):
+            addr_pair += 1
+    if addr_source or addr_pair:
+        status = "ADDRESS_ON_LOG"
+    else:
+        status = "NO_ADDRESS"
+    return {
+        "paper_only": True,
+        "log_rewritten": False,
+        "edge_claimed": False,
+        "address_sources": addr_source,
+        "address_pairs": addr_pair,
+        "unlabeled_address_rows": unlabeled,
+        "kinds": [{"kind": name, "rows": kinds[name]} for name in sorted(kinds)],
+        "status": status,
+    }
+
+
+def write_skip_address(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.skip_address.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_skip_address(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "skip_address.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(snap, ensure_ascii=False, indent=1)
+    if "0x" in text.lower():
+        raise RuntimeError("skip address receipt copied an address")
+    path.write_text(text, encoding="utf-8")
+    return snap
+
+
+def measure_witness_skip(root: Path) -> dict[str, Any]:
+    """A witness skip blocks an entry. It is not an exit and it is not a security pass."""
+    from collections import Counter
+
+    counts: Counter[str] = Counter()
+    for row in _log_rows(root):
+        if row.get("event") != "SKIP":
+            continue
+        reason = str(row.get("reason") or "")
+        if reason.startswith("WITNESS_"):
+            counts[reason] += 1
+    reasons = [{"reason": name, "rows": counts[name]} for name in sorted(counts)]
+    if not reasons:
+        status = "NO_WITNESS_SKIPS"
+    else:
+        status = "ENTRY_BLOCK_NOT_AN_EXIT"
+    return {
+        "paper_only": True,
+        "exit_relabeled": False,
+        "treated_as_security_pass": False,
+        "edge_claimed": False,
+        "witness_rows": sum(counts.values()),
+        "reasons": reasons,
+        "status": status,
+    }
+
+
+def write_witness_skip(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.witness_skip.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_witness_skip(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "witness_skip.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

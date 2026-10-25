@@ -835,6 +835,16 @@ def _ua_root(tmp_path):
         "edge_claimed": False, "daily_limit": 0.03, "weekly_limit": 0.06, "close_rows": 0,
         "missing_rows": 0, "day_breaches": 0, "week_breaches": 0, "worst_day_ratio": None,
         "worst_week_ratio": None, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/atr_stop.json", {
+        "paper_only": True, "floor_changed": False, "atr_verified": False, "edge_claimed": False,
+        "min_stop": 0.01, "open_rows": 1, "missing_rows": 1, "on_floor": 0, "above_floor": 0,
+        "below_floor": 0, "atr_stored_rows": 0, "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/skip_address.json", {
+        "paper_only": True, "log_rewritten": False, "edge_claimed": False, "address_sources": 0,
+        "address_pairs": 0, "unlabeled_address_rows": 0, "kinds": [], "status": "NO_ADDRESS"})
+    w("reports/grok/PAPER/witness_skip.json", {
+        "paper_only": True, "exit_relabeled": False, "treated_as_security_pass": False,
+        "edge_claimed": False, "witness_rows": 0, "reasons": [], "status": "NO_WITNESS_SKIPS"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

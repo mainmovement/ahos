@@ -833,3 +833,31 @@ The log gained one close after Stage 27. It is a PB_TOKEN short, reason `SIGNAL_
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export BTC, ETH, and SOL were 8.35 to 8.65 hours old and were not closed. Closed paper trades remain 27.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 78 checks. Skip census at this export: 4047 rows, `MARKET_CLOSED_OR_STALE` 3865. Whitehat CLEAN, 6 checks. pytest 74 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` did not finish. Two probes stayed silent after the artifact section for longer than the usual two minutes. The validator process was stopped. The paper-trader and gold-soak processes were not stopped. This is not a product defect and it is not `VALIDATION PASSED`. The import gate stays `NOT_VERIFIED` until a later probe prints that line. A later probe, started 2026-10-25T15:43:45Z, also stayed silent after the artifact section. That validator was stopped. The paper-trader and gold-soak processes were not stopped. The import gate remains `NOT_VERIFIED`.
+
+## 2026-10-25 — Stage 30 ATR stop, skip address, witness entry block
+
+The running process appended closes after Stage 29. Closed paper trades are now 30. Reversal closes are 16, of which 3 have positive gross and 13 have negative gross. Take-profit remains 2 and 0. Conflict exits remain 5 and 7. Overall price gross is positive on 10 closes and negative on 20. Net edge is not claimed. At the 16:05Z export the only open position was UNI, 0.78 hours old. This stage did not close it and did not relabel the new reversals. Older receipts were recomputed with the same functions so the audit matches the log. The Stage 29 commit had captured a 22-check audit file. This export is the full audit.
+
+### WP-30.1 — a stop above the floor is not an ATR proof
+- **Draft:** Count stops on the 0.01 floor and stops above it. An ATR field is a key whose parts include `atr`. `matrix_status` is not that key. Do not lower the floor and do not invent an ATR.
+- **Critique 1:** 31 opens have a stop. 8 sit on 0.01. 23 are above it. 0 are below. 0 store an ATR key.
+- **Critique 2 (meta):** The code sets the stop to the maximum of the floor and two times ATR, then does not store the ATR. A wider stop is not evidence of that formula.
+- **Result:** `reports/grok/PAPER/atr_stop.json`. Status `ATR_NOT_STORED`. `floor_changed` false. `atr_verified` false.
+
+### WP-30.2 — address-shaped sources on skips, holds, and refusals
+- **Draft:** Count those rows. Keep the venue label. Do not copy an address into the receipt and do not rewrite the log.
+- **Critique 1:** 62 sources still carry an address. All 62 labels are geckoterminal. Address-shaped witness pairs on these rows are 0.
+- **Critique 2 (meta):** The current source reducer is not loaded in the running process. The historical rows stay as they are.
+- **Result:** `reports/grok/PAPER/skip_address.json`. Status `ADDRESS_ON_LOG`. `log_rewritten` false.
+
+### WP-30.3 — a witness skip is an entry block
+- **Draft:** Count SKIP reasons that start with `WITNESS_`. Do not call them exits and do not call them a security pass.
+- **Critique 1:** 23 skips are `WITNESS_CONFLICT`. No other witness verdict is in the skip set. The 12 conflict exits are a different reason and stay in the exit census.
+- **Critique 2 (meta):** The skip means no position was opened. It does not change the exit rule.
+- **Result:** `reports/grok/PAPER/witness_skip.json`. Status `ENTRY_BLOCK_NOT_AN_EXIT`. `exit_relabeled` false. `treated_as_security_pass` false.
+
+### WP-30.4 — checks 79 to 81
+- **Draft:** Each check recomputes the log. An ATR receipt that verifies a missing ATR fails. An address receipt that copies an address fails. A witness receipt that relabels the skip as an exit fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. Realized loss is still inside both lines. The worst day ratio is -0.0081 and the worst week ratio is -0.0026. Open fees on the log are 0.188775 USD across 31 opens. Close fees are 0.362348 USD across 30 closes. Those sums are itemization. They were not added to the cash gap and the ledger was not rewritten.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 81 checks, drift [], unknown []. Skip census at this export: 4127 rows, `MARKET_CLOSED_OR_STALE` 3929. Whitehat CLEAN, 6 checks. pytest 75 passed. Node stage6 bridge 6/6. Thirty closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged.
+- **Verification:** `scripts/validate_imports.py` was not run. The probe started 2026-10-25T15:43:45Z had already been stopped for silence, and this stage did not start another. The import gate remains `NOT_VERIFIED`. The paper-trader and gold-soak processes were not stopped.

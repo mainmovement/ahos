@@ -1,0 +1,16 @@
+{
+ "schema": "ahos.paper.witness_skip.v1",
+ "generated_at": "2026-10-25T16:05:08Z",
+ "paper_only": true,
+ "exit_relabeled": false,
+ "treated_as_security_pass": false,
+ "edge_claimed": false,
+ "witness_rows": 23,
+ "reasons": [
+  {
+   "reason": "WITNESS_CONFLICT",
+   "rows": 23
+  }
+ ],
+ "status": "ENTRY_BLOCK_NOT_AN_EXIT"
+}

@@ -1,17 +1,15 @@
 {
  "schema": "ahos.paper.book_overlap.v1",
- "generated_at": "2026-10-25T15:08:21Z",
+ "generated_at": "2026-10-25T16:05:03Z",
  "paper_only": true,
  "positions_closed": false,
  "overlap_opens": 0,
  "unpaired_closes": 0,
- "close_rows": 27,
- "opened_at_matches_open_ts": 27,
- "closed_at_matches_ts": 27,
+ "close_rows": 30,
+ "opened_at_matches_open_ts": 30,
+ "closed_at_matches_ts": 30,
  "still_open": [
-  "BTC",
-  "ETH",
-  "SOL"
+  "UNI"
  ],
  "status": "NO_OVERLAP"
 }

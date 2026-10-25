@@ -1,10 +1,10 @@
 {
  "schema": "ahos.paper.higher_tf.v1",
- "generated_at": "2026-10-25T15:08:22Z",
+ "generated_at": "2026-10-25T16:05:05Z",
  "paper_only": true,
  "rule_changed": false,
- "open_rows": 30,
- "agree_rows": 29,
+ "open_rows": 31,
+ "agree_rows": 30,
  "disagree_rows": 0,
  "missing_rows": 1,
  "status": "SIGN_AGREES"

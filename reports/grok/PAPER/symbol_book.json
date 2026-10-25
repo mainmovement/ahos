@@ -1,20 +1,20 @@
 {
  "schema": "ahos.paper.symbol_book.v1",
- "generated_at": "2026-10-25T15:08:18Z",
+ "generated_at": "2026-10-25T16:05:08Z",
  "paper_only": true,
  "edge_claimed": false,
- "close_rows": 27,
+ "close_rows": 30,
  "symbols": [
   {
    "symbol": "BTC",
    "desk": "CRYPTO",
-   "closes": 7,
-   "realized_pnl_usd": -0.0901,
+   "closes": 8,
+   "realized_pnl_usd": -0.1146,
    "reasons": [
     {
      "reason": "SIGNAL_REVERSAL",
-     "n": 5,
-     "realized_pnl_usd": -0.1657
+     "n": 6,
+     "realized_pnl_usd": -0.1902
     },
     {
      "reason": "TAKE_PROFIT",
@@ -44,13 +44,13 @@
   {
    "symbol": "ETH",
    "desk": "CRYPTO",
-   "closes": 6,
-   "realized_pnl_usd": -0.0397,
+   "closes": 7,
+   "realized_pnl_usd": -0.0829,
    "reasons": [
     {
      "reason": "SIGNAL_REVERSAL",
-     "n": 2,
-     "realized_pnl_usd": -0.1227
+     "n": 3,
+     "realized_pnl_usd": -0.1659
     },
     {
      "reason": "WITNESS_CONFLICT_EXIT",
@@ -62,13 +62,13 @@
   {
    "symbol": "SOL",
    "desk": "CRYPTO",
-   "closes": 5,
-   "realized_pnl_usd": 0.0336,
+   "closes": 6,
+   "realized_pnl_usd": 0.0198,
    "reasons": [
     {
      "reason": "SIGNAL_REVERSAL",
-     "n": 2,
-     "realized_pnl_usd": -0.061
+     "n": 3,
+     "realized_pnl_usd": -0.0748
     },
     {
      "reason": "WITNESS_CONFLICT_EXIT",
@@ -99,9 +99,9 @@
  "desks": [
   {
    "desk": "CRYPTO",
-   "closes": 18,
-   "realized_pnl_usd": -0.0962,
-   "rounded_usd": -0.1,
+   "closes": 21,
+   "realized_pnl_usd": -0.1777,
+   "rounded_usd": -0.18,
    "assigned": true
   },
   {
@@ -112,7 +112,7 @@
    "assigned": true
   }
  ],
- "account_realized_pnl_usd": -0.175,
- "rounded_desk_sum_usd": -0.18,
+ "account_realized_pnl_usd": -0.2565,
+ "rounded_desk_sum_usd": -0.26,
  "unassigned_desks": 0
 }
