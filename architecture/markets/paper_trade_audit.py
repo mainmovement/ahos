@@ -1172,6 +1172,177 @@ def write_entry_regime(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _signed(row: dict[str, Any], key: str) -> float | None:
+    side = row.get("side")
+    value = row.get(key) if key != "entry" else (row.get("entry_brain") or {}).get("composite")
+    if side not in ("LONG", "SHORT") or not isinstance(value, (int, float)):
+        return None
+    direction = 1.0 if side == "LONG" else -1.0
+    return round(float(value) * direction, 4)
+
+
+def measure_exit_score_path(root: Path) -> dict[str, Any]:
+    """Signed exit score by close reason. A positive conflict exit is not a reversal."""
+    from collections import defaultdict
+
+    from architecture.markets.paper_trader import ENTRY
+
+    buckets: dict[str, list[tuple[float, float]]] = defaultdict(list)
+    missing = 0
+    closes = _close_brains(root)
+    for row in closes:
+        exit_score = _signed(row, "exit_composite")
+        entry_score = _signed(row, "entry")
+        if exit_score is None or entry_score is None:
+            missing += 1
+            continue
+        buckets[str(row.get("reason") or "MISSING")].append((exit_score, round(exit_score - entry_score, 4)))
+    reasons = []
+    for reason in sorted(buckets):
+        pairs = buckets[reason]
+        exits = [item[0] for item in pairs]
+        deltas = [item[1] for item in pairs]
+        reasons.append({
+            "reason": reason,
+            "rows": len(pairs),
+            "signed_exit_min": min(exits),
+            "signed_exit_max": max(exits),
+            "delta_min": min(deltas),
+            "delta_max": max(deltas),
+            "at_or_beyond_reversal": sum(1 for value in exits if value <= -ENTRY),
+            "between_reversal_and_zero": sum(1 for value in exits if -ENTRY < value <= 0),
+            "positive_below_entry": sum(1 for value in exits if 0 < value < ENTRY),
+            "at_or_above_entry": sum(1 for value in exits if value >= ENTRY),
+        })
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    else:
+        status = "PATH_RECORDED"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "exit_rule_changed": False,
+        "threshold": ENTRY,
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "reasons": reasons,
+        "status": status,
+    }
+
+
+def write_exit_score_path(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.exit_score_path.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_exit_score_path(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "exit_score_path.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_hold_by_reason(root: Path) -> dict[str, Any]:
+    """Hold hours by close reason. A long hold is not an exit order."""
+    from collections import defaultdict
+
+    hours: dict[str, list[float]] = defaultdict(list)
+    missing = 0
+    closes = _close_brains(root)
+    for row in closes:
+        held = _hold_hours(row)
+        if held is None:
+            missing += 1
+            continue
+        hours[str(row.get("reason") or "MISSING")].append(held)
+    reasons = [{
+        "reason": reason,
+        "rows": len(hours[reason]),
+        "hold_hours_min": min(hours[reason]),
+        "hold_hours_max": max(hours[reason]),
+    } for reason in sorted(hours)]
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    else:
+        status = "ALL_TIMESTAMPS_PRESENT"
+    return {
+        "paper_only": True,
+        "exit_inferred": False,
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "reasons": reasons,
+        "status": status,
+    }
+
+
+def write_hold_by_reason(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.hold_by_reason.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_hold_by_reason(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "hold_by_reason.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_signal_breadth(root: Path) -> dict[str, Any]:
+    """How many stored contributions support each close. The weight sum is not forced to 1."""
+    from collections import Counter
+
+    counts: list[int] = []
+    weight_sums: list[float] = []
+    missing = 0
+    closes = _close_brains(root)
+    for row in closes:
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+        contributions = [item for item in (brain.get("contributions") or []) if isinstance(item, dict)]
+        if not contributions:
+            missing += 1
+            continue
+        counts.append(len(contributions))
+        weight_sums.append(round(sum(float(item.get("weight") or 0) for item in contributions), 4))
+    histogram = [{"signals": count, "rows": tally} for count, tally in sorted(Counter(counts).items())]
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    else:
+        status = "RECORDED_BREADTH"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "minimum_changed": False,
+        "close_rows": len(closes),
+        "missing_rows": missing,
+        "signal_count_min": min(counts) if counts else None,
+        "signal_count_max": max(counts) if counts else None,
+        "signal_counts": histogram,
+        "weight_sum_min": min(weight_sums) if weight_sums else None,
+        "weight_sum_max": max(weight_sums) if weight_sums else None,
+        "weight_sum_below_1": sum(1 for value in weight_sums if value < 1),
+        "weight_sum_below_half": sum(1 for value in weight_sums if value < 0.5),
+        "status": status,
+    }
+
+
+def write_signal_breadth(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.signal_breadth.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_signal_breadth(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "signal_breadth.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

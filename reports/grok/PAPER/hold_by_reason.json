@@ -1,0 +1,29 @@
+{
+ "schema": "ahos.paper.hold_by_reason.v1",
+ "generated_at": "2026-10-25T09:30:32Z",
+ "paper_only": true,
+ "exit_inferred": false,
+ "close_rows": 26,
+ "missing_rows": 0,
+ "reasons": [
+  {
+   "reason": "SIGNAL_REVERSAL",
+   "rows": 12,
+   "hold_hours_min": 0.23,
+   "hold_hours_max": 7.31
+  },
+  {
+   "reason": "TAKE_PROFIT",
+   "rows": 2,
+   "hold_hours_min": 10.11,
+   "hold_hours_max": 14.72
+  },
+  {
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "rows": 12,
+   "hold_hours_min": 0.1,
+   "hold_hours_max": 13.92
+  }
+ ],
+ "status": "ALL_TIMESTAMPS_PRESENT"
+}

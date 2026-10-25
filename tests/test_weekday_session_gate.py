@@ -260,3 +260,42 @@ def test_contribution_identity_and_side_split_claim_no_edge(tmp_path):
     assert regime["status"] == "TOO_SMALL_TO_COMPARE" and regime["comparison_claimed"] is False
     assert regime["largest_hmm_cell"] == 2
     assert regime["schemas"] == [{"schema": "HMM_WITH_RATIO", "rows": 2}]
+
+
+def test_conflict_exit_can_stay_positive_without_becoming_a_reversal(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_exit_score_path, measure_hold_by_reason, measure_signal_breadth,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({
+            "event": "CLOSE", "symbol": "ETH", "side": "LONG", "reason": "WITNESS_CONFLICT_EXIT",
+            "exit_composite": 0.11, "opened_at": "2026-10-25T00:00:00Z", "closed_at": "2026-10-25T01:00:00Z",
+            "entry_brain": {"composite": 0.3, "contributions": [
+                {"signal": "a", "weight": 0.4, "contribution": 0.12},
+                {"signal": "b", "weight": 0.4, "contribution": 0.12}]}}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "BTC", "side": "SHORT", "reason": "SIGNAL_REVERSAL",
+            "exit_composite": 0.3, "opened_at": "2026-10-25T00:00:00Z", "closed_at": "2026-10-25T02:00:00Z",
+            "entry_brain": {"composite": -0.4, "contributions": [
+                {"signal": "a", "weight": 0.4, "contribution": -0.16}]}}),
+    ]) + "\n", encoding="utf-8")
+    path = measure_exit_score_path(tmp_path)
+    assert path["status"] == "PATH_RECORDED" and path["exit_rule_changed"] is False and path["edge_claimed"] is False
+    by_reason = {item["reason"]: item for item in path["reasons"]}
+    assert by_reason["WITNESS_CONFLICT_EXIT"]["positive_below_entry"] == 1
+    assert by_reason["WITNESS_CONFLICT_EXIT"]["at_or_above_entry"] == 0
+    assert by_reason["SIGNAL_REVERSAL"]["at_or_beyond_reversal"] == 1
+    assert by_reason["SIGNAL_REVERSAL"]["delta_min"] == -0.7
+    held = measure_hold_by_reason(tmp_path)
+    assert held["exit_inferred"] is False and held["status"] == "ALL_TIMESTAMPS_PRESENT"
+    assert {item["reason"]: item["hold_hours_max"] for item in held["reasons"]} == {
+        "SIGNAL_REVERSAL": 2.0, "WITNESS_CONFLICT_EXIT": 1.0}
+    breadth = measure_signal_breadth(tmp_path)
+    assert breadth["minimum_changed"] is False and breadth["edge_claimed"] is False
+    assert breadth["signal_count_min"] == 1 and breadth["signal_count_max"] == 2
+    assert breadth["weight_sum_below_1"] == 2 and breadth["weight_sum_below_half"] == 1

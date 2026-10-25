@@ -571,3 +571,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** HMM with ratio 22, no HMM 3, HMM without ratio 1. States: HIGH 10, NORMAL 7, LOW 5, ABSENT 3, UNKNOWN 1. Largest state cell is 10.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 48 checks. The first skip export in this turn drifted because the log grew; the rewrite is 3510 rows, of which `MARKET_CLOSED_OR_STALE` is 3359. Whitehat CLEAN, 6 checks. pytest 64 passed. Node stage6 bridge 6/6. No HMM state becomes a filter.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4303 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 20 exit-score path, hold by reason, signal breadth
+
+### WP-20.1 — a conflict exit can stay on the same side of the score
+- **Draft:** Sign `exit_composite` by the position side. Place each close in a band around the recorded 0.25 threshold: at or beyond the reversal, between that line and zero, positive but below entry, or still at or above entry. Record the change from the signed entry score.
+- **Critique 1:** Quant: 12 reversals, signed exit -0.4533 to -0.253, all at or beyond the reversal line. Delta -0.7787 to -0.5312. Two take-profits, signed exit 0.265 to 0.3836, both still at or above entry. Delta -0.1574 to -0.0912. Twelve conflict exits, signed exit 0.11 to 0.5617. Nine still at or above entry. Three positive and below entry. None reversed. Delta -0.2547 to 0.1167. Council: nothing is promoted. Lane A untouched.
+- **Critique 2 (meta):** The conflict rows were closed by the witness while the score still agreed with the side. Waiting for the score to flip would turn the witness rule into a second reversal rule. The rule stays. The two take-profits also fired while the score still agreed with the side. That is the price rule.
+- **Result:** `reports/grok/PAPER/exit_score_path.json`. Status `PATH_RECORDED`. `exit_rule_changed` false.
+
+### WP-20.2 — hold hours for every close reason
+- **Draft:** Measure hold hours from `opened_at` and `closed_at` for every close. Do not turn a long hold into an exit.
+- **Critique 1:** All 26 timestamps are present. Reversal 0.23h to 7.31h. Take profit 10.11h to 14.72h. Conflict 0.1h to 13.92h.
+- **Critique 2 (meta):** The 14.72h take-profit is past twelve hours. The receipt does not call it a missed time stop. `exit_inferred` stays false.
+- **Result:** `reports/grok/PAPER/hold_by_reason.json`. Status `ALL_TIMESTAMPS_PRESENT`.
+
+### WP-20.3 — the weight sum is the divisor, not a unit budget
+- **Draft:** Count stored contributions and sum their weights. Do not rescale a sum that is below 1.
+- **Critique 1:** Signal counts run from 6 to 14. Weight sums run from 0.4764 to 1.0499. Nineteen closes sum below 1. One sums below 0.5.
+- **Critique 2 (meta):** The composite divides by that sum. The contribution identity already matched within 0.00016. A sum below 1 is the recorded divisor. `minimum_changed` stays false.
+- **Result:** `reports/grok/PAPER/signal_breadth.json`. Status `RECORDED_BREADTH`.
+
+### WP-20.4 — checks 49 to 51
+- **Draft:** Each check recomputes the log. A path that says the exit rule changed fails. A hold receipt that infers an exit fails. A breadth receipt that changes the minimum fails.
+- **Critique 1:** The panel copies the path status, the hold status, and the signal-count range. Each missing file stays a not-run sentence.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 51 checks, drift [], unknown []. Skip census at this export: 3530 rows, `MARKET_CLOSED_OR_STALE` 3379. Whitehat CLEAN, 6 checks. pytest 65 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4306 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
