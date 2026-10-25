@@ -157,6 +157,41 @@ def test_m29_crisis_m30_pit_10k_m52_s12_and_m70_2(tmp_path: Path) -> None:
     bad52 = vet_skill_s1_to_s12("import urllib.request\ndef run_skill(xs): return 0\n", spdx="MIT")
     assert bad52["accepted_to_shelf"] is False and bad52["checks"]["S-4_zero_network_egress"] is False
 
+
+def test_council_matrix_keeps_the_judge_unmeasured(tmp_path: Path) -> None:
+    import json
+    from architecture.markets.council_gate import COUNCIL_SYMBOLS, build_council_debate_matrix, council_row_problems
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text(json.dumps({
+        "event": "HOLD", "symbol": "BTC", "ts": "2026-10-24T00:00:00Z",
+        "signal_scores": {"mtf_trend": 0.4, "zscore_mr": -0.2},
+    }) + "\n", encoding="utf-8")
+    card = tmp_path / "reports" / "grok" / "M28"
+    card.mkdir(parents=True)
+    (card / "shadow_forward_scorecard.json").write_text(json.dumps({
+        "signals": [
+            {"signal": "mtf_trend", "brier": 0.31, "brier_skill": -0.2, "n_eff": 40},
+            {"signal": "zscore_mr", "brier": 0.2, "brier_skill": 0.1, "n_eff": 8},
+        ],
+    }), encoding="utf-8")
+    snap = build_council_debate_matrix(tmp_path)
+    assert [r["symbol"] for r in snap["rows"]] == list(COUNCIL_SYMBOLS)
+    btc = snap["rows"][0]
+    assert btc["brier_judge"] is None and btc["ece_judge"] is None and btc["approved_paper"] is False
+    assert btc["seats"][0]["brier"] == 0.31 and btc["seats"][0]["n_eff"] == 40
+    assert btc["seats"][1]["brier"] is None
+    assert btc["seats"][2]["distance_kind"] == "asset_label_match"
+    assert btc["seats"][2]["analogue"]["id"] == "2021_crypto_may_deleverage"
+    qqq = snap["rows"][COUNCIL_SYMBOLS.index("QQQ")]
+    assert qqq["seats"][2]["distance_kind"] == "no_labelled_crisis"
+    xau = snap["rows"][COUNCIL_SYMBOLS.index("XAU")]
+    assert xau["seats"][2]["tail_veto"] is False
+    assert council_row_problems(btc) == []
+    bad = dict(btc)
+    bad["brier_judge"] = 0.1
+    assert council_row_problems(bad)
+
     g70 = query_grammar_structured("test", {"summary_fa": str, "paper_only": bool})
     assert g70["grammar_valid"] is True and g70["output"]["paper_only"] is True
 

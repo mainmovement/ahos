@@ -578,6 +578,36 @@ def _stage10_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage11_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.council_gate import COUNCIL_SYMBOLS, council_row_problems
+    doc = _json(root, Path("reports") / "grok" / "M15" / "council_debate_matrix.json")
+    surface = ["reports/grok/M15/council_debate_matrix.json"]
+    if not isinstance(doc, dict):
+        return [_check("council.debate_matrix", "UNKNOWN", {"file": False}, surface),
+                _check("council.prior_label", "UNKNOWN", {"file": False}, surface)]
+    rows = doc.get("rows") or []
+    problems = []
+    if doc.get("paper_only") is not True:
+        problems.append("paper_only is not true")
+    symbols = [r.get("symbol") for r in rows if isinstance(r, dict)]
+    if symbols != list(COUNCIL_SYMBOLS):
+        problems.append("symbol list is not the paper instrument map")
+    for row in rows:
+        if isinstance(row, dict):
+            problems.extend(council_row_problems(row))
+    if doc.get("judge_brier") is not None or doc.get("ece_judge") is not None:
+        problems.append("matrix-level judge score is present")
+    prior_problems = [p for p in problems if "prior" in p or "swap" in p]
+    matrix_problems = [p for p in problems if p not in prior_problems]
+    return [
+        _check("council.debate_matrix", _pass_fail(not matrix_problems),
+               {"rows": len(rows), "problems": matrix_problems[:8], "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED"},
+               surface),
+        _check("council.prior_label", _pass_fail(not prior_problems),
+               {"problems": prior_problems[:8]}, surface),
+    ]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -596,6 +626,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage8_checks(root)
     checks += _stage9_checks(root)
     checks += _stage10_checks(root)
+    checks += _stage11_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

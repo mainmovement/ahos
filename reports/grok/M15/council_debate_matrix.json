@@ -1,0 +1,1117 @@
+{
+ "schema": "ahos.m15.council_debate_matrix.v1",
+ "generated_at": "2026-10-25T00:32:13Z",
+ "paper_only": true,
+ "symbols": [
+  "BTC",
+  "ETH",
+  "SOL",
+  "UNI",
+  "XAU",
+  "WTI",
+  "BRENT",
+  "SPX",
+  "QQQ",
+  "DAX",
+  "N225",
+  "HSI",
+  "EURUSD",
+  "USDJPY"
+ ],
+ "omitted": [
+  {
+   "symbol": "LINK",
+   "reason": "not in the paper instrument map"
+  }
+ ],
+ "skill_min_n_eff": 30,
+ "judge_brier": null,
+ "ece_judge": null,
+ "rows": [
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": "HOLD",
+   "source_ts": "2026-10-25T00:28:57Z",
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [
+      {
+       "signal": "large_trades",
+       "score": 0.6708,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "candles",
+       "score": 0.6,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "mtf_trend",
+       "score": 0.5,
+       "unit": "composite_score"
+      }
+     ],
+     "brier": 0.5135,
+     "n_eff": 45,
+     "brier_status": "SCORECARD_SIGNAL_BRIER"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [
+      {
+       "signal": "zscore_mr",
+       "score": -0.8822,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "macro",
+       "score": -0.3767,
+       "unit": "composite_score"
+      }
+     ],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": {
+      "id": "2021_crypto_may_deleverage",
+      "drop": 0.51,
+      "match": "asset_label"
+     },
+     "distance_kind": "asset_label_match",
+     "tail_veto": true,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [
+      "crypto",
+      "crypto",
+      "crypto"
+     ],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": "HOLD",
+   "source_ts": "2026-10-25T00:28:57Z",
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [
+      {
+       "signal": "large_trades",
+       "score": 0.7405,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "candles",
+       "score": 0.6,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "mtf_trend",
+       "score": 0.5,
+       "unit": "composite_score"
+      }
+     ],
+     "brier": 0.5135,
+     "n_eff": 45,
+     "brier_status": "SCORECARD_SIGNAL_BRIER"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [
+      {
+       "signal": "zscore_mr",
+       "score": -0.805,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "order_flow",
+       "score": -0.581,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "macro",
+       "score": -0.3767,
+       "unit": "composite_score"
+      }
+     ],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": null,
+     "distance_kind": "no_labelled_crisis",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [
+      "crypto",
+      "crypto",
+      "crypto"
+     ],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": "HOLD",
+   "source_ts": "2026-10-25T00:28:57Z",
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [
+      {
+       "signal": "candles",
+       "score": 0.6,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "mtf_trend",
+       "score": 0.5,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "news",
+       "score": 0.3511,
+       "unit": "composite_score"
+      }
+     ],
+     "brier": 0.3101,
+     "n_eff": 45,
+     "brier_status": "SCORECARD_SIGNAL_BRIER"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [
+      {
+       "signal": "zscore_mr",
+       "score": -0.9098,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "macro",
+       "score": -0.3767,
+       "unit": "composite_score"
+      }
+     ],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": {
+      "id": "2022_ftx_collapse",
+      "drop": 0.62,
+      "match": "asset_label"
+     },
+     "distance_kind": "asset_label_match",
+     "tail_veto": true,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [
+      "crypto",
+      "crypto",
+      "crypto"
+     ],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": "HOLD",
+   "source_ts": "2026-10-25T00:28:57Z",
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [
+      {
+       "signal": "candles",
+       "score": 1.0,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "mtf_trend",
+       "score": 0.5,
+       "unit": "composite_score"
+      }
+     ],
+     "brier": 0.5135,
+     "n_eff": 45,
+     "brier_status": "SCORECARD_SIGNAL_BRIER"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [
+      {
+       "signal": "zscore_mr",
+       "score": -0.8107,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "macro",
+       "score": -0.3767,
+       "unit": "composite_score"
+      },
+      {
+       "signal": "news",
+       "score": -0.2387,
+       "unit": "composite_score"
+      }
+     ],
+     "brier": 0.3101,
+     "n_eff": 45,
+     "brier_status": "SCORECARD_SIGNAL_BRIER"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": null,
+     "distance_kind": "no_labelled_crisis",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": {
+      "id": "2020_covid_liquidity",
+      "drop": 0.125,
+      "match": "asset_label"
+     },
+     "distance_kind": "asset_label_match",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": {
+      "id": "2020_wti_negative_oil",
+      "drop": 0.65,
+      "match": "asset_label"
+     },
+     "distance_kind": "asset_label_match",
+     "tail_veto": true,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [
+      "oil",
+      "oil",
+      "oil"
+     ],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": null,
+     "distance_kind": "no_labelled_crisis",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [
+      "oil",
+      "oil",
+      "oil"
+     ],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "SPX",
+   "desk": "US_EQUITIES",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": {
+      "id": "2008_gfc_lehman",
+      "drop": 0.46,
+      "match": "asset_label"
+     },
+     "distance_kind": "asset_label_match",
+     "tail_veto": true,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "QQQ",
+   "desk": "US_EQUITIES",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": null,
+     "distance_kind": "no_labelled_crisis",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "DAX",
+   "desk": "EU_EQUITIES",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": null,
+     "distance_kind": "no_labelled_crisis",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": {
+      "id": "2024_jpy_carry_unwind",
+      "drop": 0.195,
+      "match": "asset_label"
+     },
+     "distance_kind": "asset_label_match",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": null,
+     "distance_kind": "no_labelled_crisis",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": {
+      "id": "2015_snb_chf_unpeg",
+      "drop": 0.18,
+      "match": "asset_label"
+     },
+     "distance_kind": "asset_label_match",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "paper_only": true,
+   "approved_paper": false,
+   "source_event": null,
+   "source_ts": null,
+   "seats": [
+    {
+     "seat": 1,
+     "role": "bull",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 2,
+     "role": "bear",
+     "drivers": [],
+     "brier": null,
+     "n_eff": null,
+     "brier_status": "NO_SIGNAL_WITH_N_EFF_GE_30"
+    },
+    {
+     "seat": 3,
+     "role": "devils_advocate",
+     "analogue": null,
+     "distance_kind": "no_labelled_crisis",
+     "tail_veto": false,
+     "brier": null
+    },
+    {
+     "seat": 4,
+     "role": "macro_osint",
+     "calendar_ok": [
+      "BOE",
+      "BOJ",
+      "ECB",
+      "EIA",
+      "FOMC",
+      "OPEC"
+     ],
+     "corroborated_topics": [],
+     "shock_score": null,
+     "shock_status": "NO_ESTIMATED_CAUSAL_COEFFICIENT",
+     "brier": null
+    },
+    {
+     "seat": 5,
+     "role": "judge",
+     "brier": null,
+     "ece": null,
+     "status": "NOT_MEASURED_NO_JUDGE_FORECAST_HISTORY"
+    }
+   ],
+   "brier_judge": null,
+   "ece_judge": null,
+   "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+   "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD",
+   "swap_gate_passed": false,
+   "swap_note": "Skill weights stay on the evidence. Swapping seat labels does not move the blend, so the swap cannot fail.",
+   "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+   "bl_posterior_return": null,
+   "bl_posterior_variance": null
+  }
+ ]
+}

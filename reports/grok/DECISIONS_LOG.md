@@ -374,3 +374,17 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Choice:** Those constants are deleted. `brier_judge`, seat Briers, and `ece_judge` are null. Status is `HOLD_CALIBRATION_NOT_MEASURED`. `approved_paper` is false. The Black-Litterman scalar is labeled `ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST`. The swap of the two weighted terms is commutative, so swap consistency cannot fail and is not treated as a judge.
 - **Reason:** A stored constant is not a held-out score. Stage 11 still has to build the five-seat matrix from real seat scores. This edit does not do that.
 - **Verification:** `tests/test_stage4_closures.py` 8 passed.
+
+## 2026-10-25 — Stage 11 council matrix
+
+### WP-11.1 — five seats from receipts, judge left unmeasured
+- **Draft:** One row for each of the 14 paper instruments. Bull and bear drivers are the latest recorded signal scores. A seat Brier is copied from the shadow scorecard only when that signal has n_eff at least 30. The crisis analogue is an asset-label match to the ten historical crises, not a return-vector distance. Macro reports how many of the six calendars are OK and which corroborated news topics match the desk. The causal shock score stays null. The judge has no forecast history, so judge Brier and ECE stay null. Black-Litterman posterior stays null while the prior is only an assumption. `approved_paper` stays false. LINK is omitted because it is not in the paper instrument map.
+- **Critique 1:** Quant: a seat Brier of 0.5135 is worse than a coin flip and is still reported. Witness: six calendars were OK on this file. OSINT: corroborated topics are counted only with two domains. Council: nothing is promoted. Persian: the line says the judge is unmeasured. University: this is not a new trial. SRE: no network and no live cycle. Lane A untouched.
+- **Critique 2 (meta):** The requested inequality `Brier_judge <= min(seat Briers)` cannot be evaluated. There is no judge forecast series. Four rows have at least one seat Brier (BTC, ETH, and UNI bull 0.5135 with n_eff 45; SOL bull and UNI bear 0.3101 with n_eff 45). The other seats stay null. Tail flags on BTC and SOL come from catalogue drops of at least 0.30. A label swap cannot fail because the weights stay on the evidence, so `swap_gate_passed` is false.
+- **Result:** `reports/grok/M15/council_debate_matrix.json`. Edge remains UNPROVEN_EDGE.
+
+### WP-11.2 — checks 25 and 26
+- **Draft:** Check 25 fails if a judge Brier or ECE appears, or if a row is approved without `calibration_status` MEASURED. Check 26 fails if the vacuous swap is marked passed or the prior is unlabeled. The clean fixture writes fourteen stub rows.
+- **Critique 1:** The bridge copies `judge_brier` and does not invent a pass. A missing file says the council has not been run. pytest is two files. No `next build`.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 26 checks, drift [], unknown []. Whitehat CLEAN. pytest 64 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4283 files, VALIDATION PASSED).

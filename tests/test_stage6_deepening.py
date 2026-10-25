@@ -631,6 +631,13 @@ def _ua_root(tmp_path):
                                                "completed_stages": [], "next_wave_queue": ["Stage 10"]})
     w("reports/grok/PAPER/microstructure_audit.json", {"paper_only": True, "closed_count": 0, "rows": [],
                                                        "fee_drag_usd": 0.0})
+    from architecture.markets.council_gate import COUNCIL_SYMBOLS
+    w("reports/grok/M15/council_debate_matrix.json", {
+        "paper_only": True, "judge_brier": None, "ece_judge": None,
+        "rows": [{"symbol": s, "paper_only": True, "approved_paper": False, "brier_judge": None, "ece_judge": None,
+                  "swap_gate_passed": False, "bl_prior_status": "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST",
+                  "calibration_status": "NOT_MEASURED_NO_HELD_OUT_SCORECARD", "seats": [{}, {}, {}, {}, {}]}
+                 for s in COUNCIL_SYMBOLS]})
     w("reports/grok/M12/cognitive_graph_snapshot.json", {"registry_agents": 1, "authority_violations": [],
                                                          "verdict_counts": {"HOLD": 1}, "agents": [
         {"agent_id": "AG-01", "verdict": "HOLD", "authority_ok": True}]})

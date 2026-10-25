@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-24T19:20:00Z",
-  "current_stage": "Stage 11",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 11) in full. Do not rerun Stage 10.",
+  "updated_at": "2026-10-25T00:40:00Z",
+  "current_stage": "Stage 12",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 12) in full. Do not rerun Stage 11.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -87,6 +87,22 @@
       "whitehat": "CLEAN",
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 11",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "rows": 14,
+      "judge_brier": null,
+      "ece_judge": null,
+      "brier_inequality": "NOT_TESTABLE_JUDGE_UNMEASURED",
+      "rows_with_seat_brier": 4,
+      "unification": "26/26 UNIFIED_CLEAN",
+      "pytest": "64 passed (test_stage4_closures.py + test_stage6_deepening.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -95,12 +111,11 @@
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
     "Closed paper trades are 20 of 30",
-    "Council debate still has no held-out seat Brier. The constant Briers were removed. Stage 11 is not complete",
+    "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested",
     "Broker connectivity is not verified",
-    "Saturday session: cash equity and listed commodity desks are closed"
+    "Sunday session: cash equity and listed commodity desks are closed"
   ],
   "next_wave_queue": [
-    "Stage 11: five-seat council debate and Black-Litterman posterior, unification 26/26",
     "Stage 12: self-debug worktree and seven-pillar science receipts, unification 28/28",
     "Stage 13: weekday two-source session audit and treasury reconciliation, unification 30/30",
     "Stage 14-20: diagnostic sweep then four work packages each turn"
