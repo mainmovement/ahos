@@ -1,10 +1,10 @@
 {
  "schema": "ahos.paper.stored_witness_fields.v1",
- "generated_at": "2026-10-25T08:52:55Z",
+ "generated_at": "2026-10-25T15:08:19Z",
  "paper_only": true,
  "exit_rule_changed": false,
  "daemon_restarted": false,
- "close_rows": 26,
+ "close_rows": 27,
  "tolerance_stored": 0,
  "pair_stored": 0,
  "address_shaped_pair_stored": 0

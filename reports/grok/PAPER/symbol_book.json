@@ -1,9 +1,9 @@
 {
  "schema": "ahos.paper.symbol_book.v1",
- "generated_at": "2026-10-25T08:52:55Z",
+ "generated_at": "2026-10-25T15:08:18Z",
  "paper_only": true,
  "edge_claimed": false,
- "close_rows": 26,
+ "close_rows": 27,
  "symbols": [
   {
    "symbol": "BTC",
@@ -80,13 +80,13 @@
   {
    "symbol": "UNI",
    "desk": "PB_TOKEN",
-   "closes": 4,
-   "realized_pnl_usd": 0.0812,
+   "closes": 5,
+   "realized_pnl_usd": 0.0443,
    "reasons": [
     {
      "reason": "SIGNAL_REVERSAL",
-     "n": 3,
-     "realized_pnl_usd": -0.0934
+     "n": 4,
+     "realized_pnl_usd": -0.1303
     },
     {
      "reason": "TAKE_PROFIT",
@@ -106,13 +106,13 @@
   },
   {
    "desk": "PB_TOKEN",
-   "closes": 8,
-   "realized_pnl_usd": -0.0419,
-   "rounded_usd": -0.04,
+   "closes": 9,
+   "realized_pnl_usd": -0.0788,
+   "rounded_usd": -0.08,
    "assigned": true
   }
  ],
- "account_realized_pnl_usd": -0.1381,
- "rounded_desk_sum_usd": -0.14,
+ "account_realized_pnl_usd": -0.175,
+ "rounded_desk_sum_usd": -0.18,
  "unassigned_desks": 0
 }

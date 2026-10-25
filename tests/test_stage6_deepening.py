@@ -806,6 +806,21 @@ def _ua_root(tmp_path):
         "paper_only": True, "authority_used": False, "log_rewritten": False, "open_rows": 1,
         "stored_rows": 0, "missing_rows": 1, "approved_true": 0, "swap_true": 0,
         "brier_present": 0, "ece_present": 0, "statuses": [], "status": "NO_STORED_DEBATE"})
+    w("reports/grok/PAPER/fill_formula.json", {
+        "paper_only": True, "formula_changed": False, "added_to_cash_gap": False, "edge_claimed": False,
+        "fill_band": 1e-6, "open_rows": 1, "close_rows": 0, "missing_rows": 1, "within_band": 0,
+        "beyond_band": 0, "max_abs_gap": None, "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/open_composite.json", {
+        "paper_only": True, "gate_changed": False, "edge_claimed": False, "threshold": 0.25,
+        "brier": None, "open_rows": 1, "missing_rows": 1, "below_gate": 0, "signed_min": None,
+        "signed_max": None, "copied_rows": 0, "differ_rows": 0, "copy_missing_rows": 0,
+        "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/cluster_cap.json", {
+        "paper_only": True, "caps_changed": False, "positions_closed": False, "edge_claimed": False,
+        "money_band": 0.01, "max_open_multiple": 1.0,
+        "caps": {"crypto": 0.35, "energy": 0.2, "equities": 0.4, "fx": 0.15, "metals": 0.2},
+        "open_rows": 1, "scored_rows": 0, "missing_rows": 1, "above_cluster": 0, "above_gross": 0,
+        "worst_cap_ratio": None, "worst_gross_ratio": None, "still_open": [], "status": "INCOMPLETE"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

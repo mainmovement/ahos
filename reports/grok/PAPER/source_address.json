@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.source_address.v1",
- "generated_at": "2026-10-25T10:29:48Z",
+ "generated_at": "2026-10-25T15:08:21Z",
  "paper_only": true,
  "log_rewritten": false,
  "open_with_address": 4,
@@ -19,7 +19,7 @@
   {
    "kind": "yahoo_finance",
    "open_rows": 5,
-   "close_rows": 4
+   "close_rows": 5
   }
  ],
  "status": "ADDRESS_ON_LOG"

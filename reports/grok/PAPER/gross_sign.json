@@ -1,19 +1,19 @@
 {
  "schema": "ahos.paper.gross_sign.v1",
- "generated_at": "2026-10-25T14:46:52Z",
+ "generated_at": "2026-10-25T15:08:22Z",
  "paper_only": true,
  "edge_claimed": false,
  "exit_rule_changed": false,
- "close_rows": 26,
+ "close_rows": 27,
  "missing_rows": 0,
  "gross_positive": 10,
- "gross_negative": 16,
+ "gross_negative": 17,
  "reasons": [
   {
    "reason": "SIGNAL_REVERSAL",
-   "rows": 12,
+   "rows": 13,
    "gross_positive": 3,
-   "gross_negative": 9
+   "gross_negative": 10
   },
   {
    "reason": "TAKE_PROFIT",

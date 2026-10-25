@@ -567,3 +567,47 @@ def test_pnl_matches_gross_minus_fees_and_a_stored_approval_is_not_authority(tmp
     assert debate["stored_rows"] == 1 and debate["missing_rows"] == 1
     assert debate["approved_true"] == 1 and debate["brier_present"] == 1
     assert "0x" not in json.dumps(debate).lower()
+
+
+def test_fill_follows_the_quote_and_the_cluster_stays_inside(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_cluster_cap, measure_fill_formula, measure_open_composite,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    rows = [
+        {
+            "event": "OPEN", "symbol": "BTC", "side": "LONG", "desk": "CRYPTO",
+            "quote_price": 100.0, "fill_price": 100.05, "slippage_pct": 0.0005,
+            "notional_usd": 1.0, "equity_at_open_usd": 100.0,
+            "brain": {"composite": 0.3},
+        },
+        {
+            "event": "CLOSE", "symbol": "BTC", "side": "LONG", "reason": "SIGNAL_REVERSAL",
+            "quote_price": 101.0, "fill_price": 100.9495, "slippage_pct": 0.0005,
+            "entry_brain": {"composite": 0.3},
+        },
+        {
+            "event": "OPEN", "symbol": "ETH", "side": "SHORT", "desk": "CRYPTO",
+            "quote_price": 50.0, "fill_price": 49.975, "slippage_pct": 0.0005,
+            "notional_usd": 1.0, "equity_at_open_usd": 100.0,
+            "brain": {"composite": -0.26},
+        },
+    ]
+    (paper / "paper_trades.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    fill = measure_fill_formula(tmp_path)
+    assert fill["status"] == "FILL_FORMULA" and fill["formula_changed"] is False
+    assert fill["added_to_cash_gap"] is False and fill["beyond_band"] == 0
+    assert fill["max_abs_gap"] == 0.0 and fill["open_rows"] == 2 and fill["close_rows"] == 1
+    composite = measure_open_composite(tmp_path)
+    assert composite["status"] == "GATE_HELD_NOT_A_PROBABILITY" and composite["gate_changed"] is False
+    assert composite["brier"] is None and composite["below_gate"] == 0
+    assert composite["signed_min"] == 0.26 and composite["copied_rows"] == 1 and composite["differ_rows"] == 0
+    cluster = measure_cluster_cap(tmp_path)
+    assert cluster["status"] == "INSIDE_CLUSTER" and cluster["caps_changed"] is False
+    assert cluster["positions_closed"] is False and cluster["above_cluster"] == 0
+    assert cluster["still_open"] == ["ETH"] and "0x" not in json.dumps(cluster).lower()

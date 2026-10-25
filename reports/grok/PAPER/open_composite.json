@@ -1,0 +1,18 @@
+{
+ "schema": "ahos.paper.open_composite.v1",
+ "generated_at": "2026-10-25T15:08:22Z",
+ "paper_only": true,
+ "gate_changed": false,
+ "edge_claimed": false,
+ "threshold": 0.25,
+ "brier": null,
+ "open_rows": 30,
+ "missing_rows": 0,
+ "below_gate": 0,
+ "signed_min": 0.2593,
+ "signed_max": 0.6307,
+ "copied_rows": 27,
+ "differ_rows": 0,
+ "copy_missing_rows": 0,
+ "status": "GATE_HELD_NOT_A_PROBABILITY"
+}

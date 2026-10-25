@@ -1,15 +1,15 @@
 {
  "schema": "ahos.paper.signal_dissent.v1",
- "generated_at": "2026-10-25T09:42:01Z",
+ "generated_at": "2026-10-25T15:08:20Z",
  "paper_only": true,
  "skill_claimed": false,
  "signals_removed": false,
- "close_rows": 26,
+ "close_rows": 27,
  "missing_rows": 0,
- "contribution_agree": 101,
- "contribution_oppose": 56,
- "contribution_zero": 99,
- "closes_with_opposition": 24,
+ "contribution_agree": 105,
+ "contribution_oppose": 57,
+ "contribution_zero": 101,
+ "closes_with_opposition": 25,
  "opposition_weight_share_min": 0.0,
  "opposition_weight_share_max": 0.43,
  "zero_weight_share_min": 0.0,
@@ -34,17 +34,17 @@
  "signals": [
   {
    "signal": "candles",
-   "present": 25,
-   "agree": 13,
+   "present": 26,
+   "agree": 14,
    "oppose": 2,
    "zero": 10
   },
   {
    "signal": "event_shock",
-   "present": 22,
+   "present": 23,
    "agree": 0,
    "oppose": 0,
-   "zero": 22
+   "zero": 23
   },
   {
    "signal": "exchange_netflow",
@@ -69,29 +69,29 @@
   },
   {
    "signal": "macro",
-   "present": 24,
-   "agree": 17,
+   "present": 25,
+   "agree": 18,
    "oppose": 7,
    "zero": 0
   },
   {
    "signal": "macro_event",
-   "present": 23,
+   "present": 24,
    "agree": 0,
    "oppose": 0,
-   "zero": 23
+   "zero": 24
   },
   {
    "signal": "mtf_trend",
-   "present": 25,
-   "agree": 25,
+   "present": 26,
+   "agree": 26,
    "oppose": 0,
    "zero": 0
   },
   {
    "signal": "news",
-   "present": 26,
-   "agree": 20,
+   "present": 27,
+   "agree": 21,
    "oppose": 6,
    "zero": 0
   },
@@ -125,9 +125,9 @@
   },
   {
    "signal": "zscore_mr",
-   "present": 25,
+   "present": 26,
    "agree": 0,
-   "oppose": 11,
+   "oppose": 12,
    "zero": 14
   }
  ],

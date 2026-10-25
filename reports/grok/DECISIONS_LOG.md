@@ -779,3 +779,31 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the 14:46Z export the four open shorts were 7.82 to 8.93 hours old, still inside the 12-hour and 24-hour limits, and they were not closed. Reentry spacing was measured in the diagnostic (25 gaps, shortest 235 seconds) and no cooldown was added.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 72 checks, drift [], unknown []. Skip census at this export: 3994 rows, `MARKET_CLOSED_OR_STALE` 3818. Whitehat CLEAN, 6 checks. pytest 72 passed on the weekday and stage-6 files. The existing council test now asserts `swap_gate_passed` is false. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4327 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 28 fill formula, accepted composite, cluster cap
+
+The log gained one close after Stage 27. It is a PB_TOKEN short, reason `SIGNAL_REVERSAL`, held 32853 seconds. Its price gross is negative. The running process wrote that close. This stage did not close it and did not rewrite the row. The older receipts were recomputed with the same functions so the audit matches the log. The earlier stage records were not rewritten.
+
+### WP-28.1 — the stored fill matches the quote and the stored slippage
+- **Draft:** An open fill is the quote times one plus slippage in the trade direction. A close fill is the quote times one minus slippage in the trade direction. Both are rounded to six decimals. Do not change the formula. Do not add a gap to the cash discrepancy.
+- **Critique 1:** 30 opens and 27 closes match. 0 are missing a field. The largest absolute gap is 0.0.
+- **Critique 2 (meta):** A matching fill is the stored rounding of the quote. It is not a cash gap and it is not an edge. It is separate from the exit-slippage drag.
+- **Result:** `reports/grok/PAPER/fill_formula.json`. Status `FILL_FORMULA`. `formula_changed` false. `added_to_cash_gap` false.
+
+### WP-28.2 — accepted opens stay on the recorded side of 0.25
+- **Draft:** The signed open composite must be at least 0.25. The close must store the same composite the open stored. Do not lower the gate. The score is not a probability.
+- **Critique 1:** 30 opens are at or above the gate. 0 are below. The signed range is 0.2593 to 0.6307. 27 closes copy the open composite. 0 differ.
+- **Critique 2 (meta):** This is the accept side of the refusal gate. It does not turn the score into a Brier, and the stored debate approval remains not authority.
+- **Result:** `reports/grok/PAPER/open_composite.json`. Status `GATE_HELD_NOT_A_PROBABILITY`. `gate_changed` false. `brier` null.
+
+### WP-28.3 — simultaneous notional stays inside the cluster cap
+- **Draft:** Replay the book. A cluster may hold at most its cap times the equity stored on that open, and the whole book may hold at most one times equity. The money band is one cent. Do not change the caps. Do not close a position.
+- **Critique 1:** 30 opens are scored. 0 sit above either line. The largest cluster use is 0.8571 of its cap. The largest gross use is 0.30 of equity. After the new close the book still holds BTC, ETH, and SOL.
+- **Critique 2 (meta):** Touching a fraction of the cap is not a reason to raise it. The three remaining shorts were 8.18 to 8.48 hours old at the 15:08Z export, still inside 12 hours and 24 hours, and this stage did not close them.
+- **Result:** `reports/grok/PAPER/cluster_cap.json`. Status `INSIDE_CLUSTER`. `caps_changed` false. `positions_closed` false.
+
+### WP-28.4 — checks 73 to 75
+- **Draft:** Each check recomputes the log. A fill receipt that changes the formula fails. A composite receipt that changes the gate fails. A cluster receipt that changes the caps or closes a position fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. Reversal closes are now 13, of which 3 have positive gross and 10 have negative gross. Take-profit remains 2 and 0. Conflict remains 5 and 7. Net pnl on the refreshed fee identity is -0.175 USD. End equity is 99.825.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 75 checks, drift [], unknown []. Skip census at this export: 4036 rows, `MARKET_CLOSED_OR_STALE` 3855. Whitehat CLEAN, 6 checks. pytest 73 passed. Node stage6 bridge 6/6. The extra negative reversal is not an edge.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4330 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

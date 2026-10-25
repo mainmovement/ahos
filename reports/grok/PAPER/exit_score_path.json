@@ -1,21 +1,21 @@
 {
  "schema": "ahos.paper.exit_score_path.v1",
- "generated_at": "2026-10-25T09:30:32Z",
+ "generated_at": "2026-10-25T15:08:20Z",
  "paper_only": true,
  "edge_claimed": false,
  "exit_rule_changed": false,
  "threshold": 0.25,
- "close_rows": 26,
+ "close_rows": 27,
  "missing_rows": 0,
  "reasons": [
   {
    "reason": "SIGNAL_REVERSAL",
-   "rows": 12,
+   "rows": 13,
    "signed_exit_min": -0.4533,
    "signed_exit_max": -0.253,
    "delta_min": -0.7787,
    "delta_max": -0.5312,
-   "at_or_beyond_reversal": 12,
+   "at_or_beyond_reversal": 13,
    "between_reversal_and_zero": 0,
    "positive_below_entry": 0,
    "at_or_above_entry": 0

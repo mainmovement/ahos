@@ -2714,6 +2714,226 @@ def write_debate_claim(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_fill_formula(root: Path) -> dict[str, Any]:
+    """Stored fill against the quote and the stored slippage. The formula is not changed."""
+    band = 1e-6
+    within = beyond = missing = open_rows = close_rows = 0
+    gaps: list[float] = []
+    for row in _log_rows(root):
+        event = row.get("event")
+        if event not in ("OPEN", "CLOSE"):
+            continue
+        if event == "OPEN":
+            open_rows += 1
+        else:
+            close_rows += 1
+        direction = _direction(row)
+        quote, fill, slip = row.get("quote_price"), row.get("fill_price"), row.get("slippage_pct")
+        if (direction is None or not isinstance(slip, (int, float))
+                or not isinstance(quote, (int, float)) or not quote
+                or not isinstance(fill, (int, float)) or not fill):
+            missing += 1
+            continue
+        sign = 1.0 if event == "OPEN" else -1.0
+        expect = round(float(quote) * (1.0 + sign * float(slip) * direction), 6)
+        gap = abs(expect - float(fill))
+        gaps.append(gap)
+        if gap <= band:
+            within += 1
+        else:
+            beyond += 1
+    rows = open_rows + close_rows
+    if rows == 0:
+        status = "NO_FILL_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif beyond == 0:
+        status = "FILL_FORMULA"
+    else:
+        status = "FILL_BEYOND"
+    return {
+        "paper_only": True,
+        "formula_changed": False,
+        "added_to_cash_gap": False,
+        "edge_claimed": False,
+        "fill_band": band,
+        "open_rows": open_rows,
+        "close_rows": close_rows,
+        "missing_rows": missing,
+        "within_band": within,
+        "beyond_band": beyond,
+        "max_abs_gap": None if not gaps else round(max(gaps), 6),
+        "status": status,
+    }
+
+
+def write_fill_formula(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.fill_formula.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_fill_formula(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "fill_formula.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_open_composite(root: Path) -> dict[str, Any]:
+    """Signed open composite against the recorded gate. The score is not a probability."""
+    from architecture.markets.paper_trader import ENTRY
+    from collections import defaultdict, deque
+
+    signed: list[float] = []
+    missing = below = 0
+    queues: dict[str, deque] = defaultdict(deque)
+    copied = differ = copy_missing = 0
+    for row in _log_rows(root):
+        event = row.get("event")
+        if event == "OPEN":
+            queues[str(row.get("symbol"))].append(row)
+            brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+            composite = brain.get("composite")
+            direction = _direction(row)
+            if direction is None or not isinstance(composite, (int, float)):
+                missing += 1
+                continue
+            value = round(float(composite) * direction, 4)
+            signed.append(value)
+            if value < ENTRY:
+                below += 1
+        elif event == "CLOSE":
+            opened = queues[str(row.get("symbol"))].popleft() if queues[str(row.get("symbol"))] else None
+            open_brain = opened.get("brain") if isinstance(opened, dict) and isinstance(opened.get("brain"), dict) else {}
+            close_brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+            left, right = open_brain.get("composite"), close_brain.get("composite")
+            if opened is None or not isinstance(left, (int, float)) or not isinstance(right, (int, float)):
+                copy_missing += 1
+            elif left == right:
+                copied += 1
+            else:
+                differ += 1
+    opens = len(signed) + missing
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif missing or copy_missing:
+        status = "INCOMPLETE"
+    elif below:
+        status = "BELOW_RECORDED_THRESHOLD"
+    elif differ:
+        status = "COPY_DIFFERS"
+    else:
+        status = "GATE_HELD_NOT_A_PROBABILITY"
+    return {
+        "paper_only": True,
+        "gate_changed": False,
+        "edge_claimed": False,
+        "threshold": ENTRY,
+        "brier": None,
+        "open_rows": opens,
+        "missing_rows": missing,
+        "below_gate": below,
+        "signed_min": None if not signed else round(min(signed), 4),
+        "signed_max": None if not signed else round(max(signed), 4),
+        "copied_rows": copied,
+        "differ_rows": differ,
+        "copy_missing_rows": copy_missing,
+        "status": status,
+    }
+
+
+def write_open_composite(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.open_composite.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_open_composite(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "open_composite.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_cluster_cap(root: Path) -> dict[str, Any]:
+    """Simultaneous notional against the cluster cap. This measure closes nothing."""
+    from architecture.markets.paper_trader import CLUSTER_CAPS, CLUSTER_OF_DESK, MAX_OPEN_NOTIONAL
+
+    money_band = 0.01
+    book: dict[str, dict[str, float | str]] = {}
+    missing = above_cluster = above_gross = scored = 0
+    worst_cap = worst_gross = None
+    for row in _log_rows(root):
+        event = row.get("event")
+        symbol = str(row.get("symbol") or "")
+        if event == "OPEN":
+            notional, equity = row.get("notional_usd"), row.get("equity_at_open_usd")
+            desk = row.get("desk")
+            cluster = CLUSTER_OF_DESK.get(str(desk or ""))
+            if (not isinstance(notional, (int, float)) or not isinstance(equity, (int, float))
+                    or not equity or cluster not in CLUSTER_CAPS):
+                missing += 1
+                continue
+            book[symbol] = {"notional": float(notional), "cluster": cluster}
+            totals: dict[str, float] = {}
+            for item in book.values():
+                name = str(item["cluster"])
+                totals[name] = totals.get(name, 0.0) + float(item["notional"])
+            gross = sum(float(item["notional"]) for item in book.values())
+            scored += 1
+            gross_ratio = gross / float(equity)
+            worst_gross = gross_ratio if worst_gross is None else max(worst_gross, gross_ratio)
+            if gross > MAX_OPEN_NOTIONAL * float(equity) + money_band:
+                above_gross += 1
+            for name, amount in totals.items():
+                cap = CLUSTER_CAPS[name]
+                ratio = (amount / float(equity)) / cap if cap else None
+                if ratio is not None:
+                    worst_cap = ratio if worst_cap is None else max(worst_cap, ratio)
+                if amount > cap * float(equity) + money_band:
+                    above_cluster += 1
+        elif event == "CLOSE" and row.get("partial") is not True:
+            book.pop(symbol, None)
+    opens = scored + missing
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif above_cluster or above_gross:
+        status = "ABOVE_CLUSTER"
+    else:
+        status = "INSIDE_CLUSTER"
+    return {
+        "paper_only": True,
+        "caps_changed": False,
+        "positions_closed": False,
+        "edge_claimed": False,
+        "money_band": money_band,
+        "max_open_multiple": MAX_OPEN_NOTIONAL,
+        "caps": {name: CLUSTER_CAPS[name] for name in sorted(CLUSTER_CAPS)},
+        "open_rows": opens,
+        "scored_rows": scored,
+        "missing_rows": missing,
+        "above_cluster": above_cluster,
+        "above_gross": above_gross,
+        "worst_cap_ratio": None if worst_cap is None else round(worst_cap, 4),
+        "worst_gross_ratio": None if worst_gross is None else round(worst_gross, 4),
+        "still_open": sorted(book),
+        "status": status,
+    }
+
+
+def write_cluster_cap(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.cluster_cap.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_cluster_cap(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "cluster_cap.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

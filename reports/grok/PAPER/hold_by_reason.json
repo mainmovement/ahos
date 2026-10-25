@@ -1,16 +1,16 @@
 {
  "schema": "ahos.paper.hold_by_reason.v1",
- "generated_at": "2026-10-25T09:30:32Z",
+ "generated_at": "2026-10-25T15:08:20Z",
  "paper_only": true,
  "exit_inferred": false,
- "close_rows": 26,
+ "close_rows": 27,
  "missing_rows": 0,
  "reasons": [
   {
    "reason": "SIGNAL_REVERSAL",
-   "rows": 12,
+   "rows": 13,
    "hold_hours_min": 0.23,
-   "hold_hours_max": 7.31
+   "hold_hours_max": 9.13
   },
   {
    "reason": "TAKE_PROFIT",

@@ -1287,6 +1287,49 @@ def _stage27_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage28_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.paper_trade_audit import (
+        measure_cluster_cap, measure_fill_formula, measure_open_composite,
+    )
+
+    specs = (
+        ("execution.fill_formula", Path("reports") / "grok" / "PAPER" / "fill_formula.json",
+         measure_fill_formula,
+         ("open_rows", "close_rows", "missing_rows", "within_band", "beyond_band",
+          "max_abs_gap", "fill_band", "status"),
+         "formula_changed"),
+        ("execution.open_composite", Path("reports") / "grok" / "PAPER" / "open_composite.json",
+         measure_open_composite,
+         ("open_rows", "missing_rows", "below_gate", "signed_min", "signed_max",
+          "copied_rows", "differ_rows", "copy_missing_rows", "threshold", "brier", "status"),
+         "gate_changed"),
+        ("execution.cluster_cap", Path("reports") / "grok" / "PAPER" / "cluster_cap.json",
+         measure_cluster_cap,
+         ("open_rows", "scored_rows", "missing_rows", "above_cluster", "above_gross",
+          "worst_cap_ratio", "worst_gross_ratio", "still_open", "caps", "max_open_multiple",
+          "money_band", "status"),
+         "caps_changed"),
+    )
+    out = []
+    for check_id, rel, measure, keys, flag in specs:
+        doc = _json(root, rel)
+        if not isinstance(doc, dict):
+            out.append(_check(check_id, "UNKNOWN", {"file": False}, [str(rel)]))
+            continue
+        fresh = measure(root)
+        problems = []
+        if doc.get("paper_only") is not True or doc.get(flag) is not False:
+            problems.append(f"{flag} is not false")
+        if doc.get("edge_claimed") is True or doc.get("positions_closed") is True:
+            problems.append("an edge is claimed or a position was closed")
+        for key in keys:
+            if doc.get(key) != fresh[key]:
+                problems.append(f"{key} does not match the log")
+        out.append(_check(check_id, _pass_fail(not problems),
+                          {"problems": problems[:6]}, [str(rel)]))
+    return out
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -1322,6 +1365,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage25_checks(root)
     checks += _stage26_checks(root)
     checks += _stage27_checks(root)
+    checks += _stage28_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")
