@@ -422,8 +422,8 @@
     {
       "stage": "Stage 22",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "6d678b1",
+      "arena_commit": "bdc7e15",
       "path_status": "PATH_NOT_STORED",
       "closes_missing_path_keys": 26,
       "hold_with_mfe": 0,
