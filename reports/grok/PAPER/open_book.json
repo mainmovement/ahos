@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.open_book.v1",
- "generated_at": "2026-10-25T18:31:56Z",
+ "generated_at": "2026-10-25T19:23:13Z",
  "paper_only": true,
  "exit_inferred": false,
  "daemon_restarted": false,
@@ -14,6 +14,18 @@
    "open_time": "2026-10-25T18:13:25Z"
   },
   {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "side": "SHORT",
+   "open_time": "2026-10-25T18:47:46Z"
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "side": "LONG",
+   "open_time": "2026-10-25T19:17:57Z"
+  },
+  {
    "symbol": "UNI",
    "desk": "PB_TOKEN",
    "side": "LONG",
@@ -24,6 +36,8 @@
  "status": "INSIDE_BOTH_LIMITS",
  "positions_file_symbols": [
   "BTC",
+  "EURUSD",
+  "SOL",
   "UNI"
  ],
  "log_matches_positions_file": true

@@ -1622,6 +1622,51 @@ def _stage35_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage36_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.paper_trade_audit import (
+        measure_bl_scalar, measure_exit_roster, measure_lesson_sentence,
+    )
+
+    specs = (
+        ("execution.lesson_sentence", Path("reports") / "grok" / "PAPER" / "lesson_sentence.json",
+         measure_lesson_sentence,
+         ("file_present", "chain_intact", "paper_rows", "other_source_rows", "follows_trade",
+          "contradicts_trade", "names_trade_sign", "other_sentence", "unmatched",
+          "claim_embeds_number", "weight_zero", "weight_one", "review_rows",
+          "source_names_trade_sign", "status"),
+         "number_copied"),
+        ("execution.bl_scalar", Path("reports") / "grok" / "PAPER" / "bl_scalar.json",
+         measure_bl_scalar,
+         ("open_rows", "stored_rows", "missing_rows", "return_match", "return_differ",
+          "return_absent", "prior_status_absent", "prior_status_assumed", "status"),
+         "value_copied"),
+        ("execution.exit_roster", Path("reports") / "grok" / "PAPER" / "exit_roster.json",
+         measure_exit_roster,
+         ("close_rows", "other_rows", "reason_counts", "unobserved", "code_names_missing", "status"),
+         "rules_changed"),
+    )
+    out = []
+    for check_id, rel, measure, keys, flag in specs:
+        doc = _json(root, rel)
+        if not isinstance(doc, dict):
+            out.append(_check(check_id, "UNKNOWN", {"file": False}, [str(rel)]))
+            continue
+        fresh = measure(root)
+        problems = []
+        if doc.get("paper_only") is not True or doc.get(flag) is not False:
+            problems.append(f"{flag} is not false")
+        if (doc.get("edge_claimed") is True or doc.get("votes_counted") is True
+                or doc.get("historical_rewritten") is True or doc.get("treated_as_forecast") is True
+                or doc.get("formula_changed") is True or doc.get("absence_called_deletion") is True):
+            problems.append("a lesson sentence, a scalar prior, or an exit name was treated as an edge")
+        for key in keys:
+            if doc.get(key) != fresh[key]:
+                problems.append(f"{key} does not match the log")
+        out.append(_check(check_id, _pass_fail(not problems),
+                          {"problems": problems[:6]}, [str(rel)]))
+    return out
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -1665,6 +1710,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage33_checks(root)
     checks += _stage34_checks(root)
     checks += _stage35_checks(root)
+    checks += _stage36_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

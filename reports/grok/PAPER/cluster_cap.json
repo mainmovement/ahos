@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.cluster_cap.v1",
- "generated_at": "2026-10-25T18:31:53Z",
+ "generated_at": "2026-10-25T19:23:09Z",
  "paper_only": true,
  "caps_changed": false,
  "positions_closed": false,
@@ -14,8 +14,8 @@
   "fx": 0.15,
   "metals": 0.2
  },
- "open_rows": 33,
- "scored_rows": 33,
+ "open_rows": 35,
+ "scored_rows": 35,
  "missing_rows": 0,
  "above_cluster": 0,
  "above_gross": 0,
@@ -23,6 +23,8 @@
  "worst_gross_ratio": 0.3,
  "still_open": [
   "BTC",
+  "EURUSD",
+  "SOL",
   "UNI"
  ],
  "status": "INSIDE_CLUSTER"

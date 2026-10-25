@@ -1,13 +1,13 @@
 {
  "schema": "ahos.paper.take_field.v1",
- "generated_at": "2026-10-25T18:32:00Z",
+ "generated_at": "2026-10-25T19:23:16Z",
  "paper_only": true,
  "multiple_changed": false,
  "take_multiple": 1.5,
  "storage_unit": 1e-05,
- "open_rows": 33,
+ "open_rows": 35,
  "missing_rows": 0,
- "within_storage": 33,
+ "within_storage": 35,
  "beyond_storage": 0,
  "max_abs_gap": 1e-05,
  "status": "WITHIN_STORAGE_PRECISION"

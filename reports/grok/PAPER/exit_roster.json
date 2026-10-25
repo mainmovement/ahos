@@ -1,0 +1,30 @@
+{
+ "schema": "ahos.paper.exit_roster.v1",
+ "generated_at": "2026-10-25T19:23:11Z",
+ "paper_only": true,
+ "rules_changed": false,
+ "absence_called_deletion": false,
+ "edge_claimed": false,
+ "daemon_restarted": false,
+ "close_rows": 31,
+ "other_rows": 0,
+ "reason_counts": {
+  "STOP_LOSS": 0,
+  "TAKE_PROFIT": 2,
+  "PARTIAL_TAKE_PROFIT": 0,
+  "CHANDELIER_STOP": 0,
+  "SIGNAL_REVERSAL": 17,
+  "TIME_STOP": 0,
+  "MAX_HOLD": 0,
+  "WITNESS_CONFLICT_EXIT": 12
+ },
+ "unobserved": [
+  "STOP_LOSS",
+  "PARTIAL_TAKE_PROFIT",
+  "CHANDELIER_STOP",
+  "TIME_STOP",
+  "MAX_HOLD"
+ ],
+ "code_names_missing": 0,
+ "status": "RULES_PRESENT"
+}

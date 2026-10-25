@@ -1,20 +1,20 @@
 {
  "schema": "ahos.paper.debate_claim.v1",
- "generated_at": "2026-10-25T18:31:54Z",
+ "generated_at": "2026-10-25T19:23:10Z",
  "paper_only": true,
  "authority_used": false,
  "log_rewritten": false,
- "open_rows": 33,
- "stored_rows": 30,
+ "open_rows": 35,
+ "stored_rows": 32,
  "missing_rows": 3,
- "approved_true": 30,
- "swap_true": 30,
- "brier_present": 30,
- "ece_present": 30,
+ "approved_true": 32,
+ "swap_true": 32,
+ "brier_present": 32,
+ "ece_present": 32,
  "statuses": [
   {
    "status": "APPROVED_SOROUSH_BL",
-   "rows": 30
+   "rows": 32
   }
  ],
  "status": "STORED_CLAIM_NOT_AUTHORITY"

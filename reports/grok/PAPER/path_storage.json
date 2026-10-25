@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.path_storage.v1",
- "generated_at": "2026-10-25T18:31:57Z",
+ "generated_at": "2026-10-25T19:23:13Z",
  "paper_only": true,
  "path_backfilled": false,
  "exit_inferred": false,
@@ -10,7 +10,7 @@
  "missing_mfe": 31,
  "missing_path_points": 31,
  "missing_partial": 31,
- "hold_rows": 1338,
+ "hold_rows": 1356,
  "hold_with_mfe": 0,
  "hold_with_chandelier": 0,
  "status": "PATH_NOT_STORED"

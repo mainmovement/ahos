@@ -59,6 +59,8 @@ def test_close_writes_m49_lesson_and_oms(tmp_path):
     pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
     st = LessonsLedger(tmp_path / "data/mission_ledger/m49_lessons.sqlite")
     rows = st.all_rows(); assert len(rows) == 1 and rows[0].status == "UNVERIFIED" and "lost" in rows[0].claim and st.verify()
+    assert rows[0].counterfactual == pt.LESSON_COUNTERFACTUAL
+    assert "agreed" not in rows[0].counterfactual
     st.close()
 
 

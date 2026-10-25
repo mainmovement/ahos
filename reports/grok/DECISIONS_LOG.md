@@ -999,3 +999,31 @@ Scope: Lane B measurement and the Arena read-only lines. Lane A was not edited. 
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export UNI was 3.22 hours old at version 19 and BTC was 0.31 hours old at version 23. Neither was closed. Closed paper trades remain 31.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 96 checks, drift [], unknown []. Skip census at this export: 4391 rows, `MARKET_CLOSED_OR_STALE` 4124. Whitehat CLEAN, 6 checks. pytest 80 passed. Node stage6 bridge 6/6. Thirty-one closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
 - **Verification:** `scripts/validate_imports.py` started 2026-10-25T18:32:50Z and exited 0. 373 modules imported cleanly. 4351 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 36 lesson sentence, scalar prior, exit roster
+
+Scope: Lane B measurement, the next-process lesson sentence, and the Arena read-only lines. Lane A was not edited. Historical lesson rows were not rewritten. The stored scalar was not copied. No exit rule was removed. No broker was called. UNI, BTC, and EURUSD were not closed. The paper trader was not restarted. The running process opened EURUSD. This stage did not open it.
+
+### WP-36.1 — a sentence that follows the trade sign is not a signal vote
+- **Draft:** Join each paper-trader lesson to the lesson-log win flag. The old sentence that says the signals agreed is counted only when that flag is true, and the sentence that says they disagreed is counted only when the flag is false. Do not store the claim text. Do not store a hit count. Change the writer so a later process states that the trade sign is not a vote. Do not rewrite the rows already stored.
+- **Critique 1:** The chain is intact. 31 paper-trader lessons follow the trade sign. 0 contradict it. 0 already use the new sentence, because this process has not loaded it. 3 rows come from another source and were not relabeled. All 31 paper-trader claims contain a digit. The digit was not copied. Retrieval weight is 0 on all 31. Review rows are 0.
+- **Critique 2 (meta):** Agreement in that sentence is the sign of the trade. It is not a count of signal votes and it is not an edge.
+- **Result:** `reports/grok/PAPER/lesson_sentence.json`. Status `SENTENCE_FOLLOWS_THE_TRADE`. `votes_counted` false. `hits_stored` false. `number_copied` false. `historical_rewritten` false. `source_names_trade_sign` true.
+
+### WP-36.2 — a scalar that matches the assumed prior is not a forecast
+- **Draft:** Recompute the live debate function from the stored composite and the stored reference counts. Compare the stored scalar return. Do not copy the return. Do not change the formula.
+- **Critique 1:** 35 opens. 32 debates. 32 stored scalars match. 0 differ. 0 lack the return key. The prior-status key is absent on all 32. The current function names that prior as assumed. This process has not written that key onto the stored rows.
+- **Critique 2 (meta):** A match to the assumed-scalar update is not a market forecast and it is not an edge.
+- **Result:** `reports/grok/PAPER/bl_scalar.json`. Status `SCALAR_OF_AN_ASSUMED_PRIOR`. `value_copied` false. `treated_as_forecast` false. `formula_changed` false.
+
+### WP-36.3 — an exit name missing from the log is still in the source
+- **Draft:** Count the eight exit names in the current close chooser and on the close log. Do not change a threshold. Do not delete a name that has not been observed.
+- **Critique 1:** 31 closes. Take-profit 2. Signal reversal 17. Witness-conflict exit 12. Stop-loss, partial take-profit, chandelier, time stop, and max hold are 0. All eight names are in the current source. No other close reason is present.
+- **Critique 2 (meta):** A zero on the log is not evidence that the rule was removed. The running process has not been restarted onto this source.
+- **Result:** `reports/grok/PAPER/exit_roster.json`. Status `RULES_PRESENT`. `rules_changed` false. `absence_called_deletion` false. `code_names_missing` 0.
+
+### WP-36.4 — checks 97 to 99
+- **Draft:** Each check recomputes the log. A receipt that counts votes, copies the scalar, or calls an absence a deletion fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export UNI was 4.08 hours old at version 19, BTC was 1.17 hours old at version 23, EURUSD was 0.60 hours old at version 23, and SOL was 0.09 hours old at version 23. None was closed. The running process opened EURUSD and then SOL. This stage did not. Closed paper trades remain 31. The blend receipt refreshed with the log: 35 opens, 32 debates, 32 matches. A short writer replaced the audit with 22 checks at 2026-10-25T19:20:01Z. The same export was run again and restored 99 checks.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 99 checks, drift [], unknown []. Skip census at this export: 4469 rows, `MARKET_CLOSED_OR_STALE` 4185. Whitehat CLEAN, 6 checks. pytest 87 passed on the weekday gate, the stage-6 deepening file, and the paper-trader file. Node stage6 bridge 6/6. Thirty-one closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-25T19:05:46Z and exited 0. 373 modules imported cleanly. 4354 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. A later probe started 2026-10-25T19:26:02Z stayed silent after the artifact section and was stopped. The paper-trader and gold-soak processes were not stopped. That stopped probe is `NOT_VERIFIED`. It is not a product defect.

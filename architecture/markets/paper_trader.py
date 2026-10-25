@@ -108,6 +108,11 @@ TIME_STOP_HOLD_FRAC = 0.5
 TIME_STOP_MOVE_FRAC = 0.25
 DAILY_LOSS_LIMIT, WEEKLY_LOSS_LIMIT = 0.03, 0.06
 MAX_OPEN_NOTIONAL = 1.0          # 1x equity in total, no leverage
+EXIT_REASONS = (
+    "STOP_LOSS", "TAKE_PROFIT", "PARTIAL_TAKE_PROFIT", "CHANDELIER_STOP",
+    "SIGNAL_REVERSAL", "TIME_STOP", "MAX_HOLD", "WITNESS_CONFLICT_EXIT",
+)
+LESSON_COUNTERFACTUAL = "no trade (flat) = 0 USD; the trade sign is not a count of signal votes"
 
 
 def _iso(ts: float) -> str:
@@ -238,7 +243,7 @@ def university_lesson(root: Path, w: dict[str, Any], close_row: dict[str, Any], 
                          claim=f"{close_row['side']} {close_row['symbol']} {'won' if win else 'lost'} "
                                f"{close_row['realized_pnl_usd']} USD ({close_row['reason']}); top signals: "
                                + ", ".join(f"{c['signal']}={c['contribution']}" for c in top),
-                         counterfactual="no trade (flat) = 0 USD; " + ("signals agreed with outcome" if win else "signals disagreed with outcome"),
+                         counterfactual=LESSON_COUNTERFACTUAL,
                          valid_from=close_row["closed_at"])
         finally:
             store.close()

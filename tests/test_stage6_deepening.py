@@ -906,6 +906,30 @@ def _ua_root(tmp_path):
         "paper_only": True, "broker_claimed": False, "route_changed": False, "edge_claimed": False,
         "close_rows": 0, "accepted_paper": 0, "missing_rows": 0, "other_rows": 0,
         "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/lesson_sentence.json", {
+        "paper_only": True, "file_present": False, "chain_intact": False, "historical_rewritten": False,
+        "votes_counted": False, "hits_stored": False, "number_copied": False,
+        "source_names_trade_sign": True, "daemon_restarted": False, "edge_claimed": False,
+        "paper_rows": 0, "other_source_rows": 0, "follows_trade": 0, "contradicts_trade": 0,
+        "names_trade_sign": 0, "other_sentence": 0, "unmatched": 0, "claim_embeds_number": 0,
+        "weight_zero": 0, "weight_one": 0, "review_rows": 0, "status": "NO_LESSON_STORE"})
+    w("reports/grok/PAPER/bl_scalar.json", {
+        "paper_only": True, "value_copied": False, "treated_as_forecast": False,
+        "formula_changed": False, "edge_claimed": False, "open_rows": 1, "stored_rows": 0,
+        "missing_rows": 1, "return_match": 0, "return_differ": 0, "return_absent": 0,
+        "prior_status_absent": 0, "prior_status_assumed": 0, "status": "NO_STORED_DEBATE"})
+    w("reports/grok/PAPER/exit_roster.json", {
+        "paper_only": True, "rules_changed": False, "absence_called_deletion": False,
+        "edge_claimed": False, "daemon_restarted": False, "close_rows": 0, "other_rows": 0,
+        "reason_counts": {
+            "STOP_LOSS": 0, "TAKE_PROFIT": 0, "PARTIAL_TAKE_PROFIT": 0, "CHANDELIER_STOP": 0,
+            "SIGNAL_REVERSAL": 0, "TIME_STOP": 0, "MAX_HOLD": 0, "WITNESS_CONFLICT_EXIT": 0,
+        },
+        "unobserved": [
+            "STOP_LOSS", "TAKE_PROFIT", "PARTIAL_TAKE_PROFIT", "CHANDELIER_STOP",
+            "SIGNAL_REVERSAL", "TIME_STOP", "MAX_HOLD", "WITNESS_CONFLICT_EXIT",
+        ],
+        "code_names_missing": 0, "status": "RULES_PRESENT"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

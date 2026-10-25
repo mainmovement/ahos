@@ -4091,8 +4091,8 @@ def write_posterior_inputs(root: Path) -> dict[str, Any]:
     return snap
 
 
-def _blend_of_composite(comp: float, bull_n: int, bear_n: int) -> dict[str, Any] | None:
-    """The live debate function. A stored number is compared with it and not copied."""
+def _debate_of_composite(comp: float, bull_n: int, bear_n: int) -> dict[str, Any] | None:
+    """The live debate function. Stored numbers are compared with it and not copied."""
     if bull_n < 1 or bear_n < 1:
         return None
     from architecture.markets.council_gate import soroush_blind_debate_and_bl
@@ -4109,9 +4109,18 @@ def _blend_of_composite(comp: float, bull_n: int, bear_n: int) -> dict[str, Any]
     )
     posterior = fresh.get("posterior_prob_up")
     odds = fresh.get("log_odds")
-    if not _is_num(posterior) or not _is_num(odds):
+    bl_return = fresh.get("bl_posterior_return")
+    if not _is_num(posterior) or not _is_num(odds) or not _is_num(bl_return):
         return None
-    return {"posterior": float(posterior), "log_odds": float(odds)}
+    return {"posterior": float(posterior), "log_odds": float(odds), "bl_return": float(bl_return)}
+
+
+def _blend_of_composite(comp: float, bull_n: int, bear_n: int) -> dict[str, Any] | None:
+    """Posterior and log odds only. The scalar return stays out of this dict."""
+    fresh = _debate_of_composite(comp, bull_n, bear_n)
+    if fresh is None:
+        return None
+    return {"posterior": fresh["posterior"], "log_odds": fresh["log_odds"]}
 
 
 def measure_posterior_blend(root: Path) -> dict[str, Any]:
@@ -4279,6 +4288,252 @@ def write_close_route(root: Path) -> dict[str, Any]:
         **measure_close_route(root),
     }
     path = Path(root) / "reports" / "grok" / "PAPER" / "close_route.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_lesson_sentence(root: Path) -> dict[str, Any]:
+    """The old lesson sentence follows the trade sign. That is not a signal vote."""
+    from architecture.learning.lessons_ledger import REVIEWER_QA, STATUS_UNVERIFIED, read_chain
+    from architecture.markets.paper_trader import LESSON_COUNTERFACTUAL, LESSONS_REL, M49_DB_REL
+
+    agreed = "signals agreed with outcome"
+    disagreed = "signals disagreed with outcome"
+    wins: dict[str, bool] = {}
+    lessons_path = Path(root) / LESSONS_REL
+    if lessons_path.is_file():
+        for line in lessons_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(row, dict) and isinstance(row.get("win"), bool):
+                wins[str(row.get("m49_lesson_id"))] = row["win"]
+    chain_path = Path(root) / M49_DB_REL
+    file_present = chain_path.is_file()
+    chain_intact, rows = read_chain(chain_path) if file_present else (False, [])
+    paper_rows = other_source = follows = contradicts = names = other = unmatched = 0
+    embeds = weight_zero = weight_one = review_rows = 0
+    as_of = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    for row in rows:
+        if row.source == "review":
+            review_rows += 1
+        if row.source != "paper_trader":
+            if row.source != "review":
+                other_source += 1
+            continue
+        paper_rows += 1
+        if any(ch.isdigit() for ch in row.claim):
+            embeds += 1
+        weight = 0.0
+        if row.valid_from <= as_of and row.status == STATUS_UNVERIFIED:
+            weight = 1.0 if any(
+                item.source == "review" and item.reviewer == REVIEWER_QA
+                and row.lesson_id in item.evidence_refs and item.valid_from <= as_of
+                for item in rows
+            ) else 0.0
+        if weight == 1.0:
+            weight_one += 1
+        else:
+            weight_zero += 1
+        win = wins.get(row.lesson_id)
+        if row.counterfactual == LESSON_COUNTERFACTUAL:
+            names += 1
+        elif row.counterfactual.endswith(agreed):
+            if win is True:
+                follows += 1
+            elif win is False:
+                contradicts += 1
+            else:
+                unmatched += 1
+        elif row.counterfactual.endswith(disagreed):
+            if win is False:
+                follows += 1
+            elif win is True:
+                contradicts += 1
+            else:
+                unmatched += 1
+        else:
+            other += 1
+    if not file_present:
+        status = "NO_LESSON_STORE"
+    elif not chain_intact:
+        status = "CHAIN_BROKEN"
+    elif paper_rows == 0:
+        status = "NO_PAPER_LESSONS"
+    elif contradicts:
+        status = "SENTENCE_CONTRADICTS_THE_TRADE"
+    elif other or unmatched:
+        status = "SENTENCE_NOT_JOINED"
+    elif follows + names == paper_rows:
+        status = "SENTENCE_FOLLOWS_THE_TRADE"
+    else:
+        status = "INCOMPLETE"
+    return {
+        "paper_only": True,
+        "file_present": file_present,
+        "chain_intact": chain_intact,
+        "historical_rewritten": False,
+        "votes_counted": False,
+        "hits_stored": False,
+        "number_copied": False,
+        "source_names_trade_sign": "agreed" not in LESSON_COUNTERFACTUAL,
+        "daemon_restarted": False,
+        "edge_claimed": False,
+        "paper_rows": paper_rows,
+        "other_source_rows": other_source,
+        "follows_trade": follows,
+        "contradicts_trade": contradicts,
+        "names_trade_sign": names,
+        "other_sentence": other,
+        "unmatched": unmatched,
+        "claim_embeds_number": embeds,
+        "weight_zero": weight_zero,
+        "weight_one": weight_one,
+        "review_rows": review_rows,
+        "status": status,
+    }
+
+
+def write_lesson_sentence(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.lesson_sentence.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_lesson_sentence(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "lesson_sentence.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_bl_scalar(root: Path) -> dict[str, Any]:
+    """A stored scalar that matches the assumed prior is not a forecast."""
+    opens = stored = missing = matched = differed = absent = status_absent = assumed = 0
+    assumed_text = "ASSUMED_SCALAR_PRIOR_NOT_A_FORECAST"
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        opens += 1
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        debate = brain.get("council_debate")
+        if not isinstance(debate, dict):
+            missing += 1
+            continue
+        stored += 1
+        if debate.get("bl_prior_status") == assumed_text:
+            assumed += 1
+        elif "bl_prior_status" not in debate:
+            status_absent += 1
+        comp = brain.get("composite")
+        bull_n = debate.get("bull_refs_count")
+        bear_n = debate.get("bear_refs_count")
+        stored_return = debate.get("bl_posterior_return")
+        if (not _is_num(comp) or not isinstance(bull_n, int) or isinstance(bull_n, bool)
+                or not isinstance(bear_n, int) or isinstance(bear_n, bool)):
+            differed += 1
+            continue
+        if not _is_num(stored_return):
+            absent += 1
+            continue
+        expected = _debate_of_composite(float(comp), bull_n, bear_n)
+        if expected is None or abs(float(stored_return) - expected["bl_return"]) > 1e-6:
+            differed += 1
+        else:
+            matched += 1
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif stored == 0:
+        status = "NO_STORED_DEBATE"
+    elif differed or absent:
+        status = "NOT_THE_SCALAR"
+    elif matched == stored:
+        status = "SCALAR_OF_AN_ASSUMED_PRIOR"
+    else:
+        status = "INCOMPLETE"
+    return {
+        "paper_only": True,
+        "value_copied": False,
+        "treated_as_forecast": False,
+        "formula_changed": False,
+        "edge_claimed": False,
+        "open_rows": opens,
+        "stored_rows": stored,
+        "missing_rows": missing,
+        "return_match": matched,
+        "return_differ": differed,
+        "return_absent": absent,
+        "prior_status_absent": status_absent,
+        "prior_status_assumed": assumed,
+        "status": status,
+    }
+
+
+def write_bl_scalar(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.bl_scalar.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_bl_scalar(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "bl_scalar.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_exit_roster(root: Path) -> dict[str, Any]:
+    """Every exit name in the current source is listed. A zero is not a deleted rule."""
+    import inspect
+
+    from architecture.markets.paper_trader import EXIT_REASONS
+    from architecture.markets.paper_trader import run_cycle
+
+    source = inspect.getsource(run_cycle)
+    counts = {name: 0 for name in EXIT_REASONS}
+    missing_names = sum(1 for name in EXIT_REASONS if name not in source)
+    closes = other = 0
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        closes += 1
+        reason = row.get("reason")
+        if reason in counts:
+            counts[reason] += 1
+        else:
+            other += 1
+    unobserved = [name for name in EXIT_REASONS if counts[name] == 0]
+    if missing_names:
+        status = "CODE_NAME_MISSING"
+    elif other:
+        status = "OTHER_REASON"
+    else:
+        status = "RULES_PRESENT"
+    return {
+        "paper_only": True,
+        "rules_changed": False,
+        "absence_called_deletion": False,
+        "edge_claimed": False,
+        "daemon_restarted": False,
+        "close_rows": closes,
+        "other_rows": other,
+        "reason_counts": counts,
+        "unobserved": unobserved,
+        "code_names_missing": missing_names,
+        "status": status,
+    }
+
+
+def write_exit_roster(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.exit_roster.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_exit_roster(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "exit_roster.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
     return snap

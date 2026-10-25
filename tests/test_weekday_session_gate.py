@@ -929,3 +929,72 @@ def test_a_matching_blend_is_not_a_probability_and_a_missing_partial_is_not_fill
     differed = measure_posterior_blend(tmp_path)
     assert differed["status"] == "NOT_THE_BLEND" and differed["blend_differ"] == 1
     assert "0.99" not in json.dumps(differed)
+
+
+def test_a_trade_sign_sentence_is_not_a_vote_and_a_scalar_is_not_a_forecast(tmp_path):
+    import json
+
+    from architecture.learning.lessons_ledger import LessonsLedger
+    from architecture.markets.paper_trade_audit import (
+        _debate_of_composite, measure_bl_scalar, measure_exit_roster, measure_lesson_sentence,
+    )
+    from architecture.markets.paper_trader import LESSON_COUNTERFACTUAL
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    expected = _debate_of_composite(0.4, 2, 1)
+    assert expected is not None and expected["bl_return"] != 0.99
+    row = {
+        "event": "OPEN", "symbol": "BTC", "oms": "ACCEPTED_PAPER",
+        "brain": {
+            "composite": 0.4,
+            "council_debate": {
+                "posterior_prob_up": expected["posterior"],
+                "log_odds": expected["log_odds"],
+                "bl_posterior_return": expected["bl_return"],
+                "bull_refs_count": 2,
+                "bear_refs_count": 1,
+            },
+        },
+    }
+    close = {"event": "CLOSE", "symbol": "BTC", "oms": "ACCEPTED_PAPER", "reason": "SIGNAL_REVERSAL"}
+    (paper / "paper_trades.jsonl").write_text(json.dumps(row) + "\n" + json.dumps(close) + "\n", encoding="utf-8")
+    (paper / "signal_lessons.jsonl").write_text(
+        json.dumps({"m49_lesson_id": "PT-BTC-t", "win": True}) + "\n", encoding="utf-8")
+    store = LessonsLedger(tmp_path / "data" / "mission_ledger" / "m49_lessons.sqlite")
+    store.append(
+        lesson_id="PT-BTC-t", source="paper_trader", market="crypto", taxonomy="paper_trade_outcome",
+        evidence_refs=["paper_trades.jsonl:BTC:t"], claim="LONG BTC won 1 USD",
+        counterfactual="no trade (flat) = 0 USD; signals agreed with outcome", valid_from="2026-10-25T00:00:00Z",
+    )
+    store.close()
+    sentence = measure_lesson_sentence(tmp_path)
+    assert sentence["status"] == "SENTENCE_FOLLOWS_THE_TRADE"
+    assert sentence["follows_trade"] == 1 and sentence["names_trade_sign"] == 0
+    assert sentence["votes_counted"] is False and sentence["hits_stored"] is False
+    assert sentence["number_copied"] is False and sentence["historical_rewritten"] is False
+    assert sentence["source_names_trade_sign"] is True and sentence["claim_embeds_number"] == 1
+    assert sentence["chain_intact"] is True and sentence["weight_zero"] == 1
+    dumped = json.dumps(sentence)
+    assert "1 USD" not in dumped and "agreed" not in dumped
+    assert LESSON_COUNTERFACTUAL not in dumped
+    scalar = measure_bl_scalar(tmp_path)
+    assert scalar["status"] == "SCALAR_OF_AN_ASSUMED_PRIOR"
+    assert scalar["return_match"] == 1 and scalar["return_differ"] == 0
+    assert scalar["value_copied"] is False and scalar["treated_as_forecast"] is False
+    assert scalar["formula_changed"] is False and "bl_return" not in json.dumps(scalar)
+    roster = measure_exit_roster(tmp_path)
+    assert roster["status"] == "RULES_PRESENT" and roster["close_rows"] == 1
+    assert roster["reason_counts"]["SIGNAL_REVERSAL"] == 1
+    assert "STOP_LOSS" in roster["unobserved"] and roster["rules_changed"] is False
+    assert roster["absence_called_deletion"] is False and roster["code_names_missing"] == 0
+    row["brain"]["council_debate"]["bl_posterior_return"] = 0.99
+    (paper / "paper_trades.jsonl").write_text(json.dumps(row) + "\n" + json.dumps(close) + "\n", encoding="utf-8")
+    differed = measure_bl_scalar(tmp_path)
+    assert differed["status"] == "NOT_THE_SCALAR" and differed["return_differ"] == 1
+    assert "0.99" not in json.dumps(differed)
+    (paper / "signal_lessons.jsonl").write_text(
+        json.dumps({"m49_lesson_id": "PT-BTC-t", "win": False}) + "\n", encoding="utf-8")
+    contradicted = measure_lesson_sentence(tmp_path)
+    assert contradicted["status"] == "SENTENCE_CONTRADICTS_THE_TRADE"
+    assert contradicted["contradicts_trade"] == 1

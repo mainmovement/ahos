@@ -269,6 +269,29 @@ class LessonsLedger:
         return str(raw["entry_hash"])
 
 
+def read_chain(path: Path) -> tuple[bool, list[Lesson]]:
+    """Read the lesson chain without creating or rewriting the file."""
+    path = Path(path)
+    if not path.is_file():
+        return False, []
+    conn = sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True)
+    try:
+        conn.row_factory = sqlite3.Row
+        try:
+            cur = conn.execute("SELECT * FROM lesson ORDER BY id")
+        except sqlite3.OperationalError:
+            return False, []
+        rows = [_from_row(raw) for raw in cur.fetchall()]
+    finally:
+        conn.close()
+    prev = GENESIS
+    for row in rows:
+        if row.prev_hash != prev or row.entry_hash != _chain_hash(prev, _payload(row)):
+            return False, rows
+        prev = row.entry_hash
+    return True, rows
+
+
 def apply_gate(limit: float, _lessons: list[Lesson] | tuple[Lesson, ...]) -> float:
     """Lessons are not allowed to move a gate. The input limit is the output."""
     return float(limit)
