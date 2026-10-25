@@ -4648,6 +4648,102 @@ def write_session_entry(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_skip_dimensions(root: Path) -> dict[str, Any]:
+    """The combined skip label is the clock check. Session is counted only when the row stored it."""
+    from architecture.markets.paper_trader import MAX_TRADE_AGE_S
+
+    rows = field_rows = clock_stale = clock_within = clock_ahead = clock_unknown = 0
+    freshness_absent = freshness_stale = freshness_fresh = freshness_unknown = freshness_other = 0
+    session_absent = session_open = session_closed = session_unknown = session_other = 0
+    for row in _log_rows(root):
+        if row.get("event") != "SKIP" or row.get("reason") != "MARKET_CLOSED_OR_STALE":
+            continue
+        rows += 1
+        freshness = row.get("freshness")
+        session = row.get("session_state")
+        if freshness is None:
+            freshness_absent += 1
+        elif freshness == "STALE":
+            freshness_stale += 1
+        elif freshness == "FRESH":
+            freshness_fresh += 1
+        elif freshness == "UNKNOWN":
+            freshness_unknown += 1
+        else:
+            freshness_other += 1
+        if session is None:
+            session_absent += 1
+        elif session == "OPEN":
+            session_open += 1
+        elif session == "CLOSED":
+            session_closed += 1
+        elif session == "UNKNOWN":
+            session_unknown += 1
+        else:
+            session_other += 1
+        if freshness is not None and session is not None:
+            field_rows += 1
+        stamped = _parse_stamp(row.get("ts"))
+        market = _parse_stamp(row.get("market_time"))
+        if stamped is None or market is None:
+            clock_unknown += 1
+            continue
+        age = (stamped - market).total_seconds()
+        if age > MAX_TRADE_AGE_S:
+            clock_stale += 1
+        elif age < 0:
+            clock_ahead += 1
+        else:
+            clock_within += 1
+    if rows == 0:
+        status = "NO_COMBINED_SKIPS"
+    elif freshness_absent == rows and session_absent == rows:
+        status = "LABEL_WITHOUT_DIMENSIONS"
+    elif freshness_absent == 0 and session_absent == 0:
+        status = "DIMENSIONS_ON_THE_ROW"
+    else:
+        status = "DIMENSIONS_PARTIAL"
+    return {
+        "paper_only": True,
+        "rows_rewritten": False,
+        "session_inferred": False,
+        "freshness_backfilled": False,
+        "gate_changed": False,
+        "edge_claimed": False,
+        "daemon_restarted": False,
+        "gate_seconds": MAX_TRADE_AGE_S,
+        "combined_rows": rows,
+        "field_rows": field_rows,
+        "clock_stale": clock_stale,
+        "clock_within": clock_within,
+        "clock_ahead": clock_ahead,
+        "clock_unknown": clock_unknown,
+        "freshness_absent": freshness_absent,
+        "freshness_stale": freshness_stale,
+        "freshness_fresh": freshness_fresh,
+        "freshness_unknown": freshness_unknown,
+        "freshness_other": freshness_other,
+        "session_absent": session_absent,
+        "session_open": session_open,
+        "session_closed": session_closed,
+        "session_unknown": session_unknown,
+        "session_other": session_other,
+        "status": status,
+    }
+
+
+def write_skip_dimensions(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.skip_dimensions.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_skip_dimensions(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "skip_dimensions.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

@@ -58,6 +58,50 @@ def test_sunday_fx_is_not_opened_and_crypto_records_the_session_gate(tmp_path):
     assert opened[0]["session_gate"] == {"evaluated": True, "venue": "CRYPTO_24_7", "open": True}
 
 
+def test_stale_and_closed_stay_separate_and_the_1200_boundary_holds(tmp_path):
+    from datetime import datetime, timezone
+    sunday = datetime(2026, 10, 25, 18, 47, 46, tzinfo=timezone.utc).timestamp()
+    monday = datetime(2026, 10, 26, 15, 0, tzinfo=timezone.utc).timestamp()
+
+    def _run(name, moment, market_time, symbol):
+        root = tmp_path / name
+        fetch = lambda: {"quotes": {symbol: {
+            "price": 100.0, "source": "A", "market_time": market_time, "ohlcv_5m": _bars(100, 0.5),
+        }}}
+        fb = lambda: {symbol: {"price": 100.02, "source": "B"}}
+        pt.run_cycle(root, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: moment, use_ledger=False)
+        return [r for r in _rows(root) if r.get("symbol") == symbol]
+
+    fresh = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(sunday))
+    closed = _run("fresh-closed", sunday, fresh, "EURUSD")
+    assert not any(r.get("event") == "OPEN" for r in closed)
+    blocked = next(r for r in closed if r.get("reason") == "SESSION_CLOSED")
+    assert blocked["freshness"] == "FRESH" and blocked["session_state"] == "CLOSED"
+
+    stale_clock = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(sunday - 1201))
+    both = _run("stale-closed", sunday, stale_clock, "EURUSD")
+    assert not any(r.get("event") == "OPEN" for r in both)
+    combined = next(r for r in both if r.get("reason") == "MARKET_CLOSED_OR_STALE")
+    assert combined["freshness"] == "STALE" and combined["session_state"] == "CLOSED"
+
+    missing = _run("missing-clock", monday, None, "BTC")
+    assert not any(r.get("event") == "OPEN" for r in missing)
+    unknown = next(r for r in missing if r.get("reason") == "MARKET_CLOSED_OR_STALE")
+    assert unknown["freshness"] == "UNKNOWN" and unknown["session_state"] == "OPEN"
+
+    edge = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(monday - 1200))
+    held = _run("boundary", monday, edge, "BTC")
+    assert not any(r.get("reason") == "MARKET_CLOSED_OR_STALE" for r in held)
+    assert any(r.get("event") == "OPEN" and r.get("session_gate", {}).get("open") is True for r in held)
+
+    over = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(monday - 1201))
+    stale_open = _run("stale-open", monday, over, "BTC")
+    assert not any(r.get("event") == "OPEN" for r in stale_open)
+    stale_row = next(r for r in stale_open if r.get("reason") == "MARKET_CLOSED_OR_STALE")
+    assert stale_row["freshness"] == "STALE" and stale_row["session_state"] == "OPEN"
+    assert pt.MAX_TRADE_AGE_S == 1200
+
+
 def test_kill_switch_blocks_new_risk():
     now = 1_800_000_000.0
     trades = [{"realized_pnl_usd": -4.0, "closed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now - 60))}]

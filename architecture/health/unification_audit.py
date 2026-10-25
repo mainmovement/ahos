@@ -1689,6 +1689,31 @@ def _stage37_checks(root: Path) -> list[dict[str, Any]]:
                     {"problems": problems[:6]}, [str(rel)])]
 
 
+def _stage38_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.paper_trade_audit import measure_skip_dimensions
+
+    rel = Path("reports") / "grok" / "PAPER" / "skip_dimensions.json"
+    doc = _json(root, rel)
+    if not isinstance(doc, dict):
+        return [_check("execution.skip_dimensions", "UNKNOWN", {"file": False}, [str(rel)])]
+    fresh = measure_skip_dimensions(root)
+    problems = []
+    if doc.get("paper_only") is not True or doc.get("rows_rewritten") is not False:
+        problems.append("rows_rewritten is not false")
+    if doc.get("gate_changed") is not False or doc.get("gate_seconds") != 1200:
+        problems.append("the stale gate moved")
+    if doc.get("session_inferred") is True or doc.get("freshness_backfilled") is True or doc.get("edge_claimed") is True:
+        problems.append("a combined label was split by inference")
+    for key in ("combined_rows", "field_rows", "clock_stale", "clock_within", "clock_ahead",
+                "clock_unknown", "freshness_absent", "freshness_stale", "freshness_fresh",
+                "freshness_unknown", "freshness_other", "session_absent", "session_open",
+                "session_closed", "session_unknown", "session_other", "status"):
+        if doc.get(key) != fresh[key]:
+            problems.append(f"{key} does not match the log")
+    return [_check("execution.skip_dimensions", _pass_fail(not problems),
+                    {"problems": problems[:6]}, [str(rel)])]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -1734,6 +1759,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage35_checks(root)
     checks += _stage36_checks(root)
     checks += _stage37_checks(root)
+    checks += _stage38_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

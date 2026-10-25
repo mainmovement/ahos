@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T20:05:00Z",
+  "updated_at": "2026-10-25T20:36:00Z",
   "current_stage": "Stage 38",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 38) in full. Do not rerun Stage 37. Do not treat an UNRESOLVED session row as a verified pass or a verified breach. Do not backfill session_gate onto the four open rows. Do not close BTC, EURUSD, SOL, or UNI. EURUSD opened at 2026-10-25T18:47:46Z. SOL opened at 2026-10-25T19:17:57Z. The running process has not loaded the session call and has not loaded the audit shrink guard. Do not restart it. The import probe started 2026-10-25T20:00:14Z passed. Do not treat 31 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability. Do not lower the 1200-second stale gate.",
+  "resume_instruction": "On ادامه بده or continue, record the Stage 38 work-commit hashes and move current_stage to Stage 39. Do not reimplement the dimension split. Do not rerun Stage 37. Do not relabel historical MARKET_CLOSED_OR_STALE rows. Do not backfill freshness or session_state. Do not lower the 1200-second stale gate. Do not close BTC, EURUSD, SOL, or UNI. Do not restart the paper trader or the gold soak. The running process has not loaded the new skip fields and has not loaded the audit shrink guard. The import probe started 2026-10-25T20:29:18Z passed. Do not treat 31 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -25,8 +25,14 @@
       "arena_commit": "eb21364",
       "batch8": {
         "prior_trials": 96,
-        "admitted": ["H38", "H39", "H40"],
-        "screened_not_counted": ["H37"],
+        "admitted": [
+          "H38",
+          "H39",
+          "H40"
+        ],
+        "screened_not_counted": [
+          "H37"
+        ],
         "n_trials_counted_in_dsr": 99,
         "pbo_scope": "batch8_admitted_only",
         "pbo": 0.4889,
@@ -35,14 +41,42 @@
         "grid_cells_occupied": 7,
         "grid_cells_empty": 2,
         "intraday_provenance": "yahoo_chart_interval_1h_range_730d",
-        "hour_span_utc": ["2024-10-25", "2026-10-23"],
+        "hour_span_utc": [
+          "2024-10-25",
+          "2026-10-23"
+        ],
         "h37_screen": "|rho|=0.927 vs H33",
         "h37_diagnostic_rebalances": 135,
         "h37_diagnostic_marks": 452,
         "h37_diagnostic_is_not_a_trial": true,
-        "h38": {"oos_sharpe": -0.0931, "excess": 0.0034, "oos_n": 27, "gate": "FAIL", "red_team": "VETOED_FRAGILE", "bar_interval": "1h"},
-        "h39": {"oos_sharpe": -0.0032, "excess": -0.0013, "oos_n": 228, "gate": "FAIL", "red_team": "VETOED_FRAGILE", "rebalances": 177, "marks": 565, "bar_interval": "1h"},
-        "h40": {"oos_sharpe": 0.0152, "excess": 0.0182, "oos_n": 171, "gate": "FAIL", "red_team": "VETOED_FRAGILE", "rebalances": 164, "marks": 423, "bar_interval": "1h"}
+        "h38": {
+          "oos_sharpe": -0.0931,
+          "excess": 0.0034,
+          "oos_n": 27,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "bar_interval": "1h"
+        },
+        "h39": {
+          "oos_sharpe": -0.0032,
+          "excess": -0.0013,
+          "oos_n": 228,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "rebalances": 177,
+          "marks": 565,
+          "bar_interval": "1h"
+        },
+        "h40": {
+          "oos_sharpe": 0.0152,
+          "excess": 0.0182,
+          "oos_n": 171,
+          "gate": "FAIL",
+          "red_team": "VETOED_FRAGILE",
+          "rebalances": 164,
+          "marks": 423,
+          "bar_interval": "1h"
+        }
       },
       "exam": {
         "episodes": 169,
@@ -183,8 +217,16 @@
       "gap_upper_median": 0.00548,
       "within_tolerance": 0,
       "prior_conflict_zero": 12,
-      "conflict_symbols": {"BTC": 1, "ETH": 4, "SOL": 3, "DEX_LINK": 4},
-      "conflict_hold_hours": [0.1, 13.92],
+      "conflict_symbols": {
+        "BTC": 1,
+        "ETH": 4,
+        "SOL": 3,
+        "DEX_LINK": 4
+      },
+      "conflict_hold_hours": [
+        0.1,
+        13.92
+      ],
       "reversal_rows": 12,
       "reversal_status": "MATCHES_RECORDED_THRESHOLD",
       "signed_composite_min": -0.4533,
@@ -216,7 +258,10 @@
       "inconsistent_with_current_tolerance": 0,
       "mapped_excess_min": 0.0001,
       "dex_excess_min": 0.0002,
-      "source_kinds": {"kraken": 8, "dexscreener": 4},
+      "source_kinds": {
+        "kraken": 8,
+        "dexscreener": 4
+      },
       "tolerance_source": "INFERRED_FROM_CURRENT_CODE_NOT_STORED_ON_THE_ROW",
       "dex_link_opens": 4,
       "dex_link_closes": 4,
@@ -251,7 +296,12 @@
         "DEX_LINK": -0.1231
       },
       "open_status": "INSIDE_BOTH_LIMITS",
-      "open_symbols": ["UNI", "BTC", "SOL", "ETH"],
+      "open_symbols": [
+        "UNI",
+        "BTC",
+        "SOL",
+        "ETH"
+      ],
       "open_sides": "SHORT",
       "unmatched_closes": 0,
       "exit_inferred": false,
@@ -354,22 +404,46 @@
       "commit": "4c5777e",
       "arena_commit": "933d63a",
       "path_status": "PATH_RECORDED",
-      "reversal_signed_exit": [-0.4533, -0.253],
+      "reversal_signed_exit": [
+        -0.4533,
+        -0.253
+      ],
       "reversal_at_or_beyond": 12,
-      "take_profit_signed_exit": [0.265, 0.3836],
+      "take_profit_signed_exit": [
+        0.265,
+        0.3836
+      ],
       "take_profit_at_or_above_entry": 2,
-      "conflict_signed_exit": [0.11, 0.5617],
+      "conflict_signed_exit": [
+        0.11,
+        0.5617
+      ],
       "conflict_at_or_above_entry": 9,
       "conflict_positive_below_entry": 3,
       "conflict_reversed": 0,
       "exit_rule_changed": false,
       "hold_status": "ALL_TIMESTAMPS_PRESENT",
-      "reversal_hold_hours": [0.23, 7.31],
-      "take_profit_hold_hours": [10.11, 14.72],
-      "conflict_hold_hours": [0.1, 13.92],
+      "reversal_hold_hours": [
+        0.23,
+        7.31
+      ],
+      "take_profit_hold_hours": [
+        10.11,
+        14.72
+      ],
+      "conflict_hold_hours": [
+        0.1,
+        13.92
+      ],
       "exit_inferred": false,
-      "signal_count": [6, 14],
-      "weight_sum": [0.4764, 1.0499],
+      "signal_count": [
+        6,
+        14
+      ],
+      "weight_sum": [
+        0.4764,
+        1.0499
+      ],
       "weight_sum_below_1": 19,
       "weight_sum_below_half": 1,
       "minimum_changed": false,
@@ -400,10 +474,23 @@
       "contribution_oppose": 56,
       "contribution_zero": 99,
       "closes_with_opposition": 24,
-      "opposition_weight_share": [0.0, 0.43],
-      "zero_weight_share": [0.0, 0.3188],
-      "always_zero": ["event_shock", "macro_event", "stablecoin_impulse", "whale_mempool"],
-      "always_opposes": ["exchange_netflow"],
+      "opposition_weight_share": [
+        0.0,
+        0.43
+      ],
+      "zero_weight_share": [
+        0.0,
+        0.3188
+      ],
+      "always_zero": [
+        "event_shock",
+        "macro_event",
+        "stablecoin_impulse",
+        "whale_mempool"
+      ],
+      "always_opposes": [
+        "exchange_netflow"
+      ],
       "signals_removed": false,
       "drag_sum": 0.022539,
       "drag_unit": "return",
@@ -434,7 +521,7 @@
       "take_status": "WITHIN_STORAGE_PRECISION",
       "within_storage": 30,
       "beyond_storage": 0,
-      "max_abs_gap": 0.00001,
+      "max_abs_gap": 1e-05,
       "multiple_changed": false,
       "cost_status": "SCHEDULE_HELD",
       "open_fee_mismatch": 0,
@@ -468,7 +555,7 @@
       "exit_rule_changed": false,
       "fee_status": "FEE_DECOMPOSED",
       "fee_within_band": 26,
-      "fee_max_abs_gap": 4.9e-7,
+      "fee_max_abs_gap": 4.9e-07,
       "fraction_not_one": 0,
       "added_to_cash_gap": false,
       "equity_status": "WITHIN_ONE_CENT",
@@ -508,7 +595,12 @@
       "book_status": "NO_OVERLAP",
       "overlap_opens": 0,
       "unpaired_closes": 0,
-      "still_open": ["BTC", "ETH", "SOL", "UNI"],
+      "still_open": [
+        "BTC",
+        "ETH",
+        "SOL",
+        "UNI"
+      ],
       "positions_closed": false,
       "skip_rows_at_export": 3621,
       "stale_skips_at_export": 3466,
@@ -535,7 +627,7 @@
       "gate_changed": false,
       "qty_status": "QTY_MATCHES",
       "qty_within_band": 56,
-      "qty_max_abs_gap": 2.3e-7,
+      "qty_max_abs_gap": 2.3e-07,
       "added_to_cash_gap": false,
       "size_status": "INSIDE_DESK_AND_RISK",
       "event_size_defaulted": 4,
@@ -545,7 +637,10 @@
       "desk_ratio_max": 1.0,
       "caps_changed": false,
       "kelly_switched_on": false,
-      "open_age_hours_at_1043Z": [3.76, 4.87],
+      "open_age_hours_at_1043Z": [
+        3.76,
+        4.87
+      ],
       "positions_closed": false,
       "skip_rows_at_export": 3652,
       "stale_skips_at_export": 3493,
@@ -568,7 +663,7 @@
       "adv_missing_object": 3,
       "adv_source_blank": 1,
       "assumed_floor_rows": 0,
-      "participation_rate_max": 3.6e-7,
+      "participation_rate_max": 3.6e-07,
       "cap_changed": false,
       "regime_status": "MULTIPLE_MATCHES",
       "regime_matched_rows": 30,
@@ -580,7 +675,10 @@
       "higher_tf_disagree": 0,
       "higher_tf_missing": 1,
       "rule_changed": false,
-      "open_age_hours_at_1423Z": [7.42, 8.53],
+      "open_age_hours_at_1423Z": [
+        7.42,
+        8.53
+      ],
       "positions_closed": false,
       "skip_rows_at_export": 3964,
       "stale_skips_at_export": 3789,
@@ -614,12 +712,24 @@
       "gross_status": "GROSS_RECORDED",
       "gross_positive": 10,
       "gross_negative": 16,
-      "gross_take_profit_pos_neg": [2, 0],
-      "gross_reversal_pos_neg": [3, 9],
-      "gross_conflict_pos_neg": [5, 7],
+      "gross_take_profit_pos_neg": [
+        2,
+        0
+      ],
+      "gross_reversal_pos_neg": [
+        3,
+        9
+      ],
+      "gross_conflict_pos_neg": [
+        5,
+        7
+      ],
       "edge_claimed": false,
       "exit_rule_changed": false,
-      "open_age_hours_at_1446Z": [7.82, 8.93],
+      "open_age_hours_at_1446Z": [
+        7.82,
+        8.93
+      ],
       "positions_closed": false,
       "skip_rows_at_export": 3994,
       "stale_skips_at_export": 3818,
@@ -655,16 +765,26 @@
       "worst_cap_ratio": 0.8571,
       "worst_gross_ratio": 0.3,
       "above_cluster": 0,
-      "still_open": ["BTC", "ETH", "SOL"],
+      "still_open": [
+        "BTC",
+        "ETH",
+        "SOL"
+      ],
       "caps_changed": false,
       "positions_closed": false,
       "new_close_reason": "SIGNAL_REVERSAL",
       "new_close_hold_s": 32853,
       "new_close_gross": "negative",
-      "reversal_pos_neg": [3, 10],
+      "reversal_pos_neg": [
+        3,
+        10
+      ],
       "net_pnl_usd": -0.175,
       "end_equity_usd": 99.825,
-      "open_age_hours_at_1508Z": [8.18, 8.48],
+      "open_age_hours_at_1508Z": [
+        8.18,
+        8.48
+      ],
       "skip_rows_at_export": 4036,
       "stale_skips_at_export": 3855,
       "closed_paper_trades": 27,
@@ -700,7 +820,10 @@
       "marks_included": false,
       "limits_changed": false,
       "daemon_halted": false,
-      "open_age_hours_at_export": [8.35, 8.65],
+      "open_age_hours_at_export": [
+        8.35,
+        8.65
+      ],
       "positions_closed": false,
       "skip_rows_at_export": 4047,
       "stale_skips_at_export": 3865,
@@ -736,8 +859,13 @@
       "treated_as_security_pass": false,
       "gross_positive": 10,
       "gross_negative": 20,
-      "reversal_pos_neg": [3, 13],
-      "still_open": ["UNI"],
+      "reversal_pos_neg": [
+        3,
+        13
+      ],
+      "still_open": [
+        "UNI"
+      ],
       "open_age_hours_at_1605Z": 0.78,
       "positions_closed_by_stage": false,
       "skip_rows_at_export": 4127,
@@ -774,7 +902,9 @@
       "empirical_basis": true,
       "forecast_claimed": false,
       "probability_published": false,
-      "still_open": ["UNI"],
+      "still_open": [
+        "UNI"
+      ],
       "open_age_hours_at_export": 1.14,
       "positions_closed_by_stage": false,
       "skip_rows_at_export": 4167,
@@ -797,7 +927,14 @@
       "weights_version": 22,
       "history_rows": 21,
       "moved_rows": 6,
-      "moved_names": ["candles", "large_trades", "macro", "mtf_trend", "news", "zscore_mr"],
+      "moved_names": [
+        "candles",
+        "large_trades",
+        "macro",
+        "mtf_trend",
+        "news",
+        "zscore_mr"
+      ],
       "outside_rows": 0,
       "absent_rows": 1,
       "absent_name": "event_shock",
@@ -813,8 +950,14 @@
       "dsr_claimed": false,
       "history_status": "VERSION_HAS_A_HISTORY",
       "history_matches": true,
-      "still_open": ["UNI", "BTC"],
-      "open_age_hours_at_export": {"UNI": 1.44, "BTC": 0.13},
+      "still_open": [
+        "UNI",
+        "BTC"
+      ],
+      "open_age_hours_at_export": {
+        "UNI": 1.44,
+        "BTC": 0.13
+      },
       "positions_closed_by_stage": false,
       "positions_opened_by_stage": false,
       "open_rows_at_export": 32,
@@ -846,7 +989,13 @@
       "file_behind": 0,
       "below_cutoff": 144,
       "counted_rows": 157,
-      "no_stat_names": ["event_shock", "macro_event", "stablecoin", "stablecoin_impulse", "whale_mempool"],
+      "no_stat_names": [
+        "event_shock",
+        "macro_event",
+        "stablecoin",
+        "stablecoin_impulse",
+        "whale_mempool"
+      ],
       "stats_backfilled": false,
       "cutoff_changed": false,
       "reentry_status": "REENTRY_NOT_BLOCKED",
@@ -859,8 +1008,20 @@
       "distinct_versions": 13,
       "live_file_version": 22,
       "opens_at_live_version": 1,
-      "still_open": [{"symbol": "BTC", "weights_version": 22}, {"symbol": "UNI", "weights_version": 19}],
-      "open_age_hours_at_export": {"UNI": 1.83, "BTC": 0.52},
+      "still_open": [
+        {
+          "symbol": "BTC",
+          "weights_version": 22
+        },
+        {
+          "symbol": "UNI",
+          "weights_version": 19
+        }
+      ],
+      "open_age_hours_at_export": {
+        "UNI": 1.83,
+        "BTC": 0.52
+      },
       "version_rewritten": false,
       "positions_closed_by_stage": false,
       "skip_rows_at_export": 4241,
@@ -885,10 +1046,22 @@
       "weight_path_status": "PATH_DIFFERS",
       "matched_weights": 298,
       "numeric_mismatch": 9,
-      "mismatch_versions": [11, 18],
-      "mismatch_names": ["candles", "large_trades", "macro", "mtf_trend", "news", "zscore_mr"],
+      "mismatch_versions": [
+        11,
+        18
+      ],
+      "mismatch_names": [
+        "candles",
+        "large_trades",
+        "macro",
+        "mtf_trend",
+        "news",
+        "zscore_mr"
+      ],
       "absent_keys": 21,
-      "absent_names": ["event_shock"],
+      "absent_names": [
+        "event_shock"
+      ],
       "changed_matches_prior": 70,
       "changed_matches_same_version": 0,
       "changed_matches_neither": 7,
@@ -907,8 +1080,20 @@
       "treated_as_probability": false,
       "live_file_version": 23,
       "history_rows": 22,
-      "still_open": [{"symbol": "BTC", "weights_version": 23}, {"symbol": "UNI", "weights_version": 19}],
-      "open_age_hours_at_export": {"UNI": 3.01, "BTC": 0.1},
+      "still_open": [
+        {
+          "symbol": "BTC",
+          "weights_version": 23
+        },
+        {
+          "symbol": "UNI",
+          "weights_version": 19
+        }
+      ],
+      "open_age_hours_at_export": {
+        "UNI": 3.01,
+        "BTC": 0.1
+      },
       "open_rows": 33,
       "btc_closed_by_stage": false,
       "btc_close_reason": "SIGNAL_REVERSAL",
@@ -958,8 +1143,20 @@
       "close_route_other": 0,
       "broker_claimed": false,
       "live_file_version": 23,
-      "still_open": [{"symbol": "BTC", "weights_version": 23}, {"symbol": "UNI", "weights_version": 19}],
-      "open_age_hours_at_export": {"UNI": 3.22, "BTC": 0.31},
+      "still_open": [
+        {
+          "symbol": "BTC",
+          "weights_version": 23
+        },
+        {
+          "symbol": "UNI",
+          "weights_version": 19
+        }
+      ],
+      "open_age_hours_at_export": {
+        "UNI": 3.22,
+        "BTC": 0.31
+      },
       "positions_closed_by_stage": false,
       "skip_rows_at_export": 4391,
       "stale_skips_at_export": 4124,
@@ -1011,14 +1208,42 @@
       "take_profit": 2,
       "signal_reversal": 17,
       "witness_conflict_exit": 12,
-      "unobserved": ["STOP_LOSS", "PARTIAL_TAKE_PROFIT", "CHANDELIER_STOP", "TIME_STOP", "MAX_HOLD"],
+      "unobserved": [
+        "STOP_LOSS",
+        "PARTIAL_TAKE_PROFIT",
+        "CHANDELIER_STOP",
+        "TIME_STOP",
+        "MAX_HOLD"
+      ],
       "rules_changed": false,
       "absence_called_deletion": false,
       "code_names_missing": 0,
       "blend_match_at_export": 32,
       "live_file_version": 23,
-      "still_open": [{"symbol": "BTC", "weights_version": 23}, {"symbol": "EURUSD", "weights_version": 23}, {"symbol": "SOL", "weights_version": 23}, {"symbol": "UNI", "weights_version": 19}],
-      "open_age_hours_at_export": {"UNI": 4.08, "BTC": 1.17, "EURUSD": 0.6, "SOL": 0.09},
+      "still_open": [
+        {
+          "symbol": "BTC",
+          "weights_version": 23
+        },
+        {
+          "symbol": "EURUSD",
+          "weights_version": 23
+        },
+        {
+          "symbol": "SOL",
+          "weights_version": 23
+        },
+        {
+          "symbol": "UNI",
+          "weights_version": 19
+        }
+      ],
+      "open_age_hours_at_export": {
+        "UNI": 4.08,
+        "BTC": 1.17,
+        "EURUSD": 0.6,
+        "SOL": 0.09
+      },
       "positions_closed_by_stage": false,
       "eurusd_opened_by_stage": false,
       "sol_opened_by_stage": false,
@@ -1046,17 +1271,50 @@
       "unresolved_rows": 4,
       "pass_rows": 0,
       "breach_rows": 0,
-      "eurusd": {"ts": "2026-10-25T18:47:46Z", "desk": "FOREX", "classification": "UNRESOLVED", "reconstructed_venue": "FX_OTC", "reconstructed_open": false, "gate_on_row": false, "within_stale_gate": true},
-      "sol": {"ts": "2026-10-25T19:17:57Z", "desk": "CRYPTO", "classification": "UNRESOLVED", "reconstructed_venue": "CRYPTO_24_7", "reconstructed_open": true, "gate_on_row": false, "within_stale_gate": true},
-      "btc": {"ts": "2026-10-25T18:13:25Z", "desk": "CRYPTO", "classification": "UNRESOLVED", "reconstructed_open": true, "gate_on_row": false},
-      "uni": {"ts": "2026-10-25T15:18:45Z", "desk": "PB_TOKEN", "classification": "UNRESOLVED", "reconstructed_open": true, "gate_on_row": false},
+      "eurusd": {
+        "ts": "2026-10-25T18:47:46Z",
+        "desk": "FOREX",
+        "classification": "UNRESOLVED",
+        "reconstructed_venue": "FX_OTC",
+        "reconstructed_open": false,
+        "gate_on_row": false,
+        "within_stale_gate": true
+      },
+      "sol": {
+        "ts": "2026-10-25T19:17:57Z",
+        "desk": "CRYPTO",
+        "classification": "UNRESOLVED",
+        "reconstructed_venue": "CRYPTO_24_7",
+        "reconstructed_open": true,
+        "gate_on_row": false,
+        "within_stale_gate": true
+      },
+      "btc": {
+        "ts": "2026-10-25T18:13:25Z",
+        "desk": "CRYPTO",
+        "classification": "UNRESOLVED",
+        "reconstructed_open": true,
+        "gate_on_row": false
+      },
+      "uni": {
+        "ts": "2026-10-25T15:18:45Z",
+        "desk": "PB_TOKEN",
+        "classification": "UNRESOLVED",
+        "reconstructed_open": true,
+        "gate_on_row": false
+      },
       "pass_inferred": false,
       "breach_inferred": false,
       "rows_rewritten": false,
       "code_calls_gate": true,
       "daemon_loaded_gate": false,
       "shrink_guard_loaded_by_daemon": false,
-      "open_age_hours_at_export": {"UNI": 4.66, "BTC": 1.75, "EURUSD": 1.18, "SOL": 0.68},
+      "open_age_hours_at_export": {
+        "UNI": 4.66,
+        "BTC": 1.75,
+        "EURUSD": 1.18,
+        "SOL": 0.68
+      },
       "positions_closed_by_stage": false,
       "skip_rows_at_export": 4524,
       "stale_skips_at_export": 4225,
@@ -1071,10 +1329,70 @@
       "validate_imports": "PASSED; probe started 2026-10-25T20:00:14Z; exit 0; 373 modules; 4355 source files; Lane A 36/36",
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 38",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "status_word": "LABEL_WITHOUT_DIMENSIONS",
+      "combined_rows": 4259,
+      "field_rows": 0,
+      "clock_stale": 4259,
+      "clock_within": 0,
+      "clock_ahead": 0,
+      "clock_unknown": 0,
+      "freshness_absent": 4259,
+      "session_absent": 4259,
+      "gate_seconds": 1200,
+      "gate_changed": false,
+      "rows_rewritten": false,
+      "session_inferred": false,
+      "freshness_backfilled": false,
+      "daemon_loaded_fields": false,
+      "shrink_guard_loaded_by_daemon": false,
+      "open_age_hours_at_export": {
+        "UNI": 5.15,
+        "BTC": 2.24,
+        "EURUSD": 1.66,
+        "SOL": 1.16
+      },
+      "positions_closed_by_stage": false,
+      "still_open": [
+        {
+          "symbol": "BTC",
+          "weights_version": 23
+        },
+        {
+          "symbol": "EURUSD",
+          "weights_version": 23
+        },
+        {
+          "symbol": "SOL",
+          "weights_version": 23
+        },
+        {
+          "symbol": "UNI",
+          "weights_version": 19
+        }
+      ],
+      "skip_rows_at_export": 4569,
+      "stale_skips_at_export": 4259,
+      "closed_paper_trades": 31,
+      "open_fee_usd_sum": 0.206393,
+      "open_rows_with_fee": 35,
+      "close_fees_usd_sum": 0.370674,
+      "unification": "101/101 UNIFIED_CLEAN",
+      "pytest": "91 passed (test_weekday_session_gate.py + test_stage6_deepening.py + test_paper_trader.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN checks=6",
+      "validate_imports": "PASSED; probe started 2026-10-25T20:29:18Z; exit 0 at 2026-10-25T20:34:28Z; 373 modules; 4356 source files; Lane A 36/36",
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
-    "UNPROVEN_EDGE: no book has DSR>0.95, PBO<0.50, red-team survival, positive excess, and 30 closed paper trades together",
+    "UNPROVEN_EDGE: no book has DSR>0.95, PBO<0.50, red-team survival, positive excess, and 30 closed paper trades together At the Stage 38 export the combined skip label was the clock check: 4259 rows, all older than 1200 seconds, and none stored freshness or session_state. Those rows were not relabeled. The running process has not loaded the new fields.",
     "Batch 8 admitted DSR is 0.0. PBO 0.4889 is batch8_admitted_only and does not promote a FAIL gate",
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
@@ -1085,7 +1403,7 @@
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 38: separate stale-quote skips from a reconstructed closed venue without relabeling the log",
+    "Stage 38 hash commit: record the work-commit hashes and do not reimplement the dimension split",
     "Stage 39: the next measured gap, four work packages"
   ]
 }

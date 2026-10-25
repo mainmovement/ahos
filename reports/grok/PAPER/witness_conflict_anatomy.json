@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.witness_conflict_anatomy.v2",
- "generated_at": "2026-10-25T19:58:09Z",
+ "generated_at": "2026-10-25T20:26:46Z",
  "paper_only": true,
  "exit_rule_changed": false,
  "rule": "FAIL_CLOSED_ON_RECORDED_DISAGREEMENT",

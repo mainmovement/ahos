@@ -1054,3 +1054,28 @@ def test_a_missing_session_result_is_not_a_pass_or_a_breach(tmp_path):
     kept = export_unification_audit(tmp_path)
     assert kept["checks_total"] == 5000
     assert json.loads(audit.read_text(encoding="utf-8"))["checks_total"] == 5000
+
+
+def test_a_combined_skip_is_not_relabeled_from_the_clock(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import measure_skip_dimensions
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    row = {
+        "event": "SKIP", "symbol": "EURUSD", "desk": "FOREX", "reason": "MARKET_CLOSED_OR_STALE",
+        "ts": "2026-10-25T18:47:46Z", "market_time": "2026-10-25T18:00:00Z",
+    }
+    body = json.dumps(row) + "\n"
+    log = paper / "paper_trades.jsonl"
+    log.write_text(body, encoding="utf-8")
+    measured = measure_skip_dimensions(tmp_path)
+    assert log.read_text(encoding="utf-8") == body
+    assert measured["status"] == "LABEL_WITHOUT_DIMENSIONS"
+    assert measured["combined_rows"] == 1 and measured["clock_stale"] == 1
+    assert measured["field_rows"] == 0 and measured["session_absent"] == 1
+    assert measured["session_inferred"] is False and measured["freshness_backfilled"] is False
+    assert measured["rows_rewritten"] is False and measured["gate_seconds"] == 1200
+    assert measured["gate_changed"] is False
+    assert "FX_OTC" not in json.dumps(measured) and "CLOSED" not in json.dumps(measured)

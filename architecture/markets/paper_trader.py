@@ -471,7 +471,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if not isinstance(price, (int, float)) or price <= 0:
             log({**base, "event": "SKIP", "reason": "PRICE_UNAVAILABLE"}); continue
         if mt is None or t - mt > MAX_TRADE_AGE_S:
-            log({**base, "event": "SKIP", "reason": "MARKET_CLOSED_OR_STALE", "price": price}); continue
+            from architecture.markets.weekday_session_gate import symbol_session
+            gate = symbol_session(sym, datetime.fromtimestamp(t, tz=timezone.utc))
+            opened = gate.get("open")
+            session_state = "OPEN" if opened is True else "CLOSED" if opened is False else "UNKNOWN"
+            log({**base, "event": "SKIP", "reason": "MARKET_CLOSED_OR_STALE", "price": price,
+                 "freshness": "UNKNOWN" if mt is None else "STALE", "session_state": session_state})
+            continue
         if w["verdict"] != "VERIFIED" and not pos:
             log({**base, "event": "SKIP", "reason": f"WITNESS_{w['verdict']}", "price": price}); continue
         ohlcv = q.get("ohlcv_5m") or []
@@ -564,7 +570,15 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         gate = symbol_session(sym, moment)
         session_gate = {"evaluated": True, "venue": gate.get("venue"), "open": gate.get("open") is True}
         if desk in CASH_DESKS and session_gate["open"] is not True:
-            log({**base, "event": "SKIP", "reason": "SESSION_CLOSED", "session_gate": session_gate})
+            age = None if mt is None else t - mt
+            if age is None or age < 0:
+                freshness = "UNKNOWN"
+            elif age > MAX_TRADE_AGE_S:
+                freshness = "STALE"
+            else:
+                freshness = "FRESH"
+            log({**base, "event": "SKIP", "reason": "SESSION_CLOSED", "session_gate": session_gate,
+                 "freshness": freshness, "session_state": "CLOSED"})
             continue
         side = "LONG" if comp >= ENTRY else "SHORT" if comp <= -ENTRY else None
         why = None

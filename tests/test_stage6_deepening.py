@@ -940,6 +940,15 @@ def _ua_root(tmp_path):
             "classification": "UNRESOLVED", "reconstructed_open": True,
             "reconstructed_venue": "CRYPTO_24_7", "within_stale_gate": None,
         }]})
+    w("reports/grok/PAPER/skip_dimensions.json", {
+        "paper_only": True, "rows_rewritten": False, "session_inferred": False,
+        "freshness_backfilled": False, "gate_changed": False, "edge_claimed": False,
+        "daemon_restarted": False, "gate_seconds": 1200, "combined_rows": 0, "field_rows": 0,
+        "clock_stale": 0, "clock_within": 0, "clock_ahead": 0, "clock_unknown": 0,
+        "freshness_absent": 0, "freshness_stale": 0, "freshness_fresh": 0,
+        "freshness_unknown": 0, "freshness_other": 0, "session_absent": 0, "session_open": 0,
+        "session_closed": 0, "session_unknown": 0, "session_other": 0,
+        "status": "NO_COMBINED_SKIPS"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,
