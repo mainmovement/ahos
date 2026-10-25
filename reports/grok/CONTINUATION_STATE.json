@@ -272,8 +272,8 @@
     {
       "stage": "Stage 18",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "e6dcb84",
+      "arena_commit": "57d9899",
       "entry_status": "GATE_HELD_NOT_A_PROBABILITY",
       "scored_rows": 26,
       "signed_min": 0.2593,
