@@ -856,6 +856,18 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/ruin_basis.json", {
         "paper_only": True, "forecast_claimed": False, "probability_published": False,
         "edge_claimed": False, "close_rows": 0, "empirical_basis": False, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/weight_band.json", {
+        "paper_only": True, "file_rewritten": False, "edge_claimed": False, "promoted": False,
+        "rule_changed": False, "file_present": False, "version": None, "history_rows": None,
+        "moved_rows": 0, "outside_rows": 0, "absent_rows": 0, "n_ge_10": 0, "shadow_nonzero": 0,
+        "moved_names": [], "status": "NO_WEIGHT_FILE"})
+    w("reports/grok/PAPER/book_descriptive.json", {
+        "paper_only": True, "dsr_claimed": False, "edge_claimed": False, "close_rows": 0,
+        "sharpe_sign": None, "sortino_sign": None, "expectancy_sign": None,
+        "source_not_eligible": False, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/weight_history.json", {
+        "paper_only": True, "file_rewritten": False, "edge_claimed": False, "file_present": False,
+        "version": None, "history_rows": None, "matches": False, "status": "NO_WEIGHT_FILE"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

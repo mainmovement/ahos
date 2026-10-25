@@ -3440,6 +3440,215 @@ def write_ruin_basis(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _weights_doc(root: Path) -> dict[str, Any] | None:
+    path = Path(root) / "reports" / "grok" / "PAPER" / "signal_weights.json"
+    if not path.is_file():
+        return None
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return doc if isinstance(doc, dict) else {}
+
+
+def _sign(value: Any) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    if value > 0:
+        return 1
+    if value < 0:
+        return -1
+    return 0
+
+
+def measure_weight_band(root: Path) -> dict[str, Any]:
+    """A hit-rate update inside the recorded band is not an edge and not a promotion."""
+    from architecture.markets.signal_brain import DEFAULT_WEIGHTS
+
+    doc = _weights_doc(root)
+    if doc is None:
+        return {
+            "paper_only": True,
+            "file_rewritten": False,
+            "edge_claimed": False,
+            "promoted": False,
+            "rule_changed": False,
+            "file_present": False,
+            "version": None,
+            "history_rows": None,
+            "moved_rows": 0,
+            "outside_rows": 0,
+            "absent_rows": 0,
+            "n_ge_10": 0,
+            "shadow_nonzero": 0,
+            "moved_names": [],
+            "status": "NO_WEIGHT_FILE",
+        }
+    weights = doc.get("weights") if isinstance(doc.get("weights"), dict) else None
+    stats = doc.get("stats") if isinstance(doc.get("stats"), dict) else {}
+    history = doc.get("history") if isinstance(doc.get("history"), list) else None
+    version = doc.get("version")
+    version = version if isinstance(version, int) and not isinstance(version, bool) else None
+    if weights is None:
+        return {
+            "paper_only": True,
+            "file_rewritten": False,
+            "edge_claimed": False,
+            "promoted": False,
+            "rule_changed": False,
+            "file_present": True,
+            "version": version,
+            "history_rows": None if history is None else len(history),
+            "moved_rows": 0,
+            "outside_rows": 0,
+            "absent_rows": 0,
+            "n_ge_10": 0,
+            "shadow_nonzero": 0,
+            "moved_names": [],
+            "status": "INCOMPLETE",
+        }
+    moved: list[str] = []
+    outside = absent = n_ge = shadow_nonzero = 0
+    for name, base in DEFAULT_WEIGHTS.items():
+        current = weights.get(name)
+        st = stats.get(name) if isinstance(stats.get(name), dict) else {}
+        n = st.get("n")
+        if isinstance(n, int) and not isinstance(n, bool) and n >= 10:
+            n_ge += 1
+        if isinstance(current, bool) or not isinstance(current, (int, float)):
+            absent += 1
+            continue
+        lo = float(base) * 0.5
+        hi = float(base) * 1.5
+        if not (lo - 1e-9 <= float(current) <= hi + 1e-9):
+            outside += 1
+        if abs(float(current) - float(base)) > 1e-9:
+            moved.append(name)
+        if float(base) == 0.0 and abs(float(current)) > 1e-12:
+            shadow_nonzero += 1
+    return {
+        "paper_only": True,
+        "file_rewritten": False,
+        "edge_claimed": False,
+        "promoted": False,
+        "rule_changed": False,
+        "file_present": True,
+        "version": version,
+        "history_rows": None if history is None else len(history),
+        "moved_rows": len(moved),
+        "outside_rows": outside,
+        "absent_rows": absent,
+        "n_ge_10": n_ge,
+        "shadow_nonzero": shadow_nonzero,
+        "moved_names": sorted(moved),
+        "status": "OUTSIDE_BAND" if outside or shadow_nonzero else "INSIDE_BAND",
+    }
+
+
+def write_weight_band(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.weight_band.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_weight_band(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "weight_band.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_book_descriptive(root: Path) -> dict[str, Any]:
+    """Sharpe, Sortino, and expectancy on this book are not a deflated Sharpe."""
+    from architecture.markets.paper_trader import performance
+
+    closes = [row for row in _log_rows(root) if row.get("event") == "CLOSE"]
+    if not closes:
+        return {
+            "paper_only": True,
+            "dsr_claimed": False,
+            "edge_claimed": False,
+            "close_rows": 0,
+            "sharpe_sign": None,
+            "sortino_sign": None,
+            "expectancy_sign": None,
+            "source_not_eligible": False,
+            "status": "NO_CLOSED_ROWS",
+        }
+    perf = performance(closes)
+    gate = perf.get("promotion_gate")
+    signs = {
+        "sharpe_sign": _sign(perf.get("sharpe_per_trade")),
+        "sortino_sign": _sign(perf.get("sortino_per_trade")),
+        "expectancy_sign": _sign(perf.get("expectancy_usd")),
+    }
+    eligible = isinstance(gate, str) and gate.startswith("NOT_ELIGIBLE")
+    complete = eligible and all(value is not None for value in signs.values())
+    return {
+        "paper_only": True,
+        "dsr_claimed": False,
+        "edge_claimed": False,
+        "close_rows": len(closes),
+        "source_not_eligible": eligible,
+        **signs,
+        "status": "DESCRIPTIVE_NOT_DSR" if complete else "INCOMPLETE",
+    }
+
+
+def write_book_descriptive(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.book_descriptive.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_book_descriptive(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "book_descriptive.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_weight_history(root: Path) -> dict[str, Any]:
+    """A version number with a matching history length is not an edge."""
+    doc = _weights_doc(root)
+    if doc is None:
+        return {
+            "paper_only": True,
+            "file_rewritten": False,
+            "edge_claimed": False,
+            "file_present": False,
+            "version": None,
+            "history_rows": None,
+            "matches": False,
+            "status": "NO_WEIGHT_FILE",
+        }
+    version = doc.get("version")
+    version = version if isinstance(version, int) and not isinstance(version, bool) else None
+    history = doc.get("history")
+    rows = len(history) if isinstance(history, list) else None
+    matches = version is not None and rows is not None and version >= 1 and rows == version - 1
+    return {
+        "paper_only": True,
+        "file_rewritten": False,
+        "edge_claimed": False,
+        "file_present": True,
+        "version": version,
+        "history_rows": rows,
+        "matches": matches,
+        "status": "VERSION_HAS_A_HISTORY" if matches else "HISTORY_GAP",
+    }
+
+
+def write_weight_history(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.weight_history.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_weight_history(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "weight_history.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

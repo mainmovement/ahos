@@ -1,12 +1,18 @@
 {
  "schema": "ahos.paper.open_book.v1",
- "generated_at": "2026-10-25T16:27:07Z",
+ "generated_at": "2026-10-25T16:45:03Z",
  "paper_only": true,
  "exit_inferred": false,
  "daemon_restarted": false,
  "time_stop_hours": 12.0,
  "max_hold_hours": 24.0,
  "open_rows": [
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "side": "SHORT",
+   "open_time": "2026-10-25T16:37:20Z"
+  },
   {
    "symbol": "UNI",
    "desk": "PB_TOKEN",
@@ -17,6 +23,7 @@
  "unmatched_closes": 0,
  "status": "INSIDE_BOTH_LIMITS",
  "positions_file_symbols": [
+  "BTC",
   "UNI"
  ],
  "log_matches_positions_file": true

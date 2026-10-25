@@ -1,11 +1,11 @@
 {
  "schema": "ahos.paper.adv_cap.v1",
- "generated_at": "2026-10-25T16:27:04Z",
+ "generated_at": "2026-10-25T16:44:59Z",
  "paper_only": true,
  "cap_changed": false,
  "edge_claimed": false,
- "open_rows": 31,
- "stored_rows": 28,
+ "open_rows": 32,
+ "stored_rows": 29,
  "missing_object": 3,
  "source_blank": 1,
  "assumed_floor_rows": 0,
@@ -23,7 +23,7 @@
   },
   {
    "source": "vendor_24h_volume",
-   "rows": 18
+   "rows": 19
   }
  ],
  "status": "CAP_HELD"

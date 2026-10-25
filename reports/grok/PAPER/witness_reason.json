@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.witness_reason.v1",
- "generated_at": "2026-10-25T16:27:10Z",
+ "generated_at": "2026-10-25T16:45:06Z",
  "paper_only": true,
  "exit_rule_changed": false,
  "close_rows": 30,
@@ -9,8 +9,8 @@
  "conflict_verdict_conflict": 12,
  "other_rows": 18,
  "other_verdict_verified": 18,
- "open_rows": 31,
- "open_verified": 31,
+ "open_rows": 32,
+ "open_verified": 32,
  "open_missing": 0,
  "status": "VERDICT_MATCHES_REASON"
 }

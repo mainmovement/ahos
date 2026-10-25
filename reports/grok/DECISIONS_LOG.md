@@ -887,3 +887,31 @@ The running process appended closes after Stage 29. Closed paper trades are now 
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export the only open position was UNI at 1.14 hours, and it was not closed. Closed paper trades remain 30. Reversal gross remains 3 positive and 13 negative.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 84 checks, drift [], unknown []. Skip census at this export: 4167 rows, `MARKET_CLOSED_OR_STALE` 3958. Whitehat CLEAN, 6 checks. pytest 76 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` started 2026-10-25T16:28:09Z and stayed silent after the artifact section. That validator was stopped. The paper-trader and gold-soak processes were not stopped. The import gate remains `NOT_VERIFIED`. This is not a product defect.
+
+## 2026-10-25 — Stage 32 weight band, book descriptives, weight history
+
+Scope: Lane B measurement and the Arena read-only lines. Lane A was not edited. The weight file was read and not rewritten. The paper trader was not restarted. UNI and the newly opened BTC were not closed.
+
+### WP-32.1 — a weight inside the recorded band is not an edge
+- **Draft:** Compare each stored weight with its default and with the half-to-one-and-a-half band. Do not rewrite the file. Do not promote a zero-base signal. Do not insert a missing name.
+- **Critique 1:** The file is version 22. Six weights moved and stayed inside the band: candles, large_trades, macro, mtf_trend, news, and zscore_mr. Zero sit outside the band. event_shock is absent and was not inserted. Seven signals have n at least 10. Present zero-base weights stayed at zero. `promoted` is false. `file_rewritten` is false.
+- **Critique 2 (meta):** A hit-rate update is not a walk-forward promotion and it is not an edge. The history length was not used as a skill score.
+- **Result:** `reports/grok/PAPER/weight_band.json`. Status `INSIDE_BAND`.
+
+### WP-32.2 — the book Sharpe is not a deflated Sharpe
+- **Draft:** Record only the sign of Sharpe, Sortino, and expectancy. Do not store the magnitudes. Do not claim DSR.
+- **Critique 1:** 30 closes. All three signs are negative. The performance function still returns the not-eligible sentence. `dsr_claimed` is false.
+- **Critique 2 (meta):** A negative sign on this book is a description. It is not a forecast and it is not an edge. The magnitudes stay out of the receipt so they cannot be quoted as a score.
+- **Result:** `reports/grok/PAPER/book_descriptive.json`. Status `DESCRIPTIVE_NOT_DSR`.
+
+### WP-32.3 — a version number with a matching history is not an edge
+- **Draft:** Check that the history length is one less than the version. Do not copy the historical weights and do not rewrite the file.
+- **Critique 1:** Version 22 has 21 history rows. The lengths match. The contents of those rows were not audited as a weight path.
+- **Critique 2 (meta):** A matching length shows the counter and the list grew together. It does not show that any moved weight is skill.
+- **Result:** `reports/grok/PAPER/weight_history.json`. Status `VERSION_HAS_A_HISTORY`. `matches` true.
+
+### WP-32.4 — checks 85 to 87
+- **Draft:** Each check recomputes the file or the log. A receipt that rewrites the weights, promotes a shadow, or claims DSR fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export UNI was 1.44 hours old and BTC was 0.13 hours old. The running process opened BTC. This stage did not open or close either position. Closed paper trades remain 30. Overall gross remains 10 positive and 20 negative. The refreshed open book is 32 opens, 8 stops on 0.01, 24 above it, and 0 ATR keys. All 32 opens still carry the OFF label that says n<30. Kelly was not switched on.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 87 checks, drift [], unknown []. Skip census at this export: 4193 rows, `MARKET_CLOSED_OR_STALE` 3976. Whitehat CLEAN, 6 checks. pytest 77 passed. Node stage6 bridge 6/6. Thirty closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-25T16:47:08Z and exited 0. 373 modules imported cleanly. 4342 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped.

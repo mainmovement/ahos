@@ -1,0 +1,26 @@
+{
+ "schema": "ahos.paper.weight_band.v1",
+ "generated_at": "2026-10-25T16:45:06Z",
+ "paper_only": true,
+ "file_rewritten": false,
+ "edge_claimed": false,
+ "promoted": false,
+ "rule_changed": false,
+ "file_present": true,
+ "version": 22,
+ "history_rows": 21,
+ "moved_rows": 6,
+ "outside_rows": 0,
+ "absent_rows": 1,
+ "n_ge_10": 7,
+ "shadow_nonzero": 0,
+ "moved_names": [
+  "candles",
+  "large_trades",
+  "macro",
+  "mtf_trend",
+  "news",
+  "zscore_mr"
+ ],
+ "status": "INSIDE_BAND"
+}

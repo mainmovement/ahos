@@ -1,16 +1,16 @@
 {
   "schema": "ahos.paper_trade_audit.v1",
-  "generated_at": "2026-10-25T15:57:11Z",
+  "generated_at": "2026-10-25T16:39:24Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "unproven_edge": true,
   "trades": {
     "paper_only": true,
     "trades_file": "reports/grok/PAPER/paper_trades.jsonl",
-    "opens": 31,
+    "opens": 32,
     "closes": 30,
     "closed_with_pnl": 30,
-    "skips": 4019,
+    "skips": 4081,
     "issues": [
       "line2364:DEX_LINK:fill_slippage_mismatch",
       "line2364:DEX_LINK:entry_fee_mismatch",
@@ -22,18 +22,18 @@
       "line3069:DEX_LINK:entry_fee_mismatch"
     ],
     "status": "AMBER",
-    "note_fa": "ممیزی 31 باز و 30 بسته — 8 نکتهٔ ساختاری (بدون معاملهٔ زنده)."
+    "note_fa": "ممیزی 32 باز و 30 بسته — 8 نکتهٔ ساختاری (بدون معاملهٔ زنده)."
   },
   "mission_ledger": {
     "ledger_present": true,
-    "paper_trader_refs": 61,
+    "paper_trader_refs": 62,
     "status": "GREEN",
-    "note_fa": "61 ردیف مرتبط با معامله‌گر کاغذی در زنجیرهٔ hash."
+    "note_fa": "62 ردیف مرتبط با معامله‌گر کاغذی در زنجیرهٔ hash."
   },
   "session_gate": {
     "paper_only": true,
-    "utc": "2026-10-25T15:57:11Z",
-    "tehran": "2026-10-25 19:27 +0330",
+    "utc": "2026-10-25T16:39:24Z",
+    "tehran": "2026-10-25 20:09 +0330",
     "tehran_weekday": "Sunday",
     "weekend_tehran": true,
     "cash_desks_expected": "CLOSED_OR_STALE",
@@ -46,7 +46,7 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T13:30:00Z",
         "next_open_tehran": "2026-10-26 17:00",
-        "minutes_until_open": 1293,
+        "minutes_until_open": 1251,
         "holidays_modeled": true,
         "holiday_today": false,
         "holiday_name": null
@@ -58,7 +58,7 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T08:00:00Z",
         "next_open_tehran": "2026-10-26 11:30",
-        "minutes_until_open": 963,
+        "minutes_until_open": 921,
         "holidays_modeled": true,
         "holiday_today": false,
         "holiday_name": null
@@ -70,7 +70,7 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T08:00:00Z",
         "next_open_tehran": "2026-10-26 11:30",
-        "minutes_until_open": 963,
+        "minutes_until_open": 921,
         "holidays_modeled": true,
         "holiday_today": false,
         "holiday_name": null
@@ -82,7 +82,7 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T00:00:00Z",
         "next_open_tehran": "2026-10-26 03:30",
-        "minutes_until_open": 483,
+        "minutes_until_open": 441,
         "holidays_modeled": true,
         "holiday_today": false,
         "holiday_name": null
@@ -94,7 +94,7 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T01:30:00Z",
         "next_open_tehran": "2026-10-26 05:00",
-        "minutes_until_open": 573,
+        "minutes_until_open": 531,
         "holidays_modeled": true,
         "holiday_today": false,
         "holiday_name": null
@@ -106,7 +106,7 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-26T01:00:00Z",
         "next_open_tehran": "2026-10-26 04:30",
-        "minutes_until_open": 543,
+        "minutes_until_open": 501,
         "holidays_modeled": true,
         "holiday_today": false,
         "holiday_name": null
@@ -118,7 +118,7 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-25T22:00:00Z",
         "next_open_tehran": "2026-10-26 01:30",
-        "minutes_until_open": 363,
+        "minutes_until_open": 321,
         "holidays_modeled": true,
         "holiday_today": false,
         "holiday_name": null
@@ -130,7 +130,7 @@
         "closes_utc": null,
         "next_open_utc": "2026-10-25T21:00:00Z",
         "next_open_tehran": "2026-10-26 00:30",
-        "minutes_until_open": 303,
+        "minutes_until_open": 261,
         "holidays_modeled": true,
         "holiday_today": false,
         "holiday_name": null
@@ -139,7 +139,7 @@
     "venues_open_now": [],
     "symbols_open_now": [],
     "schedule_basis": "exchange-published regular hours; DST via zoneinfo; 2026-2027 official exchange holidays modeled",
-    "summary_fa": "زمان تهران: 2026-10-25 19:27 (Sunday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست."
+    "summary_fa": "زمان تهران: 2026-10-25 20:09 (Sunday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست."
   },
   "weekday_fill_gate_fa": "قابل معاملهٔ کاغذی الان: CRYPTO, PB_TOKEN · شاهد VERIFIED (بدون تضمین سشن): ASIA_EQUITIES, CRYPTO, EU_EQUITIES, FOREX, GOLD, OIL, PB_TOKEN, US_EQUITIES. زمان تهران: 2026-10-24 21:38 (Saturday). شنبه/یکشنبه: میزهای نقدی (طلا، نفت، سهام، FX) معمولاً بسته یا قیمت منقضی — بدون GREEN جعلی. هیچ بازار نقدی‌ای اکنون باز نیست.",
   "tradable_asset_classes": [

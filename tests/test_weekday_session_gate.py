@@ -724,3 +724,49 @@ def test_thirty_closes_stay_ineligible_and_the_off_label_is_a_stale_count(tmp_pa
     assert ruin["status"] == "RESAMPLE_NOT_A_FORECAST"
     assert ruin["forecast_claimed"] is False and ruin["probability_published"] is False
     assert "ruin_probability" not in json.dumps(ruin)
+
+
+def test_a_weight_inside_the_band_is_not_an_edge(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_book_descriptive, measure_weight_band, measure_weight_history,
+    )
+    from architecture.markets.signal_brain import DEFAULT_WEIGHTS
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    weights = dict(DEFAULT_WEIGHTS)
+    weights["candles"] = 0.1
+    (paper / "signal_weights.json").write_text(json.dumps({
+        "version": 2,
+        "weights": weights,
+        "stats": {name: {"n": 10, "hits": 5} for name in DEFAULT_WEIGHTS},
+        "history": [{"version": 1}],
+    }), encoding="utf-8")
+    rows = [
+        {"event": "CLOSE", "realized_pnl_usd": -0.02},
+        {"event": "CLOSE", "realized_pnl_usd": -0.01},
+    ]
+    (paper / "paper_trades.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    band = measure_weight_band(tmp_path)
+    assert band["status"] == "INSIDE_BAND"
+    assert band["moved_names"] == ["candles"]
+    assert band["moved_rows"] == 1 and band["outside_rows"] == 0
+    assert band["shadow_nonzero"] == 0 and band["absent_rows"] == 0
+    assert band["n_ge_10"] == len(DEFAULT_WEIGHTS)
+    assert band["file_rewritten"] is False and band["promoted"] is False
+    assert band["edge_claimed"] is False and band["rule_changed"] is False
+    assert "0.1" not in json.dumps(band)
+    book = measure_book_descriptive(tmp_path)
+    assert book["status"] == "DESCRIPTIVE_NOT_DSR"
+    assert book["sharpe_sign"] == -1 and book["sortino_sign"] == -1
+    assert book["expectancy_sign"] == -1 and book["source_not_eligible"] is True
+    assert book["dsr_claimed"] is False and book["edge_claimed"] is False
+    assert "sharpe_per_trade" not in json.dumps(book)
+    history = measure_weight_history(tmp_path)
+    assert history["status"] == "VERSION_HAS_A_HISTORY"
+    assert history["matches"] is True and history["history_rows"] == 1
+    assert history["version"] == 2 and history["file_rewritten"] is False
+    assert history["edge_claimed"] is False

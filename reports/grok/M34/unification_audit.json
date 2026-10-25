@@ -1,13 +1,13 @@
 {
   "schema": "ahos.unification_audit.v1",
-  "generated_at": "2026-10-25T16:27:21Z",
+  "generated_at": "2026-10-25T16:45:17Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "read_only": true,
   "overall_status": "UNIFIED_CLEAN",
-  "checks_total": 84,
+  "checks_total": 87,
   "checks_by_status": {
-    "PASS": 84
+    "PASS": 87
   },
   "drift": [],
   "unknown": [],
@@ -17,8 +17,8 @@
       "status": "PASS",
       "detail": {
         "verdict": "CHAIN_INTACT",
-        "entries": 1174,
-        "head_hash": "25071724be9779521d025d99702dba5443caa3d56f0c63109c2392b9fbc12dfe"
+        "entries": 1177,
+        "head_hash": "40bcea4702539c51617d6a825755fc32e5c8d9ca3df996e85541fd5a54b37c54"
       },
       "surfaces": [
         "data\\mission_ledger\\mission_ledger.jsonl"
@@ -46,15 +46,19 @@
       "status": "PASS",
       "detail": {
         "status.open_positions": [
+          "BTC",
           "UNI"
         ],
         "paper_positions.positions": [
+          "BTC",
           "UNI"
         ],
         "paper_trades.jsonl net OPEN": [
+          "BTC",
           "UNI"
         ],
         "mission_ledger net OPEN": [
+          "BTC",
           "UNI"
         ]
       },
@@ -73,8 +77,8 @@
         "initial_capital_usd": 100.0,
         "sum_close_realized_pnl_usd": -0.2565,
         "realized_equity_usd": 99.74,
-        "unrealized_pnl_usd": 0.0135,
-        "mark_to_market_equity_usd": 99.7535,
+        "unrealized_pnl_usd": 0.0073,
+        "mark_to_market_equity_usd": 99.7473,
         "tolerance_usd": 0.01
       },
       "surfaces": [
@@ -86,8 +90,8 @@
       "id": "paper.ledger_xref",
       "status": "PASS",
       "detail": {
-        "fills_on_jsonl": 61,
-        "fills_on_ledger": 61,
+        "fills_on_jsonl": 62,
+        "fills_on_ledger": 62,
         "unlinked": []
       },
       "surfaces": [
@@ -99,8 +103,8 @@
       "id": "paper.audit_ledger_refs",
       "status": "PASS",
       "detail": {
-        "audit.paper_trader_refs": 61,
-        "ledger_entries_matching": 61
+        "audit.paper_trader_refs": 62,
+        "ledger_entries_matching": 62
       },
       "surfaces": [
         "reports\\grok\\PAPER\\paper_trade_audit.json",
@@ -112,14 +116,14 @@
       "status": "PASS",
       "detail": {
         "last_cycle": {
-          "ts": "2026-10-25T16:14:20Z",
-          "cycle": 1049,
+          "ts": "2026-10-25T16:44:21Z",
+          "cycle": 1051,
           "witness_state": "UNRESOLVED",
           "price_usd": null
         },
         "runlog_last": {
-          "ts": "2026-10-25T16:14:20Z",
-          "cycle": 1049,
+          "ts": "2026-10-25T16:44:21Z",
+          "cycle": 1051,
           "witness_state": "UNRESOLVED",
           "price_usd": null
         },
@@ -137,7 +141,7 @@
       "detail": {
         "ledger_checkpoint_bankroll_usd": 10000.0,
         "expected_usd": 10000.0,
-        "ledger_state_rows": 1050,
+        "ledger_state_rows": 1052,
         "note": "Gold soak is its own $10k paper account; it is never summed into the $100 paper trader."
       },
       "surfaces": [
@@ -330,11 +334,11 @@
       "id": "continuation.state",
       "status": "PASS",
       "detail": {
-        "current_stage": "Stage 31",
+        "current_stage": "Stage 32",
         "problems": [],
         "queue": [
-          "Stage 31: diagnostic sweep, then four work packages",
-          "Stage 32: the next measured gap, four work packages"
+          "Stage 32: diagnostic sweep, then four work packages",
+          "Stage 33: the next measured gap, four work packages"
         ]
       },
       "surfaces": [
@@ -440,7 +444,7 @@
       "status": "PASS",
       "detail": {
         "coverage_status": "ITEMIZED_ON_JSONL_NOT_ON_LEDGER",
-        "open_fee_usd_sum": 0.188775,
+        "open_fee_usd_sum": 0.192931,
         "problems": []
       },
       "surfaces": [
@@ -506,7 +510,7 @@
       "id": "execution.skip_census",
       "status": "PASS",
       "detail": {
-        "rows": 4167,
+        "rows": 4193,
         "problems": []
       },
       "surfaces": [
@@ -995,6 +999,36 @@
       "surfaces": [
         "reports\\grok\\PAPER\\ruin_basis.json"
       ]
+    },
+    {
+      "id": "execution.weight_band",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\weight_band.json"
+      ]
+    },
+    {
+      "id": "execution.book_descriptive",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\book_descriptive.json"
+      ]
+    },
+    {
+      "id": "execution.weight_history",
+      "status": "PASS",
+      "detail": {
+        "problems": []
+      },
+      "surfaces": [
+        "reports\\grok\\PAPER\\weight_history.json"
+      ]
     }
   ],
   "hold_flag_counts": {
@@ -1015,5 +1049,5 @@
     "M56 tournament contenders are FIXTURE_ILLUSTRATIVE returns; its 'DSR' is a haircut Sharpe, not a probability.",
     "Edge is unproven until >= 30 real OOS closed trades with DSR > 0.95 and PBO < 0.50."
   ],
-  "summary_fa": "همهٔ 84 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
+  "summary_fa": "همهٔ 87 ناوردای بین‌سطحی سازگارند؛ این به معنی لبهٔ سودآوری نیست."
 }
