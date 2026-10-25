@@ -470,13 +470,16 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         pos = positions.get(sym)
         if not isinstance(price, (int, float)) or price <= 0:
             log({**base, "event": "SKIP", "reason": "PRICE_UNAVAILABLE"}); continue
-        if mt is None or t - mt > MAX_TRADE_AGE_S:
+        age = None if mt is None else t - mt
+        if age is None or age > MAX_TRADE_AGE_S or age < 0:
             from architecture.markets.weekday_session_gate import symbol_session
             gate = symbol_session(sym, datetime.fromtimestamp(t, tz=timezone.utc))
             opened = gate.get("open")
             session_state = "OPEN" if opened is True else "CLOSED" if opened is False else "UNKNOWN"
-            log({**base, "event": "SKIP", "reason": "MARKET_CLOSED_OR_STALE", "price": price,
-                 "freshness": "UNKNOWN" if mt is None else "STALE", "session_state": session_state})
+            ahead = age is not None and age < 0
+            log({**base, "event": "SKIP", "reason": "QUOTE_TIME_AHEAD" if ahead else "MARKET_CLOSED_OR_STALE",
+                 "price": price, "freshness": "UNKNOWN" if age is None or ahead else "STALE",
+                 "session_state": session_state})
             continue
         if w["verdict"] != "VERIFIED" and not pos:
             log({**base, "event": "SKIP", "reason": f"WITNESS_{w['verdict']}", "price": price}); continue

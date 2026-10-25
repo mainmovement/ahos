@@ -1083,3 +1083,25 @@ Scope: Lane B measurement and the next-process skip fields. Lane A was not edite
 - **Critique 1:** The only writer of `reports/grok/M34/unification_audit.json` is `export_unification_audit`. The paper trader calls it after an OPEN or CLOSE, and it swallows an exception. `run_continuation_tracks.py` calls the same function and is not the live process. The new receipt path `skip_dimensions.json` is not written by the loaded trader, so a short overwrite of the audit file does not delete it. The guard is in the file on disk. It is not in the process that has been running since 2026-10-24 22:24:43 local.
 - **Critique 2 (meta):** Unification at this export is UNIFIED_CLEAN, 101 checks. That file is protected against a shorter write only for a process that has loaded the guard. The live process is not that process. Skip census at this export: 4569 rows, `MARKET_CLOSED_OR_STALE` 4259. Ages: UNI 5.15 hours at version 19, BTC 2.24 at version 23, EURUSD 1.66 at version 23, SOL 1.16 at version 23. None was closed. Closed paper trades remain 31. Fees unchanged: open 0.206393 across 35, close 0.370674 across 31. Whitehat CLEAN, 6 checks. pytest 91 passed. Node stage6 bridge 6/6. Thirty-one closed trades do not prove an edge. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
 - **Verification:** `scripts/validate_imports.py` started 2026-10-25T20:29:18Z and exited 0 at 2026-10-25T20:34:28Z. 373 modules imported cleanly. 4356 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 39 a quote time ahead of the cycle clock
+
+Scope: Lane B, the next-process clock check. Lane A was not edited. No historical skip was rewritten. No open was closed. The paper trader and the gold soak were not restarted. The 1200-second gate stayed `>` and stayed 1200. No new unification check was added.
+
+### WP-39.1 — the predicate does not reject a future quote time
+- **Draft:** Read the clock comparison. A missing time and an age above 1200 seconds skip. Ask what an age below zero does.
+- **Critique 1:** `market_time` is parsed to a UTC epoch. The skip is `age is None` or `age > 1200`. An age of one second below zero is neither. The cycle continues into witness, exit, and entry. The Stage 38 receipt counted 4259 combined skips and `clock_ahead` 0. That zero means the log has not stored this case. It does not mean the source refuses it.
+- **Critique 2 (meta):** A future quote time is not a stale quote and it is not a closed market. Folding it into `MARKET_CLOSED_OR_STALE` would make the label claim a fact the clock does not show.
+- **Result:** The source on disk now skips that quote before exit management and before entry. The reason is `QUOTE_TIME_AHEAD`. Freshness is `UNKNOWN`. `session_state` is still stored from `symbol_session` at the cycle clock, so a closed venue stays `CLOSED` on the same row. The running process has not loaded the branch.
+
+### WP-39.2 — an open position is not closed on that quote
+- **Draft:** Open BTC on a Monday clock with a matching quote time. Then offer a quote one second ahead and a price that would otherwise be a large loss. Do not close the historical book.
+- **Critique 1:** The test book opens one BTC row. The ahead quote writes `QUOTE_TIME_AHEAD` with freshness `UNKNOWN` and session `OPEN`. There is no CLOSE. A Sunday EURUSD quote one second ahead writes the same reason with session `CLOSED` and does not open. It is not `MARKET_CLOSED_OR_STALE`.
+- **Critique 2 (meta):** The historical 4259 rows were not read back and were not given this reason. Exact age 1200 still opens in the earlier test. Age 1201 still skips as stale. The live BTC, EURUSD, SOL, and UNI rows were not touched.
+- **Result:** pytest 92 passed, exit 0, on the weekday gate, the stage-6 deepening file, and the paper-trader file. `MAX_TRADE_AGE_S` remains 1200.
+
+### WP-39.3 — the audit file was not asked to count a case the log does not contain
+- **Draft:** Do not add a unification check whose only input would be zero historical rows. Do not re-export the audit solely to raise the count.
+- **Critique 1:** The committed Stage 38 audit remains 101 checks, generated 2026-10-25T20:27:35Z. It does not assert `QUOTE_TIME_AHEAD`. The live writer can still replace that working-tree file with a shorter audit. This stage did not write it.
+- **Critique 2 (meta):** Code verification is the test. Runtime verification is that pid 4904 has not loaded the branch. Those are different facts. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`. The edge stays `UNPROVEN_EDGE`.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-25T20:52:13Z and exited 0. 373 modules imported cleanly. 4356 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped. No Arena binding was added, because there is no new receipt to project.

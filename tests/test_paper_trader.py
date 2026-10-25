@@ -102,6 +102,40 @@ def test_stale_and_closed_stay_separate_and_the_1200_boundary_holds(tmp_path):
     assert pt.MAX_TRADE_AGE_S == 1200
 
 
+def test_a_quote_ahead_of_the_cycle_clock_does_not_open_or_close(tmp_path):
+    from datetime import datetime, timezone
+    monday = datetime(2026, 10, 26, 15, 0, tzinfo=timezone.utc).timestamp()
+    sunday = datetime(2026, 10, 25, 18, 47, 46, tzinfo=timezone.utc).timestamp()
+
+    def _cycle(root, moment, market_time, symbol, price):
+        fetch = lambda: {"quotes": {symbol: {
+            "price": price, "source": "A", "market_time": market_time, "ohlcv_5m": _bars(100, 0.5),
+        }}}
+        fb = lambda: {symbol: {"price": price, "source": "B"}}
+        pt.run_cycle(root, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: moment, use_ledger=False)
+
+    spot = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(monday))
+    _cycle(tmp_path, monday, spot, "BTC", 100.0)
+    opened = [r for r in _rows(tmp_path) if r.get("event") == "OPEN"]
+    assert len(opened) == 1
+    ahead = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(monday + 1))
+    _cycle(tmp_path, monday, ahead, "BTC", 50.0)
+    rows = [r for r in _rows(tmp_path) if r.get("symbol") == "BTC"]
+    assert not any(r.get("event") == "CLOSE" for r in rows)
+    skipped = next(r for r in rows if r.get("reason") == "QUOTE_TIME_AHEAD")
+    assert skipped["freshness"] == "UNKNOWN" and skipped["session_state"] == "OPEN"
+    assert not any(r.get("reason") == "MARKET_CLOSED_OR_STALE" and r.get("market_time") == ahead for r in rows)
+
+    closed_root = tmp_path / "closed"
+    future = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(sunday + 1))
+    _cycle(closed_root, sunday, future, "EURUSD", 100.0)
+    cash = [r for r in _rows(closed_root) if r.get("symbol") == "EURUSD"]
+    assert not any(r.get("event") == "OPEN" for r in cash)
+    cash_skip = next(r for r in cash if r.get("reason") == "QUOTE_TIME_AHEAD")
+    assert cash_skip["freshness"] == "UNKNOWN" and cash_skip["session_state"] == "CLOSED"
+    assert not any(r.get("reason") == "MARKET_CLOSED_OR_STALE" for r in cash)
+
+
 def test_kill_switch_blocks_new_risk():
     now = 1_800_000_000.0
     trades = [{"realized_pnl_usd": -4.0, "closed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now - 60))}]
