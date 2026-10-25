@@ -845,6 +845,17 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/witness_skip.json", {
         "paper_only": True, "exit_relabeled": False, "treated_as_security_pass": False,
         "edge_claimed": False, "witness_rows": 0, "reasons": [], "status": "NO_WITNESS_SKIPS"})
+    w("reports/grok/PAPER/promotion_gate.json", {
+        "paper_only": True, "promoted": False, "edge_claimed": False, "dsr_supplied": False,
+        "close_rows": 0, "source_not_eligible": False, "ci_lower_positive": False,
+        "stored_evaluate": False, "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/kelly_count.json", {
+        "paper_only": True, "kelly_switched_on": False, "label_rewritten": False, "edge_claimed": False,
+        "open_rows": 1, "close_rows": 0, "stale_off_rows": 0, "other_rows": 0, "numeric_rows": 0,
+        "missing_rows": 1, "status": "KELLY_FIELD_ABSENT"})
+    w("reports/grok/PAPER/ruin_basis.json", {
+        "paper_only": True, "forecast_claimed": False, "probability_published": False,
+        "edge_claimed": False, "close_rows": 0, "empirical_basis": False, "status": "NO_CLOSED_ROWS"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

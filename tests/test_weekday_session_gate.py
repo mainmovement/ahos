@@ -690,3 +690,37 @@ def test_a_stop_above_the_floor_is_not_atr_and_a_witness_skip_is_not_an_exit(tmp
     assert witness["exit_relabeled"] is False and witness["treated_as_security_pass"] is False
     assert witness["witness_rows"] == 1
     assert measure_skip_address(tmp_path)["address_sources"] == 1
+
+
+def test_thirty_closes_stay_ineligible_and_the_off_label_is_a_stale_count(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_kelly_count, measure_promotion_gate, measure_ruin_basis,
+    )
+    from architecture.markets.paper_trader import performance
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    rows = [{"event": "CLOSE", "realized_pnl_usd": -0.01} for _ in range(30)]
+    rows += [{"event": "OPEN", "kelly": "OFF (n<30 closed trades, §6)"} for _ in range(31)]
+    (paper / "paper_trades.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    (paper / "paper_trader_status.json").write_text(json.dumps({
+        "performance": {"n": 30, "promotion_gate": "EVALUATE"},
+    }), encoding="utf-8")
+    gate = performance(rows[:30])
+    assert "NOT_ELIGIBLE" in gate["promotion_gate"]
+    assert "EVALUATE" not in gate["promotion_gate"]
+    promo = measure_promotion_gate(tmp_path)
+    assert promo["status"] == "STORED_WORD_IS_NOT_A_PROMOTION"
+    assert promo["promoted"] is False and promo["ci_lower_positive"] is False
+    assert promo["dsr_supplied"] is False and promo["source_not_eligible"] is True
+    kelly = measure_kelly_count(tmp_path)
+    assert kelly["status"] == "OFF_LABEL_COUNT_IS_STALE"
+    assert kelly["kelly_switched_on"] is False and kelly["label_rewritten"] is False
+    assert kelly["stale_off_rows"] == 31
+    ruin = measure_ruin_basis(tmp_path)
+    assert ruin["status"] == "RESAMPLE_NOT_A_FORECAST"
+    assert ruin["forecast_claimed"] is False and ruin["probability_published"] is False
+    assert "ruin_probability" not in json.dumps(ruin)

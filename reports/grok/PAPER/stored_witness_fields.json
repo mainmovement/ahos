@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.stored_witness_fields.v1",
- "generated_at": "2026-10-25T16:05:08Z",
+ "generated_at": "2026-10-25T16:27:10Z",
  "paper_only": true,
  "exit_rule_changed": false,
  "daemon_restarted": false,

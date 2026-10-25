@@ -861,3 +861,29 @@ The running process appended closes after Stage 29. Closed paper trades are now 
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. Realized loss is still inside both lines. The worst day ratio is -0.0081 and the worst week ratio is -0.0026. Open fees on the log are 0.188775 USD across 31 opens. Close fees are 0.362348 USD across 30 closes. Those sums are itemization. They were not added to the cash gap and the ledger was not rewritten.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 81 checks, drift [], unknown []. Skip census at this export: 4127 rows, `MARKET_CLOSED_OR_STALE` 3929. Whitehat CLEAN, 6 checks. pytest 75 passed. Node stage6 bridge 6/6. Thirty closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged.
 - **Verification:** `scripts/validate_imports.py` was not run. The probe started 2026-10-25T15:43:45Z had already been stopped for silence, and this stage did not start another. The import gate remains `NOT_VERIFIED`. The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 31 promotion word, stale Kelly count, ruin basis
+
+### WP-31.1 — thirty closes do not open the promotion gate
+- **Draft:** The performance function must not return a promotion word when it has no DSR input. The lower bootstrap bound is recorded only as a boolean. Do not promote.
+- **Critique 1:** 30 closes are on the log. The lower bound is not positive. The status file still stores the old word. The current function returns the not-eligible sentence. `dsr_supplied` is false.
+- **Critique 2 (meta):** The running process has not loaded the function change. The status file was not rewritten. The stored word is not a promotion.
+- **Result:** `reports/grok/PAPER/promotion_gate.json`. Status `STORED_WORD_IS_NOT_A_PROMOTION`. `promoted` false. `ci_lower_positive` false.
+
+### WP-31.2 — the OFF label still says n<30
+- **Draft:** Count the stored labels. Do not turn Kelly on and do not rewrite the rows. The writer for the next process start no longer claims that the count is under 30.
+- **Critique 1:** 31 opens carry the OFF label that says n<30. 0 are numeric. The log has 30 closes, so that sentence is not the live count.
+- **Critique 2 (meta):** The daemon has not loaded the new sentence. The historical labels stay.
+- **Result:** `reports/grok/PAPER/kelly_count.json`. Status `OFF_LABEL_COUNT_IS_STALE`. `kelly_switched_on` false. `label_rewritten` false.
+
+### WP-31.3 — the ruin code would resample this book
+- **Draft:** At five closes the code stops using the stress prior and resamples the closed book. Do not run that resample for the receipt and do not publish a probability.
+- **Critique 1:** 30 closes are at or above that line. The receipt does not contain a ruin probability.
+- **Critique 2 (meta):** A resample of the same 30 trades is not a forecast and it is not an edge.
+- **Result:** `reports/grok/PAPER/ruin_basis.json`. Status `RESAMPLE_NOT_A_FORECAST`. `forecast_claimed` false. `probability_published` false.
+
+### WP-31.4 — checks 82 to 84
+- **Draft:** Each check recomputes the log. A promotion receipt that promotes fails. A Kelly receipt that switches Kelly on fails. A ruin receipt that publishes a probability fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export the only open position was UNI at 1.14 hours, and it was not closed. Closed paper trades remain 30. Reversal gross remains 3 positive and 13 negative.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 84 checks, drift [], unknown []. Skip census at this export: 4167 rows, `MARKET_CLOSED_OR_STALE` 3958. Whitehat CLEAN, 6 checks. pytest 76 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-25T16:28:09Z and stayed silent after the artifact section. That validator was stopped. The paper-trader and gold-soak processes were not stopped. The import gate remains `NOT_VERIFIED`. This is not a product defect.

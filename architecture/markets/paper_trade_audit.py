@@ -153,7 +153,9 @@ def export_paper_trade_audit_snapshot(root: Path) -> dict[str, Any]:
     ledger = audit_mission_ledger_paper_refs(root)
     sess = session_report()
     probe = _load_witness_probe(root)
-    promotion_gate = _load_trader_promotion_gate(root)
+    raw_gate = _load_trader_promotion_gate(root)
+    not_eligible = "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)"
+    promotion_gate = raw_gate if raw_gate and "NOT_ELIGIBLE" in str(raw_gate) else not_eligible
     payload = {
         "schema": "ahos.paper_trade_audit.v1",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -167,11 +169,8 @@ def export_paper_trade_audit_snapshot(root: Path) -> dict[str, Any]:
         "tradable_asset_classes": probe.get("tradable_asset_classes") or [],
         "verified_asset_classes": probe.get("verified_asset_classes") or [],
         "promotion_gate": promotion_gate,
-        "promotion_gate_fa": (
-            "هنوز واجد ارتقا نیست: کمتر از ۳۰ معاملهٔ بسته یا DSR/PBO پاس نشده — لبهٔ سودآوری اثبات‌نشده."
-            if promotion_gate and "NOT_ELIGIBLE" in str(promotion_gate)
-            else str(promotion_gate or "نامشخص")
-        ),
+        "stored_promotion_word_is_evaluate": str(raw_gate) == "EVALUATE",
+        "promotion_gate_fa": "هنوز واجد ارتقا نیست: کمتر از ۳۰ معاملهٔ بسته یا DSR/PBO پاس نشده — لبهٔ سودآوری اثبات‌نشده.",
         "status": (
             "AMBER"
             if trades["closes"] > 0 and ledger.get("ledger_present") and ledger.get("paper_trader_refs", 0) == 0
@@ -3297,6 +3296,145 @@ def write_witness_skip(root: Path) -> dict[str, Any]:
         **measure_witness_skip(root),
     }
     path = Path(root) / "reports" / "grok" / "PAPER" / "witness_skip.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_promotion_gate(root: Path) -> dict[str, Any]:
+    """The close-count gate. Thirty closes and a stored word are not a promotion."""
+    from architecture.markets.paper_trader import performance
+
+    closes = [row for row in _log_rows(root) if row.get("event") == "CLOSE"]
+    perf = performance(closes) if closes else {}
+    gate = str(perf.get("promotion_gate") or "")
+    ci = perf.get("expectancy_ci95")
+    ci_lower_positive = (
+        isinstance(ci, list) and len(ci) == 2 and isinstance(ci[0], (int, float)) and float(ci[0]) > 0
+    )
+    stored = _load_trader_promotion_gate(root)
+    stored_evaluate = stored == "EVALUATE"
+    source_not_eligible = "NOT_ELIGIBLE" in gate
+    if not closes:
+        status = "NO_CLOSED_ROWS"
+    elif stored_evaluate and source_not_eligible:
+        status = "STORED_WORD_IS_NOT_A_PROMOTION"
+    elif source_not_eligible:
+        status = "SOURCE_NOT_ELIGIBLE"
+    else:
+        status = "REVIEW"
+    return {
+        "paper_only": True,
+        "promoted": False,
+        "edge_claimed": False,
+        "dsr_supplied": False,
+        "close_rows": len(closes),
+        "source_not_eligible": source_not_eligible,
+        "ci_lower_positive": ci_lower_positive,
+        "stored_evaluate": stored_evaluate,
+        "status": status,
+    }
+
+
+def write_promotion_gate(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.promotion_gate.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_promotion_gate(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "promotion_gate.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_kelly_count(root: Path) -> dict[str, Any]:
+    """The stored OFF label. The n<30 sentence is not the live close count."""
+    stale = other = numeric = missing = 0
+    closes = 0
+    for row in _log_rows(root):
+        if row.get("event") == "CLOSE":
+            closes += 1
+            continue
+        if row.get("event") != "OPEN":
+            continue
+        kelly = row.get("kelly")
+        if isinstance(kelly, (int, float)):
+            numeric += 1
+        elif not isinstance(kelly, str) or not kelly:
+            missing += 1
+        elif kelly.startswith("OFF") and "n<30" in kelly:
+            stale += 1
+        else:
+            other += 1
+    opens = stale + other + numeric + missing
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif numeric:
+        status = "NUMERIC_KELLY_PRESENT"
+    elif missing == opens:
+        status = "KELLY_FIELD_ABSENT"
+    elif stale == opens and closes >= 30:
+        status = "OFF_LABEL_COUNT_IS_STALE"
+    elif stale == opens:
+        status = "UNIFORM_OFF_LABEL"
+    else:
+        status = "MIXED"
+    return {
+        "paper_only": True,
+        "kelly_switched_on": False,
+        "label_rewritten": False,
+        "edge_claimed": False,
+        "open_rows": opens,
+        "close_rows": closes,
+        "stale_off_rows": stale,
+        "other_rows": other,
+        "numeric_rows": numeric,
+        "missing_rows": missing,
+        "status": status,
+    }
+
+
+def write_kelly_count(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.kelly_count.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_kelly_count(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "kelly_count.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_ruin_basis(root: Path) -> dict[str, Any]:
+    """Five or more closes make the ruin code resample this book. That is not a forecast."""
+    closes = sum(1 for row in _log_rows(root) if row.get("event") == "CLOSE")
+    empirical_basis = closes >= 5
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif empirical_basis:
+        status = "RESAMPLE_NOT_A_FORECAST"
+    else:
+        status = "STRESS_PRIOR_NOT_THE_BOOK"
+    return {
+        "paper_only": True,
+        "forecast_claimed": False,
+        "probability_published": False,
+        "edge_claimed": False,
+        "close_rows": closes,
+        "empirical_basis": empirical_basis,
+        "status": status,
+    }
+
+
+def write_ruin_basis(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.ruin_basis.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_ruin_basis(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "ruin_basis.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
     return snap

@@ -1,0 +1,15 @@
+{
+ "schema": "ahos.paper.kelly_count.v1",
+ "generated_at": "2026-10-25T16:27:07Z",
+ "paper_only": true,
+ "kelly_switched_on": false,
+ "label_rewritten": false,
+ "edge_claimed": false,
+ "open_rows": 31,
+ "close_rows": 30,
+ "stale_off_rows": 31,
+ "other_rows": 0,
+ "numeric_rows": 0,
+ "missing_rows": 0,
+ "status": "OFF_LABEL_COUNT_IS_STALE"
+}

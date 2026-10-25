@@ -273,7 +273,7 @@ def performance(trades: list[dict[str, Any]], seed: int = 7) -> dict[str, Any]:
             "profit_factor": round(sum(wins) / -sum(losses), 3) if losses and sum(losses) < 0 else None,
             "sharpe_per_trade": round(mean / sd, 3) if sd else None, "sortino_per_trade": round(mean / dsd, 3) if dsd else None,
             "max_drawdown_pct": round(mdd * 100, 2),
-            "promotion_gate": "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)" if n < 30 else "EVALUATE"}
+            "promotion_gate": "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)"}
 
 
 
@@ -622,7 +622,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         row = {**base, "event": "OPEN", "side": side, "quote_price": price, "fill_price": round(fill, 6), "qty": qty,
                "notional_usd": notional, "fee_usd": round(entry_fee, 6), "slippage_pct": slip, "stop_pct": round(stop_pct, 5),
                "take_pct": round(stop_pct * TAKE_MULT, 5), "equity_at_open_usd": round(equity, 4), "brain": brain,
-               "kelly": "OFF (n<30 closed trades, §6)", "oms": "ACCEPTED_PAPER"}
+               "kelly": "OFF (a close count does not switch Kelly on)", "oms": "ACCEPTED_PAPER"}
         row["ledger_hash"] = ledger.fill(row)
         log(row)
 
