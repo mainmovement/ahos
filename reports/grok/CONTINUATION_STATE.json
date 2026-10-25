@@ -387,8 +387,8 @@
     {
       "stage": "Stage 21",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "c20d2ac",
+      "arena_commit": "a322fd7",
       "trigger_status": "RULE_CONSISTENT",
       "take_profit_rows": 2,
       "take_profit_quote_beyond": 2,
