@@ -716,8 +716,8 @@
     {
       "stage": "Stage 30",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "720f1a4",
+      "arena_commit": "88dc9b6",
       "atr_status": "ATR_NOT_STORED",
       "open_rows": 31,
       "on_floor": 8,
