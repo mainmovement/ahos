@@ -679,8 +679,8 @@
     {
       "stage": "Stage 29",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "a187b75",
+      "arena_commit": "cc473b5",
       "stop_status": "FLOOR_HELD",
       "stop_min": 0.01,
       "stop_max": 0.03387,
