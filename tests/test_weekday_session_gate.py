@@ -611,3 +611,46 @@ def test_fill_follows_the_quote_and_the_cluster_stays_inside(tmp_path):
     assert cluster["status"] == "INSIDE_CLUSTER" and cluster["caps_changed"] is False
     assert cluster["positions_closed"] is False and cluster["above_cluster"] == 0
     assert cluster["still_open"] == ["ETH"] and "0x" not in json.dumps(cluster).lower()
+
+
+def test_stop_floor_holds_and_a_missing_funding_z_is_not_a_pass(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_entry_screens, measure_loss_limit, measure_stop_floor,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    rows = [
+        {
+            "event": "OPEN", "symbol": "BTC", "side": "LONG", "desk": "CRYPTO", "stop_pct": 0.01,
+            "brain": {"signals": [
+                {"name": "order_flow", "evidence": {"spread_gate_ok": True}},
+                {"name": "news", "available": True, "score": 0.1},
+                {"name": "funding_oi", "evidence": {"funding_z": None}},
+            ]},
+        },
+        {
+            "event": "CLOSE", "symbol": "BTC", "side": "LONG", "realized_pnl_usd": -0.1,
+            "closed_at": "2026-10-25T12:00:00Z",
+        },
+        {
+            "event": "OPEN", "symbol": "UNI", "side": "SHORT", "desk": "PB_TOKEN", "stop_pct": 0.02,
+            "brain": {"signals": [
+                {"name": "news", "available": True, "score": 0.0},
+            ]},
+        },
+    ]
+    (paper / "paper_trades.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    floor = measure_stop_floor(tmp_path)
+    assert floor["status"] == "FLOOR_HELD" and floor["floor_changed"] is False
+    assert floor["below_floor"] == 0 and floor["stop_min"] == 0.01 and floor["stop_max"] == 0.02
+    screens = measure_entry_screens(tmp_path)
+    assert screens["status"] == "FUNDING_Z_NOT_STORED" and screens["z_treated_as_clear"] is False
+    assert screens["spread_false"] == 0 and screens["news_against"] == 0 and screens["funding_z_rows"] == 0
+    loss = measure_loss_limit(tmp_path)
+    assert loss["status"] == "INSIDE_LIMIT" and loss["limits_changed"] is False
+    assert loss["daemon_halted"] is False and loss["marks_included"] is False
+    assert loss["day_breaches"] == 0 and loss["week_breaches"] == 0

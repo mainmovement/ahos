@@ -1,0 +1,18 @@
+{
+ "schema": "ahos.paper.entry_screens.v1",
+ "generated_at": "2026-10-25T15:18:35Z",
+ "paper_only": true,
+ "rule_changed": false,
+ "z_treated_as_clear": false,
+ "edge_claimed": false,
+ "open_rows": 30,
+ "crypto_rows": 21,
+ "other_rows": 9,
+ "spread_false": 0,
+ "spread_missing": 0,
+ "news_against": 0,
+ "news_missing": 0,
+ "funding_z_rows": 0,
+ "funding_crowded": 0,
+ "status": "FUNDING_Z_NOT_STORED"
+}

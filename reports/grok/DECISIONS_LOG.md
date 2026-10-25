@@ -807,3 +807,29 @@ The log gained one close after Stage 27. It is a PB_TOKEN short, reason `SIGNAL_
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. Reversal closes are now 13, of which 3 have positive gross and 10 have negative gross. Take-profit remains 2 and 0. Conflict remains 5 and 7. Net pnl on the refreshed fee identity is -0.175 USD. End equity is 99.825.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 75 checks, drift [], unknown []. Skip census at this export: 4036 rows, `MARKET_CLOSED_OR_STALE` 3855. Whitehat CLEAN, 6 checks. pytest 73 passed. Node stage6 bridge 6/6. The extra negative reversal is not an edge.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4330 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 29 stop floor, entry screens, loss limit
+
+### WP-29.1 — stored stops stay on the recorded floor
+- **Draft:** Every open stop must be at least 0.01. Do not change the floor.
+- **Critique 1:** 30 opens have a stop. 0 are missing. 0 are below the floor. The stored range is 0.01 to 0.03387.
+- **Critique 2 (meta):** Sitting on the floor means the floor bound that row. It is not a reason to lower the floor, and it is not an edge.
+- **Result:** `reports/grok/PAPER/stop_floor.json`. Status `FLOOR_HELD`. `floor_changed` false.
+
+### WP-29.2 — spread and news are stored; funding z is not
+- **Draft:** On a crypto open, `spread_gate_ok` must not be false. An available news score must not point against the side by more than 0.5. A missing funding z is counted and is not called a clear crowding check. Do not change the rules.
+- **Critique 1:** 21 crypto opens have a spread flag and 0 of those flags are false. 9 other opens are not on that rule. 30 opens have a news score and 0 point against the side. Numeric funding z is stored on 0 opens. Crowded rows are 0 because there is no z to compare, not because the check passed.
+- **Critique 2 (meta):** Absence is not clearance. The receipt status is `FUNDING_Z_NOT_STORED`. `z_treated_as_clear` is false.
+- **Result:** `reports/grok/PAPER/entry_screens.json`. `rule_changed` false.
+
+### WP-29.3 — trailing realized loss stays inside the kill-switch lines
+- **Draft:** After each close, the trailing 24-hour and 7-day realized sums are compared with 3 percent and 6 percent of equity. Marks are not in the sum. Do not change the limits. Do not halt the running process.
+- **Critique 1:** 27 closes are scored. 0 breach the day line. 0 breach the week line. The worst day ratio is -0.0057. The worst week ratio is -0.0018.
+- **Critique 2 (meta):** This is the realized book only. An open mark is not stored as a path, so this receipt does not say the halt could not have seen a mark. The daemon was not halted by this measurement.
+- **Result:** `reports/grok/PAPER/loss_limit.json`. Status `INSIDE_LIMIT`. `limits_changed` false. `marks_included` false. `daemon_halted` false.
+
+### WP-29.4 — checks 76 to 78
+- **Draft:** Each check recomputes the log. A stop receipt that changes the floor fails. A screen receipt that treats a missing z as clearance fails. A loss receipt that changes the limits or halts the daemon fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export BTC, ETH, and SOL were 8.35 to 8.65 hours old and were not closed. Closed paper trades remain 27.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 78 checks. Skip census at this export: 4047 rows, `MARKET_CLOSED_OR_STALE` 3865. Whitehat CLEAN, 6 checks. pytest 74 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` did not finish. Two probes stayed silent after the artifact section for longer than the usual two minutes. The validator process was stopped. The paper-trader and gold-soak processes were not stopped. This is not a product defect and it is not `VALIDATION PASSED`. The import gate stays `NOT_VERIFIED` until a later probe prints that line. A later probe, started 2026-10-25T15:43:45Z, also stayed silent after the artifact section. That validator was stopped. The paper-trader and gold-soak processes were not stopped. The import gate remains `NOT_VERIFIED`.

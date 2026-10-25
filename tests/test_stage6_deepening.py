@@ -821,6 +821,20 @@ def _ua_root(tmp_path):
         "caps": {"crypto": 0.35, "energy": 0.2, "equities": 0.4, "fx": 0.15, "metals": 0.2},
         "open_rows": 1, "scored_rows": 0, "missing_rows": 1, "above_cluster": 0, "above_gross": 0,
         "worst_cap_ratio": None, "worst_gross_ratio": None, "still_open": [], "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/stop_floor.json", {
+        "paper_only": True, "floor_changed": False, "edge_claimed": False, "min_stop": 0.01,
+        "open_rows": 1, "missing_rows": 1, "below_floor": 0, "stop_min": None, "stop_max": None,
+        "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/entry_screens.json", {
+        "paper_only": True, "rule_changed": False, "z_treated_as_clear": False, "edge_claimed": False,
+        "open_rows": 1, "crypto_rows": 0, "other_rows": 1, "spread_false": 0, "spread_missing": 0,
+        "news_against": 0, "news_missing": 1, "funding_z_rows": 0, "funding_crowded": 0,
+        "status": "INCOMPLETE"})
+    w("reports/grok/PAPER/loss_limit.json", {
+        "paper_only": True, "limits_changed": False, "daemon_halted": False, "marks_included": False,
+        "edge_claimed": False, "daily_limit": 0.03, "weekly_limit": 0.06, "close_rows": 0,
+        "missing_rows": 0, "day_breaches": 0, "week_breaches": 0, "worst_day_ratio": None,
+        "worst_week_ratio": None, "status": "NO_CLOSED_ROWS"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

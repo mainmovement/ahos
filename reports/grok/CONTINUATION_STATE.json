@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T15:12:00Z",
-  "current_stage": "Stage 29",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 29) in full. Do not rerun Stage 28. Do not change the fill formula. Do not treat a matching fill as an edge or a cash gap. Do not treat the signed open composite as a probability. Do not raise or lower a cluster cap. Do not close the three remaining shorts. Do not relabel the new reversal close. Do not rerun Stage 27. Do not treat stored council approved_paper True or a stored numeric Brier as authority. Do not rewrite historical debate blobs. Do not restart the daemon. Do not label a commutative swap as a passed test. Do not treat positive close gross as an edge. Do not add a reentry cooldown. Do not treat the pnl identity as a cash gap. Do not rerun Stage 26. Do not treat the participation rate as liquidity skill. Do not add a depth-disagreement haircut. Do not change the higher-timeframe rule. Do not close the four open positions. Do not rerun Stage 25. Do not lower the 0.25 entry gate. Do not raise a desk weight because the desk line was touched. Do not treat the quantity gap as a cash gap. Do not write the defaulted event multiplier back onto the four early opens. Do not close the four open positions. Do not widen the 1200-second stale gate. Do not rewrite historical source strings and do not copy an address into a receipt. Do not relabel a VERIFIED exit as a conflict. Do not add the fee split or the 0.0045 equity residual to the cash gap. Do not rewrite equity stamps. Do not treat a missing path key as zero marks and do not backfill mae or mfe. Do not change the 1.5 take multiple. Do not treat the fee table as an edge. Do not move the take-profit trigger from the quote to the fill. Do not delete a zero-score signal or exchange_netflow. Do not add the slippage drag to the cash gap. Do not delay a witness-conflict exit until the score flips. Do not rescale weight sums up to 1. Do not turn Kelly on. Do not restart the paper trader.",
+  "updated_at": "2026-10-25T15:55:00Z",
+  "current_stage": "Stage 30",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 30) in full. The import probe started 2026-10-25T15:43:45Z stayed silent after the artifact section and was stopped. Do not treat that silence as a product defect. Do not rerun Stage 29. Do not treat a missing funding z as a clear crowding check. Do not lower the 0.01 stop floor. Do not change the 3 percent or 6 percent loss lines. Do not halt the paper trader. Do not include marks in the realized loss sum. Do not rerun Stage 28. Do not change the fill formula. Do not treat a matching fill as an edge or a cash gap. Do not treat the signed open composite as a probability. Do not raise or lower a cluster cap. Do not close the three remaining shorts. Do not relabel the new reversal close. Do not rerun Stage 27. Do not treat stored council approved_paper True or a stored numeric Brier as authority. Do not rewrite historical debate blobs. Do not restart the daemon. Do not label a commutative swap as a passed test. Do not treat positive close gross as an edge. Do not add a reentry cooldown. Do not treat the pnl identity as a cash gap. Do not rerun Stage 26. Do not treat the participation rate as liquidity skill. Do not add a depth-disagreement haircut. Do not change the higher-timeframe rule. Do not close the four open positions. Do not rerun Stage 25. Do not lower the 0.25 entry gate. Do not raise a desk weight because the desk line was touched. Do not treat the quantity gap as a cash gap. Do not write the defaulted event multiplier back onto the four early opens. Do not close the four open positions. Do not widen the 1200-second stale gate. Do not rewrite historical source strings and do not copy an address into a receipt. Do not relabel a VERIFIED exit as a conflict. Do not add the fee split or the 0.0045 equity residual to the cash gap. Do not rewrite equity stamps. Do not treat a missing path key as zero marks and do not backfill mae or mfe. Do not change the 1.5 take multiple. Do not treat the fee table as an edge. Do not move the take-profit trigger from the quote to the fill. Do not delete a zero-score signal or exchange_netflow. Do not add the slippage drag to the cash gap. Do not delay a witness-conflict exit until the score flips. Do not rescale weight sums up to 1. Do not turn Kelly on. Do not restart the paper trader.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -675,6 +675,43 @@
       "validate_imports": "exit 0; 373 modules; evidence HOLD; Lane A 36/36; 4330 files",
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 29",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "stop_status": "FLOOR_HELD",
+      "stop_min": 0.01,
+      "stop_max": 0.03387,
+      "below_floor": 0,
+      "floor_changed": false,
+      "screen_status": "FUNDING_Z_NOT_STORED",
+      "crypto_rows": 21,
+      "spread_false": 0,
+      "news_against": 0,
+      "funding_z_rows": 0,
+      "z_treated_as_clear": false,
+      "loss_status": "INSIDE_LIMIT",
+      "day_breaches": 0,
+      "week_breaches": 0,
+      "worst_day_ratio": -0.0057,
+      "worst_week_ratio": -0.0018,
+      "marks_included": false,
+      "limits_changed": false,
+      "daemon_halted": false,
+      "open_age_hours_at_export": [8.35, 8.65],
+      "positions_closed": false,
+      "skip_rows_at_export": 4047,
+      "stale_skips_at_export": 3865,
+      "closed_paper_trades": 27,
+      "unification": "78/78 UNIFIED_CLEAN",
+      "pytest": "74 passed (test_weekday_session_gate.py + test_stage6_deepening.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN",
+      "validate_imports": "NOT_VERIFIED; probes stayed silent after the artifact section and the validator was stopped; daemons were not stopped",
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -682,14 +719,14 @@
     "Batch 8 admitted DSR is 0.0. PBO 0.4889 is batch8_admitted_only and does not promote a FAIL gate",
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
-    "Closed paper trades are 27 of 30. One PB_TOKEN short closed as SIGNAL_REVERSAL after 32853 seconds with negative gross. The running process wrote that close. Reversal gross is now 3 positive and 10 negative. Take-profit remains 2/0 and conflict remains 5/7. Net pnl is -0.175 USD and end equity is 99.825. Fills match the quote formula on 30 opens and 27 closes, max gap 0.0. Signed open composites run from 0.2593 to 0.6307, none below 0.25, and 27 closes copy the open composite. The largest cluster use is 0.8571 of the cap and the largest gross use is 0.30 of equity. At 15:08Z BTC, ETH, and SOL were 8.18 to 8.48 hours old and were not closed",
+    "Closed paper trades are 27 of 30. One PB_TOKEN short closed as SIGNAL_REVERSAL after 32853 seconds with negative gross. The running process wrote that close. Reversal gross is now 3 positive and 10 negative. Take-profit remains 2/0 and conflict remains 5/7. Net pnl is -0.175 USD and end equity is 99.825. Fills match the quote formula on 30 opens and 27 closes, max gap 0.0. Signed open composites run from 0.2593 to 0.6307, none below 0.25, and 27 closes copy the open composite. The largest cluster use is 0.8571 of the cap and the largest gross use is 0.30 of equity. All 30 stops are from 0.01 to 0.03387 and none are below the floor. Funding z is stored on 0 opens and that absence is not a clear crowding check. Trailing realized loss breached neither the 3 percent day line nor the 6 percent week line. Marks are not in that sum. At the Stage 29 export BTC, ETH, and SOL were 8.35 to 8.65 hours old and were not closed",
     "Open fees 0.181288 USD and close fees 0.305656 USD are itemized on the paper log and on none of the ledger fills. Close PnL on the ledger is already net of fees. The books were not rewritten",
     "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested. A number stored on 27 paper-log debate blobs is not that measurement",
     "Broker connectivity is not verified",
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 29: diagnostic sweep, then four work packages",
-    "Stage 30: the next measured gap, four work packages"
+    "Stage 30: diagnostic sweep, then four work packages",
+    "Stage 31: the next measured gap, four work packages"
   ]
 }

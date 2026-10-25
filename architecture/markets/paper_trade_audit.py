@@ -2934,6 +2934,214 @@ def write_cluster_cap(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_stop_floor(root: Path) -> dict[str, Any]:
+    """Stored stop against the recorded floor. The floor is not changed."""
+    from architecture.markets.paper_trader import MIN_STOP
+
+    missing = below = 0
+    stops: list[float] = []
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        stop = row.get("stop_pct")
+        if not isinstance(stop, (int, float)):
+            missing += 1
+            continue
+        stops.append(float(stop))
+        if float(stop) < MIN_STOP - 1e-9:
+            below += 1
+    opens = len(stops) + missing
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif below:
+        status = "BELOW_FLOOR"
+    else:
+        status = "FLOOR_HELD"
+    return {
+        "paper_only": True,
+        "floor_changed": False,
+        "edge_claimed": False,
+        "min_stop": MIN_STOP,
+        "open_rows": opens,
+        "missing_rows": missing,
+        "below_floor": below,
+        "stop_min": None if not stops else round(min(stops), 5),
+        "stop_max": None if not stops else round(max(stops), 5),
+        "status": status,
+    }
+
+
+def write_stop_floor(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.stop_floor.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_stop_floor(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "stop_floor.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_entry_screens(root: Path) -> dict[str, Any]:
+    """Spread and news on the accepted opens. A missing funding z is not a pass."""
+    crypto = other = spread_false = spread_missing = 0
+    news_against = news_missing = z_rows = crowded = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        desk = row.get("desk")
+        if desk == "CRYPTO":
+            crypto += 1
+        else:
+            other += 1
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        signals = brain.get("signals") if isinstance(brain.get("signals"), list) else []
+        names = {item.get("name"): item for item in signals if isinstance(item, dict)}
+        direction = _direction(row)
+        oflow = names.get("order_flow")
+        if desk == "CRYPTO":
+            if not isinstance(oflow, dict):
+                spread_missing += 1
+            elif (oflow.get("evidence") or {}).get("spread_gate_ok") is False:
+                spread_false += 1
+        fund = names.get("funding_oi")
+        z = (fund.get("evidence") or {}).get("funding_z") if isinstance(fund, dict) else None
+        if isinstance(z, (int, float)):
+            z_rows += 1
+            if direction is not None and ((direction > 0 and z >= 2.0) or (direction < 0 and z <= -2.0)):
+                crowded += 1
+        news = names.get("news")
+        score = news.get("score") if isinstance(news, dict) else None
+        if not isinstance(news, dict) or not isinstance(score, (int, float)):
+            news_missing += 1
+        elif news.get("available") and direction is not None and float(score) * direction < -0.5:
+            news_against += 1
+    opens = crypto + other
+    if opens == 0:
+        status = "NO_OPEN_ROWS"
+    elif spread_missing or news_missing:
+        status = "INCOMPLETE"
+    elif spread_false or news_against or crowded:
+        status = "SCREEN_HIT"
+    elif z_rows == 0:
+        status = "FUNDING_Z_NOT_STORED"
+    else:
+        status = "SCREENS_HELD"
+    return {
+        "paper_only": True,
+        "rule_changed": False,
+        "z_treated_as_clear": False,
+        "edge_claimed": False,
+        "open_rows": opens,
+        "crypto_rows": crypto,
+        "other_rows": other,
+        "spread_false": spread_false,
+        "spread_missing": spread_missing,
+        "news_against": news_against,
+        "news_missing": news_missing,
+        "funding_z_rows": z_rows,
+        "funding_crowded": crowded,
+        "status": status,
+    }
+
+
+def write_entry_screens(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.entry_screens.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_entry_screens(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "entry_screens.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def _row_ts(value: object) -> float | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return None
+
+
+def measure_loss_limit(root: Path) -> dict[str, Any]:
+    """Trailing realized loss against the kill-switch lines. Marks are not included."""
+    from architecture.markets.paper_account import INITIAL_CAPITAL_USD
+    from architecture.markets.paper_trader import DAILY_LOSS_LIMIT, WEEKLY_LOSS_LIMIT
+
+    closes = []
+    missing = 0
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        pnl = row.get("realized_pnl_usd")
+        stamp = _row_ts(row.get("closed_at") or row.get("ts"))
+        if not isinstance(pnl, (int, float)) or stamp is None:
+            missing += 1
+            continue
+        closes.append((stamp, float(pnl)))
+    day_breach = week_breach = 0
+    worst_day = worst_week = None
+    equity = float(INITIAL_CAPITAL_USD)
+    for stamp, pnl in closes:
+        equity += pnl
+        if equity <= 0:
+            missing += 1
+            continue
+        day = sum(value for when, value in closes if stamp - 86400 < when <= stamp)
+        week = sum(value for when, value in closes if stamp - 7 * 86400 < when <= stamp)
+        day_ratio = day / equity
+        week_ratio = week / equity
+        worst_day = day_ratio if worst_day is None else min(worst_day, day_ratio)
+        worst_week = week_ratio if worst_week is None else min(worst_week, week_ratio)
+        if day < -DAILY_LOSS_LIMIT * equity:
+            day_breach += 1
+        if week < -WEEKLY_LOSS_LIMIT * equity:
+            week_breach += 1
+    rows = len(closes) + missing
+    if rows == 0:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif day_breach or week_breach:
+        status = "LIMIT_BREACHED"
+    else:
+        status = "INSIDE_LIMIT"
+    return {
+        "paper_only": True,
+        "limits_changed": False,
+        "daemon_halted": False,
+        "marks_included": False,
+        "edge_claimed": False,
+        "daily_limit": DAILY_LOSS_LIMIT,
+        "weekly_limit": WEEKLY_LOSS_LIMIT,
+        "close_rows": rows,
+        "missing_rows": missing,
+        "day_breaches": day_breach,
+        "week_breaches": week_breach,
+        "worst_day_ratio": None if worst_day is None else round(worst_day, 4),
+        "worst_week_ratio": None if worst_week is None else round(worst_week, 4),
+        "status": status,
+    }
+
+
+def write_loss_limit(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.loss_limit.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_loss_limit(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "loss_limit.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",
