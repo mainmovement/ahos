@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T16:52:30Z",
-  "current_stage": "Stage 33",
-  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 33) in full. Do not rerun Stage 32. Do not treat a weight inside the recorded band as an edge. Do not rewrite signal_weights.json. Do not insert event_shock. Do not promote a zero-base signal. Do not store or quote the book Sharpe, Sortino, or expectancy magnitudes. Do not call those signs a deflated Sharpe. Do not treat the version number as skill. Do not close UNI or BTC. The running process opened BTC. Do not add a reentry cooldown. Do not restart the daemon. Do not rerun Stage 31. Do not treat 30 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability from the resample. The import probe started 2026-10-25T16:47:08Z passed. Do not treat the earlier silent probes as a product defect. Do not treat a stop above 0.01 as stored ATR. Do not copy an address. Do not relabel a witness skip as an exit. Do not treat a missing funding z as a clear crowding check. Do not lower the 0.01 stop floor. Do not change the 3 percent or 6 percent loss lines. Do not halt the paper trader. Do not change the fill formula. Do not treat the signed open composite as a probability. Do not raise or lower a cluster cap. Do not treat stored council approved_paper True or a stored numeric Brier as authority. Do not rewrite historical debate blobs. Do not label a commutative swap as a passed test. Do not treat positive close gross as an edge. Do not lower the 0.25 entry gate. Do not rescale weight sums up to 1.",
+  "updated_at": "2026-10-25T17:13:00Z",
+  "current_stage": "Stage 34",
+  "resume_instruction": "On ادامه بده or continue, execute current_stage (Stage 34) in full. Do not rerun Stage 33. Do not write lesson stats back onto the weight file. Do not backfill event_shock, macro_event, stablecoin, stablecoin_impulse, or whale_mempool. Do not remove stablecoin. Do not change the 0.1 lesson cutoff. Do not store the lesson hits. Do not add a reentry cooldown. Do not treat the 0.07 hour gap as an edge. Do not rewrite an open onto the live weight version. UNI entered at version 19 and BTC entered at version 22. Do not close UNI or BTC. Do not restart the daemon. Do not rerun Stage 32. Do not treat a weight inside the recorded band as an edge. Do not rewrite signal_weights.json. Do not store or quote the book Sharpe, Sortino, or expectancy magnitudes. Do not call those signs a deflated Sharpe. Do not treat 30 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability. The import probe started 2026-10-25T17:09:38Z passed. Do not treat a stop above 0.01 as stored ATR. Do not copy an address. Do not relabel a witness skip as an exit. Do not lower the 0.01 stop floor. Do not change the 3 percent or 6 percent loss lines. Do not change the fill formula. Do not treat the signed open composite as a probability. Do not raise or lower a cluster cap. Do not treat stored council approved_paper True or a stored numeric Brier as authority. Do not lower the 0.25 entry gate. Do not rescale weight sums up to 1.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -833,6 +833,49 @@
       "validate_imports": "PASSED; probe started 2026-10-25T16:47:08Z; exit 0; 373 modules; 4342 source files; Lane A 36/36",
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 33",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "lesson_status": "STATS_MATCH_THE_LOG",
+      "close_rows": 30,
+      "matched_signals": 9,
+      "file_ahead": 0,
+      "file_behind": 0,
+      "below_cutoff": 144,
+      "counted_rows": 157,
+      "no_stat_names": ["event_shock", "macro_event", "stablecoin", "stablecoin_impulse", "whale_mempool"],
+      "stats_backfilled": false,
+      "cutoff_changed": false,
+      "reentry_status": "REENTRY_NOT_BLOCKED",
+      "reentry_rows": 27,
+      "reentry_symbols": 5,
+      "min_gap_hours": 0.07,
+      "cooldown_added": false,
+      "entry_version_status": "ENTRY_VERSION_HELD",
+      "open_rows": 32,
+      "distinct_versions": 13,
+      "live_file_version": 22,
+      "opens_at_live_version": 1,
+      "still_open": [{"symbol": "BTC", "weights_version": 22}, {"symbol": "UNI", "weights_version": 19}],
+      "open_age_hours_at_export": {"UNI": 1.83, "BTC": 0.52},
+      "version_rewritten": false,
+      "positions_closed_by_stage": false,
+      "skip_rows_at_export": 4241,
+      "stale_skips_at_export": 4013,
+      "closed_paper_trades": 30,
+      "open_fee_usd_sum": 0.192931,
+      "open_rows_with_fee": 32,
+      "close_fees_usd_sum": 0.362348,
+      "unification": "90/90 UNIFIED_CLEAN",
+      "pytest": "78 passed (test_weekday_session_gate.py + test_stage6_deepening.py)",
+      "node_selftests": "stage6 bridge 6/6",
+      "whitehat": "CLEAN checks=6",
+      "validate_imports": "PASSED; probe started 2026-10-25T17:09:38Z; exit 0; 373 modules; 4345 source files; Lane A 36/36",
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -840,14 +883,14 @@
     "Batch 8 admitted DSR is 0.0. PBO 0.4889 is batch8_admitted_only and does not promote a FAIL gate",
     "H37 was screened (|rho|=0.927 vs H33) and was not counted. Diagnostic full-sample rebalances were 135 of 452, not <=65. tau_L1 stayed 0.25",
     "Historical calibrated Brier is 0.3158 and BSS is -0.2632. The inner fold chose l2=0.01. That choice was not revised on the 85 held-out episodes",
-    "Closed paper trades are 30. The count alone is not an edge and it is not a promotion: the lower bootstrap bound is not positive, DSR is not an input to the performance function, and the status file still stores the old word. The current function returns the not-eligible sentence. The running process has not loaded that change. 32 opens still carry an OFF label that says n<30. Kelly was not switched on and the labels were not rewritten. The ruin code would resample these 30 closes. No ruin probability was published. DSR, PBO, and red-team survival are unchanged. Reversal gross is 3 positive and 13 negative. Take-profit remains 2/0 and conflict remains 5/7. Overall gross is 10 positive and 20 negative. 32 opens have stops: 8 sit on 0.01, 24 are above it, and 0 store an ATR key. A wider stop is not an ATR proof. The weight file is version 22 with 21 history rows. Six weights moved and stayed inside the recorded band: candles, large_trades, macro, mtf_trend, news, and zscore_mr. Zero sit outside the band. event_shock is absent and was not inserted. Seven signals have n at least 10. Present zero-base weights stayed at zero. The weight file was not rewritten and the move is not an edge. Sharpe, Sortino, and expectancy signs on the 30 closes are negative. Those signs are not a deflated Sharpe and the magnitudes were not stored. 62 skip, hold, or refusal sources still carry an address under the geckoterminal label, and the receipt does not copy it. 23 witness skips are WITNESS_CONFLICT and are not exits. Funding z is stored on 0 opens. Trailing realized loss did not breach the 3 percent or 6 percent lines. Worst day ratio -0.0081. Worst week ratio -0.0026. At the Stage 32 export UNI was 1.44 hours old and BTC was 0.13 hours old. The running process opened BTC. This stage did not open or close either position",
-    "Open fees 0.188775 USD across 31 opens and close fees 0.362348 USD across 30 closes are itemized on the paper log and on none of the ledger fills. Close PnL on the ledger is already net of fees. The books were not rewritten. The sums changed because the running process appended rows",
+    "Closed paper trades are 30. The count alone is not an edge and it is not a promotion: the lower bootstrap bound is not positive, DSR is not an input to the performance function, and the status file still stores the old word. The current function returns the not-eligible sentence. The running process has not loaded that change. 32 opens still carry an OFF label that says n<30. Kelly was not switched on and the labels were not rewritten. The ruin code would resample these 30 closes. No ruin probability was published. DSR, PBO, and red-team survival are unchanged. Reversal gross is 3 positive and 13 negative. Take-profit remains 2/0 and conflict remains 5/7. Overall gross is 10 positive and 20 negative. 32 opens have stops: 8 sit on 0.01, 24 are above it, and 0 store an ATR key. A wider stop is not an ATR proof. The weight file is version 22 with 21 history rows. Six weights moved and stayed inside the recorded band: candles, large_trades, macro, mtf_trend, news, and zscore_mr. Zero sit outside the band. event_shock is absent and was not inserted. Seven signals have n at least 10. Present zero-base weights stayed at zero. The weight file was not rewritten and the move is not an edge. Sharpe, Sortino, and expectancy signs on the 30 closes are negative. Those signs are not a deflated Sharpe and the magnitudes were not stored. 62 skip, hold, or refusal sources still carry an address under the geckoterminal label, and the receipt does not copy it. 23 witness skips are WITNESS_CONFLICT and are not exits. Funding z is stored on 0 opens. Trailing realized loss did not breach the 3 percent or 6 percent lines. Worst day ratio -0.0081. Worst week ratio -0.0026. At the Stage 33 export UNI was 1.83 hours old and BTC was 0.52 hours old. UNI entered at weight version 19 and BTC entered at version 22. The live file is version 22 and only 1 of 32 opens used it. Neither open was rewritten. Nine lesson signals match the close replay. The file is not ahead of the log and not behind it. 144 contribution rows sit under the 0.1 cutoff and 157 were counted. event_shock, macro_event, stablecoin, stablecoin_impulse, and whale_mempool have no lesson stat and were not backfilled. 27 later opens follow a close of the same symbol, across 5 symbols. The shortest gap is 0.07 hours. No cooldown was added. This stage did not open or close either position",
+    "Open fees 0.192931 USD across 32 opens and close fees 0.362348 USD across 30 closes are itemized on the paper log and on none of the ledger fills. Close PnL on the ledger is already net of fees. The books were not rewritten. The open-fee sum changed because the running process appended an open",
     "Judge Brier is unmeasured. Four of fourteen council rows cite a scorecard signal with n_eff>=30. The inequality against the judge was not tested. A number stored on 27 paper-log debate blobs is not that measurement",
     "Broker connectivity is not verified",
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 33: diagnostic sweep, then four work packages",
-    "Stage 34: the next measured gap, four work packages"
+    "Stage 34: diagnostic sweep, then four work packages",
+    "Stage 35: the next measured gap, four work packages"
   ]
 }

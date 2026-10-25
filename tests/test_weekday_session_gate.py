@@ -770,3 +770,58 @@ def test_a_weight_inside_the_band_is_not_an_edge(tmp_path):
     assert history["matches"] is True and history["history_rows"] == 1
     assert history["version"] == 2 and history["file_rewritten"] is False
     assert history["edge_claimed"] is False
+
+
+def test_a_matching_lesson_count_is_not_written_back(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_entry_version, measure_lesson_stats, measure_reentry_gap,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    rows = [
+        {"event": "OPEN", "symbol": "BTC", "ts": "2026-10-25T00:00:00Z",
+         "brain": {"weights_version": 1}},
+        {"event": "CLOSE", "symbol": "BTC", "side": "LONG", "realized_pnl_usd": -0.01,
+         "closed_at": "2026-10-25T01:00:00Z",
+         "entry_brain": {"contributions": [
+             {"signal": "candles", "score": -0.4},
+             {"signal": "macro", "score": 0.05},
+         ]}},
+        {"event": "OPEN", "symbol": "BTC", "ts": "2026-10-25T02:00:00Z",
+         "brain": {"weights_version": 1}},
+    ]
+    (paper / "paper_trades.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    (paper / "signal_weights.json").write_text(json.dumps({
+        "version": 2,
+        "stats": {"candles": {"n": 1, "hits": 1}},
+        "history": [{"version": 1}],
+    }), encoding="utf-8")
+    lesson = measure_lesson_stats(tmp_path)
+    assert lesson["status"] == "STATS_MATCH_THE_LOG"
+    assert lesson["matched_signals"] == 1 and lesson["file_ahead"] == 0
+    assert lesson["file_behind"] == 0 and lesson["below_cutoff"] == 1
+    assert lesson["counted_rows"] == 1 and "stablecoin" in lesson["no_stat_names"]
+    assert lesson["file_rewritten"] is False and lesson["stats_backfilled"] is False
+    assert lesson["cutoff_changed"] is False and lesson["edge_claimed"] is False
+    assert "hits" not in json.dumps(lesson)
+    stored = json.loads((paper / "signal_weights.json").read_text(encoding="utf-8"))
+    stored["stats"]["candles"]["n"] = 4
+    (paper / "signal_weights.json").write_text(json.dumps(stored), encoding="utf-8")
+    ahead = measure_lesson_stats(tmp_path)
+    assert ahead["status"] == "FILE_AHEAD_OF_THE_LOG" and ahead["file_ahead"] == 1
+    assert json.loads((paper / "signal_weights.json").read_text(encoding="utf-8"))["stats"]["candles"]["n"] == 4
+    gap = measure_reentry_gap(tmp_path)
+    assert gap["status"] == "REENTRY_NOT_BLOCKED"
+    assert gap["reentry_rows"] == 1 and gap["distinct_symbols"] == 1
+    assert gap["min_gap_hours"] == 1.0 and gap["cooldown_added"] is False
+    assert gap["edge_claimed"] is False
+    version = measure_entry_version(tmp_path)
+    assert version["status"] == "ENTRY_VERSION_HELD"
+    assert version["open_rows"] == 2 and version["missing_version"] == 0
+    assert version["live_file_version"] == 2 and version["opens_at_live_version"] == 0
+    assert version["still_open"] == [{"symbol": "BTC", "weights_version": 1}]
+    assert version["version_rewritten"] is False and version["edge_claimed"] is False

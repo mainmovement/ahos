@@ -868,6 +868,19 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/weight_history.json", {
         "paper_only": True, "file_rewritten": False, "edge_claimed": False, "file_present": False,
         "version": None, "history_rows": None, "matches": False, "status": "NO_WEIGHT_FILE"})
+    w("reports/grok/PAPER/lesson_stats.json", {
+        "paper_only": True, "file_rewritten": False, "stats_backfilled": False, "cutoff_changed": False,
+        "edge_claimed": False, "close_rows": 0, "missing_brain": 0, "below_cutoff": 0, "counted_rows": 0,
+        "matched_signals": 0, "file_ahead": 0, "file_behind": 0, "no_stat_names": [],
+        "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/reentry_gap.json", {
+        "paper_only": True, "cooldown_added": False, "edge_claimed": False, "reentry_rows": 0,
+        "distinct_symbols": 0, "min_gap_hours": None, "missing_stamp": 0, "status": "NO_REENTRY"})
+    w("reports/grok/PAPER/entry_version.json", {
+        "paper_only": True, "version_rewritten": False, "edge_claimed": False, "open_rows": 1,
+        "missing_version": 1, "distinct_versions": 0, "live_file_version": None,
+        "opens_at_live_version": 0, "version_counts": {},
+        "still_open": [{"symbol": "BTC", "weights_version": None}], "status": "VERSION_MISSING"})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

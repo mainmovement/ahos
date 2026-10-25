@@ -915,3 +915,31 @@ Scope: Lane B measurement and the Arena read-only lines. Lane A was not edited. 
 - **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export UNI was 1.44 hours old and BTC was 0.13 hours old. The running process opened BTC. This stage did not open or close either position. Closed paper trades remain 30. Overall gross remains 10 positive and 20 negative. The refreshed open book is 32 opens, 8 stops on 0.01, 24 above it, and 0 ATR keys. All 32 opens still carry the OFF label that says n<30. Kelly was not switched on.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 87 checks, drift [], unknown []. Skip census at this export: 4193 rows, `MARKET_CLOSED_OR_STALE` 3976. Whitehat CLEAN, 6 checks. pytest 77 passed. Node stage6 bridge 6/6. Thirty closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
 - **Verification:** `scripts/validate_imports.py` started 2026-10-25T16:47:08Z and exited 0. 373 modules imported cleanly. 4342 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 33 lesson replay, reentry gap, entry version
+
+Scope: Lane B measurement and the Arena read-only lines. Lane A was not edited. The weight file was read and not rewritten. No cooldown was added. UNI and BTC were not closed. The paper trader was not restarted.
+
+### WP-33.1 — a matching lesson count is not written back
+- **Draft:** Replay the close lesson from the stored contributions. Compare n and hits with the weight file. Do not store the hits. Do not backfill a name that never cleared the 0.1 cutoff. Do not remove stablecoin.
+- **Critique 1:** 30 closes. 9 signals match. The file is not ahead of the log and not behind it. 144 contribution rows sit under the cutoff. 157 were counted. Five names have no lesson stat: event_shock, macro_event, stablecoin, stablecoin_impulse, and whale_mempool.
+- **Critique 2 (meta):** A match says the file and the closes used the same count. It does not say the hits are skill. The cutoff stays 0.1.
+- **Result:** `reports/grok/PAPER/lesson_stats.json`. Status `STATS_MATCH_THE_LOG`. `stats_backfilled` false. `file_rewritten` false.
+
+### WP-33.2 — a later open is not a cooldown
+- **Draft:** Count an open that follows a close of the same symbol. Record the shortest gap. Do not add a cooldown.
+- **Critique 1:** 27 such opens, across 5 symbols. The shortest gap is 0.07 hours. No stamp was missing.
+- **Critique 2 (meta):** A short gap is a property of this book. It is not an edge and it is not a new rule.
+- **Result:** `reports/grok/PAPER/reentry_gap.json`. Status `REENTRY_NOT_BLOCKED`. `cooldown_added` false.
+
+### WP-33.3 — an open keeps the version it entered with
+- **Draft:** Read `weights_version` from the open brain. Compare it with the live file version. Do not rewrite an open onto the live version.
+- **Critique 1:** 32 opens store a version. 13 versions appear. The live file is version 22 and 1 open used it. UNI entered at version 19. BTC entered at version 22.
+- **Critique 2 (meta):** The live file version is the writer's counter. It is not the version that scored UNI, and it is not skill.
+- **Result:** `reports/grok/PAPER/entry_version.json`. Status `ENTRY_VERSION_HELD`. `version_rewritten` false.
+
+### WP-33.4 — checks 88 to 90
+- **Draft:** Each check recomputes the log. A receipt that rewrites the stats, adds a cooldown, or rewrites an entry version fails.
+- **Critique 1:** The panel copies the three statuses. Each missing file stays a not-run sentence. At the export UNI was 1.83 hours old and BTC was 0.52 hours old. This stage did not open or close either position. Closed paper trades remain 30.
+- **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 90 checks, drift [], unknown []. Skip census at this export: 4241 rows, `MARKET_CLOSED_OR_STALE` 4013. Whitehat CLEAN, 6 checks. pytest 78 passed. Node stage6 bridge 6/6. Thirty closed trades do not prove an edge. DSR, PBO, and red-team survival are unchanged. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-25T17:09:38Z and exited 0. 373 modules imported cleanly. 4345 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped.

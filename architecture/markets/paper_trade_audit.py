@@ -3649,6 +3649,250 @@ def write_weight_history(root: Path) -> dict[str, Any]:
     return snap
 
 
+def _iso_stamp(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def measure_lesson_stats(root: Path) -> dict[str, Any]:
+    """Replay the close lesson. A matching count is not an edge and is not written back."""
+    from architecture.markets.signal_brain import DEFAULT_WEIGHTS
+
+    closes = [row for row in _log_rows(root) if row.get("event") == "CLOSE"]
+    empty = {
+        "paper_only": True,
+        "file_rewritten": False,
+        "stats_backfilled": False,
+        "cutoff_changed": False,
+        "edge_claimed": False,
+        "close_rows": 0,
+        "missing_brain": 0,
+        "below_cutoff": 0,
+        "counted_rows": 0,
+        "matched_signals": 0,
+        "file_ahead": 0,
+        "file_behind": 0,
+        "no_stat_names": [],
+        "status": "NO_CLOSED_ROWS",
+    }
+    if not closes:
+        return empty
+    replay: dict[str, list[int]] = {}
+    missing = below = counted = 0
+    for row in closes:
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else None
+        contribs = brain.get("contributions") if brain else None
+        pnl = row.get("realized_pnl_usd")
+        side = row.get("side")
+        if (not isinstance(contribs, list) or isinstance(pnl, bool)
+                or not isinstance(pnl, (int, float)) or side not in ("LONG", "SHORT")):
+            missing += 1
+            continue
+        win = float(pnl) > 0
+        direction = 1 if side == "LONG" else -1
+        for item in contribs:
+            if not isinstance(item, dict):
+                continue
+            score = item.get("score")
+            name = item.get("signal")
+            if isinstance(score, bool) or not isinstance(score, (int, float)) or not isinstance(name, str):
+                continue
+            if abs(float(score)) < 0.1:
+                below += 1
+                continue
+            counted += 1
+            cell = replay.setdefault(name, [0, 0])
+            cell[0] += 1
+            cell[1] += int((float(score) * direction > 0) == win)
+    doc = _weights_doc(root)
+    stats = doc.get("stats") if isinstance(doc, dict) and isinstance(doc.get("stats"), dict) else {}
+    matched = ahead = behind = 0
+    no_stat: list[str] = []
+    if isinstance(doc, dict):
+        for name in DEFAULT_WEIGHTS:
+            cell = replay.get(name)
+            st = stats.get(name) if isinstance(stats.get(name), dict) else None
+            if cell is None and st is None:
+                no_stat.append(name)
+                continue
+            file_n = st.get("n") if st else None
+            file_hits = st.get("hits") if st else None
+            replay_n, replay_hits = cell if cell else (0, 0)
+            if file_n == replay_n and file_hits == replay_hits:
+                matched += 1
+            elif isinstance(file_n, int) and not isinstance(file_n, bool) and file_n > replay_n:
+                ahead += 1
+            else:
+                behind += 1
+        for name in stats:
+            if name not in DEFAULT_WEIGHTS:
+                behind += 1
+    if doc is None:
+        status = "NO_WEIGHT_FILE"
+    elif missing:
+        status = "INCOMPLETE"
+    elif ahead:
+        status = "FILE_AHEAD_OF_THE_LOG"
+    elif behind:
+        status = "FILE_BEHIND_THE_LOG"
+    else:
+        status = "STATS_MATCH_THE_LOG"
+    return {
+        "paper_only": True,
+        "file_rewritten": False,
+        "stats_backfilled": False,
+        "cutoff_changed": False,
+        "edge_claimed": False,
+        "close_rows": len(closes),
+        "missing_brain": missing,
+        "below_cutoff": below,
+        "counted_rows": counted,
+        "matched_signals": matched,
+        "file_ahead": ahead,
+        "file_behind": behind,
+        "no_stat_names": sorted(no_stat),
+        "status": status,
+    }
+
+
+def write_lesson_stats(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.lesson_stats.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_lesson_stats(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "lesson_stats.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_reentry_gap(root: Path) -> dict[str, Any]:
+    """A later open of a closed symbol is not a cooldown and not an edge."""
+    last_close: dict[str, datetime] = {}
+    gaps: list[float] = []
+    symbols: set[str] = set()
+    missing_stamp = 0
+    for row in _log_rows(root):
+        sym = row.get("symbol")
+        event = row.get("event")
+        if not isinstance(sym, str) or event not in ("OPEN", "CLOSE"):
+            continue
+        if event == "CLOSE":
+            stamp = _iso_stamp(row.get("closed_at"))
+            if stamp is None:
+                missing_stamp += 1
+                continue
+            last_close[sym] = stamp
+            continue
+        prev = last_close.get(sym)
+        if prev is None:
+            continue
+        stamp = _iso_stamp(row.get("ts") or row.get("opened_at"))
+        if stamp is None or stamp <= prev:
+            missing_stamp += 1
+            continue
+        gaps.append((stamp - prev).total_seconds() / 3600)
+        symbols.add(sym)
+    if missing_stamp:
+        status = "INCOMPLETE"
+    elif gaps:
+        status = "REENTRY_NOT_BLOCKED"
+    else:
+        status = "NO_REENTRY"
+    return {
+        "paper_only": True,
+        "cooldown_added": False,
+        "edge_claimed": False,
+        "reentry_rows": len(gaps),
+        "distinct_symbols": len(symbols),
+        "min_gap_hours": None if not gaps else round(min(gaps), 2),
+        "missing_stamp": missing_stamp,
+        "status": status,
+    }
+
+
+def write_reentry_gap(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.reentry_gap.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_reentry_gap(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "reentry_gap.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_entry_version(root: Path) -> dict[str, Any]:
+    """An open keeps the weight version it entered with. That version is not the live file."""
+    versions: dict[str, int] = {}
+    last: dict[str, tuple[str, int | None]] = {}
+    open_rows = missing = at_live = 0
+    for row in _log_rows(root):
+        sym = row.get("symbol")
+        event = row.get("event")
+        if not isinstance(sym, str) or event not in ("OPEN", "CLOSE"):
+            continue
+        if event == "CLOSE":
+            last[sym] = ("CLOSE", None)
+            continue
+        brain = row.get("brain") if isinstance(row.get("brain"), dict) else None
+        version = brain.get("weights_version") if brain else None
+        version = version if isinstance(version, int) and not isinstance(version, bool) else None
+        open_rows += 1
+        if version is None:
+            missing += 1
+        else:
+            key = str(version)
+            versions[key] = versions.get(key, 0) + 1
+        last[sym] = ("OPEN", version)
+    doc = _weights_doc(root)
+    live = doc.get("version") if isinstance(doc, dict) else None
+    live = live if isinstance(live, int) and not isinstance(live, bool) else None
+    if live is not None:
+        at_live = versions.get(str(live), 0)
+    still = [
+        {"symbol": sym, "weights_version": version}
+        for sym, (event, version) in sorted(last.items()) if event == "OPEN"
+    ]
+    if open_rows == 0:
+        status = "NO_OPEN_ROWS"
+    elif missing:
+        status = "VERSION_MISSING"
+    else:
+        status = "ENTRY_VERSION_HELD"
+    return {
+        "paper_only": True,
+        "version_rewritten": False,
+        "edge_claimed": False,
+        "open_rows": open_rows,
+        "missing_version": missing,
+        "distinct_versions": len(versions),
+        "live_file_version": live,
+        "opens_at_live_version": at_live,
+        "version_counts": versions,
+        "still_open": still,
+        "status": status,
+    }
+
+
+def write_entry_version(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.entry_version.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_entry_version(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "entry_version.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

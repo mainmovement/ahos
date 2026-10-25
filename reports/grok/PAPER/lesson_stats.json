@@ -1,0 +1,24 @@
+{
+ "schema": "ahos.paper.lesson_stats.v1",
+ "generated_at": "2026-10-25T17:08:29Z",
+ "paper_only": true,
+ "file_rewritten": false,
+ "stats_backfilled": false,
+ "cutoff_changed": false,
+ "edge_claimed": false,
+ "close_rows": 30,
+ "missing_brain": 0,
+ "below_cutoff": 144,
+ "counted_rows": 157,
+ "matched_signals": 9,
+ "file_ahead": 0,
+ "file_behind": 0,
+ "no_stat_names": [
+  "event_shock",
+  "macro_event",
+  "stablecoin",
+  "stablecoin_impulse",
+  "whale_mempool"
+ ],
+ "status": "STATS_MATCH_THE_LOG"
+}
