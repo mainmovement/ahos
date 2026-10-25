@@ -1,0 +1,13 @@
+{
+ "schema": "ahos.paper.kelly_label.v1",
+ "generated_at": "2026-10-25T09:03:07Z",
+ "paper_only": true,
+ "kelly_switched_on": false,
+ "open_rows": 30,
+ "label_counts": {
+  "OFF (n<30 closed trades, §6)": 30
+ },
+ "numeric_rows": 0,
+ "missing_rows": 0,
+ "status": "UNIFORM_OFF_LABEL"
+}

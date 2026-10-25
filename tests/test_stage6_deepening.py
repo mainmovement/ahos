@@ -680,6 +680,21 @@ def _ua_root(tmp_path):
     w("reports/grok/PAPER/stored_witness_fields.json", {
         "paper_only": True, "exit_rule_changed": False, "close_rows": 0,
         "tolerance_stored": 0, "pair_stored": 0, "address_shaped_pair_stored": 0})
+    w("reports/grok/PAPER/entry_gate.json", {
+        "paper_only": True, "edge_claimed": False, "close_rows": 0, "scored_rows": 0,
+        "signed_min": None, "signed_max": None, "at_or_above_threshold": 0, "wins": 0, "losses": 0,
+        "realized_pnl_usd": 0.0, "raw_outside_unit_interval": 0, "brier": None,
+        "brier_status": "NOT_RUN", "status": "NO_CLOSED_ROWS"})
+    w("reports/grok/PAPER/kelly_label.json", {
+        "paper_only": True, "kelly_switched_on": False, "open_rows": 1, "label_counts": {},
+        "numeric_rows": 0, "missing_rows": 1, "status": "KELLY_FIELD_ABSENT"})
+    w("reports/grok/PAPER/fee_identity.json", {
+        "paper_only": True, "edge_claimed": False, "added_to_cash_gap": False,
+        "open_fee_usd": 0.0, "closed_entry_fee_usd": 0.0, "still_open_entry_fee_usd": 0.0,
+        "close_fees_usd": 0.0, "net_pnl_usd": 0.0, "implied_gross_usd": 0.0, "status": "NO_CLOSES"})
+    w("reports/grok/PAPER/weight_vintage.json", {
+        "paper_only": True, "comparison_claimed": False, "close_rows": 0, "largest_cell": 0,
+        "versions": [], "status": "NO_CLOSED_ROWS", "sample_gate": 30})
     w("reports/grok/PAPER/reversal_anatomy.json", {
         "paper_only": True, "exit_rule_changed": False, "threshold": 0.25, "rows": 0,
         "signed_composite_n": 0, "all_at_or_beyond_threshold": True, "signed_composite_min": None,

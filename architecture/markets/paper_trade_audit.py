@@ -689,6 +689,254 @@ def write_stored_witness_fields(root: Path) -> dict[str, Any]:
     return snap
 
 
+def measure_entry_gate(root: Path) -> dict[str, Any]:
+    """Signed entry composite against the recorded 0.25 gate. The score is not a probability."""
+    from architecture.markets.paper_trader import ENTRY
+
+    scored: list[float] = []
+    pnls: list[float] = []
+    missing = raw_outside = 0
+    closes = 0
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        closes += 1
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+        composite = brain.get("composite")
+        side = row.get("side")
+        pnl = row.get("realized_pnl_usd")
+        if side not in ("LONG", "SHORT") or not isinstance(composite, (int, float)) or not isinstance(pnl, (int, float)):
+            missing += 1
+            continue
+        value = float(composite)
+        if value < 0 or value > 1:
+            raw_outside += 1
+        direction = 1.0 if side == "LONG" else -1.0
+        scored.append(round(value * direction, 4))
+        pnls.append(float(pnl))
+    above = sum(1 for value in scored if value >= ENTRY)
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif above != len(scored):
+        status = "BELOW_RECORDED_THRESHOLD"
+    else:
+        status = "GATE_HELD_NOT_A_PROBABILITY"
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "gate_changed": False,
+        "threshold": ENTRY,
+        "close_rows": closes,
+        "scored_rows": len(scored),
+        "missing_rows": missing,
+        "signed_min": min(scored) if scored else None,
+        "signed_max": max(scored) if scored else None,
+        "at_or_above_threshold": above,
+        "wins": sum(1 for value in pnls if value > 0),
+        "losses": sum(1 for value in pnls if value < 0),
+        "flat": sum(1 for value in pnls if value == 0),
+        "realized_pnl_usd": round(sum(pnls), 4),
+        "raw_outside_unit_interval": raw_outside,
+        "brier": None,
+        "brier_status": "NOT_A_PROBABILITY" if scored else "NOT_RUN",
+        "status": status,
+    }
+
+
+def write_entry_gate(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.entry_gate.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_entry_gate(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "entry_gate.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_kelly_label(root: Path) -> dict[str, Any]:
+    """The stored kelly field. This measurement does not turn Kelly on."""
+    from collections import Counter
+
+    labels: Counter[str] = Counter()
+    numeric = missing = opens = 0
+    for row in _log_rows(root):
+        if row.get("event") != "OPEN":
+            continue
+        opens += 1
+        kelly = row.get("kelly")
+        if isinstance(kelly, str) and kelly:
+            labels[kelly] += 1
+        elif isinstance(kelly, (int, float)):
+            numeric += 1
+        else:
+            missing += 1
+    if opens == 0:
+        status = "NO_OPENS"
+    elif numeric:
+        status = "NUMERIC_KELLY_PRESENT"
+    elif missing == opens:
+        status = "KELLY_FIELD_ABSENT"
+    elif missing:
+        status = "MIXED"
+    elif len(labels) == 1 and "OFF" in next(iter(labels)):
+        status = "UNIFORM_OFF_LABEL"
+    elif len(labels) == 1:
+        status = "UNIFORM_LABEL"
+    else:
+        status = "MIXED"
+    return {
+        "paper_only": True,
+        "kelly_switched_on": False,
+        "open_rows": opens,
+        "label_counts": dict(labels),
+        "numeric_rows": numeric,
+        "missing_rows": missing,
+        "status": status,
+    }
+
+
+def write_kelly_label(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.kelly_label.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_kelly_label(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "kelly_label.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_fee_identity(root: Path) -> dict[str, Any]:
+    """Net pnl plus close fees is the log's implied gross. It is not a second cash gap."""
+    from collections import defaultdict, deque
+
+    queues: dict[str, deque] = defaultdict(deque)
+    open_fee = closed_entry_fee = still_open_fee = close_fees = net = 0.0
+    opens = closes = unmatched = missing_open_fee = 0
+    for row in _log_rows(root):
+        symbol = str(row.get("symbol") or "")
+        if row.get("event") == "OPEN":
+            opens += 1
+            queues[symbol].append(row)
+            if isinstance(row.get("fee_usd"), (int, float)):
+                open_fee += float(row["fee_usd"])
+            else:
+                missing_open_fee += 1
+        elif row.get("event") == "CLOSE":
+            closes += 1
+            if isinstance(row.get("fees_usd"), (int, float)):
+                close_fees += float(row["fees_usd"])
+            if isinstance(row.get("realized_pnl_usd"), (int, float)):
+                net += float(row["realized_pnl_usd"])
+            if queues[symbol]:
+                opened = queues[symbol].popleft()
+                if isinstance(opened.get("fee_usd"), (int, float)):
+                    closed_entry_fee += float(opened["fee_usd"])
+            else:
+                unmatched += 1
+    for queue in queues.values():
+        for opened in queue:
+            if isinstance(opened.get("fee_usd"), (int, float)):
+                still_open_fee += float(opened["fee_usd"])
+    return {
+        "paper_only": True,
+        "edge_claimed": False,
+        "added_to_cash_gap": False,
+        "open_rows": opens,
+        "close_rows": closes,
+        "open_fee_usd": round(open_fee, 6),
+        "closed_entry_fee_usd": round(closed_entry_fee, 6),
+        "still_open_entry_fee_usd": round(still_open_fee, 6),
+        "close_fees_usd": round(close_fees, 6),
+        "net_pnl_usd": round(net, 4),
+        "implied_gross_usd": round(net + close_fees, 6),
+        "missing_open_fee": missing_open_fee,
+        "unmatched_closes": unmatched,
+        "status": "NO_CLOSES" if closes == 0 else "IDENTITY_OF_THE_LOG",
+    }
+
+
+def write_fee_identity(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.fee_identity.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_fee_identity(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "fee_identity.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
+def measure_weight_vintage(root: Path) -> dict[str, Any]:
+    """Close pnl by stored weights version. Small cells are not a comparison."""
+    from collections import defaultdict
+
+    cells: dict[str, list[float]] = defaultdict(lambda: [0, 0.0])
+    missing = closes = 0
+    for row in _log_rows(root):
+        if row.get("event") != "CLOSE":
+            continue
+        closes += 1
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+        version = brain.get("weights_version")
+        pnl = row.get("realized_pnl_usd")
+        if version is None or not isinstance(pnl, (int, float)):
+            missing += 1
+            continue
+        key = str(version)
+        cells[key][0] += 1
+        cells[key][1] += float(pnl)
+
+    def _order(key: str) -> tuple:
+        try:
+            return (0, int(key))
+        except ValueError:
+            return (1, key)
+
+    versions = [{
+        "weights_version": key,
+        "closes": cells[key][0],
+        "realized_pnl_usd": round(cells[key][1], 4),
+    } for key in sorted(cells, key=_order)]
+    largest = max((item["closes"] for item in versions), default=0)
+    if closes == 0:
+        status = "NO_CLOSED_ROWS"
+    elif missing:
+        status = "INCOMPLETE"
+    elif largest < 30:
+        status = "TOO_SMALL_TO_COMPARE"
+    else:
+        status = "COMPARABLE_CELL_PRESENT"
+    return {
+        "paper_only": True,
+        "comparison_claimed": False,
+        "sample_gate": 30,
+        "close_rows": closes,
+        "missing_rows": missing,
+        "largest_cell": largest,
+        "versions": versions,
+        "status": status,
+    }
+
+
+def write_weight_vintage(root: Path) -> dict[str, Any]:
+    snap = {
+        "schema": "ahos.paper.weight_vintage.v1",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **measure_weight_vintage(root),
+    }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "weight_vintage.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
+    return snap
+
+
 def write_skip_census(root: Path) -> dict[str, Any]:
     snap = {
         "schema": "ahos.paper.skip_census.v1",

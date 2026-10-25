@@ -1,0 +1,22 @@
+{
+ "schema": "ahos.paper.entry_gate.v1",
+ "generated_at": "2026-10-25T09:03:06Z",
+ "paper_only": true,
+ "edge_claimed": false,
+ "gate_changed": false,
+ "threshold": 0.25,
+ "close_rows": 26,
+ "scored_rows": 26,
+ "missing_rows": 0,
+ "signed_min": 0.2593,
+ "signed_max": 0.6307,
+ "at_or_above_threshold": 26,
+ "wins": 9,
+ "losses": 17,
+ "flat": 0,
+ "realized_pnl_usd": -0.1381,
+ "raw_outside_unit_interval": 19,
+ "brier": null,
+ "brier_status": "NOT_A_PROBABILITY",
+ "status": "GATE_HELD_NOT_A_PROBABILITY"
+}

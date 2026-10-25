@@ -519,3 +519,29 @@ The user brief named ahos `1191918`. That commit is the parent of `7c966bf` (the
 - **Critique 1:** The panel copies the symbol count, the open-book status, and the stored-field counts. Each missing file stays a not-run sentence.
 - **Critique 2 (meta):** Unification is UNIFIED_CLEAN, 40 checks, drift [], unknown []. The clean export's skip census is 3480 rows, of which `MARKET_CLOSED_OR_STALE` is 3329. One earlier export in the same turn drifted because the log grew, and it was rewritten rather than loosened. Whitehat CLEAN, 6 checks. pytest 62 passed. Node stage6 bridge 6/6.
 - **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4295 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.
+
+## 2026-10-25 — Stage 18 entry gate, Kelly label, fee identity, weight vintage
+
+### WP-18.1 — the entry gate held, and the score is not a probability
+- **Draft:** Sign each close's stored entry composite by the position side and compare it with the recorded threshold 0.25. Count wins and losses. Leave Brier null unless the raw score is a probability.
+- **Critique 1:** Quant: 26 scored closes. Signed composite from 0.2593 to 0.6307. All 26 are at or above 0.25. Wins 9, losses 17, pnl -0.1381 USD. Nineteen raw composites lie outside the unit interval. Brier status `NOT_A_PROBABILITY`. Council: nothing is promoted. Lane A untouched.
+- **Critique 2 (meta):** Holding the gate does not make the gate an edge. The nine wins are the log. The threshold was not lowered to harvest them.
+- **Result:** `reports/grok/PAPER/entry_gate.json`. Status `GATE_HELD_NOT_A_PROBABILITY`. `gate_changed` false. `edge_claimed` false.
+
+### WP-18.2 — Kelly is a label, not a fraction
+- **Draft:** Count the stored `kelly` field on OPEN rows. Do not parse the label into a bet size and do not switch Kelly on.
+- **Critique 1:** 30 opens. Every label is `OFF (n<30 closed trades, §6)`. Numeric Kelly rows: 0.
+- **Critique 2 (meta):** The off switch is the recorded policy for a book under 30 closes. This stage does not satisfy that count, so it does not turn the switch on.
+- **Result:** `reports/grok/PAPER/kelly_label.json`. Status `UNIFORM_OFF_LABEL`. `kelly_switched_on` false.
+
+### WP-18.3 — net plus close fees is the implied gross
+- **Draft:** Add recorded close fees to recorded net pnl. Split entry fees into the matched closes and the still-open opens. Do not add either sum to the cash discrepancy.
+- **Critique 1:** Open fees 0.181288 USD. Of that, 0.152978 belongs to matched closes and 0.02831 to positions still open. Close fees 0.305656. Net -0.1381. Implied gross 0.167556. Unmatched closes 0. The two entry-fee slices add back to the open-fee sum.
+- **Critique 2 (meta):** The positive implied gross is the arithmetic of net plus fees. Close pnl is already net of fees. Treating 0.167556 as a result, or adding it to the cash gap, would count the fees twice.
+- **Result:** `reports/grok/PAPER/fee_identity.json`. Status `IDENTITY_OF_THE_LOG`. `added_to_cash_gap` false.
+
+### WP-18.4 — weight versions are too small to compare
+- **Draft:** Group closes by `weights_version`. A cell smaller than the existing 30-close sample gate is not a comparison and not a promotion.
+- **Critique 1:** Eight versions. Largest cell is version 1 with 12 closes and recorded pnl 0.3522. The other cells are 1 to 3 closes. The book total remains -0.1381. Status `TOO_SMALL_TO_COMPARE`.
+- **Critique 2 (meta):** Version 1's positive sum was read after the closes. Choosing it now would be a peek. `comparison_claimed` stays false. Unification is UNIFIED_CLEAN, 44 checks. Skip census at the clean export: 3490 rows, `MARKET_CLOSED_OR_STALE` 3339. Whitehat CLEAN, 6 checks. pytest 63 passed. Node stage6 bridge 6/6.
+- **Verification:** `scripts/validate_imports.py` exit 0 (373 modules, evidence HOLD, Lane A 36/36, 4299 files, VALIDATION PASSED). The paper-trader and gold-soak processes were not stopped.

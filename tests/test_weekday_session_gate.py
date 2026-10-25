@@ -184,3 +184,44 @@ def test_symbol_book_keeps_opposite_signs_and_open_rows_are_not_exits(tmp_path):
         "pair": "pool32:0123456789abcdef",
     })
     assert "pair" not in hidden and "tolerance" not in hidden
+
+
+def test_entry_gate_is_not_a_probability_and_kelly_stays_off(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import (
+        measure_entry_gate, measure_fee_identity, measure_kelly_label, measure_weight_vintage,
+    )
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({"event": "OPEN", "symbol": "ETH", "side": "LONG", "fee_usd": 0.01,
+                    "kelly": "OFF (n<30 closed trades, §6)"}),
+        json.dumps({"event": "CLOSE", "symbol": "ETH", "side": "LONG", "reason": "TAKE_PROFIT",
+                    "realized_pnl_usd": 0.02, "fees_usd": 0.03,
+                    "entry_brain": {"composite": 0.3, "weights_version": 1}}),
+        json.dumps({"event": "OPEN", "symbol": "BTC", "side": "SHORT", "fee_usd": 0.02,
+                    "kelly": "OFF (n<30 closed trades, §6)"}),
+        json.dumps({"event": "CLOSE", "symbol": "BTC", "side": "SHORT", "reason": "SIGNAL_REVERSAL",
+                    "realized_pnl_usd": -0.05, "fees_usd": 0.04,
+                    "entry_brain": {"composite": -0.4, "weights_version": 1}}),
+        json.dumps({"event": "OPEN", "symbol": "SOL", "side": "SHORT", "fee_usd": 0.01,
+                    "kelly": "OFF (n<30 closed trades, §6)"}),
+    ]) + "\n", encoding="utf-8")
+    gate = measure_entry_gate(tmp_path)
+    assert gate["status"] == "GATE_HELD_NOT_A_PROBABILITY" and gate["brier"] is None
+    assert gate["signed_min"] == 0.3 and gate["signed_max"] == 0.4
+    assert gate["wins"] == 1 and gate["losses"] == 1 and gate["raw_outside_unit_interval"] == 1
+    assert gate["edge_claimed"] is False and gate["gate_changed"] is False
+    kelly = measure_kelly_label(tmp_path)
+    assert kelly["status"] == "UNIFORM_OFF_LABEL" and kelly["kelly_switched_on"] is False
+    assert kelly["numeric_rows"] == 0 and kelly["open_rows"] == 3
+    fees = measure_fee_identity(tmp_path)
+    assert fees["added_to_cash_gap"] is False and fees["status"] == "IDENTITY_OF_THE_LOG"
+    assert fees["net_pnl_usd"] == -0.03 and fees["close_fees_usd"] == 0.07
+    assert fees["implied_gross_usd"] == 0.04 and fees["still_open_entry_fee_usd"] == 0.01
+    assert fees["closed_entry_fee_usd"] == 0.03 and fees["edge_claimed"] is False
+    vintage = measure_weight_vintage(tmp_path)
+    assert vintage["status"] == "TOO_SMALL_TO_COMPARE" and vintage["comparison_claimed"] is False
+    assert vintage["largest_cell"] == 2 and vintage["versions"][0]["realized_pnl_usd"] == -0.03

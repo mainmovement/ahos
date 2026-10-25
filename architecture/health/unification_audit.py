@@ -868,6 +868,51 @@ def _stage17_checks(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _stage18_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.markets.paper_trade_audit import (
+        measure_entry_gate, measure_fee_identity, measure_kelly_label, measure_weight_vintage,
+    )
+
+    specs = (
+        ("execution.entry_gate", Path("reports") / "grok" / "PAPER" / "entry_gate.json",
+         measure_entry_gate,
+         ("close_rows", "scored_rows", "signed_min", "signed_max", "at_or_above_threshold",
+          "wins", "losses", "realized_pnl_usd", "raw_outside_unit_interval", "brier", "brier_status", "status"),
+         "edge_claimed"),
+        ("execution.kelly_label", Path("reports") / "grok" / "PAPER" / "kelly_label.json",
+         measure_kelly_label,
+         ("open_rows", "label_counts", "numeric_rows", "missing_rows", "status"),
+         "kelly_switched_on"),
+        ("treasury.fee_identity", Path("reports") / "grok" / "PAPER" / "fee_identity.json",
+         measure_fee_identity,
+         ("open_fee_usd", "closed_entry_fee_usd", "still_open_entry_fee_usd", "close_fees_usd",
+          "net_pnl_usd", "implied_gross_usd", "status"),
+         "added_to_cash_gap"),
+        ("execution.weight_vintage", Path("reports") / "grok" / "PAPER" / "weight_vintage.json",
+         measure_weight_vintage,
+         ("close_rows", "largest_cell", "versions", "status", "sample_gate"),
+         "comparison_claimed"),
+    )
+    out = []
+    for check_id, rel, measure, keys, flag in specs:
+        doc = _json(root, rel)
+        if not isinstance(doc, dict):
+            out.append(_check(check_id, "UNKNOWN", {"file": False}, [str(rel)]))
+            continue
+        fresh = measure(root)
+        problems = []
+        if doc.get("paper_only") is not True or doc.get(flag) is not False:
+            problems.append(f"{flag} is not false")
+        if "edge_claimed" in fresh and doc.get("edge_claimed") is not False:
+            problems.append("an edge is claimed")
+        for key in keys:
+            if doc.get(key) != fresh[key]:
+                problems.append(f"{key} does not match the log")
+        out.append(_check(check_id, _pass_fail(not problems),
+                          {"problems": problems[:6]}, [str(rel)]))
+    return out
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -893,6 +938,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage15_checks(root)
     checks += _stage16_checks(root)
     checks += _stage17_checks(root)
+    checks += _stage18_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")
