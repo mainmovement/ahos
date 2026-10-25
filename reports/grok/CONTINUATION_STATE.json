@@ -934,8 +934,8 @@
     {
       "stage": "Stage 35",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "6323531",
+      "arena_commit": "327b936",
       "blend_status": "BLEND_OF_A_RESCALE",
       "open_rows": 33,
       "stored_rows": 30,
