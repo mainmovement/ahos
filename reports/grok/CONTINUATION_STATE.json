@@ -837,8 +837,8 @@
     {
       "stage": "Stage 33",
       "status": "COMPLETE",
-      "commit": null,
-      "arena_commit": null,
+      "commit": "b9d0751",
+      "arena_commit": "d17f4cd",
       "lesson_status": "STATS_MATCH_THE_LOG",
       "close_rows": 30,
       "matched_signals": 9,
