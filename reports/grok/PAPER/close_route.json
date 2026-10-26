@@ -1,12 +1,12 @@
 {
  "schema": "ahos.paper.close_route.v1",
- "generated_at": "2026-10-25T20:26:46Z",
+ "generated_at": "2026-10-26T01:50:51Z",
  "paper_only": true,
  "broker_claimed": false,
  "route_changed": false,
  "edge_claimed": false,
- "close_rows": 31,
- "accepted_paper": 31,
+ "close_rows": 38,
+ "accepted_paper": 38,
  "missing_rows": 0,
  "other_rows": 0,
  "status": "CLOSE_ROUTE_NOT_A_FILL"

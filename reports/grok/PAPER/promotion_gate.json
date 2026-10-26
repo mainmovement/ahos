@@ -1,11 +1,11 @@
 {
  "schema": "ahos.paper.promotion_gate.v1",
- "generated_at": "2026-10-25T20:26:56Z",
+ "generated_at": "2026-10-26T01:50:57Z",
  "paper_only": true,
  "promoted": false,
  "edge_claimed": false,
  "dsr_supplied": false,
- "close_rows": 31,
+ "close_rows": 38,
  "source_not_eligible": true,
  "ci_lower_positive": false,
  "stored_evaluate": true,

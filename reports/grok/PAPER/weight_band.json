@@ -1,15 +1,15 @@
 {
  "schema": "ahos.paper.weight_band.v1",
- "generated_at": "2026-10-25T20:27:03Z",
+ "generated_at": "2026-10-26T01:51:00Z",
  "paper_only": true,
  "file_rewritten": false,
  "edge_claimed": false,
  "promoted": false,
  "rule_changed": false,
  "file_present": true,
- "version": 23,
- "history_rows": 22,
- "moved_rows": 7,
+ "version": 30,
+ "history_rows": 29,
+ "moved_rows": 6,
  "outside_rows": 0,
  "absent_rows": 1,
  "n_ge_10": 7,
@@ -20,7 +20,6 @@
   "macro",
   "mtf_trend",
   "news",
-  "order_flow",
   "zscore_mr"
  ],
  "status": "INSIDE_BAND"

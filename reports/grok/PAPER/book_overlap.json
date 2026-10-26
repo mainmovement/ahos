@@ -1,18 +1,24 @@
 {
  "schema": "ahos.paper.book_overlap.v1",
- "generated_at": "2026-10-25T20:26:45Z",
+ "generated_at": "2026-10-26T01:50:51Z",
  "paper_only": true,
  "positions_closed": false,
  "overlap_opens": 0,
  "unpaired_closes": 0,
- "close_rows": 31,
- "opened_at_matches_open_ts": 31,
- "closed_at_matches_ts": 31,
+ "close_rows": 38,
+ "opened_at_matches_open_ts": 38,
+ "closed_at_matches_ts": 38,
  "still_open": [
+  "BRENT",
   "BTC",
+  "ETH",
   "EURUSD",
+  "N225",
   "SOL",
-  "UNI"
+  "UNI",
+  "USDJPY",
+  "WTI",
+  "XAU"
  ],
  "status": "NO_OVERLAP"
 }

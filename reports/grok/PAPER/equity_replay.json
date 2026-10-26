@@ -1,16 +1,16 @@
 {
  "schema": "ahos.paper.equity_replay.v1",
- "generated_at": "2026-10-25T20:26:48Z",
+ "generated_at": "2026-10-26T01:50:53Z",
  "paper_only": true,
  "equity_rewritten": false,
  "added_to_cash_gap": false,
  "initial_capital_usd": 100.0,
  "cent_band": 0.01,
- "open_rows": 35,
+ "open_rows": 48,
  "missing_rows": 0,
- "within_cent": 35,
+ "within_cent": 48,
  "beyond_cent": 0,
  "max_abs_gap": 0.005,
- "end_equity_usd": 99.7206,
+ "end_equity_usd": 99.5964,
  "status": "WITHIN_ONE_CENT"
 }

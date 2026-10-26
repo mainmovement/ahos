@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-25T21:14:00Z",
+  "updated_at": "2026-10-26T01:52:00Z",
   "current_stage": "Stage 40",
-  "resume_instruction": "On ادامه بده or continue, inspect the repository and the live artifacts for a new measured correctness gap before editing. Do not rerun Stage 38 or Stage 39. Do not relabel historical MARKET_CLOSED_OR_STALE rows. Do not backfill freshness or session_state. Do not lower the 1200-second stale gate. Do not close BTC, EURUSD, SOL, or UNI. Do not restart the paper trader or the gold soak. The running process has not loaded the Stage 38 fields, the Stage 39 ahead skip, or the audit shrink guard. Do not add a unification check only to raise the count. Do not treat 31 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability.",
+  "resume_instruction": "On ادامه بده or continue, record the Stage 40 work-commit hashes and move current_stage to Stage 41. Do not reimplement the quote-age status. Do not rerun Stage 38 or Stage 39. Do not relabel the 15 ahead opens or the 15 ahead closes. Do not backfill freshness or session_state. Do not lower the 1200-second stale gate. Do not close BTC, EURUSD, SOL, or UNI. Do not restart the paper trader or the gold soak. The running process closed EURUSD at 2026-10-26T01:19:56Z as SIGNAL_REVERSAL and later opened it again. This stage did not. The running process has not loaded the Stage 39 ahead skip or the audit shrink guard. Do not add a unification check only to raise the count. Do not treat 38 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability.",
   "base_commits": {
     "ahos": "7c966bf",
     "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
@@ -1408,6 +1408,38 @@
       "positions_closed_by_stage": false,
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 40",
+      "status": "COMPLETE",
+      "commit": null,
+      "arena_commit": null,
+      "status_word": "CLOCK_AHEAD",
+      "open_rows": 48,
+      "close_rows": 38,
+      "open_clock_ahead": 15,
+      "close_clock_ahead": 15,
+      "open_ahead_max_s": 39.0,
+      "close_ahead_max_s": 40.0,
+      "open_over_gate": 0,
+      "close_over_gate": 0,
+      "gate_seconds": 1200,
+      "gate_changed": false,
+      "rows_rewritten": false,
+      "unification_check_added": false,
+      "unification": "101/101 UNIFIED_CLEAN",
+      "quote_age_generated_at": "2026-10-26T01:50:57Z",
+      "pytest": "92 passed (test_weekday_session_gate.py + test_stage6_deepening.py + test_paper_trader.py), exit 0, ended 2026-10-26T01:43:26Z",
+      "whitehat": "CLEAN checks=6",
+      "validate_imports": "PASSED; probe started 2026-10-26T01:44:46Z; exit 0 at 2026-10-26T01:50:11Z; 373 modules; 4357 source files; Lane A 36/36",
+      "eurusd_closed_by_stage": false,
+      "eurusd_daemon_close": {
+        "ts": "2026-10-26T01:19:56Z",
+        "reason": "SIGNAL_REVERSAL"
+      },
+      "positions_closed_by_stage": false,
+      "daemon_restarted": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -1422,6 +1454,7 @@
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 40: the next measured gap, only after a fresh look; do not invent a check to raise the audit count"
+    "Stage 40 hash commit: record the work-commit hashes and do not reimplement the quote-age status",
+    "Stage 41: the next measured gap, only after a fresh look; do not invent a check to raise the audit count"
   ]
 }

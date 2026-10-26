@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.open_book.v1",
- "generated_at": "2026-10-25T20:26:54Z",
+ "generated_at": "2026-10-26T01:50:56Z",
  "paper_only": true,
  "exit_inferred": false,
  "daemon_restarted": false,
@@ -8,37 +8,79 @@
  "max_hold_hours": 24.0,
  "open_rows": [
   {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "side": "SHORT",
+   "open_time": "2026-10-25T22:26:42Z"
+  },
+  {
    "symbol": "BTC",
    "desk": "CRYPTO",
    "side": "SHORT",
    "open_time": "2026-10-25T18:13:25Z"
   },
   {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "side": "SHORT",
+   "open_time": "2026-10-25T23:11:39Z"
+  },
+  {
    "symbol": "EURUSD",
    "desk": "FOREX",
-   "side": "SHORT",
-   "open_time": "2026-10-25T18:47:46Z"
+   "side": "LONG",
+   "open_time": "2026-10-26T01:44:37Z"
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "side": "LONG",
+   "open_time": "2026-10-26T01:19:56Z"
   },
   {
    "symbol": "SOL",
    "desk": "CRYPTO",
-   "side": "LONG",
-   "open_time": "2026-10-25T19:17:57Z"
+   "side": "SHORT",
+   "open_time": "2026-10-25T23:11:39Z"
   },
   {
    "symbol": "UNI",
    "desk": "PB_TOKEN",
    "side": "LONG",
    "open_time": "2026-10-25T15:18:45Z"
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "side": "LONG",
+   "open_time": "2026-10-25T23:59:57Z"
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "side": "SHORT",
+   "open_time": "2026-10-25T23:59:57Z"
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "side": "SHORT",
+   "open_time": "2026-10-25T22:20:12Z"
   }
  ],
  "unmatched_closes": 0,
  "status": "INSIDE_BOTH_LIMITS",
  "positions_file_symbols": [
+  "BRENT",
   "BTC",
+  "ETH",
   "EURUSD",
+  "N225",
   "SOL",
-  "UNI"
+  "UNI",
+  "USDJPY",
+  "WTI",
+  "XAU"
  ],
  "log_matches_positions_file": true
 }

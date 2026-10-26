@@ -1,21 +1,21 @@
 {
  "schema": "ahos.paper.exit_score_path.v1",
- "generated_at": "2026-10-25T20:26:49Z",
+ "generated_at": "2026-10-26T01:50:54Z",
  "paper_only": true,
  "edge_claimed": false,
  "exit_rule_changed": false,
  "threshold": 0.25,
- "close_rows": 31,
+ "close_rows": 38,
  "missing_rows": 0,
  "reasons": [
   {
    "reason": "SIGNAL_REVERSAL",
-   "rows": 17,
+   "rows": 21,
    "signed_exit_min": -0.4533,
    "signed_exit_max": -0.253,
    "delta_min": -0.8151,
-   "delta_max": -0.5312,
-   "at_or_beyond_reversal": 17,
+   "delta_max": -0.5081,
+   "at_or_beyond_reversal": 21,
    "between_reversal_and_zero": 0,
    "positive_below_entry": 0,
    "at_or_above_entry": 0
@@ -34,15 +34,15 @@
   },
   {
    "reason": "WITNESS_CONFLICT_EXIT",
-   "rows": 12,
-   "signed_exit_min": 0.11,
+   "rows": 15,
+   "signed_exit_min": -0.1226,
    "signed_exit_max": 0.5617,
-   "delta_min": -0.2547,
+   "delta_min": -0.4084,
    "delta_max": 0.1167,
    "at_or_beyond_reversal": 0,
-   "between_reversal_and_zero": 0,
+   "between_reversal_and_zero": 1,
    "positive_below_entry": 3,
-   "at_or_above_entry": 9
+   "at_or_above_entry": 11
   }
  ],
  "status": "PATH_RECORDED"

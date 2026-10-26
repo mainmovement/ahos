@@ -1,15 +1,15 @@
 {
  "schema": "ahos.paper.witness_skip.v1",
- "generated_at": "2026-10-25T20:27:03Z",
+ "generated_at": "2026-10-26T01:51:01Z",
  "paper_only": true,
  "exit_relabeled": false,
  "treated_as_security_pass": false,
  "edge_claimed": false,
- "witness_rows": 25,
+ "witness_rows": 30,
  "reasons": [
   {
    "reason": "WITNESS_CONFLICT",
-   "rows": 23
+   "rows": 28
   },
   {
    "reason": "WITNESS_UNRESOLVED",

@@ -1,11 +1,11 @@
 {
  "schema": "ahos.paper.stop_floor.v1",
- "generated_at": "2026-10-25T20:27:02Z",
+ "generated_at": "2026-10-26T01:51:00Z",
  "paper_only": true,
  "floor_changed": false,
  "edge_claimed": false,
  "min_stop": 0.01,
- "open_rows": 35,
+ "open_rows": 48,
  "missing_rows": 0,
  "below_floor": 0,
  "stop_min": 0.01,

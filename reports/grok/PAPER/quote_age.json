@@ -1,20 +1,20 @@
 {
  "schema": "ahos.paper.quote_age.v1",
- "generated_at": "2026-10-25T20:26:57Z",
+ "generated_at": "2026-10-26T01:50:57Z",
  "paper_only": true,
  "gate_changed": false,
  "gate_seconds": 1200,
- "open_rows": 35,
- "close_rows": 31,
+ "open_rows": 48,
+ "close_rows": 38,
  "open_missing": 0,
  "close_missing": 0,
  "open_over_gate": 0,
  "close_over_gate": 0,
- "open_clock_ahead": 13,
+ "open_clock_ahead": 15,
  "close_clock_ahead": 15,
- "open_age_max_s": 337.0,
- "close_age_max_s": 308.0,
+ "open_age_max_s": 901.0,
+ "close_age_max_s": 901.0,
  "open_ahead_max_s": 39.0,
  "close_ahead_max_s": 40.0,
- "status": "WITHIN_STALE_GATE"
+ "status": "CLOCK_AHEAD"
 }

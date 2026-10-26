@@ -1,9 +1,9 @@
 {
  "schema": "ahos.paper.symbol_book.v1",
- "generated_at": "2026-10-25T20:27:02Z",
+ "generated_at": "2026-10-26T01:51:00Z",
  "paper_only": true,
  "edge_claimed": false,
- "close_rows": 31,
+ "close_rows": 38,
  "symbols": [
   {
    "symbol": "BTC",
@@ -44,13 +44,13 @@
   {
    "symbol": "ETH",
    "desk": "CRYPTO",
-   "closes": 7,
-   "realized_pnl_usd": -0.0829,
+   "closes": 8,
+   "realized_pnl_usd": -0.1031,
    "reasons": [
     {
      "reason": "SIGNAL_REVERSAL",
-     "n": 3,
-     "realized_pnl_usd": -0.1659
+     "n": 4,
+     "realized_pnl_usd": -0.1861
     },
     {
      "reason": "WITNESS_CONFLICT_EXIT",
@@ -60,20 +60,46 @@
    ]
   },
   {
-   "symbol": "SOL",
-   "desk": "CRYPTO",
-   "closes": 6,
-   "realized_pnl_usd": 0.0198,
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closes": 1,
+   "realized_pnl_usd": -0.0065,
    "reasons": [
     {
      "reason": "SIGNAL_REVERSAL",
-     "n": 3,
-     "realized_pnl_usd": -0.0748
+     "n": 1,
+     "realized_pnl_usd": -0.0065
+    }
+   ]
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closes": 2,
+   "realized_pnl_usd": 0.004,
+   "reasons": [
+    {
+     "reason": "WITNESS_CONFLICT_EXIT",
+     "n": 2,
+     "realized_pnl_usd": 0.004
+    }
+   ]
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closes": 8,
+   "realized_pnl_usd": -0.0874,
+   "reasons": [
+    {
+     "reason": "SIGNAL_REVERSAL",
+     "n": 4,
+     "realized_pnl_usd": -0.0991
     },
     {
      "reason": "WITNESS_CONFLICT_EXIT",
-     "n": 3,
-     "realized_pnl_usd": 0.0946
+     "n": 4,
+     "realized_pnl_usd": 0.0117
     }
    ]
   },
@@ -94,14 +120,48 @@
      "realized_pnl_usd": 0.1746
     }
    ]
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closes": 1,
+   "realized_pnl_usd": 0.0057,
+   "reasons": [
+    {
+     "reason": "SIGNAL_REVERSAL",
+     "n": 1,
+     "realized_pnl_usd": 0.0057
+    }
+   ]
   }
  ],
  "desks": [
   {
+   "desk": "ASIA_EQUITIES",
+   "closes": 2,
+   "realized_pnl_usd": 0.004,
+   "rounded_usd": 0.0,
+   "assigned": true
+  },
+  {
    "desk": "CRYPTO",
-   "closes": 22,
-   "realized_pnl_usd": -0.2006,
-   "rounded_usd": -0.2,
+   "closes": 25,
+   "realized_pnl_usd": -0.328,
+   "rounded_usd": -0.33,
+   "assigned": true
+  },
+  {
+   "desk": "FOREX",
+   "closes": 1,
+   "realized_pnl_usd": -0.0065,
+   "rounded_usd": -0.01,
+   "assigned": true
+  },
+  {
+   "desk": "OIL",
+   "closes": 1,
+   "realized_pnl_usd": 0.0057,
+   "rounded_usd": 0.01,
    "assigned": true
   },
   {
@@ -112,7 +172,7 @@
    "assigned": true
   }
  ],
- "account_realized_pnl_usd": -0.2794,
- "rounded_desk_sum_usd": -0.28,
+ "account_realized_pnl_usd": -0.4036,
+ "rounded_desk_sum_usd": -0.41,
  "unassigned_desks": 0
 }

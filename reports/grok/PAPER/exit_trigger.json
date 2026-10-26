@@ -1,10 +1,10 @@
 {
  "schema": "ahos.paper.exit_trigger.v1",
- "generated_at": "2026-10-25T20:26:50Z",
+ "generated_at": "2026-10-26T01:50:54Z",
  "paper_only": true,
  "exit_rule_changed": false,
  "take_multiple": 1.5,
- "close_rows": 31,
+ "close_rows": 38,
  "missing_rows": 0,
  "take_profit_rows": 2,
  "take_profit_quote_beyond": 2,

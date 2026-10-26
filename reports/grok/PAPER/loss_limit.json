@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.loss_limit.v1",
- "generated_at": "2026-10-25T20:26:54Z",
+ "generated_at": "2026-10-26T01:50:55Z",
  "paper_only": true,
  "limits_changed": false,
  "daemon_halted": false,
@@ -8,11 +8,11 @@
  "edge_claimed": false,
  "daily_limit": 0.03,
  "weekly_limit": 0.06,
- "close_rows": 31,
+ "close_rows": 38,
  "missing_rows": 0,
  "day_breaches": 0,
  "week_breaches": 0,
  "worst_day_ratio": -0.0081,
- "worst_week_ratio": -0.0028,
+ "worst_week_ratio": -0.0041,
  "status": "INSIDE_LIMIT"
 }

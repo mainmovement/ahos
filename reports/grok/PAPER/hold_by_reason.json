@@ -1,15 +1,15 @@
 {
  "schema": "ahos.paper.hold_by_reason.v1",
- "generated_at": "2026-10-25T20:26:53Z",
+ "generated_at": "2026-10-26T01:50:55Z",
  "paper_only": true,
  "exit_inferred": false,
- "close_rows": 31,
+ "close_rows": 38,
  "missing_rows": 0,
  "reasons": [
   {
    "reason": "SIGNAL_REVERSAL",
-   "rows": 17,
-   "hold_hours_min": 0.23,
+   "rows": 21,
+   "hold_hours_min": 0.11,
    "hold_hours_max": 9.13
   },
   {
@@ -20,7 +20,7 @@
   },
   {
    "reason": "WITNESS_CONFLICT_EXIT",
-   "rows": 12,
+   "rows": 15,
    "hold_hours_min": 0.1,
    "hold_hours_max": 13.92
   }

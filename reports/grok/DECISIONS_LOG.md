@@ -1105,3 +1105,25 @@ Scope: Lane B, the next-process clock check. Lane A was not edited. No historica
 - **Critique 1:** The committed Stage 38 audit remains 101 checks, generated 2026-10-25T20:27:35Z. It does not assert `QUOTE_TIME_AHEAD`. The live writer can still replace that working-tree file with a shorter audit. This stage did not write it.
 - **Critique 2 (meta):** Code verification is the test. Runtime verification is that pid 4904 has not loaded the branch. Those are different facts. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`. The edge stays `UNPROVEN_EDGE`.
 - **Verification:** `scripts/validate_imports.py` started 2026-10-25T20:52:13Z and exited 0. 373 modules imported cleanly. 4356 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped. No Arena binding was added, because there is no new receipt to project.
+
+## 2026-10-26 — Stage 40 a future quote time is not inside the stale gate
+
+Scope: Lane B measurement of quote age. Lane A was not edited. No paper-log row was rewritten. No position was opened or closed by this stage. The paper trader and the gold soak were not restarted. The 1200-second gate stayed 1200. No new unification check was added.
+
+### WP-40.1 — the status ignored the ahead count
+- **Draft:** Read `measure_quote_age`. The receipt already counts `open_clock_ahead` and `close_clock_ahead`. Ask whether `WITHIN_STALE_GATE` can be true while those counts are not zero.
+- **Critique 1:** The old status required only that no row be missing and that no age be greater than 1200 seconds. A negative age was counted and then ignored by the status word. At the refreshed receipt, 48 opens and 38 closes. 0 missing. 0 over the gate. 15 opens and 15 closes have a quote time ahead of the cycle stamp. The largest ahead gap is 39 seconds on an open and 40 seconds on a close.
+- **Critique 2 (meta):** Those rows are not stale, and they are not inside a non-negative freshness window. Calling them inside the gate hid a count the same file already stored. The rows were not relabeled and were not closed.
+- **Result:** `reports/grok/PAPER/quote_age.json`, generated 2026-10-26T01:50:57Z. Status `CLOCK_AHEAD`. `gate_seconds` 1200. `gate_changed` false.
+
+### WP-40.2 — both facts stay visible
+- **Draft:** A book that is only ahead is not `WITHIN_STALE_GATE`. A book that is ahead and also over 1200 seconds does not drop either fact. A book with no ahead row and no stale row stays `WITHIN_STALE_GATE`. A missing stamp stays `INCOMPLETE`.
+- **Critique 1:** The fixture with a 10-second-ahead open is `CLOCK_AHEAD`. A second fixture with an ahead open and a close older than 1200 seconds is `CLOCK_AHEAD_AND_BEYOND`. An equal stamp stays `WITHIN_STALE_GATE`.
+- **Critique 2 (meta):** The status word changed. The log did not. The running process has not loaded the Stage 39 skip, so it can still open on an ahead quote. This measurement does not reach back into those 15 opens.
+- **Result:** pytest 92 passed, exit 0, ended 2026-10-26T01:43:26Z.
+
+### WP-40.3 — the short writer ran again
+- **Draft:** Re-export after the status change. A shorter audit from the already-running process is not the Stage 40 record.
+- **Critique 1:** The working-tree audit was 22 checks at 2026-10-26T01:21:02Z and again at 2026-10-26T01:45:40Z. The export from the current source wrote 101 checks. `skip_dimensions.json` and `quote_age.json` are not that writer's files. The shrink guard still is not loaded by pid 4904.
+- **Critique 2 (meta):** Unification at this export is UNIFIED_CLEAN, 101 checks. Skip census 4920, `MARKET_CLOSED_OR_STALE` 4536. The running process closed EURUSD at 2026-10-26T01:19:56Z as SIGNAL_REVERSAL and later opened it again. This stage did not. At the export the open book was UNI, BTC, XAU, BRENT, ETH, SOL, WTI, USDJPY, N225, and EURUSD. UNI remains version 19. Closed paper trades are 38. That count is not an edge. Whitehat CLEAN, 6 checks. The product classification stays `INTEGRATION_READY`. This phase is `PARTIAL`.
+- **Verification:** `scripts/validate_imports.py` started 2026-10-26T01:44:46Z and exited 0 at 2026-10-26T01:50:11Z. 373 modules imported cleanly. 4357 source files were scanned. Lane A is 36/36. The orphan warning names the same pre-existing dead-code candidates and is not a failure. The paper-trader and gold-soak processes were not stopped. The Arena line already copies `quoteAge.status`, so no Arena edit was required.

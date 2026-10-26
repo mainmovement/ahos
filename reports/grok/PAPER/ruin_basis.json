@@ -1,11 +1,11 @@
 {
  "schema": "ahos.paper.ruin_basis.v1",
- "generated_at": "2026-10-25T20:26:58Z",
+ "generated_at": "2026-10-26T01:50:58Z",
  "paper_only": true,
  "forecast_claimed": false,
  "probability_published": false,
  "edge_claimed": false,
- "close_rows": 31,
+ "close_rows": 38,
  "empirical_basis": true,
  "status": "RESAMPLE_NOT_A_FORECAST"
 }

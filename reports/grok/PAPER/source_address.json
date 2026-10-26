@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.source_address.v1",
- "generated_at": "2026-10-25T20:27:02Z",
+ "generated_at": "2026-10-26T01:51:00Z",
  "paper_only": true,
  "log_rewritten": false,
  "open_with_address": 4,
@@ -8,8 +8,8 @@
  "kinds": [
   {
    "kind": "coingecko",
-   "open_rows": 24,
-   "close_rows": 22
+   "open_rows": 28,
+   "close_rows": 25
   },
   {
    "kind": "geckoterminal",
@@ -18,8 +18,8 @@
   },
   {
    "kind": "yahoo_finance",
-   "open_rows": 7,
-   "close_rows": 5
+   "open_rows": 16,
+   "close_rows": 9
   }
  ],
  "status": "ADDRESS_ON_LOG"

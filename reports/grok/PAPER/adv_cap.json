@@ -1,25 +1,25 @@
 {
  "schema": "ahos.paper.adv_cap.v1",
- "generated_at": "2026-10-25T20:26:44Z",
+ "generated_at": "2026-10-26T01:50:50Z",
  "paper_only": true,
  "cap_changed": false,
  "edge_claimed": false,
- "open_rows": 35,
- "stored_rows": 32,
+ "open_rows": 48,
+ "stored_rows": 45,
  "missing_object": 3,
  "source_blank": 1,
- "assumed_floor_rows": 1,
+ "assumed_floor_rows": 6,
  "allowed_mismatch": 0,
  "rate_over_1pct": 0,
- "participation_rate_max": 3.6e-07,
+ "participation_rate_max": 6e-07,
  "sources": [
   {
    "source": "5m_bar_volume_x288",
-   "rows": 9
+   "rows": 13
   },
   {
    "source": "ASSUMED_FLOOR_50M_NO_VOLUME_IN_FEED",
-   "rows": 1
+   "rows": 6
   },
   {
    "source": "BLANK",
@@ -27,7 +27,7 @@
   },
   {
    "source": "vendor_24h_volume",
-   "rows": 21
+   "rows": 25
   }
  ],
  "status": "CAP_BROKEN"

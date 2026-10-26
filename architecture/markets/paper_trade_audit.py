@@ -1979,14 +1979,20 @@ def measure_quote_age(root: Path) -> dict[str, Any]:
             cell["clock_ahead"] += 1
             cell["ahead"].append(-age)
     opens, closes = cells["OPEN"], cells["CLOSE"]
+    ahead = opens["clock_ahead"] or closes["clock_ahead"]
+    beyond = opens["over_gate"] or closes["over_gate"]
     if opens["rows"] == 0 and closes["rows"] == 0:
         status = "NO_ROWS"
     elif opens["missing"] or closes["missing"]:
         status = "INCOMPLETE"
-    elif opens["over_gate"] == 0 and closes["over_gate"] == 0:
-        status = "WITHIN_STALE_GATE"
-    else:
+    elif ahead and beyond:
+        status = "CLOCK_AHEAD_AND_BEYOND"
+    elif ahead:
+        status = "CLOCK_AHEAD"
+    elif beyond:
         status = "BEYOND_STALE_GATE"
+    else:
+        status = "WITHIN_STALE_GATE"
     def _max(values: list[float]) -> float | None:
         return None if not values else round(max(values), 1)
 

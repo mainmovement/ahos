@@ -1,19 +1,19 @@
 {
  "schema": "ahos.paper.signal_dissent.v1",
- "generated_at": "2026-10-25T20:26:59Z",
+ "generated_at": "2026-10-26T01:50:59Z",
  "paper_only": true,
  "skill_claimed": false,
  "signals_removed": false,
- "close_rows": 31,
+ "close_rows": 38,
  "missing_rows": 0,
- "contribution_agree": 127,
- "contribution_oppose": 66,
- "contribution_zero": 118,
- "closes_with_opposition": 29,
+ "contribution_agree": 148,
+ "contribution_oppose": 78,
+ "contribution_zero": 148,
+ "closes_with_opposition": 35,
  "opposition_weight_share_min": 0.0,
  "opposition_weight_share_max": 0.43,
  "zero_weight_share_min": 0.0,
- "zero_weight_share_max": 0.3188,
+ "zero_weight_share_max": 0.4792,
  "always_zero": [
   "event_shock",
   "macro_event",
@@ -25,93 +25,92 @@
   "event_shock",
   "macro_event",
   "stablecoin_impulse",
-  "whale_mempool",
-  "zscore_mr"
+  "whale_mempool"
  ],
  "signals": [
   {
    "signal": "candles",
-   "present": 29,
-   "agree": 14,
-   "oppose": 3,
-   "zero": 12
+   "present": 36,
+   "agree": 17,
+   "oppose": 4,
+   "zero": 15
   },
   {
    "signal": "event_shock",
-   "present": 27,
+   "present": 34,
    "agree": 0,
    "oppose": 0,
-   "zero": 27
+   "zero": 34
   },
   {
    "signal": "exchange_netflow",
-   "present": 10,
+   "present": 11,
    "agree": 3,
-   "oppose": 7,
+   "oppose": 8,
    "zero": 0
   },
   {
    "signal": "funding_oi",
-   "present": 20,
-   "agree": 5,
+   "present": 23,
+   "agree": 8,
    "oppose": 15,
    "zero": 0
   },
   {
    "signal": "large_trades",
-   "present": 21,
-   "agree": 12,
-   "oppose": 1,
+   "present": 24,
+   "agree": 14,
+   "oppose": 2,
    "zero": 8
   },
   {
    "signal": "macro",
-   "present": 29,
+   "present": 34,
    "agree": 22,
-   "oppose": 7,
+   "oppose": 12,
    "zero": 0
   },
   {
    "signal": "macro_event",
-   "present": 28,
+   "present": 35,
    "agree": 0,
    "oppose": 0,
-   "zero": 28
+   "zero": 35
   },
   {
    "signal": "mtf_trend",
-   "present": 29,
-   "agree": 29,
+   "present": 36,
+   "agree": 36,
    "oppose": 0,
    "zero": 0
   },
   {
    "signal": "news",
-   "present": 31,
-   "agree": 25,
-   "oppose": 6,
-   "zero": 0
+   "present": 38,
+   "agree": 28,
+   "oppose": 7,
+   "zero": 3
   },
   {
    "signal": "order_flow",
-   "present": 20,
-   "agree": 14,
-   "oppose": 6,
+   "present": 23,
+   "agree": 15,
+   "oppose": 8,
    "zero": 0
   },
   {
    "signal": "stablecoin",
-   "present": 17,
+   "present": 20,
    "agree": 3,
-   "oppose": 6,
-   "zero": 8
+   "oppose": 7,
+   "zero": 10
   },
   {
    "signal": "stablecoin_impulse",
-   "present": 19,
+   "present": 22,
    "agree": 0,
    "oppose": 0,
-   "zero": 19
+   "zero": 22
   },
   {
    "signal": "whale_mempool",
@@ -122,10 +121,10 @@
   },
   {
    "signal": "zscore_mr",
-   "present": 29,
-   "agree": 0,
+   "present": 36,
+   "agree": 2,
    "oppose": 15,
-   "zero": 14
+   "zero": 19
   }
  ],
  "status": "DISSENT_RECORDED"

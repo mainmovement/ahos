@@ -1,12 +1,12 @@
 {
  "schema": "ahos.paper.weight_history.v1",
- "generated_at": "2026-10-25T20:27:03Z",
+ "generated_at": "2026-10-26T01:51:00Z",
  "paper_only": true,
  "file_rewritten": false,
  "edge_claimed": false,
  "file_present": true,
- "version": 23,
- "history_rows": 22,
+ "version": 30,
+ "history_rows": 29,
  "matches": true,
  "status": "VERSION_HAS_A_HISTORY"
 }

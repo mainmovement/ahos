@@ -440,9 +440,32 @@ def test_quote_age_stays_inside_the_gate_and_addresses_are_not_copied(tmp_path):
             "market_time": "2026-10-25T00:20:00Z", "source": "geckoterminal:0xabc"}),
     ]) + "\n", encoding="utf-8")
     age = measure_quote_age(tmp_path)
-    assert age["status"] == "WITHIN_STALE_GATE" and age["gate_changed"] is False
+    assert age["status"] == "CLOCK_AHEAD" and age["gate_changed"] is False
     assert age["open_over_gate"] == 0 and age["close_over_gate"] == 0
     assert age["open_clock_ahead"] == 1 and age["open_ahead_max_s"] == 10.0
+    inside = tmp_path / "inside"
+    inside_paper = inside / "reports" / "grok" / "PAPER"
+    inside_paper.mkdir(parents=True)
+    (inside_paper / "paper_trades.jsonl").write_text(json.dumps({
+        "event": "OPEN", "symbol": "BTC", "ts": "2026-10-25T00:20:00Z",
+        "market_time": "2026-10-25T00:20:00Z", "source": "coingecko:bitcoin",
+    }) + "\n", encoding="utf-8")
+    held = measure_quote_age(inside)
+    assert held["status"] == "WITHIN_STALE_GATE" and held["open_clock_ahead"] == 0
+    both = tmp_path / "both"
+    both_paper = both / "reports" / "grok" / "PAPER"
+    both_paper.mkdir(parents=True)
+    (both_paper / "paper_trades.jsonl").write_text("\n".join([
+        json.dumps({
+            "event": "OPEN", "symbol": "BTC", "ts": "2026-10-25T00:00:00Z",
+            "market_time": "2026-10-25T00:00:10Z"}),
+        json.dumps({
+            "event": "CLOSE", "symbol": "BTC", "ts": "2026-10-25T02:00:00Z",
+            "market_time": "2026-10-25T01:00:00Z", "closed_at": "2026-10-25T02:00:00Z"}),
+    ]) + "\n", encoding="utf-8")
+    mixed = measure_quote_age(both)
+    assert mixed["status"] == "CLOCK_AHEAD_AND_BEYOND"
+    assert mixed["open_clock_ahead"] == 1 and mixed["close_over_gate"] == 1
     source = measure_source_address(tmp_path)
     assert source["status"] == "ADDRESS_ON_LOG" and source["log_rewritten"] is False
     assert source["open_with_address"] == 1 and source["close_with_address"] == 0

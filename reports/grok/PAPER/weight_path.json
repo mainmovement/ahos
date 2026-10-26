@@ -1,14 +1,14 @@
 {
  "schema": "ahos.paper.weight_path.v1",
- "generated_at": "2026-10-25T20:27:03Z",
+ "generated_at": "2026-10-26T01:51:00Z",
  "paper_only": true,
  "history_rewritten": false,
  "absence_filled": false,
  "edge_claimed": false,
- "open_rows": 35,
- "matched_weights": 314,
- "numeric_mismatch": 9,
- "absent_keys": 23,
+ "open_rows": 48,
+ "matched_weights": 403,
+ "numeric_mismatch": 15,
+ "absent_keys": 36,
  "no_history": 0,
  "absent_names": [
   "event_shock"
@@ -23,7 +23,8 @@
  ],
  "mismatch_versions": [
   11,
-  18
+  18,
+  25
  ],
  "status": "PATH_DIFFERS"
 }

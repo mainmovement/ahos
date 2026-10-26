@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.cluster_cap.v1",
- "generated_at": "2026-10-25T20:26:46Z",
+ "generated_at": "2026-10-26T01:50:52Z",
  "paper_only": true,
  "caps_changed": false,
  "positions_closed": false,
@@ -14,18 +14,24 @@
   "fx": 0.15,
   "metals": 0.2
  },
- "open_rows": 35,
- "scored_rows": 35,
+ "open_rows": 48,
+ "scored_rows": 48,
  "missing_rows": 0,
  "above_cluster": 0,
  "above_gross": 0,
  "worst_cap_ratio": 0.8571,
- "worst_gross_ratio": 0.3,
+ "worst_gross_ratio": 0.5944,
  "still_open": [
+  "BRENT",
   "BTC",
+  "ETH",
   "EURUSD",
+  "N225",
   "SOL",
-  "UNI"
+  "UNI",
+  "USDJPY",
+  "WTI",
+  "XAU"
  ],
  "status": "INSIDE_CLUSTER"
 }

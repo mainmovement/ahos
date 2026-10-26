@@ -1,22 +1,22 @@
 {
  "schema": "ahos.paper.dominant_signal.v1",
- "generated_at": "2026-10-25T20:26:47Z",
+ "generated_at": "2026-10-26T01:50:53Z",
  "paper_only": true,
  "skill_claimed": false,
- "close_rows": 31,
- "scored_rows": 31,
+ "close_rows": 38,
+ "scored_rows": 38,
  "missing_rows": 0,
- "sign_matches_side": 31,
+ "sign_matches_side": 38,
  "signals": [
   {
    "signal": "mtf_trend",
-   "rows": 28,
-   "sign_matches_side": 28
+   "rows": 32,
+   "sign_matches_side": 32
   },
   {
    "signal": "candles",
-   "rows": 1,
-   "sign_matches_side": 1
+   "rows": 3,
+   "sign_matches_side": 3
   },
   {
    "signal": "large_trades",
@@ -25,6 +25,11 @@
   },
   {
    "signal": "order_flow",
+   "rows": 1,
+   "sign_matches_side": 1
+  },
+  {
+   "signal": "zscore_mr",
    "rows": 1,
    "sign_matches_side": 1
   }

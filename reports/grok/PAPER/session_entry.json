@@ -1,6 +1,6 @@
 {
  "schema": "ahos.paper.session_entry.v1",
- "generated_at": "2026-10-25T20:26:58Z",
+ "generated_at": "2026-10-26T01:50:58Z",
  "paper_only": true,
  "pass_inferred": false,
  "breach_inferred": false,
@@ -8,12 +8,22 @@
  "edge_claimed": false,
  "daemon_restarted": false,
  "code_calls_gate": true,
- "active_rows": 4,
- "unresolved_rows": 4,
+ "active_rows": 10,
+ "unresolved_rows": 10,
  "pass_rows": 0,
  "breach_rows": 0,
  "timestamp_missing_rows": 0,
  "entries": [
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "ts": "2026-10-25T22:26:42Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": false,
+   "reconstructed_venue": "ICE_BRENT",
+   "within_stale_gate": true
+  },
   {
    "symbol": "BTC",
    "desk": "CRYPTO",
@@ -25,19 +35,39 @@
    "within_stale_gate": true
   },
   {
-   "symbol": "EURUSD",
-   "desk": "FOREX",
-   "ts": "2026-10-25T18:47:46Z",
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "ts": "2026-10-25T23:11:39Z",
    "gate_on_row": false,
    "classification": "UNRESOLVED",
-   "reconstructed_open": false,
+   "reconstructed_open": true,
+   "reconstructed_venue": "CRYPTO_24_7",
+   "within_stale_gate": true
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "ts": "2026-10-26T01:44:37Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": true,
    "reconstructed_venue": "FX_OTC",
+   "within_stale_gate": true
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "ts": "2026-10-26T01:19:56Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": true,
+   "reconstructed_venue": "TSE",
    "within_stale_gate": true
   },
   {
    "symbol": "SOL",
    "desk": "CRYPTO",
-   "ts": "2026-10-25T19:17:57Z",
+   "ts": "2026-10-25T23:11:39Z",
    "gate_on_row": false,
    "classification": "UNRESOLVED",
    "reconstructed_open": true,
@@ -52,6 +82,36 @@
    "classification": "UNRESOLVED",
    "reconstructed_open": true,
    "reconstructed_venue": "CRYPTO_24_7",
+   "within_stale_gate": true
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "ts": "2026-10-25T23:59:57Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": true,
+   "reconstructed_venue": "FX_OTC",
+   "within_stale_gate": true
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "ts": "2026-10-25T23:59:57Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": true,
+   "reconstructed_venue": "CME_GLOBEX",
+   "within_stale_gate": true
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "ts": "2026-10-25T22:20:12Z",
+   "gate_on_row": false,
+   "classification": "UNRESOLVED",
+   "reconstructed_open": true,
+   "reconstructed_venue": "CME_GLOBEX",
    "within_stale_gate": true
   }
  ],
