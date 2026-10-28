@@ -247,9 +247,12 @@ def fetch_third_sources(symbols: list[str] | tuple[str, ...], *, timeout: float 
 
 # ---------------- witness ----------------
 def _parse_iso(ts: Any) -> float | None:
+    """Exact Zulu seconds. The platform parser accepts a case-folded letter, so the shape is checked first."""
+    if not isinstance(ts, str) or len(ts) != 20 or ts[10] != "T" or ts[-1] != "Z":
+        return None
     try:
-        return datetime.strptime(str(ts), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
-    except (TypeError, ValueError):
+        return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
+    except ValueError:
         return None
 
 

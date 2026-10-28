@@ -1946,9 +1946,12 @@ def write_equity_replay(root: Path) -> dict[str, Any]:
 
 
 def _parse_stamp(value: object) -> datetime | None:
+    """Same Zulu shape as the trader clock. A case-shifted letter is not a stamp."""
+    if not isinstance(value, str) or len(value) != 20 or value[10] != "T" or value[-1] != "Z":
+        return None
     try:
-        return datetime.strptime(str(value), "%Y-%m-%dT%H:%M:%SZ")
-    except (TypeError, ValueError):
+        return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
         return None
 
 
@@ -3917,6 +3920,7 @@ def measure_weight_path(root: Path) -> dict[str, Any]:
             if _is_num(version) and float(version).is_integer():
                 by_version[int(version)] = item["weights"]
     matched = mismatch = absent = no_history = unversioned = opens = 0
+    on_row = row_conflict = 0
     absent_names: set[str] = set()
     mismatch_names: set[str] = set()
     mismatch_versions: set[int] = set()
@@ -3925,6 +3929,17 @@ def measure_weight_path(root: Path) -> dict[str, Any]:
             continue
         opens += 1
         brain = row.get("brain") if isinstance(row.get("brain"), dict) else {}
+        used = brain.get("weights_used") if isinstance(brain.get("weights_used"), dict) else None
+        contribs = brain.get("contributions") if isinstance(brain.get("contributions"), list) else []
+        if used is not None:
+            on_row += 1
+            for item in contribs:
+                if not isinstance(item, dict) or not isinstance(item.get("signal"), str) or not _is_num(item.get("weight")):
+                    continue
+                expected = used.get(item["signal"])
+                if not _is_num(expected) or abs(float(item["weight"]) - float(expected)) > 1e-9:
+                    row_conflict += 1
+                    break
         version = brain.get("weights_version")
         if not _is_num(version) or not float(version).is_integer():
             unversioned += 1
@@ -3938,7 +3953,6 @@ def measure_weight_path(root: Path) -> dict[str, Any]:
         if snapshot is None:
             no_history += 1
             continue
-        contribs = brain.get("contributions") if isinstance(brain.get("contributions"), list) else []
         for item in contribs:
             if not isinstance(item, dict) or not isinstance(item.get("signal"), str) or not _is_num(item.get("weight")):
                 continue
@@ -3955,16 +3969,26 @@ def measure_weight_path(root: Path) -> dict[str, Any]:
                 mismatch_versions.add(version)
     if opens == 0:
         status = "NO_OPEN_ROWS"
-    elif doc is None and any(True for _ in by_version) is False and unversioned == opens:
-        status = "VERSION_MISSING"
-    elif no_history:
-        status = "HISTORY_GAP"
-    elif mismatch or absent:
-        status = "PATH_DIFFERS"
-    elif matched:
-        status = "PATH_MATCHES"
+        decision_weights = "NOT_APPLICABLE"
     else:
-        status = "VERSION_MISSING"
+        if row_conflict:
+            decision_weights = "CONFLICTED_PROVENANCE"
+        elif on_row == 0:
+            decision_weights = "NOT_ON_ROW"
+        elif on_row == opens:
+            decision_weights = "ON_ROW"
+        else:
+            decision_weights = "MIXED"
+        if doc is None and any(True for _ in by_version) is False and unversioned == opens:
+            status = "VERSION_MISSING"
+        elif no_history:
+            status = "HISTORY_GAP"
+        elif mismatch or absent:
+            status = "PATH_DIFFERS"
+        elif matched:
+            status = "PATH_MATCHES"
+        else:
+            status = "VERSION_MISSING"
     return {
         "paper_only": True,
         "history_rewritten": False,
@@ -3979,6 +4003,7 @@ def measure_weight_path(root: Path) -> dict[str, Any]:
         "mismatch_names": sorted(mismatch_names),
         "mismatch_versions": sorted(mismatch_versions),
         "status": status,
+        "decision_weights": decision_weights,
     }
 
 

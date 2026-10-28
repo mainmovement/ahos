@@ -120,8 +120,11 @@ def _iso(ts: float) -> str:
 
 
 def _parse(ts: str | None) -> float | None:
+    """Exact `YYYY-MM-DDTHH:MM:SSZ`. The platform parser is case-insensitive, so the letters are checked first."""
+    if not isinstance(ts, str) or len(ts) != 20 or ts[10] != "T" or ts[-1] != "Z":
+        return None
     try:
-        return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp() if ts else None
+        return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
     except ValueError:
         return None
 
@@ -505,7 +508,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         newsig = next((s for s in sigs if s["name"] == "news"), None)
         brain = {"composite": comp, "contributions": comb["contributions"], "regime": regime,
                  "signals": [{k: s[k] for k in ("name", "score", "available", "source", "spec", "evidence")} for s in sigs],
-                 "weights_version": weights["version"]}
+                 "weights_version": weights["version"], "switch_version": int(switch_version),
+                 "weights_used": {str(k): round(float(v), 4) for k, v in live_weights.items()
+                                  if isinstance(v, (int, float)) and not isinstance(v, bool)}}
         scores = {s["name"]: round(float(s["score"]), 4) for s in sigs if s.get("available")}
         if pos:
             side = pos["side"]

@@ -136,10 +136,98 @@ def test_a_quote_ahead_of_the_cycle_clock_does_not_open_or_close(tmp_path):
     assert not any(r.get("reason") == "MARKET_CLOSED_OR_STALE" for r in cash)
 
 
+def test_unusable_quote_times_cannot_open_and_a_1199_second_quote_can(tmp_path):
+    from datetime import datetime, timezone
+    monday = datetime(2026, 10, 26, 15, 0, tzinfo=timezone.utc).timestamp()
+
+    def _run(name, market_time):
+        root = tmp_path / name
+        fetch = lambda: {"quotes": {"BTC": {
+            "price": 100.0, "source": "A", "market_time": market_time, "ohlcv_5m": _bars(100, 0.5),
+        }}}
+        fb = lambda: {"BTC": {"price": 100.02, "source": "B"}}
+        pt.run_cycle(root, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: monday, use_ledger=False)
+        return [r for r in _rows(root) if r.get("symbol") == "BTC"]
+
+    for name, stamp in (
+        ("empty", ""),
+        ("offset", "2026-10-26T15:00:00+00:00"),
+        ("fraction", "2026-10-26T15:00:00.000Z"),
+        ("lower-z", "2026-10-26T15:00:00z"),
+        ("lower-t", "2026-10-26t15:00:00Z"),
+        ("words", "not-a-time"),
+        ("number", 1_700_000_000),
+    ):
+        rows = _run(name, stamp)
+        assert not any(r.get("event") == "OPEN" for r in rows)
+        skipped = next(r for r in rows if r.get("event") == "SKIP")
+        assert skipped["reason"] == "MARKET_CLOSED_OR_STALE"
+        assert skipped["freshness"] == "UNKNOWN" and skipped["session_state"] == "OPEN"
+        assert skipped["market_time"] == stamp
+        assert skipped["reason"] != "QUOTE_TIME_AHEAD"
+
+    newer = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(monday - 1199))
+    fresh = _run("newer-than-boundary", newer)
+    assert any(r.get("event") == "OPEN" for r in fresh)
+    assert not any(r.get("reason") in ("QUOTE_TIME_AHEAD", "MARKET_CLOSED_OR_STALE") for r in fresh)
+
+
+def test_an_open_stores_the_weights_that_scored_it_and_a_later_file_does_not_rewrite_them(tmp_path):
+    from datetime import datetime, timezone
+    moment = datetime(2026, 10, 26, 15, 0, tzinfo=timezone.utc).timestamp()
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "signal_weights.json").write_text(json.dumps({
+        "version": 7, "weights": {"mtf_trend": 0.1}, "stats": {}, "history": [],
+    }), encoding="utf-8")
+    (paper / "strategy_switch.json").write_text(json.dumps({
+        "version": 3, "active": {"mtf_trend": 0.2}, "history": [], "paper_only": True,
+    }), encoding="utf-8")
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(moment))
+    fetch = lambda: {"quotes": {"BTC": {
+        "price": 100.0, "source": "A", "market_time": stamp, "ohlcv_5m": _bars(100, 0.5),
+    }}}
+    fb = lambda: {"BTC": {"price": 100.02, "source": "B"}}
+    pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: moment, use_ledger=False)
+    log = paper / "paper_trades.jsonl"
+    before = log.read_bytes()
+    opened = next(r for r in _rows(tmp_path) if r.get("event") == "OPEN")
+    brain = opened["brain"]
+    assert brain["weights_version"] == 7 and brain["switch_version"] == 3
+    assert brain["weights_used"]["mtf_trend"] == 0.2
+    assert brain["contributions"][0]["weight"] == 0.2
+    (paper / "signal_weights.json").write_text(json.dumps({
+        "version": 8, "weights": {"mtf_trend": 0.99}, "stats": {}, "history": [],
+    }), encoding="utf-8")
+    assert log.read_bytes() == before
+    reread = next(r for r in _rows(tmp_path) if r.get("event") == "OPEN")
+    assert reread["brain"]["weights_used"]["mtf_trend"] == 0.2
+    assert reread["brain"]["weights_version"] == 7
+
+
 def test_kill_switch_blocks_new_risk():
     now = 1_800_000_000.0
     trades = [{"realized_pnl_usd": -4.0, "closed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now - 60))}]
     assert pt.kill_switch(trades, 100.0, now)[0] is True
+
+def test_a_case_folded_stamp_is_not_a_witness_clock():
+    from datetime import datetime, timezone
+    from architecture.markets.second_source import _parse_iso, witness
+    exact = datetime(2026, 10, 26, 15, 0, tzinfo=timezone.utc).timestamp()
+    assert _parse_iso("2026-10-26T15:00:00Z") == exact
+    assert _parse_iso("2026-10-26T15:00:00z") is None
+    assert _parse_iso("2026-10-26t15:00:00Z") is None
+    assert _parse_iso("2026-10-26T15:00:00+00:00") is None
+    assert _parse_iso("2026-10-26T15:00:00.000Z") is None
+    conflict = witness(
+        "BTC",
+        {"price": 100.0, "source": "A", "market_time": "2026-10-26t15:00:00Z"},
+        {"price": 102.0, "source": "B", "delay_s": 60, "fetched_at": "2026-10-26T15:00:00z"},
+    )
+    assert conflict["verdict"] == "CONFLICT"
+    assert conflict.get("diagnostics", {}).get("time_aligned_ab") is not True
+    assert witness("BTC", {"price": 100.0, "market_time": ""}, None)["verdict"] == "UNRESOLVED"
+
 
 def test_witness_verdicts():
     from architecture.markets.second_source import witness

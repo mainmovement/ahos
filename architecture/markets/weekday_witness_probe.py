@@ -33,6 +33,8 @@ def tradable_for_paper(
     age = quote_age_seconds(quote, now)
     if age is None:
         return False, "MARKET_TIME_UNKNOWN"
+    if age < 0:
+        return False, "QUOTE_TIME_AHEAD"
     if age > MAX_TRADE_AGE_S:
         return False, "MARKET_CLOSED_OR_STALE"
     return True, "OK"
@@ -135,14 +137,9 @@ def build_weekday_two_source_audit(root: Path, now: datetime | None = None) -> d
             if isinstance(row, dict) and row.get("symbol"):
                 stored[str(row["symbol"])] = row
     probe_utc = ((probe.get("session_gate") or {}) if isinstance(probe.get("session_gate"), dict) else {}).get("utc")
-    probe_ts = None
-    if isinstance(probe_utc, str):
-        try:
-            probe_ts = datetime.strptime(probe_utc, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-        except ValueError:
-            probe_ts = None
-    probe_age_s = None if probe_ts is None else (moment - probe_ts).total_seconds()
-    probe_stale = probe_age_s is None or probe_age_s > MAX_TRADE_AGE_S
+    probe_epoch = _parse(probe_utc) if isinstance(probe_utc, str) else None
+    probe_age_s = None if probe_epoch is None else moment.timestamp() - probe_epoch
+    probe_stale = probe_age_s is None or probe_age_s < 0 or probe_age_s > MAX_TRADE_AGE_S
     weekend = bool(sess.get("weekend_tehran"))
     out_rows = []
     for sym, (desk, _fee, _slip) in INSTRUMENTS.items():

@@ -1793,18 +1793,54 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     }
 
 
+def _check_ids(doc: dict[str, Any] | None) -> list[str] | None:
+    if not isinstance(doc, dict):
+        return None
+    checks = doc.get("checks")
+    if not isinstance(checks, list):
+        return None
+    ids: list[str] = []
+    for item in checks:
+        if not isinstance(item, dict) or not isinstance(item.get("id"), str) or not item["id"]:
+            return None
+        ids.append(item["id"])
+    return ids
+
+
+def _keep_existing_audit(prev: dict[str, Any] | None, out: dict[str, Any]) -> bool:
+    """A partial, renamed, or duplicated check list must not replace a file that is already there."""
+    if not isinstance(prev, dict) or not isinstance(out, dict):
+        return False
+    prev_ids = _check_ids(prev)
+    new_ids = _check_ids(out)
+    if new_ids is not None and len(new_ids) != len(set(new_ids)):
+        return True
+    if prev_ids is not None and new_ids is not None and not set(prev_ids) <= set(new_ids):
+        return True
+    prev_n = prev.get("checks_total")
+    new_n = out.get("checks_total")
+    if isinstance(prev_n, int) and not isinstance(prev_n, bool) and isinstance(new_n, int) and not isinstance(new_n, bool) and new_n < prev_n:
+        return True
+    prev_schema = prev.get("schema")
+    if isinstance(prev_schema, str) and prev_schema != out.get("schema"):
+        return True
+    return False
+
+
 def export_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     out = build_unification_audit(root, now=now)
     path = Path(root) / OUT_REL
     path.parent.mkdir(parents=True, exist_ok=True)
+    prev = None
     if path.is_file():
         try:
             prev = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             prev = None
-        prev_n = prev.get("checks_total") if isinstance(prev, dict) else None
-        new_n = out.get("checks_total")
-        if isinstance(prev_n, int) and not isinstance(prev_n, bool) and isinstance(new_n, int) and not isinstance(new_n, bool) and new_n < prev_n:
-            return prev
-    path.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        if _keep_existing_audit(prev if isinstance(prev, dict) else None, out):
+            return prev if isinstance(prev, dict) else out
+    text = json.dumps(out, indent=2, ensure_ascii=False) + "\n"
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(text, encoding="utf-8")
+    tmp.replace(path)
     return out

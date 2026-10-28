@@ -18,6 +18,34 @@ def test_weekend_blocks_cash_desk_even_if_verified():
     assert ok is False and reason == "WEEKEND_CASH_SESSION"
 
 
+def test_a_future_quote_is_not_tradable_and_the_1200_boundary_holds():
+    from datetime import datetime, timezone
+    now = datetime(2026, 10, 26, 15, 0, tzinfo=timezone.utc).timestamp()
+    ahead = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now + 1))
+    ok, reason = tradable_for_paper(
+        "CRYPTO", "VERIFIED", {"market_time": ahead, "price": 100}, now=now, weekend_tehran=False,
+    )
+    assert ok is False and reason == "QUOTE_TIME_AHEAD"
+    edge = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now - 1200))
+    ok, reason = tradable_for_paper(
+        "CRYPTO", "VERIFIED", {"market_time": edge, "price": 100}, now=now, weekend_tehran=False,
+    )
+    assert ok is True and reason == "OK"
+    stale = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now - 1201))
+    ok, reason = tradable_for_paper(
+        "CRYPTO", "VERIFIED", {"market_time": stale, "price": 100}, now=now, weekend_tehran=False,
+    )
+    assert ok is False and reason == "MARKET_CLOSED_OR_STALE"
+    ok, reason = tradable_for_paper(
+        "CRYPTO", "VERIFIED", {"market_time": "2026-10-26t15:00:00Z", "price": 100}, now=now, weekend_tehran=False,
+    )
+    assert ok is False and reason == "MARKET_TIME_UNKNOWN"
+    ok, reason = tradable_for_paper(
+        "CRYPTO", "CONFLICT", {"market_time": edge, "price": 100}, now=now, weekend_tehran=False,
+    )
+    assert ok is False and reason == "WITNESS_CONFLICT"
+
+
 def test_stale_quote_not_tradable():
     now = time.time()
     ok, reason = tradable_for_paper(

@@ -879,6 +879,7 @@ def test_a_history_gap_is_not_filled_and_a_posterior_is_not_a_probability(tmp_pa
     log.write_text(json.dumps(row) + "\n", encoding="utf-8")
     path = measure_weight_path(tmp_path)
     assert path["status"] == "PATH_DIFFERS"
+    assert path["decision_weights"] == "NOT_ON_ROW"
     assert path["matched_weights"] == 1 and path["absent_keys"] == 1
     assert path["numeric_mismatch"] == 0 and path["absent_names"] == ["event_shock"]
     assert path["history_rewritten"] is False and path["absence_filled"] is False
@@ -902,6 +903,43 @@ def test_a_history_gap_is_not_filled_and_a_posterior_is_not_a_probability(tmp_pa
     assert differed["mismatch_versions"] == [2]
     again = json.loads((paper / "signal_weights.json").read_text(encoding="utf-8"))
     assert again["history"][0]["weights"]["candles"] == 0.12
+
+
+def test_the_current_weight_file_is_not_the_decision_vector(tmp_path):
+    import json
+
+    from architecture.markets.paper_trade_audit import measure_weight_path
+
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    weights = paper / "signal_weights.json"
+    weights.write_text(json.dumps({
+        "version": 4,
+        "weights": {"candles": 0.99},
+        "history": [{"version": 1, "weights": {"candles": 0.12}}],
+    }), encoding="utf-8")
+    row = {
+        "event": "OPEN", "symbol": "BTC",
+        "brain": {"weights_version": 2, "contributions": [{"signal": "candles", "weight": 0.12}]},
+    }
+    log = paper / "paper_trades.jsonl"
+    log.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    before = log.read_bytes()
+    missing = measure_weight_path(tmp_path)
+    assert missing["status"] == "PATH_MATCHES" and missing["matched_weights"] == 1
+    assert missing["decision_weights"] == "NOT_ON_ROW"
+    assert log.read_bytes() == before
+    assert json.loads(weights.read_text(encoding="utf-8"))["weights"]["candles"] == 0.99
+    row["brain"]["weights_used"] = {"candles": 0.12}
+    log.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    stored = measure_weight_path(tmp_path)
+    assert stored["decision_weights"] == "ON_ROW" and stored["status"] == "PATH_MATCHES"
+    row["brain"]["weights_used"] = {"candles": 0.5}
+    log.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    conflict = measure_weight_path(tmp_path)
+    assert conflict["decision_weights"] == "CONFLICTED_PROVENANCE"
+    assert conflict["status"] == "PATH_MATCHES" and conflict["history_rewritten"] is False
+    assert json.loads(weights.read_text(encoding="utf-8"))["weights"]["candles"] == 0.99
 
 
 def test_a_matching_blend_is_not_a_probability_and_a_missing_partial_is_not_filled(tmp_path):
@@ -1077,6 +1115,25 @@ def test_a_missing_session_result_is_not_a_pass_or_a_breach(tmp_path):
     kept = export_unification_audit(tmp_path)
     assert kept["checks_total"] == 5000
     assert json.loads(audit.read_text(encoding="utf-8"))["checks_total"] == 5000
+    from architecture.health.unification_audit import _keep_existing_audit
+    longer = {"schema": "ahos.unification_audit.v1", "checks_total": 2,
+              "checks": [{"id": "a"}, {"id": "b"}]}
+    assert _keep_existing_audit(
+        {"schema": "ahos.unification_audit.v1", "checks_total": 2, "checks": [{"id": "a"}, {"id": "c"}]},
+        longer,
+    ) is True
+    assert _keep_existing_audit(
+        {"schema": "ahos.unification_audit.v1", "checks_total": 2, "checks": [{"id": "a"}, {"id": "b"}]},
+        {"schema": "ahos.unification_audit.v1", "checks_total": 2, "checks": [{"id": "a"}, {"id": "a"}]},
+    ) is True
+    assert _keep_existing_audit(
+        {"schema": "other.audit.v0", "checks_total": 1, "checks": [{"id": "a"}]},
+        {"schema": "ahos.unification_audit.v1", "checks_total": 2, "checks": [{"id": "a"}, {"id": "b"}]},
+    ) is True
+    assert _keep_existing_audit(
+        {"schema": "ahos.unification_audit.v1", "checks_total": 1, "checks": [{"id": "a"}]},
+        longer,
+    ) is False
 
 
 def test_a_combined_skip_is_not_relabeled_from_the_clock(tmp_path):
