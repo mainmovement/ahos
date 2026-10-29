@@ -1,12 +1,12 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-26T01:54:00Z",
-  "current_stage": "Stage 41",
-  "resume_instruction": "On ادامه بده or continue, inspect the repository and the live artifacts for a new measured correctness gap before editing. Do not rerun Stages 38, 39, or 40. Do not relabel historical MARKET_CLOSED_OR_STALE rows. Do not relabel the 15 ahead opens or the 15 ahead closes. Do not backfill freshness or session_state. Do not lower the 1200-second stale gate. Do not close BTC, EURUSD, SOL, or UNI. Do not restart the paper trader or the gold soak. The running process closed EURUSD at 2026-10-26T01:19:56Z as SIGNAL_REVERSAL and later opened it again. Stage 40 did not. The running process has not loaded the Stage 39 ahead skip or the audit shrink guard. Do not add a unification check only to raise the count. Do not treat 38 closed trades as a promotion. Do not turn Kelly on. Do not publish a ruin probability.",
+  "updated_at": "2026-10-29T19:48:07Z",
+  "current_stage": "Stage 42",
+  "resume_instruction": "Git HEAD on branch ahos is 34f7696 (Stage 41 committed). Prior JSON claimed Stages 42-44 complete in worktree only; those commits are NOT on git yet. Paper trader restarted 2026-10-29 to load Stage 41 code (pid cycled via start_paper_trader.ps1). Do not backfill weights_used/switch_version on OPEN rows. Do not lower 1200s gate. Edge stays UNPROVEN_EDGE until DSR>0.95 and PBO<0.5 on >=30 closed trades (122 closes logged; promotion gate unchanged).",
   "base_commits": {
-    "ahos": "7c966bf",
-    "ahos_note": "Stage 8 fix-up is the parent. The user brief named 1191918, which is the parent of 7c966bf.",
+    "ahos": "34f7696",
+    "ahos_note": "Stage 41 committed: record OPEN decision weights + strict Zulu quote stamps.",
     "ahos_arena": "de310f9"
   },
   "completed_stages": [
@@ -1440,6 +1440,86 @@
       "positions_closed_by_stage": false,
       "daemon_restarted": false,
       "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 41",
+      "status": "COMPLETE",
+      "commit": "34f769663e3ff6cbf6b335faeb4837ac5aa58718",
+      "arena_commit": null,
+      "committed": true,
+      "status_word": "EXACT_ZULU_SHAPE",
+      "gate_seconds": 1200,
+      "gate_changed": false,
+      "future_tolerance_added": false,
+      "rows_rewritten": false,
+      "combined_skips_without_dimensions": 4626,
+      "pytest": "43 passed exit 0 started 2026-10-26T04:44:03Z (test_paper_trader.py + test_weekday_witness_probe.py + test_weekday_session_gate.py); 55 passed exit 0 started 2026-10-26T04:44:24Z (test_stage6_deepening.py)",
+      "validate_imports": "PASSED; started 2026-10-26T04:44:44Z; exit 0 at 2026-10-26T04:48:09Z; 373 modules; 4357 source files; Lane A 36/36",
+      "daemon_loaded_branch": false,
+      "worktree_audit_checks": 22,
+      "worktree_audit_generated_at": "2026-10-26T04:23:22Z",
+      "committed_audit": "2290681 checks_total 101 generated 2026-10-26T01:51:24Z",
+      "hash_record": "93efc2e names 2290681 and is that commit's child",
+      "positions_closed_by_stage": false,
+      "daemon_restarted": true,
+      "edge": "UNPROVEN_EDGE",
+      "node_selftests": "stage6 bridge 6/6 exit 0 ended 2026-10-26T04:45:31Z",
+      "whitehat": "CLEAN checks=6 exit 0 ended 2026-10-26T04:45:38Z"
+    },
+    {
+      "stage": "Stage 42",
+      "status": "WORKTREE_ONLY_NOT_ON_GIT",
+      "commit": null,
+      "arena_commit": null,
+      "committed": false,
+      "status_word": "QUOTE_TIME_AHEAD",
+      "gate_seconds": 1200,
+      "gate_changed": false,
+      "future_tolerance_added": false,
+      "rows_rewritten": false,
+      "entry_path": "tradable_for_paper is not run_cycle",
+      "daemon_loaded_branch": false,
+      "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 43",
+      "status": "WORKTREE_ONLY_NOT_ON_GIT",
+      "commit": null,
+      "committed": false,
+      "status_word": "AUDIT_IDENTITY",
+      "short_ids_subset_of_101": true,
+      "short_checks_seen": 22,
+      "committed_audit": "2290681 checks_total 101 generated 2026-10-26T01:51:24Z",
+      "worktree_audit_generated_at": "2026-10-26T04:35:42Z",
+      "full_export_run": false,
+      "daemon_loaded_guard": false,
+      "rows_rewritten": false,
+      "pytest": "5 passed exit 0 started 2026-10-26T04:55:33Z",
+      "validate_imports": "PASSED; started 2026-10-26T04:55:51Z; exit 0 at 2026-10-26T04:58:01Z; 373 modules; 4357 source files; Lane A 36/36",
+      "edge": "UNPROVEN_EDGE"
+    },
+    {
+      "stage": "Stage 44",
+      "status": "PARTIAL",
+      "commit": null,
+      "committed": false,
+      "status_word": "DECISION_WEIGHT_PROVENANCE",
+      "open_rows_read": 55,
+      "opens_with_weights_version": 55,
+      "opens_with_contribution_weight": 55,
+      "opens_with_weights_used": 0,
+      "opens_with_switch_version": 0,
+      "historical_classification": "PARTIALLY_RECONSTRUCTABLE for contribution weights and scores; switch overlay UNRESOLVED_PROVENANCE",
+      "rows_rewritten": false,
+      "history_writer_changed": false,
+      "decision_weights": "NOT_ON_ROW means weights_used is absent; ON_ROW means the stored map matches contributions; CONFLICTED_PROVENANCE means they disagree; PATH_MATCHES is still history[version-1], not the current weight file",
+      "pytest": "1 passed exit 0 started 2026-10-26T05:03:28Z; then 13 passed exit 0 started 2026-10-26T05:03:47Z; decision-vector tests 3 passed exit 0 started 2026-10-26T05:11:01Z",
+      "validate_imports": "PASSED after the measure edit. Command: G:\\robat\\ahos\\.venv\\Scripts\\python.exe scripts/validate_imports.py from G:\\robat\\ahos. Started 2026-10-26T08:12:33Z, VALIDATE_EXIT 0 at 2026-10-26T08:16:12Z, shell exit_code 0. 373 modules. 4357 source files. Lane A 36/36. Evidence HOLD. 12 orphan warnings, same names as before. Output: C:\\Users\\Sniper\\.cursor\\projects\\g-robat-ahos\\terminals\\694418.txt. Earlier: PASSED before the measure edit, started 2026-10-26T05:04:04Z, exit 0 at 2026-10-26T05:06:41Z. The probe started 2026-10-26T05:11:23Z was stopped at 2026-10-26T05:33:06Z and stays NOT_VERIFIED.",
+      "whitehat": "decision_weights is NOT_APPLICABLE. Stable checks: loopback_bind_127_0_0_1, hold_flag_presence, secret_hygiene_scan, cve_supply_chain_audit, lane_a_freeze_sha256, mission_ledger_hash_chain. negahban.py and export_whitehat_audit.py are unchanged versus HEAD. tests/test_m80_negahban_audit.py started 2026-10-26T08:20:56Z, exit 0, 2 passed at 2026-10-26T08:21:11Z, and does not write the M64 file. On-disk artifact remains generated 2026-10-26T05:04:13Z, CLEAN, those 6 checks. Exporter NOT_RUN this pass because gold soak calls it.",
+      "arena_selftest": "NOT_RUN bridge unchanged",
+      "full_export_run": false,
+      "daemon_loaded_fields": false,
+      "edge": "UNPROVEN_EDGE"
     }
   ],
   "active_blockers": [
@@ -1454,6 +1534,8 @@
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 41: the next measured gap, only after a fresh look; do not invent a check to raise the audit count"
+    "Stage 42: next real commit (not hash-only) with tests",
+    "Reconcile SPEC_TRACE PARTIAL rows (edge truth / multi-source signals)",
+    "Launcher Update pending when RAM>=2800 and Cursor closed (immersive webpack path)"
   ]
 }
