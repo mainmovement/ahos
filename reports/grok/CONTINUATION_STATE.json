@@ -1,11 +1,11 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-29T19:48:07Z",
-  "current_stage": "Stage 42",
-  "resume_instruction": "Git HEAD on branch ahos is 34f7696 (Stage 41 committed). Prior JSON claimed Stages 42-44 complete in worktree only; those commits are NOT on git yet. Paper trader restarted 2026-10-29 to load Stage 41 code (pid cycled via start_paper_trader.ps1). Do not backfill weights_used/switch_version on OPEN rows. Do not lower 1200s gate. Edge stays UNPROVEN_EDGE until DSR>0.95 and PBO<0.5 on >=30 closed trades (122 closes logged; promotion gate unchanged).",
+  "updated_at": "2026-10-29T20:05:00Z",
+  "current_stage": "Stage 43",
+  "resume_instruction": "Git HEAD after ec8b861 (EDGE_REPORT) + Phase 3 SPEC_TRACE reconcile. Paper: 122 closes, UNPROVEN_EDGE (DSR 0.0, eligible false). SPEC_TRACE 119 REAL / 3 PARTIAL (M13 month soak, M31 30-night, M36 72h). No ApplyPending without owner. Launcher Update when RAM>=2800 and Cursor closed.",
   "base_commits": {
-    "ahos": "34f7696",
+    "ahos": "ec8b861",
     "ahos_note": "Stage 41 committed: record OPEN decision weights + strict Zulu quote stamps.",
     "ahos_arena": "de310f9"
   },
@@ -1534,8 +1534,8 @@
     "Sunday 2026-10-25 audit: cash desks closed, stored witness stale at 48911.6s, tradable symbols none. That is not a weekday print"
   ],
   "next_wave_queue": [
-    "Stage 42: next real commit (not hash-only) with tests",
-    "Reconcile SPEC_TRACE PARTIAL rows (edge truth / multi-source signals)",
-    "Launcher Update pending when RAM>=2800 and Cursor closed (immersive webpack path)"
+    "Stage 43+: worktree Stage 42 quote-time-ahead code (if still uncommitted) with tests",
+    "Launcher Update pending when RAM>=2800 and Cursor closed (immersive webpack path)",
+    "Optional: live-book CSCV PBO pre-registered paths (no new search)"
   ]
 }

@@ -117,3 +117,11 @@
 **Choice:** NO — require `pbo_live_book is not None and pbo_live_book < 0.5` alongside DSR>0.95 and CI lower >0; keep `edge_status=UNPROVEN_EDGE` until owner promotion artifact exists.
 
 **Reason:** Master Map TS-PG treats live-book PBO as part of promotion; research batch8 PBO is not the running $100 policy. Prevents false eligible on unit fixtures and on live book (122 closes, DSR 0.0, negative CI).
+
+## 2026-10-29: Phase 3 SPEC_TRACE PARTIAL reconciliation
+
+**Question:** Should M19/M58/M13.3–M13.5 stay PARTIAL after 122 live closes and desk-level fills?
+
+**Choice:** YES for upgrades where acceptance is evidence-based (≥4 desks, ≥30 closes for M58 eval sample, equity desk CLOSE rows); NO promotion to REAL for M13/M31/M36 wall-clock soak/digest items.
+
+**Reason:** `scripts/reconcile_spec_trace_partial.py` + `SPEC_TRACE_PARTIAL_RECEIPT.json` anchor counts to `edge_report.json`; SPEC_TRACE coverage **119 REAL / 3 PARTIAL (98% weighted)** without claiming edge or skipping month/72h gates.

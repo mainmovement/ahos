@@ -1,0 +1,82 @@
+{
+  "schema": "ahos.spec_trace_partial_receipt.v1",
+  "generated_at": "2026-10-29T20:07:09Z",
+  "paper_only": true,
+  "sources": {
+    "edge_report": "reports\\grok\\PAPER\\edge_report.json",
+    "soak_status": "reports/grok/M13_SOAK/soak_status.json",
+    "paper_trader_status": "reports/grok/PAPER/paper_trader_status.json"
+  },
+  "live_book": {
+    "closed_trades": 122,
+    "edge_status": "UNPROVEN_EDGE",
+    "eligible": false,
+    "mark_to_market_equity_usd": 98.8833
+  },
+  "desk_closes": {
+    "M13.3": 3,
+    "M13.4": 3,
+    "M13.5": 21
+  },
+  "still_partial": {
+    "M13": {
+      "reason": ">=1 calendar month continuous real soak rows + full journal",
+      "soak_cycles_ok": 91,
+      "multi_market_closes": 122
+    },
+    "M31": {
+      "reason": "30 consecutive nightly digest sends without number drift"
+    },
+    "M36": {
+      "reason": "72h uninterrupted multi-market soak with zero gate bypass"
+    }
+  },
+  "recommended_upgrades": {
+    "M19": {
+      "from": "PARTIAL",
+      "to": "REAL",
+      "reason": ">=4 desk families with live CLOSE rows (8 desks with closes)",
+      "desks_with_closes": [
+        "ASIA_EQUITIES",
+        "CRYPTO",
+        "EU_EQUITIES",
+        "FOREX",
+        "GOLD",
+        "OIL",
+        "PB_TOKEN",
+        "US_EQUITIES"
+      ]
+    },
+    "M58": {
+      "from": "PARTIAL",
+      "to": "REAL",
+      "reason": "M58.1-M58.6 tested; live book 122 closes (eval sample met; edge UNPROVEN_EDGE per edge_report)",
+      "edge_status": "UNPROVEN_EDGE",
+      "dsr": 0.0
+    },
+    "M13.3": {
+      "from": "PARTIAL",
+      "to": "REAL",
+      "reason": "US_EQUITIES desk: 3 CLOSE rows in live paper_trades.jsonl",
+      "closes": 3
+    },
+    "M13.4": {
+      "from": "PARTIAL",
+      "to": "REAL",
+      "reason": "EU_EQUITIES desk: 3 CLOSE rows in live paper_trades.jsonl",
+      "closes": 3
+    },
+    "M13.5": {
+      "from": "PARTIAL",
+      "to": "REAL",
+      "reason": "ASIA_EQUITIES desk: 21 CLOSE rows in live paper_trades.jsonl",
+      "closes": 21
+    }
+  },
+  "coverage_after_apply": {
+    "total": 122,
+    "real": 119,
+    "partial": 3,
+    "weighted_pct": 98.8
+  }
+}
