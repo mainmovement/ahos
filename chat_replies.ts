@@ -400,7 +400,10 @@ export function paperLaneWhyBlocks(lane: PaperLaneReadModel | undefined, userTex
       note(
         `میز ${deskRow.paperDesk}: ضریب اندازه ${deskRow.notionalMult} (${deskRow.notionalMultSource})` +
           (deskRow.researchOverlayScore != null ? ` · research_overlay=${deskRow.researchOverlayScore}` : "") +
-          (deskRow.strategySwitchKeys.length ? ` · switch: ${deskRow.strategySwitchKeys.join("، ")}` : ""),
+          (deskRow.strategySwitchKeys.length ? ` · switch: ${deskRow.strategySwitchKeys.join("، ")}` : "") +
+          (deskRow.registryHypotheses?.length
+            ? ` · shadow-log: ${deskRow.registryHypotheses.join("، ")} (وزن ۰)`
+            : ""),
       ),
     );
   }
@@ -431,7 +434,8 @@ export function paperDeskFeedBlocks(lane: PaperLaneReadModel | undefined): Reply
     lines.push(
       bullet(
         `${d.paperDesk}: اندازه×${d.notionalMult} (${d.notionalMultSource})` +
-          (d.researchOverlayScore != null ? ` · overlay ${d.researchOverlayScore}` : ""),
+          (d.researchOverlayScore != null ? ` · overlay ${d.researchOverlayScore}` : "") +
+          (d.registryHypotheses?.length ? ` · log ${d.registryHypotheses.join("/")} (w=0)` : ""),
       ),
     );
   }

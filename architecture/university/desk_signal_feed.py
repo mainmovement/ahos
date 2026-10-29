@@ -7,7 +7,11 @@ from pathlib import Path
 from typing import Any
 
 from architecture.markets.paper_trade_gates import effective_desk_notional_mult
-from architecture.markets.research_desk_signal import DESK_TO_PIPELINE, research_overlay_for_desk
+from architecture.markets.research_desk_signal import (
+    DESK_TO_PIPELINE,
+    research_overlay_for_desk,
+    research_predictions_for_trade,
+)
 
 FEED_REL = Path("reports") / "grok" / "PAPER" / "desk_signal_feed.json"
 
@@ -31,18 +35,20 @@ def build_desk_signal_feed(root: Path) -> dict[str, Any]:
     desks: list[dict[str, Any]] = []
     for paper_desk, pipeline in sorted(DESK_TO_PIPELINE.items()):
         overlay = research_overlay_for_desk(root, paper_desk)
+        ev = overlay.get("evidence") if isinstance(overlay.get("evidence"), dict) else {}
+        pred = research_predictions_for_trade(root, paper_desk)
         mult, mult_src = effective_desk_notional_mult(root, paper_desk)
-        keys = list((overlay.get("evidence") or {}).get("active_keys") or [])
-        batch_keys = list((overlay.get("evidence") or {}).get("batch_pass_stats_keys") or [])
         desks.append(
             {
                 "paper_desk": paper_desk,
                 "pipeline_desk": pipeline,
                 "research_overlay_score": overlay.get("score"),
                 "research_overlay_available": overlay.get("available"),
-                "strategy_switch_active_keys": keys,
-                "batch_pass_stats_keys": batch_keys,
-                "overlay_sources": list((overlay.get("evidence") or {}).get("overlay_sources") or []),
+                "research_overlay_composite_weight": ev.get("composite_weight", 0.0),
+                "batch_pass_stats_keys": list(ev.get("batch_pass_stats_keys") or []),
+                "shadow_forward_hypotheses": list(ev.get("shadow_forward_logged") or []),
+                "shadow_forward_predictions": pred.get("predictions") or [],
+                "weighted_sources": list(ev.get("weighted_sources") or []),
                 "notional_mult": mult,
                 "notional_mult_source": mult_src,
                 "paper_only": True,
@@ -56,8 +62,8 @@ def build_desk_signal_feed(root: Path) -> dict[str, Any]:
         "strategy_switch_active_count": len(active),
         "desks": desks,
         "honesty_note": (
-            "Feed documents what the paper trader may read (research_overlay signal + size policy). "
-            "It does not promote strategies or override security/canonical authority."
+            "research_overlay composite weight applies only to PASS_STATS + SURVIVED_RED_TEAM. "
+            "SHADOW/FORWARD rows are logged on trades with weight 0."
         ),
     }
 

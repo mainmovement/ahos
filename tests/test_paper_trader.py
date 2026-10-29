@@ -363,7 +363,7 @@ def test_shadow_block_skips_open_when_env_set(tmp_path, monkeypatch):
     assert any(r.get("reason") == "DESK_EDGE_SHADOW_BLOCK" for r in rows if r["event"] == "NO_TRADE")
 
 
-def test_open_logs_research_overlay_from_strategy_switch(tmp_path):
+def test_open_logs_research_predictions_switch_weight_zero(tmp_path):
     sw = tmp_path / "reports/grok/PAPER/strategy_switch.json"
     sw.parent.mkdir(parents=True, exist_ok=True)
     sw.write_text(json.dumps({"version": 1, "active": {"H14:mtf": 0.12}, "paper_only": True}), encoding="utf-8")
@@ -377,6 +377,8 @@ def test_open_logs_research_overlay_from_strategy_switch(tmp_path):
     sigs = (opens[0].get("brain") or {}).get("signals") or []
     overlay = next((s for s in sigs if s.get("name") == "research_overlay"), None)
     assert overlay is not None
-    assert overlay.get("available") is True
-    assert (tmp_path / "reports/grok/PAPER/desk_signal_feed.json").is_file()
+    assert overlay.get("available") is False
+    preds = opens[0].get("research_predictions") or {}
+    assert preds.get("schema") == "ahos.research_predictions.v1"
+    assert any(p.get("switch_key") == "H14:mtf" and p.get("composite_weight") == 0.0 for p in preds.get("predictions") or [])
 

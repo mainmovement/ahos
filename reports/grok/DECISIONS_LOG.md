@@ -173,3 +173,19 @@
 **Choice:** YES — add `edge.desk_artifacts` in `unification_audit.py` when `edge_report.json` exists; skip the check when edge export has not run. Operator refresh via `scripts/refresh_paper_lane_artifacts.py` (wraps `export_edge_report.main`).
 
 **Reason:** Product tranche (b)(c) is artifact-backed; audit catches stale desk policy after manual edits. Live book check PASS with UNPROVEN_EDGE and `promotion_eligible=false`.
+
+## 2026-10-30: Registry SHADOW/FORWARD → desk research_overlay
+
+**Question:** When batch gates are all FAIL and strategy_switch is empty, should University still feed desks?
+
+**Choice:** YES — merge `strategy_lab/registry.json` hypotheses with verdict `SHADOW_FORWARD_TEST` or `FORWARD_TEST` (mapped via `DESK_OF_HYP`) into `research_overlay` with capped weights from mean OOS Sharpe; FORWARD without metrics appears in feed evidence only.
+
+**Reason:** Live book has H15 shadow-forward on crypto; advisory overlay must not invent PASS_STATS or bypass promotion gates.
+
+## 2026-10-30: Shadow/forward weight 0 in composite
+
+**Question:** Should SHADOW_FORWARD / FORWARD_TEST (e.g. H15) move composite or size?
+
+**Choice:** NO — `research_overlay` composite weight only for batch `PASS_STATS` + `SURVIVED_RED_TEAM`; shadow/forward logged per trade in `research_predictions` with `composite_weight: 0` and deferred outcome scoring.
+
+**Reason:** Owner fix before commit; prevents unproven university hypotheses from steering the paper book while preserving audit trail for later calibration.

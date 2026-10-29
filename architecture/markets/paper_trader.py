@@ -538,15 +538,20 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 fund_hist = state["brain"].setdefault("funding_history", {}).setdefault(sym, [])
                 sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym, fund_hist), sb.stablecoin_flow(state["brain"]),
                          sb.exchange_netflow(sym), sb.whale_mempool(sym), sb.stablecoin_impulse(sym)]
-        from architecture.markets.research_desk_signal import append_research_signal
+        from architecture.markets.research_desk_signal import append_research_signal, research_predictions_for_trade
 
         sigs = append_research_signal(root, desk, sigs)
+        pred_log = research_predictions_for_trade(root, desk)
         regime = sb.vol_regime(ohlcv)
         oflow = next((s for s in sigs if s["name"] == "order_flow"), None)
         if oflow and (oflow.get("evidence") or {}).get("depth_disagreement"):
             regime["size_mult"] = round(float(regime.get("size_mult") or 1.0) * 0.5, 4)
             regime["depth_disagreement_haircut"] = True
-        comb = sb.combine(sigs, live_weights)
+        live_w = dict(live_weights)
+        ov = next((s for s in sigs if s.get("name") == "research_overlay"), None)
+        if not ov or not ov.get("available"):
+            live_w["research_overlay"] = 0.0
+        comb = sb.combine(sigs, live_w)
         comp = comb["composite"]
         mtf = next((s for s in sigs if s["name"] == "mtf_trend"), None)
         higher = (mtf or {}).get("evidence", {}).get("higher_tf_sign")
@@ -554,6 +559,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         brain = {"composite": comp, "contributions": comb["contributions"], "regime": regime,
                  "signals": [{k: s[k] for k in ("name", "score", "available", "source", "spec", "evidence")} for s in sigs],
                  "weights_version": weights["version"], "switch_version": int(switch_version),
+                 "research_predictions": pred_log,
                  "weights_used": {str(k): round(float(v), 4) for k, v in live_weights.items()
                                   if isinstance(v, (int, float)) and not isinstance(v, bool)}}
         scores = {s["name"]: round(float(s["score"]), 4) for s in sigs if s.get("available")}
@@ -614,6 +620,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 brain=eb if isinstance(eb, dict) else None,
                 composite=(eb or {}).get("composite") if isinstance(eb, dict) else None,
             )
+            row["research_predictions"] = (eb or {}).get("research_predictions") if isinstance(eb, dict) else None
             row["ledger_hash"] = ledger.fill(row)
             log(row)
             university_lesson(root, weights, row, (pos.get("entry_brain") or {}).get("contributions") or [])
@@ -753,6 +760,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         row["kian_explain_fa"] = explain_paper_trade_fa(
             symbol=sym, side=side, desk=desk, brain=brain, composite=comp
         )
+        row["research_predictions"] = pred_log
         row["ledger_hash"] = ledger.fill(row)
         log(row)
 

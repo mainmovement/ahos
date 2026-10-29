@@ -89,7 +89,21 @@ def build_signal_provenance(brain: dict[str, Any] | None) -> dict[str, Any]:
 
     switch_v = brain.get("switch_version") if isinstance(brain, dict) else None
     research_note = None
-    if switch_v is not None and int(switch_v or 0) > 0:
+    for s in signals:
+        if s.get("name") != "research_overlay":
+            continue
+        ev = s.get("evidence") if isinstance(s.get("evidence"), dict) else {}
+        bits: list[str] = []
+        srcs = ev.get("weighted_sources")
+        if isinstance(srcs, list) and srcs:
+            bits.append("وزن‌دار=" + ",".join(str(x) for x in srcs))
+        shadow = ev.get("shadow_forward_logged")
+        if isinstance(shadow, list) and shadow:
+            bits.append("سایه-فقط-لاگ=" + ",".join(str(x) for x in shadow[:6]))
+        if bits:
+            research_note = " · ".join(bits) + " (فقط مشاوره؛ بدون ارتقا)"
+            break
+    if research_note is None and switch_v is not None and int(switch_v or 0) > 0:
         research_note = f"strategy_switch_version={switch_v} (overlay only; not promotion)"
 
     return {

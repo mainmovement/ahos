@@ -12,6 +12,9 @@ export type PaperDeskFeedRow = {
   notionalMultSource: string;
   researchOverlayScore: number | null;
   strategySwitchKeys: string[];
+  overlaySources?: string[];
+  registryHypotheses?: string[];
+  shadowForwardHypotheses?: string[];
 };
 
 export type PaperLaneReadModel = {
@@ -77,6 +80,13 @@ function mapDeskFeed(doc: Record<string, unknown>): PaperLaneReadModel["deskSign
           : null,
       strategySwitchKeys: Array.isArray(d.strategy_switch_active_keys)
         ? d.strategy_switch_active_keys.map(String)
+        : [],
+      overlaySources: Array.isArray(d.weighted_sources) ? d.weighted_sources.map(String) : [],
+      registryHypotheses: Array.isArray(d.shadow_forward_hypotheses)
+        ? d.shadow_forward_hypotheses.map(String)
+        : [],
+      shadowForwardHypotheses: Array.isArray(d.shadow_forward_hypotheses)
+        ? d.shadow_forward_hypotheses.map(String)
         : [],
     }));
   return {
