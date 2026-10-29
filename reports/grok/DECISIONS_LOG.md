@@ -109,3 +109,11 @@
 - b1bf832: Finalize shadcn-admin template integration
 
 **Next Phase:** Desktop application window styling and additional visualizations
+
+## 2026-10-29: Phase 2 edge report promotion gate (fail-closed PBO)
+
+**Question:** Should `export_edge_report.py` mark `promotion_gate.eligible=True` when DSR/expectancy pass on a synthetic fixture but live-book PBO is unmeasured?
+
+**Choice:** NO — require `pbo_live_book is not None and pbo_live_book < 0.5` alongside DSR>0.95 and CI lower >0; keep `edge_status=UNPROVEN_EDGE` until owner promotion artifact exists.
+
+**Reason:** Master Map TS-PG treats live-book PBO as part of promotion; research batch8 PBO is not the running $100 policy. Prevents false eligible on unit fixtures and on live book (122 closes, DSR 0.0, negative CI).
