@@ -12,6 +12,7 @@
  */
 
 import type { SoakReadModel } from "./soak_read_model";
+import type { PaperLaneReadModel } from "./paper_lane_read_model";
 
 // ------------------------------------------------------- the M13 soak read model --
 //
@@ -180,6 +181,7 @@ export type Snap = {
    * the soak is not running on this host.
    */
   soak?: SoakReadModel | null;
+  paperLane?: PaperLaneReadModel | null;
 };
 
 // ----------------------------------------------------------- the alert banner --

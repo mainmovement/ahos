@@ -129,7 +129,7 @@ def run_science_to_desk_pipeline(root: Path | None = None) -> dict[str, Any]:
         "desks_also_trained": list(DESKS),
     }
 
-    return {
+    doc = {
         "schema": "ahos.science_to_desk_pipeline.v1",
         "paper_only": PAPER_ONLY,
         "execution_mode": "PAPER_ONLY",
@@ -146,6 +146,22 @@ def run_science_to_desk_pipeline(root: Path | None = None) -> dict[str, Any]:
         "whole_ahos_organs": whole_ahos_organs,
         "desks_trained": len(DESKS),
     }
+    return attach_desk_signal_feed(root, doc)
+
+
+def attach_desk_signal_feed(root: Path | None, pipeline_doc: dict[str, Any]) -> dict[str, Any]:
+    """Write desk_signal_feed.json and attach receipt metadata to the pipeline doc."""
+    root = Path(root) if root else Path(__file__).resolve().parents[2]
+    from architecture.university.desk_signal_feed import FEED_REL, export_desk_signal_feed
+
+    feed = export_desk_signal_feed(root)
+    pipeline_doc["desk_signal_feed"] = {
+        "path": str(FEED_REL.as_posix()).replace("\\", "/"),
+        "schema": feed.get("schema"),
+        "generated_at": feed.get("generated_at"),
+        "desks_count": len(feed.get("desks") or []),
+    }
+    return pipeline_doc
 
 
 # ---------------- Stage 6: 7-pillar organism science radar + self-improvement loop telemetry ----------------

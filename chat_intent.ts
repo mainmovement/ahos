@@ -132,6 +132,23 @@ export function extractDevMissionSummary(text: string): string {
   return cleanSummaryFa(text);
 }
 
+/** Paper-lane signal explanation (Python `kian_explain_fa` / status projection). Not canonical token authority. */
+export function isPaperTradeWhy(text: string): boolean {
+  const t = normalizeIntentText(text);
+  if (/(معامله کاغذ|paper trade|paper position|موتور کاغذ|paper trader)/.test(t)) return true;
+  if (/(سیگنال(?:های)? ورود|دلیل ورود|چرا (?:باز|open)|چرا بست|چرا close)/.test(t)) return true;
+  const asset = detectMajorAsset(text);
+  if (asset && /(چرا|دلیل|explain|سیگنال)/.test(t) && /(کاغذ|paper|معامله|ورود|بست|position)/.test(t)) return true;
+  if (/(چرا|دلیل)/.test(t) && /(btc|eth|sol|بیت|اتری|سول)/.test(t) && /(کاغذ|paper|معامله)/.test(t)) return true;
+  return false;
+}
+
+/** Feed of research_overlay + desk size policy per paper desk. */
+export function isPaperDeskFeed(text: string): boolean {
+  const t = normalizeIntentText(text);
+  return /(فید میز|میزهای کاغذ|desk feed|desk signal|سیگنال میز|وضعیت میز(?:های)? کاغذ)/.test(t);
+}
+
 export type IntentPredicates = {
   /** "why was X rejected" (checked before isWhy). */
   isReject: (text: string) => boolean;
@@ -161,8 +178,10 @@ export function routeIntent(raw: string, p: IntentPredicates): string {
   // Phase 8: engineering-work request → confirm-gated dev mission (owner only).
   if (isDevMissionRequest(text)) return "dev_mission";
   if (/(پورتف|موقعیت|کاغذی‌ها|کاغذی ها)/i.test(text)) return "paper_list";
+  if (isPaperDeskFeed(text)) return "paper_desks";
   if (isStopLossQuestion(text)) return "stop_loss";
   if (p.isReject(text)) return "reject";
+  if (isPaperTradeWhy(text)) return "paper_why";
   if (p.isWhy(text)) return "why";
   if (isPriceQuestion(text)) return "price";
   if (isNewsRequest(text)) return "news";

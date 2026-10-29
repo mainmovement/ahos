@@ -13,6 +13,7 @@ import {
   lastCycleStatusHealth,
   MIN_EVIDENCE_FRESHNESS_MS,
   paperPortfolioStatus,
+  paperEdgeHealthStatus,
   presentRunning,
   presentStatus,
   VIEW_STALE_AFTER_MS,
@@ -63,6 +64,14 @@ describe("policy dims read persisted state, not literals", () => {
     assert.equal(paperPortfolioStatus("PAPER_ONLY", true), "OK");
     assert.equal(paperPortfolioStatus("PAPER_ONLY", false), "UNKNOWN");
     assert.equal(paperPortfolioStatus("LIVE", true), "VIOLATION");
+  });
+  it("paper edge stays INSUFFICIENT_EVIDENCE while UNPROVEN_EDGE", () => {
+    assert.equal(
+      paperEdgeHealthStatus({ status: "AVAILABLE", edgeStatus: "UNPROVEN_EDGE" }),
+      "INSUFFICIENT_EVIDENCE",
+    );
+    assert.equal(paperEdgeHealthStatus({ status: "UNAVAILABLE" }), "UNKNOWN");
+    assert.equal(paperEdgeHealthStatus(null), "UNKNOWN");
   });
 });
 

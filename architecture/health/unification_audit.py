@@ -1714,6 +1714,44 @@ def _stage38_checks(root: Path) -> list[dict[str, Any]]:
                     {"problems": problems[:6]}, [str(rel)])]
 
 
+def _desk_lane_artifact_checks(root: Path) -> list[dict[str, Any]]:
+    """When edge_report.json exists, desk_policy + desk_signal_feed must mirror EDGE (product tranche)."""
+    edge_rel = PAPER / "edge_report.json"
+    edge = _json(root, edge_rel)
+    if not isinstance(edge, dict):
+        return []
+    problems: list[str] = []
+    surfaces: list[str] = [str(edge_rel)]
+    for label, rel, schema in (
+        ("desk_policy", PAPER / "desk_policy.json", "ahos.desk_policy.v1"),
+        ("desk_signal_feed", PAPER / "desk_signal_feed.json", "ahos.desk_signal_feed.v1"),
+    ):
+        surfaces.append(str(rel))
+        doc = _json(root, rel)
+        if not isinstance(doc, dict):
+            problems.append(f"{label} missing")
+            continue
+        if doc.get("schema") != schema or doc.get("paper_only") is not True:
+            problems.append(f"{label} invalid")
+        if label == "desk_policy" and doc.get("edge_status") != edge.get("edge_status"):
+            problems.append("desk_policy edge_status drift")
+    gate = edge.get("promotion_gate") if isinstance(edge.get("promotion_gate"), dict) else {}
+    if gate.get("eligible") is True:
+        problems.append("promotion_gate eligible must stay false on live book")
+    return [
+        _check(
+            "edge.desk_artifacts",
+            _pass_fail(not problems),
+            {
+                "problems": problems,
+                "edge_status": edge.get("edge_status"),
+                "promotion_eligible": gate.get("eligible"),
+            },
+            surfaces,
+        )
+    ]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -1760,6 +1798,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage36_checks(root)
     checks += _stage37_checks(root)
     checks += _stage38_checks(root)
+    checks += _desk_lane_artifact_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

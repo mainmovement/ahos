@@ -32,6 +32,11 @@ def test_freshness_applied_to_evidence_dims():
     assert "lastCycleStatusHealth(state.lastCycleStatus, state.lastCycleAt" in SNAPSHOT
 
 
+def test_paper_edge_dim_uses_truth_helper():
+    assert "paperEdgeHealthStatus(paperLane)" in SNAPSHOT
+    assert "paperEdgeHealthStatus" in TRUTH
+
+
 def test_command_center_downgrades_green_when_stale():
     assert "deriveViewTruth(" in CC
     assert "presentStatus(d.status, viewStale)" in CC

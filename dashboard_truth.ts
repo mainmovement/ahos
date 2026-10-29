@@ -66,6 +66,18 @@ export function paperPortfolioStatus(
   return executionModeStatus(executionMode);
 }
 
+/** Python paper book edge gate — never OK while UNPROVEN_EDGE; missing lane is UNKNOWN. */
+export function paperEdgeHealthStatus(lane: {
+  status: "AVAILABLE" | "UNAVAILABLE";
+  edgeStatus?: string | null;
+} | null | undefined): TruthStatus {
+  if (!lane || lane.status !== "AVAILABLE") return "UNKNOWN";
+  const edge = (lane.edgeStatus ?? "").trim().toUpperCase();
+  if (!edge) return "UNKNOWN";
+  if (edge === "UNPROVEN_EDGE") return "INSUFFICIENT_EVIDENCE";
+  return "UNKNOWN";
+}
+
 /** Last-cycle health: SUCCESS and recent -> OK; SUCCESS but old -> STALE. */
 export function lastCycleStatusHealth(
   lastCycleStatus: string | null | undefined,

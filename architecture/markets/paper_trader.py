@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from architecture.markets import signal_brain as sb
+from architecture.markets.trade_signal_provenance import build_signal_provenance, explain_paper_trade_fa
 from architecture.markets.paper_account import INITIAL_CAPITAL_USD, LEDGER_REL, load_paper_trades, paper_account_summary
 from architecture.markets.second_source import (FUTURES, fetch_second_sources, fetch_third_sources,
                                                  third_source_needed, witness)
@@ -98,7 +99,7 @@ def logged_source(source: object) -> str | None:
 
 
 MAX_TRADE_AGE_S = 20 * 60
-ENTRY = 0.25
+ENTRY = 0.32  # raised 2026-10-29: trade less often; |composite| must clear a higher bar (was 0.25)
 RISK_PER_TRADE = 0.005
 MIN_STOP, TAKE_MULT = 0.010, 1.5
 MAX_HOLD_S = 24 * 3600
@@ -113,6 +114,47 @@ EXIT_REASONS = (
     "SIGNAL_REVERSAL", "TIME_STOP", "MAX_HOLD", "WITNESS_CONFLICT_EXIT",
 )
 LESSON_COUNTERFACTUAL = "no trade (flat) = 0 USD; the trade sign is not a count of signal votes"
+
+
+def _lane_status_fields(positions: dict[str, Any], events: list[dict[str, Any]], root: Path) -> dict[str, Any]:
+    from architecture.markets.paper_trade_gates import MIN_EXPECTED_PROFIT_TO_FEE_RATIO, effective_desk_notional_mult
+
+    open_explains: dict[str, str] = {}
+    for sym, p in positions.items():
+        brain = p.get("entry_brain") if isinstance(p.get("entry_brain"), dict) else None
+        open_explains[sym] = explain_paper_trade_fa(
+            symbol=sym,
+            side=str(p.get("side") or ""),
+            desk=str(p.get("desk") or ""),
+            brain=brain,
+            composite=(brain or {}).get("composite") if brain else None,
+        )
+    last_close_fa = None
+    last_no_trade = None
+    for e in reversed(events):
+        if last_close_fa is None and e.get("event") == "CLOSE" and e.get("kian_explain_fa"):
+            last_close_fa = e["kian_explain_fa"]
+        if last_no_trade is None and e.get("event") == "NO_TRADE":
+            last_no_trade = e.get("reason")
+        if last_close_fa and last_no_trade:
+            break
+    mult_map = {}
+    for d in set(list(DESK_WEIGHTS.keys())):
+        m, src = effective_desk_notional_mult(root, d)
+        mult_map[d] = {"mult": m, "source": src}
+    from architecture.markets.edge_desk_policy import shadow_block_opens_enabled
+
+    return {
+        "trade_quality": {
+            "entry_threshold": ENTRY,
+            "fee_min_profit_to_fee_ratio": MIN_EXPECTED_PROFIT_TO_FEE_RATIO,
+            "desk_notional_mult": mult_map,
+            "desk_shadow_block_opens": shadow_block_opens_enabled(),
+        },
+        "open_explains_fa": open_explains,
+        "last_close_explain_fa": last_close_fa,
+        "last_no_trade_reason": last_no_trade,
+    }
 
 
 def _iso(ts: float) -> str:
@@ -496,6 +538,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 fund_hist = state["brain"].setdefault("funding_history", {}).setdefault(sym, [])
                 sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym, fund_hist), sb.stablecoin_flow(state["brain"]),
                          sb.exchange_netflow(sym), sb.whale_mempool(sym), sb.stablecoin_impulse(sym)]
+        from architecture.markets.research_desk_signal import append_research_signal
+
+        sigs = append_research_signal(root, desk, sigs)
         regime = sb.vol_regime(ohlcv)
         oflow = next((s for s in sigs if s["name"] == "order_flow"), None)
         if oflow and (oflow.get("evidence") or {}).get("depth_disagreement"):
@@ -551,6 +596,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             exit_fee = exit_px * qty_close * fee
             entry_fee_part = pos["entry_fee_usd"] * fraction
             pnl = round(gross - exit_fee - entry_fee_part, 4)
+            eb = pos.get("entry_brain")
             row = {**base, "event": "CLOSE", "side": side, "reason": reason, "partial": partial, "quote_price": price,
                    "fill_price": round(exit_px, 6), "entry_price": pos["entry_price"], "qty": qty_close,
                    "notional_usd": round(pos["notional_usd"] * fraction, 4),
@@ -560,6 +606,14 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                    "mfe": None if pos.get("mfe") is None else round(float(pos["mfe"]), 6),
                    "path_points": int(pos.get("path_points") or 0),
                    "entry_brain": pos.get("entry_brain"), "exit_composite": comp, "oms": oms.state}
+            row["signal_provenance"] = build_signal_provenance(eb if isinstance(eb, dict) else None)
+            row["kian_explain_fa"] = explain_paper_trade_fa(
+                symbol=sym,
+                side=side,
+                desk=desk,
+                brain=eb if isinstance(eb, dict) else None,
+                composite=(eb or {}).get("composite") if isinstance(eb, dict) else None,
+            )
             row["ledger_hash"] = ledger.fill(row)
             log(row)
             university_lesson(root, weights, row, (pos.get("entry_brain") or {}).get("contributions") or [])
@@ -612,6 +666,22 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if why:
             log({**base, "event": "NO_TRADE", "reason": why, "price": price, "composite": comp,
                  "top_contributions": comb["contributions"][:5], "regime": regime["regime"], "signal_scores": scores}); continue
+        from architecture.markets.edge_desk_policy import desk_entry_blocked_by_shadow_policy
+
+        shadow_block, shadow_reason = desk_entry_blocked_by_shadow_policy(root, desk)
+        if shadow_block and shadow_reason:
+            log(
+                {
+                    **base,
+                    "event": "NO_TRADE",
+                    "reason": shadow_reason,
+                    "desk": desk,
+                    "composite": comp,
+                    "edge_shadow_block": True,
+                    "top_contributions": comb["contributions"][:5],
+                }
+            )
+            continue
         atr = _atr_pct(ohlcv) or MIN_STOP
         stop_pct = max(MIN_STOP, 2 * atr)
         desk_cap = equity * DESK_WEIGHTS[desk] / per_desk_n[desk]
@@ -619,6 +689,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         event_size = min(1.0, float(((shock or {}).get("evidence") or {}).get("size_mult") or 1.0))
         brain["event_size_mult"] = event_size
         notional = min(equity * RISK_PER_TRADE / stop_pct * regime["size_mult"], desk_cap * regime["size_mult"]) * event_size
+        from architecture.markets.paper_trade_gates import MIN_EXPECTED_PROFIT_TO_FEE_RATIO, effective_desk_notional_mult, fee_drag_gate
+
+        desk_mult, desk_mult_src = effective_desk_notional_mult(root, desk)
+        if desk_mult < 1.0:
+            brain["desk_notional_mult"] = desk_mult
+            brain["desk_notional_mult_source"] = desk_mult_src
+            notional = round(notional * desk_mult, 4)
         cluster = CLUSTER_OF_DESK.get(desk, "other")
         cluster_open = sum(p["notional_usd"] for p in positions.values() if CLUSTER_OF_DESK.get(p.get("desk", ""), "") == cluster)
         cluster_rem = max(0.0, CLUSTER_CAPS.get(cluster, 0.35) * equity - cluster_open)
@@ -630,6 +707,20 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             notional = round(min(notional, adv_chk["cap_1pct_usd"]), 4)
         if notional < 0.5:
             log({**base, "event": "NO_TRADE", "reason": "ALLOCATION_EXHAUSTED", "composite": comp}); continue
+        fee_ok, fee_audit = fee_drag_gate(notional, fee, stop_pct, comp)
+        brain["fee_drag_gate"] = fee_audit
+        if not fee_ok:
+            log(
+                {
+                    **base,
+                    "event": "NO_TRADE",
+                    "reason": "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES",
+                    "composite": comp,
+                    "fee_drag_gate": fee_audit,
+                    "top_contributions": comb["contributions"][:5],
+                }
+            )
+            continue
         try:
             from architecture.markets.council_gate import soroush_blind_debate_and_bl
             brain["council_debate"] = soroush_blind_debate_and_bl(
@@ -658,6 +749,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                "take_pct": round(stop_pct * TAKE_MULT, 5), "equity_at_open_usd": round(equity, 4), "brain": brain,
                "kelly": "OFF (a close count does not switch Kelly on)", "oms": "ACCEPTED_PAPER",
                "session_gate": session_gate}
+        row["signal_provenance"] = build_signal_provenance(brain)
+        row["kian_explain_fa"] = explain_paper_trade_fa(
+            symbol=sym, side=side, desk=desk, brain=brain, composite=comp
+        )
         row["ledger_hash"] = ledger.fill(row)
         log(row)
 
@@ -694,13 +789,22 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             cl: round(sum(p["notional_usd"] for p in positions.values() if CLUSTER_OF_DESK.get(p.get("desk", ""), "") == cl), 4)
             for cl in CLUSTER_CAPS
         },
+        **_lane_status_fields(positions, events, root),
     }
     _save_json(root / STATUS_REL, status)
+    if any(e["event"] in ("OPEN", "CLOSE") for e in events):
+        try:
+            from architecture.university.desk_signal_feed import export_desk_signal_feed
+
+            export_desk_signal_feed(root)
+        except Exception:
+            pass
     if signals_fn is None and any(e["event"] in ("OPEN", "CLOSE") for e in events):
         try:
             from architecture.markets.paper_trade_audit import export_paper_trade_audit_snapshot
             from architecture.learning.shadow_forward_scorecard import export_shadow_forward_scorecard
             from architecture.health.unification_audit import export_unification_audit
+
             export_paper_trade_audit_snapshot(root)
             export_shadow_forward_scorecard(root)
             export_unification_audit(root)

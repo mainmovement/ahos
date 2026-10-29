@@ -73,6 +73,16 @@ interface CommandSlice {
    * API reads (see `soak_read_model.ts`). Present whenever that file is there.
    */
   soak?: SoakReadModel | null;
+  /** Python multi-market paper trader read model (reports/grok/PAPER). */
+  paperLane?: {
+    status: "AVAILABLE" | "UNAVAILABLE";
+    edgeStatusFa?: string | null;
+    edgeStatus?: string | null;
+    markToMarketEquityUsd?: number | null;
+    closedTrades?: number | null;
+    deskPolicy?: { shrinkAdvisoryCount: number } | null;
+    tradeQuality?: { deskShadowBlockOpens?: boolean } | null;
+  } | null;
 }
 
 interface StripData {
@@ -162,6 +172,7 @@ export function TelemetryStrips() {
   const gates = slice?.health?.dimensions ?? null;
   const papers = slice?.paper ?? null;
   const open = papers ? papers.filter((p) => p.status === "OPEN").length : null;
+  const paperLane = slice?.paperLane?.status === "AVAILABLE" ? slice.paperLane : null;
 
   // The engine's telemetry wins while it is live. Where it is not — which on a
   // host whose engine is idle is the normal state — the strips present the local
@@ -201,7 +212,9 @@ export function TelemetryStrips() {
       </StripCell>
 
       <StripCell title="دروازه‌ها" hint={soakHint}>
-        {soakLive && soakLive.gates ? (
+        {paperLane ? (
+          <PaperLaneGates lane={paperLane} />
+        ) : soakLive && soakLive.gates ? (
           <SoakGates gates={soakLive.gates} />
         ) : gates && gates.length > 0 ? (
           <ul className="telemetry__gates">
@@ -230,7 +243,9 @@ export function TelemetryStrips() {
       </StripCell>
 
       <StripCell title="دفتر" hint={soakHint}>
-        {soakLive && soakLive.ledger ? (
+        {paperLane ? (
+          <PaperLaneLedger lane={paperLane} />
+        ) : soakLive && soakLive.ledger ? (
           <SoakLedger ledger={soakLive.ledger} />
         ) : papers && papers.length > 0 ? (
           <>
@@ -359,6 +374,55 @@ function SoakGates({ gates }: { gates: NonNullable<SoakReadModel["gates"]> }) {
  * corroborated price; the line carries the breaker's drawdown and exposure
  * because those are the limits the runner is actually holding itself to.
  */
+function PaperLaneGates({
+  lane,
+}: {
+  lane: NonNullable<CommandSlice["paperLane"]> & { status: "AVAILABLE" };
+}) {
+  const shrink = lane.deskPolicy?.shrinkAdvisoryCount ?? 0;
+  const edge = lane.edgeStatusFa || lane.edgeStatus || "UNKNOWN";
+  return (
+    <ul className="telemetry__gates">
+      <li className="telemetry__gate">
+        <TruthBadge state={edge.includes("UNPROVEN") ? "UNKNOWN" : edge} label={edge} />
+        <span className="telemetry__gate-name">لبه کتاب کاغذی</span>
+      </li>
+      {shrink > 0 ? (
+        <li className="telemetry__gate">
+          <TruthBadge state="UNKNOWN" label="SHRINK" />
+          <span className="telemetry__gate-name">{fa(shrink)} میز — کوچک‌سازی EDGE</span>
+        </li>
+      ) : null}
+    </ul>
+  );
+}
+
+function PaperLaneLedger({
+  lane,
+}: {
+  lane: NonNullable<CommandSlice["paperLane"]> & { status: "AVAILABLE" };
+}) {
+  const shrink = lane.deskPolicy?.shrinkAdvisoryCount ?? 0;
+  return (
+    <>
+      <p className="telemetry__line">
+        <TruthBadge state="VERIFIED" label="کتاب کاغذی" />
+        <span className="telemetry__value">{fa(lane.closedTrades ?? null)} بسته</span>
+      </p>
+      <p className="telemetry__line telemetry__line--muted">
+        MTM {faUsd(lane.markToMarketEquityUsd ?? null)}
+        {lane.edgeStatusFa ? ` · ${lane.edgeStatusFa}` : lane.edgeStatus ? ` · ${lane.edgeStatus}` : ""}
+      </p>
+      {shrink > 0 ? (
+        <p className="telemetry__line telemetry__line--muted">
+          {fa(shrink)} میز با توصیهٔ کوچک‌سازی (EDGE)
+          {lane.tradeQuality?.deskShadowBlockOpens ? " · مسدودسازی shadow فعال" : ""}
+        </p>
+      ) : null}
+    </>
+  );
+}
+
 function SoakLedger({ ledger }: { ledger: NonNullable<SoakReadModel["ledger"]> }) {
   return (
     <>

@@ -25,6 +25,7 @@ import { describe, it } from "node:test";
 import { handleChat, setChatTestDeps, type ChatResponse } from "../chat.ts";
 import { failClosedCommandSnapshot } from "../snapshot.ts";
 import { unavailableSoak } from "../soak_read_model.ts";
+import { unavailablePaperLane } from "../paper_lane_read_model.ts";
 import { loadCanonicalReadModel } from "../canonical_read_model.ts";
 import { PendingActionStore, revealPendingCode, type ActionDeps, type Identity } from "../chat_actions.ts";
 import { verifyAuditLines } from "../chat_control_gate.ts";
@@ -66,6 +67,7 @@ async function fakeSnap(withOpp = false): Promise<Snap> {
     new Error("harness: no database"),
     model,
     unavailableSoak("harness: no soak file"),
+    unavailablePaperLane("harness: no paper status file"),
   );
   if (withOpp) {
     return {

@@ -1,9 +1,9 @@
 {
   "schema": "ahos.continuation_state.v1",
   "paper_only": true,
-  "updated_at": "2026-10-29T20:05:00Z",
-  "current_stage": "Stage 43",
-  "resume_instruction": "Git HEAD after ec8b861 (EDGE_REPORT) + Phase 3 SPEC_TRACE reconcile. Paper: 122 closes, UNPROVEN_EDGE (DSR 0.0, eligible false). SPEC_TRACE 119 REAL / 3 PARTIAL (M13 month soak, M31 30-night, M36 72h). No ApplyPending without owner. Launcher Update when RAM>=2800 and Cursor closed.",
+  "updated_at": "2026-10-29T20:40:00Z",
+  "current_stage": "Stage 44+ (product features)",
+  "resume_instruction": "Local worktree (no push): Kian paper_why/paper_desks, desk_policy+desk_signal_feed from EDGE (123 closes, UNPROVEN_EDGE), unification check edge.desk_artifacts when edge_report exists, scripts/refresh_paper_lane_artifacts.py, ENTRY 0.32 + fee 2× gate, optional AHOS_PAPER_DESK_SHADOW_BLOCK=1. Reload paper trader daemon. Launcher Update when RAM>=2800 and Cursor closed. No ApplyPending without owner.",
   "base_commits": {
     "ahos": "ec8b861",
     "ahos_note": "Stage 41 committed: record OPEN decision weights + strict Zulu quote stamps.",

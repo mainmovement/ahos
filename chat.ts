@@ -46,6 +46,8 @@ import {
   newsBlocks,
   oppBlocks,
   paperBlocks,
+  paperLaneWhyBlocks,
+  paperDeskFeedBlocks,
   priceBlocks,
   stateFa,
   stopLossBlocks,
@@ -279,6 +281,10 @@ export async function handleChat(message: string, ctx: ChatContext = {}): Promis
     blocks = watchBlocks(snap);
   } else if (intent === "paper_list") {
     blocks = paperBlocks(snap);
+  } else if (intent === "paper_why") {
+    blocks = paperLaneWhyBlocks(snap.paperLane, text);
+  } else if (intent === "paper_desks") {
+    blocks = paperDeskFeedBlocks(snap.paperLane);
   } else if (intent === "whales") {
     const hit = findOpp(snap, text, focus);
     blocks = hit

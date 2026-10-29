@@ -61,6 +61,10 @@ const CASES: Array<[string, string]> = [
   // why-token
   ["چرا PEPE؟", "why"],
   ["دلیل حکم WIF چیه؟", "why"],
+  ["چرا معامله کاغذی BTC باز شد؟", "paper_why"],
+  ["دلیل ورود کاغذی اتریوم چی بود", "paper_why"],
+  ["میزهای کاغذی رو بگو", "paper_desks"],
+  ["فید میز معامله کاغذی", "paper_desks"],
   ["چرا رد شد؟", "reject"],
   // stop-loss for a specific token
   ["حد ضرر PEPE چنده؟", "stop_loss"],

@@ -737,7 +737,7 @@ DEFAULT_WEIGHTS = {"mtf_trend": 0.30, "candles": 0.12, "zscore_mr": 0.10, "order
                    "funding_oi": 0.06, "stablecoin": 0.05, "macro": 0.08, "news": 0.09,
                    # SHADOW signals: logged + hit-rate tracked, zero weight until promoted by walk-forward (Stage 3)
                    "exchange_netflow": 0.0, "whale_mempool": 0.0, "macro_event": 0.0, "stablecoin_impulse": 0.0,
-                   "event_shock": 0.0}
+                   "event_shock": 0.0, "research_overlay": 0.05}
 
 
 def combine(signals: list[dict[str, Any]], weights: dict[str, float]) -> dict[str, Any]:

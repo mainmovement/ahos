@@ -5,6 +5,7 @@
  * Internal ids (GM-xx, canonical, raw enum codes) are kept out of user text.
  */
 import type { CanonicalDecisionView } from "./canonical_read_model";
+import { pickPaperExplainForSymbol, pickDeskFeedRow, type PaperLaneReadModel } from "./paper_lane_read_model";
 import { faNumber, faPct, faUsd } from "./persian";
 import { bullet, faAge, gap, isMostlyPersian, line, note, title, type ReplyBlock } from "./reply_format";
 import type { commandSnapshot } from "./snapshot";
@@ -103,6 +104,8 @@ export function helpBlocks(): ReplyBlock[] {
     bullet("«فرصت‌ها» — توکن‌های در حال پایش"),
     bullet("«اخبار» یا «اخبار سولانا» — تیترهای اخیر"),
     bullet("«چرا PEPE؟» — دلیل حکم یک توکن"),
+    bullet("«چرا معامله کاغذی BTC؟» — سیگنال‌های ورود موتور کاغذ (فارسی)"),
+    bullet("«میزهای کاغذی رو بگو» — فید research_overlay و سیاست اندازه میز"),
     bullet("«PEPE را زیر نظر بگیر» — افزودن به واچ‌لیست"),
     bullet("«وضعیت سیستم» · «شورا» · «درس‌ها»"),
     gap(),
@@ -350,6 +353,94 @@ export function priceBlocks(snap: Snap, asset: "BTC" | "ETH" | "SOL" | null, tic
     ),
   ];
   return out;
+}
+
+/**
+ * Presentation-only: Persian explanation stored on paper OPEN/CLOSE rows (`kian_explain_fa`).
+ * Authority remains Python paper_trader + logged signals — not generated here.
+ */
+export function paperTradeExplainBlocks(kianExplainFa: string | null | undefined): ReplyBlock[] {
+  const text = (kianExplainFa ?? "").trim();
+  if (!text) {
+    return [note("توضیح سیگنال این معامله کاغذی در لاگ ثبت نشده (احتمالاً قبل از به‌روزرسانی موتور).")];
+  }
+  return [title("چرا این معامله کاغذی؟"), note(text)];
+}
+
+export function paperLaneWhyBlocks(lane: PaperLaneReadModel | undefined, userText: string): ReplyBlock[] {
+  if (!lane || lane.status !== "AVAILABLE") {
+    return [
+      note(
+        lane?.reason
+          ? `وضعیت معامله کاغذی پایتون در دسترس نیست: ${lane.reason}`
+          : "فایل وضعیت معامله کاغذی (paper_trader_status.json) خوانده نشد.",
+      ),
+    ];
+  }
+  const explain = pickPaperExplainForSymbol(lane, userText);
+  const out = paperTradeExplainBlocks(explain);
+  if (lane.tradeQuality) {
+    out.push(
+      gap(),
+      note(
+        `آستانه ورود |composite|≥${lane.tradeQuality.entryThreshold} · حداقل سود مورد انتظار نسبت به کارمزد: ${lane.tradeQuality.feeMinProfitToFeeRatio}×`,
+      ),
+    );
+  }
+  if (lane.edgeStatusFa) {
+    out.push(note(`وضعیت لبه (EDGE): ${lane.edgeStatusFa}`));
+  }
+  if (lane.lastSkipReason) {
+    out.push(note(`آخرین پرش چرخه: ${lane.lastSkipReason}`));
+  }
+  const deskRow = pickDeskFeedRow(lane, userText);
+  if (deskRow) {
+    out.push(
+      gap(),
+      note(
+        `میز ${deskRow.paperDesk}: ضریب اندازه ${deskRow.notionalMult} (${deskRow.notionalMultSource})` +
+          (deskRow.researchOverlayScore != null ? ` · research_overlay=${deskRow.researchOverlayScore}` : "") +
+          (deskRow.strategySwitchKeys.length ? ` · switch: ${deskRow.strategySwitchKeys.join("، ")}` : ""),
+      ),
+    );
+  }
+  return out;
+}
+
+export function paperDeskFeedBlocks(lane: PaperLaneReadModel | undefined): ReplyBlock[] {
+  if (!lane || lane.status !== "AVAILABLE") {
+    return [note("فید میزهای کاغذی در دسترس نیست.")];
+  }
+  const feed = lane.deskSignalFeed;
+  if (!feed?.desks?.length) {
+    return [
+      title("📊 میزهای معامله کاغذی"),
+      note("فایل desk_signal_feed.json هنوز ساخته نشده — یک بار export_edge_report یا science pipeline را اجرا کن."),
+    ];
+  }
+  const lines: ReplyBlock[] = [
+    title("📊 میزهای معامله کاغذی (PAPER_ONLY)"),
+    note(
+      `EDGE: ${lane.edgeStatusFa || lane.edgeStatus || "نامشخص"}` +
+        (lane.deskPolicy?.shrinkAdvisoryCount
+          ? ` · ${lane.deskPolicy.shrinkAdvisoryCount} میز با توصیهٔ کوچک‌سازی`
+          : ""),
+    ),
+  ];
+  for (const d of feed.desks.slice(0, 8)) {
+    lines.push(
+      bullet(
+        `${d.paperDesk}: اندازه×${d.notionalMult} (${d.notionalMultSource})` +
+          (d.researchOverlayScore != null ? ` · overlay ${d.researchOverlayScore}` : ""),
+      ),
+    );
+  }
+  if (lane.tradeQuality?.deskShadowBlockOpens) {
+    lines.push(note("مسدودسازی ورود روی میزهای shadow (AHOS_PAPER_DESK_SHADOW_BLOCK) فعال است."));
+  } else {
+    lines.push(note("ورود روی میزهای بازنده فقط کوچک‌تر شده؛ مسدود کامل پیش‌فرض خاموش است."));
+  }
+  return lines;
 }
 
 /**

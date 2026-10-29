@@ -13,7 +13,7 @@ def _sig(score):
                                  "evidence": {"higher_tf_sign": 1 if score > 0 else -1}}]
 
 def _rows(root):
-    return [json.loads(l) for l in (root / "reports/grok/PAPER/paper_trades.jsonl").read_text().splitlines()]
+    return [json.loads(l) for l in (root / "reports/grok/PAPER/paper_trades.jsonl").read_text(encoding="utf-8").splitlines()]
 
 def test_two_source_gate_open_close_compounds(tmp_path):
     t = [1_800_000_000.0]; px = {"p": 120.0}
@@ -243,6 +243,9 @@ def test_close_writes_m49_lesson_and_oms(tmp_path):
     fb = lambda: {"BTC": {"price": px["p"], "source": "B"}}
     pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
     assert [r for r in _rows(tmp_path) if r["event"] == "OPEN"][0]["oms"] == "ACCEPTED_PAPER"
+    open_row = [r for r in _rows(tmp_path) if r["event"] == "OPEN"][0]
+    assert open_row.get("signal_provenance", {}).get("schema") == "ahos.trade_signal_provenance.v1"
+    assert "معامله کاغذی" in (open_row.get("kian_explain_fa") or "")
     t[0] += 300; px["p"] = 100.0
     pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
     st = LessonsLedger(tmp_path / "data/mission_ledger/m49_lessons.sqlite")
@@ -299,4 +302,81 @@ def test_chandelier_only_tightens_and_a_single_mark_is_not_an_excursion(tmp_path
     audited = build_microstructure_audit(tmp_path)
     assert audited["rows"][0]["mae_mfe_status"] == "UNAVAILABLE_NO_INTRATRADE_PATH"
     assert audited["rows"][0]["mae"] is None and audited["fee_drag_usd"] == 0.05
+
+
+def test_composite_below_032_does_not_open(tmp_path):
+    t = [1_800_000_000.0]
+    mt = lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t[0]))
+    fetch = lambda: {"quotes": {"BTC": {"price": 120.0, "source": "A", "market_time": mt(), "ohlcv_5m": _bars(100, 0.5)}}}
+    fb = lambda: {"BTC": {"price": 120.0, "source": "B"}}
+    pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.31), now=lambda: t[0], use_ledger=False)
+    assert not any(r["event"] == "OPEN" for r in _rows(tmp_path))
+    assert any(r.get("reason") == "COMPOSITE_BELOW_ENTRY" for r in _rows(tmp_path) if r["event"] == "NO_TRADE")
+
+
+def test_fee_drag_blocks_marginal_edge(tmp_path):
+    t = [1_800_000_000.0]
+    mt = lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t[0]))
+    fetch = lambda: {"quotes": {"BTC": {"price": 120.0, "source": "A", "market_time": mt(), "ohlcv_5m": _bars(100, 0.5)}}}
+    fb = lambda: {"BTC": {"price": 120.0, "source": "B"}}
+    pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.34), now=lambda: t[0], use_ledger=False)
+    rows = _rows(tmp_path)
+    assert not any(r["event"] == "OPEN" for r in rows)
+    assert any(r.get("reason") == "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES" for r in rows if r["event"] == "NO_TRADE")
+
+
+def test_status_exports_lane_kian_fields(tmp_path):
+    t = [1_800_000_000.0]
+    mt = lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t[0]))
+    fetch = lambda: {"quotes": {"BTC": {"price": 120.0, "source": "A", "market_time": mt(), "ohlcv_5m": _bars(100, 0.5)}}}
+    fb = lambda: {"BTC": {"price": 120.05, "source": "B"}}
+    st = pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
+    assert isinstance(st.get("open_explains_fa"), dict)
+    assert "BTC" in st["open_explains_fa"]
+    assert st["open_explains_fa"]["BTC"]
+    tq = st["trade_quality"]
+    assert tq["entry_threshold"] == pt.ENTRY
+    assert tq["fee_min_profit_to_fee_ratio"] >= 2
+    assert "CRYPTO" in tq["desk_notional_mult"]
+
+
+def test_shadow_block_skips_open_when_env_set(tmp_path, monkeypatch):
+    t = [1_800_000_000.0]
+    mt = lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t[0]))
+    fetch = lambda: {"quotes": {"BTC": {"price": 120.0, "source": "A", "market_time": mt(), "ohlcv_5m": _bars(100, 0.5)}}}
+    fb = lambda: {"BTC": {"price": 120.05, "source": "B"}}
+    from architecture.markets.edge_desk_policy import export_desk_policy
+
+    export_desk_policy(
+        tmp_path,
+        {
+            "generated_at": "2026-10-29T00:00:00Z",
+            "edge_status": "UNPROVEN_EDGE",
+            "desks": [{"desk": "CRYPTO", "closes": 10, "realized_pnl_usd": -0.68}],
+            "desks_recommend_shrink": [{"desk": "CRYPTO", "closes": 10, "realized_pnl_usd": -0.68}],
+        },
+    )
+    monkeypatch.setenv("AHOS_PAPER_DESK_SHADOW_BLOCK", "1")
+    pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
+    rows = _rows(tmp_path)
+    assert not any(r["event"] == "OPEN" for r in rows)
+    assert any(r.get("reason") == "DESK_EDGE_SHADOW_BLOCK" for r in rows if r["event"] == "NO_TRADE")
+
+
+def test_open_logs_research_overlay_from_strategy_switch(tmp_path):
+    sw = tmp_path / "reports/grok/PAPER/strategy_switch.json"
+    sw.parent.mkdir(parents=True, exist_ok=True)
+    sw.write_text(json.dumps({"version": 1, "active": {"H14:mtf": 0.12}, "paper_only": True}), encoding="utf-8")
+    t = [1_800_000_000.0]
+    mt = lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t[0]))
+    fetch = lambda: {"quotes": {"BTC": {"price": 120.0, "source": "A", "market_time": mt(), "ohlcv_5m": _bars(100, 0.5)}}}
+    fb = lambda: {"BTC": {"price": 120.05, "source": "B"}}
+    pt.run_cycle(tmp_path, fetch=fetch, fetch_b=fb, signals_fn=_sig(0.8), now=lambda: t[0], use_ledger=False)
+    opens = [r for r in _rows(tmp_path) if r.get("event") == "OPEN"]
+    assert len(opens) == 1
+    sigs = (opens[0].get("brain") or {}).get("signals") or []
+    overlay = next((s for s in sigs if s.get("name") == "research_overlay"), None)
+    assert overlay is not None
+    assert overlay.get("available") is True
+    assert (tmp_path / "reports/grok/PAPER/desk_signal_feed.json").is_file()
 

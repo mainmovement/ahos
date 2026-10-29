@@ -29,12 +29,14 @@ import {
   loadSoakReadModel,
   type SoakReadModel,
 } from "./soak_read_model";
+import { loadPaperLaneReadModel, type PaperLaneReadModel } from "./paper_lane_read_model";
 import {
   evidenceFreshnessLimitMs,
   executionModeStatus,
   freshnessStatus,
   lastCycleStatusHealth,
   paperPortfolioStatus,
+  paperEdgeHealthStatus,
 } from "./dashboard_truth";
 
 function deepestErrorMessage(error: unknown): string {
@@ -57,7 +59,12 @@ function deepestErrorMessage(error: unknown): string {
   return last;
 }
 
-export function failClosedCommandSnapshot(error: unknown, canonicalModel: CanonicalReadModel, soak: SoakReadModel) {
+export function failClosedCommandSnapshot(
+  error: unknown,
+  canonicalModel: CanonicalReadModel,
+  soak: SoakReadModel,
+  paperLane: PaperLaneReadModel,
+) {
   const root = deepestErrorMessage(error);
   const msg = error instanceof Error ? error.message : String(error);
   const message =
@@ -94,6 +101,7 @@ export function failClosedCommandSnapshot(error: unknown, canonicalModel: Canoni
     votes: [],
     teams: TEAM_META,
     soak,
+    paperLane,
     health: {
       dimensions: [
         dim("راه‌اندازی", "CODE_FAILURE", message),
@@ -102,6 +110,7 @@ export function failClosedCommandSnapshot(error: unknown, canonicalModel: Canoni
           canonicalModel.status,
           canonicalModel.reason || `${canonicalModel.decision_count} حکم از فایل پایتون`,
         ),
+        dim("لبه کاغذی", paperEdgeHealthStatus(paperLane), paperLane.reason || "وضعیت کاغذی نامشخص"),
       ],
     },
     blocked: [
@@ -116,20 +125,22 @@ export function failClosedCommandSnapshot(error: unknown, canonicalModel: Canoni
 export async function commandSnapshot() {
   // The soak file is read alongside the canonical model so the strips can show
   // the runner that is actually cycling, even when Postgres is unreachable.
-  const [canonicalModel, soak] = await Promise.all([
+  const [canonicalModel, soak, paperLane] = await Promise.all([
     loadCanonicalReadModel(),
     loadSoakReadModel(),
+    loadPaperLaneReadModel(),
   ]);
   try {
-    return await buildDbCommandSnapshot(canonicalModel, soak);
+    return await buildDbCommandSnapshot(canonicalModel, soak, paperLane);
   } catch (error) {
-    return failClosedCommandSnapshot(error, canonicalModel, soak);
+    return failClosedCommandSnapshot(error, canonicalModel, soak, paperLane);
   }
 }
 
 async function buildDbCommandSnapshot(
   canonicalModel: CanonicalReadModel,
   soak: SoakReadModel,
+  paperLane: PaperLaneReadModel,
 ) {
   try {
     await ensureState();
@@ -208,6 +219,13 @@ async function buildDbCommandSnapshot(
         canonicalModel.status === "AVAILABLE"
           ? `${canonicalModel.decision_count} حکم — نمایش فقط، تصمیم از پایتون`
           : canonicalModel.reason || canonicalModel.status,
+      ),
+      dim(
+        "لبه کاغذی",
+        paperEdgeHealthStatus(paperLane),
+        paperLane.status === "AVAILABLE"
+          ? `${paperLane.closedTrades ?? "؟"} بسته · ${paperLane.edgeStatusFa || paperLane.edgeStatus || "نامشخص"} · ارتقا=رد`
+          : paperLane.reason || "وضعیت paper_trader_status خوانده نشد",
       ),
     ],
   };
@@ -324,6 +342,7 @@ async function buildDbCommandSnapshot(
     votes: lastVotes,
     teams: TEAM_META,
     soak,
+    paperLane,
     health,
     blocked: [
       { item: "معامله واقعی", status: "DISABLED" },

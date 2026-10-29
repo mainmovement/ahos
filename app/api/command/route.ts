@@ -3,6 +3,7 @@ import { failClosedCommandSnapshot, commandSnapshot } from "@/snapshot";
 import { restoreDaemonIfNeeded } from "@/engine";
 import { loadCanonicalReadModel } from "@/canonical_read_model";
 import { loadSoakReadModel } from "@/soak_read_model";
+import { loadPaperLaneReadModel } from "@/paper_lane_read_model";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +19,12 @@ export async function GET(req: Request) {
     const snap = await commandSnapshot();
     return Response.json(snap);
   } catch (error) {
-    const [canonicalModel, soak] = await Promise.all([
+    const [canonicalModel, soak, paperLane] = await Promise.all([
       loadCanonicalReadModel(),
       loadSoakReadModel(),
+      loadPaperLaneReadModel(),
     ]);
-    const payload = failClosedCommandSnapshot(error, canonicalModel, soak);
+    const payload = failClosedCommandSnapshot(error, canonicalModel, soak, paperLane);
     payload.state.lastError = sanitizePublicError(error);
     return Response.json(payload, { status: 200 });
   }

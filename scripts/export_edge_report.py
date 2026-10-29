@@ -21,7 +21,9 @@ from architecture.markets.paper_trade_audit import (
     measure_symbol_book,
     _log_rows,
 )
+from architecture.markets.edge_desk_policy import export_desk_policy
 from architecture.markets.paper_trader import INITIAL_CAPITAL_USD, performance
+from architecture.university.desk_signal_feed import export_desk_signal_feed
 
 
 def _utc_now() -> str:
@@ -228,6 +230,8 @@ def main() -> int:
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     md_path.write_text(_md(report), encoding="utf-8")
+    export_desk_policy(ROOT, report)
+    export_desk_signal_feed(ROOT)
     print(f"edge_status={report['edge_status']} closes={report['promotion_gate']['n_closed']} dsr={report.get('deflated_sharpe')} eligible={report['promotion_gate']['eligible']}")
     print(f"wrote {md_path}")
     print(f"wrote {json_path}")

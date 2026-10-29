@@ -36,3 +36,35 @@ def test_edge_report_builds_from_live_log(tmp_path: Path, monkeypatch):
     assert report["promotion_gate"]["n_closed"] == 35
     assert report["edge_status"] == "UNPROVEN_EDGE"
     assert report["promotion_gate"]["eligible"] is False
+
+
+def test_build_edge_report_writes_desk_artifacts(tmp_path: Path, monkeypatch):
+    log = tmp_path / "reports" / "grok" / "PAPER" / "paper_trades.jsonl"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    log.write_text(
+        json.dumps(
+            {
+                "event": "CLOSE",
+                "symbol": "BTC",
+                "desk": "CRYPTO",
+                "realized_pnl_usd": -0.02,
+                "fees_usd": 0.001,
+                "entry_brain": {"contributions": [{"signal": "mtf_trend", "weight": 0.4, "score": 0.5}]},
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "scripts.export_edge_report.export_paper_trade_audit_snapshot",
+        lambda _r: {"status": "GREEN"},
+    )
+    from scripts.export_edge_report import build_edge_report
+    from architecture.markets.edge_desk_policy import export_desk_policy
+    from architecture.university.desk_signal_feed import export_desk_signal_feed
+
+    report = build_edge_report(tmp_path)
+    export_desk_policy(tmp_path, report)
+    export_desk_signal_feed(tmp_path)
+    assert (tmp_path / "reports/grok/PAPER/desk_policy.json").is_file()
+    assert (tmp_path / "reports/grok/PAPER/desk_signal_feed.json").is_file()

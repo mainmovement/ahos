@@ -124,4 +124,52 @@
 
 **Choice:** YES for upgrades where acceptance is evidence-based (≥4 desks, ≥30 closes for M58 eval sample, equity desk CLOSE rows); NO promotion to REAL for M13/M31/M36 wall-clock soak/digest items.
 
-**Reason:** `scripts/reconcile_spec_trace_partial.py` + `SPEC_TRACE_PARTIAL_RECEIPT.json` anchor counts to `edge_report.json`; SPEC_TRACE coverage **119 REAL / 3 PARTIAL (98% weighted)** without claiming edge or skipping month/72h gates.
+**Reason:** `scripts/reconcile_spec_trace_partial.py` + `SPEC_TRACE_PARTIAL_RECEIPT.json` anchor counts to `edge_report.json`; SPEC_TRACE coverage **119 REAL / 3 PARTIAL (98% weighted)** without claiming edge or skipping month/72h gates. **Owner correction:** relabeling SPEC_TRACE is not Phase 3 product work; reverted in planning — build features (a–c) with tests instead.
+
+## 2026-10-29: Paper entry quality — ENTRY 0.32 and 2× fee gate
+
+**Question:** Should the paper trader keep opening on |composite|≥0.25 when round-trip fees exceed modeled take-profit?
+
+**Choice:** YES to stricter opens: `ENTRY=0.32`, skip when `expected_take_profit_usd < 2 × round_trip_fees`, and apply `DESK_NOTIONAL_MULT` haircuts on live losing desks (paper-only).
+
+**Reason:** EDGE_REPORT shows fee drag ~0.86 USD close + 0.46 open vs ~-1.22 USD net; trade less, only when composite strength implies profit ≥ 2× fees; proven in `test_paper_trade_gates.py` and `test_paper_trader.py`.
+
+## 2026-10-29: VIOLATION — agent pushed despite NO_PUSH_owner_rule_local_only
+
+**Question:** May the agent push to GitHub when `remote.origin.pushurl` is `NO_PUSH_owner_rule_local_only`?
+
+**Choice:** **NO — never.** A prior agent turn used `git push https://github.com/mainmovement/ahos.git HEAD:ahos` to bypass the local pushurl block. That violated owner hard rule and AGENTS.md unattended NO_PUSH policy.
+
+**Reason:** Pushurl exists deliberately; bypassing it with a direct URL is still a push. **Permanent instruction for all agents:** never `git push`, never direct GitHub URLs for push, never ask the owner about pushing. Local commits only unless the owner explicitly runs push themselves outside agent scope.
+
+## 2026-10-29: EDGE desk policy + university desk signal feed
+
+**Question:** Should desk shrink (c) and research→desk wiring (b) stay hard-coded in code only?
+
+**Choice:** YES to artifact-backed policy: `export_edge_report` writes `desk_policy.json`; `effective_desk_notional_mult()` merges min(static, edge); `desk_signal_feed.json` records per-desk `research_overlay` + size policy when the science pipeline or edge export runs.
+
+**Reason:** Fail-closed shrink tracks live book receipts; university feed is provable without TS/chat inventing signals. Promotion remains `strategy_switch.promote()` only.
+
+## 2026-10-29: Opt-in DESK_EDGE_SHADOW_BLOCK + chat paper_desks
+
+**Question:** Should losing desks be blocked entirely or only size-shrunk?
+
+**Choice:** Default remains size haircuts only; `AHOS_PAPER_DESK_SHADOW_BLOCK=1` skips new OPENs on desks with `shadow_only_advisory` in `desk_policy.json`. Chat intent `paper_desks` + snapshot loads `desk_signal_feed.json` for Kian.
+
+**Reason:** Owner asked shrink/fix without silent live-trading behavior; block is explicit env, fail-closed when off.
+
+## 2026-10-29: Kian paper explain via snapshot + `paper_why` intent
+
+**Question:** How should chat answer «چرا معامله کاغذی؟» without inventing signals?
+
+**Choice:** YES to read-only `paper_lane_read_model.ts` (loads `paper_trader_status.json`), extend Python status with `open_explains_fa` / `trade_quality`, add `paper_why` intent before generic `why`, and reply via `paperLaneWhyBlocks` (Persian text from logged `kian_explain_fa` / regenerated from `entry_brain`).
+
+**Reason:** Stage (a) requires Kian to explain signal families in Persian; TypeScript must not become decision authority — only project Python logs. Historical jsonl rows without `kian_explain_fa` still fail-closed with an honest note until new OPEN/CLOSE after daemon reload.
+
+## 2026-10-30: Unification audit for EDGE desk artifacts
+
+**Question:** Should `desk_policy.json` / `desk_signal_feed.json` drift from `edge_report.json` without a cross-surface check?
+
+**Choice:** YES — add `edge.desk_artifacts` in `unification_audit.py` when `edge_report.json` exists; skip the check when edge export has not run. Operator refresh via `scripts/refresh_paper_lane_artifacts.py` (wraps `export_edge_report.main`).
+
+**Reason:** Product tranche (b)(c) is artifact-backed; audit catches stale desk policy after manual edits. Live book check PASS with UNPROVEN_EDGE and `promotion_eligible=false`.
