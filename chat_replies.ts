@@ -431,11 +431,19 @@ export function paperDeskFeedBlocks(lane: PaperLaneReadModel | undefined): Reply
     ),
   ];
   for (const d of feed.desks.slice(0, 8)) {
+    const sc = d.shadowOutcomeScorecard?.find((x) => x.scoredCloses > 0 || x.skipped > 0);
+    const scoreTxt =
+      sc && sc.hitRate != null
+        ? ` · امتیاز سایه ${sc.hypothesisId}: ${sc.hits}/${sc.scoredCloses} (${(sc.hitRate * 100).toFixed(0)}%)`
+        : sc && sc.skipped > 0
+          ? ` · سایه ${sc.hypothesisId}: ${sc.skipped} پرش (جهت≠معامله)`
+          : "";
     lines.push(
       bullet(
         `${d.paperDesk}: اندازه×${d.notionalMult} (${d.notionalMultSource})` +
           (d.researchOverlayScore != null ? ` · overlay ${d.researchOverlayScore}` : "") +
-          (d.registryHypotheses?.length ? ` · log ${d.registryHypotheses.join("/")} (w=0)` : ""),
+          (d.registryHypotheses?.length ? ` · log ${d.registryHypotheses.join("/")} (w=0)` : "") +
+          scoreTxt,
       ),
     );
   }

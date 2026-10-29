@@ -15,6 +15,14 @@ export type PaperDeskFeedRow = {
   overlaySources?: string[];
   registryHypotheses?: string[];
   shadowForwardHypotheses?: string[];
+  shadowOutcomeScorecard?: Array<{
+    hypothesisId: string;
+    hitRate: number | null;
+    scoredCloses: number;
+    hits: number;
+    misses: number;
+    skipped: number;
+  }>;
 };
 
 export type PaperLaneReadModel = {
@@ -87,6 +95,18 @@ function mapDeskFeed(doc: Record<string, unknown>): PaperLaneReadModel["deskSign
         : [],
       shadowForwardHypotheses: Array.isArray(d.shadow_forward_hypotheses)
         ? d.shadow_forward_hypotheses.map(String)
+        : [],
+      shadowOutcomeScorecard: Array.isArray(d.shadow_outcome_scorecard)
+        ? d.shadow_outcome_scorecard
+            .filter((x): x is Record<string, unknown> => !!x && typeof x === "object")
+            .map((x) => ({
+              hypothesisId: String(x.hypothesis_id ?? ""),
+              hitRate: typeof x.hit_rate === "number" ? x.hit_rate : null,
+              scoredCloses: Number(x.scored_closes ?? 0),
+              hits: Number(x.hits ?? 0),
+              misses: Number(x.misses ?? 0),
+              skipped: Number(x.skipped ?? 0),
+            }))
         : [],
     }));
   return {

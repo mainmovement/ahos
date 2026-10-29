@@ -1752,6 +1752,36 @@ def _desk_lane_artifact_checks(root: Path) -> list[dict[str, Any]]:
     ]
 
 
+def _research_prediction_scorecard_checks(root: Path) -> list[dict[str, Any]]:
+    from architecture.university.research_prediction_scoring import (
+        OUTCOMES_REL,
+        SCORECARD_REL,
+        load_all_outcomes,
+    )
+
+    out_rel = OUTCOMES_REL
+    card_rel = SCORECARD_REL
+    outcomes = load_all_outcomes(root)
+    card = _json(root, card_rel)
+    if not outcomes and card is None:
+        return []
+    problems: list[str] = []
+    if card is None:
+        problems.append("scorecard missing while outcomes exist")
+    elif card.get("schema") != "ahos.research_hypothesis_scorecard.v1":
+        problems.append("scorecard schema invalid")
+    elif card.get("outcomes_total") != len(outcomes):
+        problems.append("scorecard outcomes_total drift")
+    return [
+        _check(
+            "research.prediction_scorecard",
+            _pass_fail(not problems),
+            {"outcomes": len(outcomes), "problems": problems},
+            [str(out_rel), str(card_rel)],
+        )
+    ]
+
+
 def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
     entries, ledger_v = _ledger(root)
@@ -1799,6 +1829,7 @@ def build_unification_audit(root: Path, now: datetime | None = None) -> dict[str
     checks += _stage37_checks(root)
     checks += _stage38_checks(root)
     checks += _desk_lane_artifact_checks(root)
+    checks += _research_prediction_scorecard_checks(root)
 
     tally = Counter(c["status"] for c in checks)
     overall = ("DRIFT_DETECTED" if tally["FAIL"] else "INCOMPLETE" if tally["UNKNOWN"] else "UNIFIED_CLEAN")

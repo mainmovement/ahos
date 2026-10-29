@@ -155,11 +155,21 @@ def attach_desk_signal_feed(root: Path | None, pipeline_doc: dict[str, Any]) -> 
     from architecture.university.desk_signal_feed import FEED_REL, export_desk_signal_feed
 
     feed = export_desk_signal_feed(root)
+    from architecture.university.research_prediction_scoring import SCORECARD_REL, export_research_hypothesis_scorecard
+
+    scorecard = export_research_hypothesis_scorecard(root)
     pipeline_doc["desk_signal_feed"] = {
         "path": str(FEED_REL.as_posix()).replace("\\", "/"),
         "schema": feed.get("schema"),
         "generated_at": feed.get("generated_at"),
         "desks_count": len(feed.get("desks") or []),
+    }
+    pipeline_doc["research_hypothesis_scorecard"] = {
+        "path": str(SCORECARD_REL.as_posix()).replace("\\", "/"),
+        "schema": scorecard.get("schema"),
+        "generated_at": scorecard.get("generated_at"),
+        "outcomes_total": scorecard.get("outcomes_total"),
+        "hypotheses_tracked": len(scorecard.get("hypotheses") or []),
     }
     return pipeline_doc
 

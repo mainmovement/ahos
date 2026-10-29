@@ -12,6 +12,10 @@ from architecture.markets.research_desk_signal import (
     research_overlay_for_desk,
     research_predictions_for_trade,
 )
+from architecture.university.research_prediction_scoring import (
+    SCORECARD_REL,
+    build_hypothesis_scorecard,
+)
 
 FEED_REL = Path("reports") / "grok" / "PAPER" / "desk_signal_feed.json"
 
@@ -38,6 +42,26 @@ def build_desk_signal_feed(root: Path) -> dict[str, Any]:
         ev = overlay.get("evidence") if isinstance(overlay.get("evidence"), dict) else {}
         pred = research_predictions_for_trade(root, paper_desk)
         mult, mult_src = effective_desk_notional_mult(root, paper_desk)
+        scorecard = build_hypothesis_scorecard(root)
+        hyp_scores = {
+            h["hypothesis_id"]: h
+            for h in (scorecard.get("hypotheses") or [])
+            if isinstance(h, dict) and h.get("hypothesis_id")
+        }
+        shadow_scores = []
+        for hid in list(ev.get("shadow_forward_logged") or []):
+            h = hyp_scores.get(str(hid))
+            if h:
+                shadow_scores.append(
+                    {
+                        "hypothesis_id": hid,
+                        "hit_rate": h.get("hit_rate"),
+                        "scored_closes": h.get("scored_closes"),
+                        "hits": h.get("hits"),
+                        "misses": h.get("misses"),
+                        "skipped": h.get("skipped"),
+                    }
+                )
         desks.append(
             {
                 "paper_desk": paper_desk,
@@ -48,6 +72,7 @@ def build_desk_signal_feed(root: Path) -> dict[str, Any]:
                 "batch_pass_stats_keys": list(ev.get("batch_pass_stats_keys") or []),
                 "shadow_forward_hypotheses": list(ev.get("shadow_forward_logged") or []),
                 "shadow_forward_predictions": pred.get("predictions") or [],
+                "shadow_outcome_scorecard": shadow_scores,
                 "weighted_sources": list(ev.get("weighted_sources") or []),
                 "notional_mult": mult,
                 "notional_mult_source": mult_src,
@@ -61,6 +86,7 @@ def build_desk_signal_feed(root: Path) -> dict[str, Any]:
         "strategy_switch_version": sw.get("version"),
         "strategy_switch_active_count": len(active),
         "desks": desks,
+        "research_hypothesis_scorecard_path": str(SCORECARD_REL.as_posix()).replace("\\", "/"),
         "honesty_note": (
             "research_overlay composite weight applies only to PASS_STATS + SURVIVED_RED_TEAM. "
             "SHADOW/FORWARD rows are logged on trades with weight 0."

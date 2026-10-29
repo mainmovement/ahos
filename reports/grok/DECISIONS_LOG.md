@@ -189,3 +189,11 @@
 **Choice:** NO — `research_overlay` composite weight only for batch `PASS_STATS` + `SURVIVED_RED_TEAM`; shadow/forward logged per trade in `research_predictions` with `composite_weight: 0` and deferred outcome scoring.
 
 **Reason:** Owner fix before commit; prevents unproven university hypotheses from steering the paper book while preserving audit trail for later calibration.
+
+## 2026-10-30: Deferred research prediction outcome scoring
+
+**Question:** How to score SHADOW/FORWARD predictions without letting them steer trades?
+
+**Choice:** YES to `research_prediction_outcomes.jsonl` + `research_hypothesis_scorecard.json` on each CLOSE; HIT/MISS only when predicted direction matches executed side; SKIPPED otherwise; composite weight remains 0; unification check `research.prediction_scorecard`.
+
+**Reason:** Closes the University→desk loop with measurable receipts while keeping promotion gate on PASS_STATS+SURVIVED only.
