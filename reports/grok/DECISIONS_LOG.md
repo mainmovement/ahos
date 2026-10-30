@@ -605,3 +605,11 @@
 **Choice:** No. The shadow replay drops 46 closes and the mean difference is 0.009529 dollars. That replay is the stored book, not 30 fresh closes, and the red team has not survived. `lesson_is_live` stays false, so the running trader does not zero the news weight. 141 new university cases were appended. The week’s intelligence status is TREND_NOT_UP. Soak 14260 and trader 13020 were not restarted. Gap IDs closed: none.
 
 **Reason:** A higher mean on old closes is not a license to change the live weight.
+
+## 2026-10-31: Size cut on two losing desks, no weight raised
+
+**Question:** The closed book is 172 trades and −0.8018 dollars. Can the size of gold and the token desk be cut on the running trader without a promotion?
+
+**Choice:** Yes, as a downgrade only. `desk_policy.json` now sets GOLD and PB_TOKEN notional to 0.15. The trader process 13020 already reads that file each cycle and keeps the smaller of the static haircut and this number. US and EU stay at 1.0. No signal weight was raised. The book stays an unproven edge. Soak 14260 was not restarted.
+
+**Reason:** The dollar-scaled haircut never went below the static map, so it was not binding. The floor already written in that policy is 0.15, and these two desks are still open with a negative mean.
