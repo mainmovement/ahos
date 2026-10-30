@@ -182,6 +182,15 @@ export type Snap = {
    */
   soak?: SoakReadModel | null;
   paperLane?: PaperLaneReadModel | null;
+  home?: {
+    equityUsd: number | null;
+    openCount: number;
+    openNames: string[];
+    lessonsFa: string[];
+    readinessPct: number | null;
+    missingFa: string[];
+    liveSwitch: false;
+  } | null;
 };
 
 // ----------------------------------------------------------- the alert banner --

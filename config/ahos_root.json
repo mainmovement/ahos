@@ -1,0 +1,22 @@
+{
+  "schema": "ahos.paths.v1",
+  "paper_only": true,
+  "root": "G:\\robat\\ahos",
+  "launcher": "G:\\robat\\AHOS_Launcher",
+  "assets": "G:\\robat\\ahos_assets",
+  "paper_dir": "reports/grok/PAPER",
+  "python": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+  "hardware_tier_source": "core/idea_shelf/hardware.py",
+  "installer_plan": {
+    "id": "M-PORT",
+    "downloads_python": false,
+    "copies_env": false,
+    "steps": [
+      "Copy the repo onto a folder on G:",
+      "Create the virtualenv inside that folder",
+      "Set AHOS_ROOT to that folder before any task",
+      "Start the paper soak and the paper trader from the launcher on G:",
+      "Leave HOLD.flag in place"
+    ]
+  }
+}

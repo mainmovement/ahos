@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useSnap } from '@/components/ahos/use-command-snapshot';
+import { HomeBrief } from './home-brief';
 import { Hero } from './hero';
 import { KpiCards } from './kpi-cards';
 import { GlobeStage } from './globe-stage';
@@ -28,9 +30,16 @@ import { Dock } from './dock';
  */
 export function AhosOverview() {
   const { data, stale } = useSnap();
+  const [showTech, setShowTech] = useState(false);
 
   return (
     <div className='flex flex-col gap-4 p-4' dir='rtl'>
+      <HomeBrief snap={data} />
+      <button type='button' className='self-start text-sm underline' onClick={() => setShowTech((open) => !open)}>
+        {showTech ? 'بستن جزئیات فنی' : 'جزئیات فنی'}
+      </button>
+      {showTech ? (
+        <>
       <Hero snap={data} />
       <KpiCards snap={data} />
 
@@ -50,6 +59,8 @@ export function AhosOverview() {
 
       <BottomRow snap={data} />
       <Dock />
+        </>
+      ) : null}
 
       {stale ? (
         <p dir='rtl' className='text-center text-[10px] text-[var(--ahos-status-stale)]'>

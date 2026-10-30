@@ -22,6 +22,33 @@ class HardwareProbe:
     log: tuple[str, ...] = ()
 
 
+def _windows_ram_gb() -> float | None:
+    """Total physical RAM when psutil is not installed. No extra package."""
+    try:
+        import ctypes
+
+        class _Mem(ctypes.Structure):
+            _fields_ = (
+                ("dwLength", ctypes.c_ulong),
+                ("dwMemoryLoad", ctypes.c_ulong),
+                ("ullTotalPhys", ctypes.c_ulonglong),
+                ("ullAvailPhys", ctypes.c_ulonglong),
+                ("ullTotalPageFile", ctypes.c_ulonglong),
+                ("ullAvailPageFile", ctypes.c_ulonglong),
+                ("ullTotalVirtual", ctypes.c_ulonglong),
+                ("ullAvailVirtual", ctypes.c_ulonglong),
+                ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
+            )
+
+        stat = _Mem()
+        stat.dwLength = ctypes.sizeof(stat)
+        if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat)):
+            return None
+        return round(stat.ullTotalPhys / (1024**3), 2)
+    except Exception:
+        return None
+
+
 def _clamp_tier_from_ram(ram_gb: float | None, has_discrete_gpu: bool) -> HardwareTier | None:
     if has_discrete_gpu:
         return "GPU"
@@ -65,6 +92,12 @@ def detect_hardware(override: HardwareTier | None = None) -> HardwareProbe:
         logs.append(f"psutil ram_gb={ram_gb} cores={cores}")
     except Exception as exc:  # noqa: BLE001 — probe must not crash soak
         logs.append(f"psutil unavailable: {exc}")
+
+    if ram_gb is None and os.name == "nt":
+        measured = _windows_ram_gb()
+        if measured is not None:
+            ram_gb = measured
+            logs.append(f"windows_memory_status ram_gb={ram_gb}")
 
     env_vram = os.environ.get("AHOS_VRAM_GB")
     if env_vram:

@@ -32,6 +32,18 @@ def detect_platform() -> PlatformType:
     return "linux"
 
 
+def load_path_config(path: Path | None = None) -> dict:
+    """One path file. A profile directory on C: is refused."""
+    import json
+
+    file = path or (Path(__file__).resolve().parent / "ahos_root.json")
+    doc = json.loads(file.read_text(encoding="utf-8"))
+    root = str(doc.get("root") or "")
+    if root.upper().startswith("C:\\USERS"):
+        raise ValueError("owner profile path is not a root")
+    return doc
+
+
 def get_project_root() -> Path:
     """Dynamically locates AHOS project root directory."""
     env_root = os.environ.get("AHOS_ROOT")

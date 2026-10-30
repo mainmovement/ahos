@@ -16,6 +16,7 @@ import {
 } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { TEAM_META } from "./council";
+import { loadHomeBrief, type HomeBriefModel } from "./home_brief";
 import { ensureState } from "./engine";
 import {
   canonicalOverlayCensus,
@@ -64,6 +65,7 @@ export function failClosedCommandSnapshot(
   canonicalModel: CanonicalReadModel,
   soak: SoakReadModel,
   paperLane: PaperLaneReadModel,
+  home: HomeBriefModel | null = null,
 ) {
   const root = deepestErrorMessage(error);
   const msg = error instanceof Error ? error.message : String(error);
@@ -102,6 +104,7 @@ export function failClosedCommandSnapshot(
     teams: TEAM_META,
     soak,
     paperLane,
+    home,
     health: {
       dimensions: [
         dim("راه‌اندازی", "CODE_FAILURE", message),
@@ -125,15 +128,16 @@ export function failClosedCommandSnapshot(
 export async function commandSnapshot() {
   // The soak file is read alongside the canonical model so the strips can show
   // the runner that is actually cycling, even when Postgres is unreachable.
-  const [canonicalModel, soak, paperLane] = await Promise.all([
+  const [canonicalModel, soak, paperLane, home] = await Promise.all([
     loadCanonicalReadModel(),
     loadSoakReadModel(),
     loadPaperLaneReadModel(),
+    loadHomeBrief(),
   ]);
   try {
-    return await buildDbCommandSnapshot(canonicalModel, soak, paperLane);
+    return await buildDbCommandSnapshot(canonicalModel, soak, paperLane, home);
   } catch (error) {
-    return failClosedCommandSnapshot(error, canonicalModel, soak, paperLane);
+    return failClosedCommandSnapshot(error, canonicalModel, soak, paperLane, home);
   }
 }
 
@@ -141,6 +145,7 @@ async function buildDbCommandSnapshot(
   canonicalModel: CanonicalReadModel,
   soak: SoakReadModel,
   paperLane: PaperLaneReadModel,
+  home: HomeBriefModel | null,
 ) {
   try {
     await ensureState();
@@ -343,6 +348,7 @@ async function buildDbCommandSnapshot(
     teams: TEAM_META,
     soak,
     paperLane,
+    home,
     health,
     blocked: [
       { item: "معامله واقعی", status: "DISABLED" },
