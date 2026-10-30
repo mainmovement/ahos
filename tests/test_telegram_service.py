@@ -86,3 +86,23 @@ def test_gateway_reply_has_no_forced_footer_and_long_timeout(monkeypatch, servic
     assert res["source"] == "conversation_gateway"
     assert FOOTER_MANDATED not in res["text"]
     assert res["footer_injected"] is False
+
+
+def test_bare_menu_uses_the_paper_fallback(monkeypatch, service):
+    monkeypatch.setattr(
+        type(service),
+        "_call_conversation_gateway",
+        lambda self, t, c, u: {"reply": "این سؤال را دقیق متوجه نشدم. یکی از این‌ها را امتحان کن:"},
+    )
+    monkeypatch.setattr(
+        "telegram_ai.service.answer_question",
+        lambda root, text, **_k: {
+            "text": "سود کاغذی هنوز پایدار نشده است.\nشرط صادقانه: 30 fresh closes + DSR>0.95 + PBO<0.5",
+            "source": "world_state",
+            "error_class": "quota_429",
+        },
+    )
+    res = service.handle_message("چقدر مونده سودده بشه؟")
+    assert res["source"] == "llm_fallback"
+    assert "دقیق متوجه نشدم" not in res["text"]
+    assert "30 fresh closes + DSR>0.95 + PBO<0.5" in res["text"]

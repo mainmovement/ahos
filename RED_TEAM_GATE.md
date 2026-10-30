@@ -776,3 +776,13 @@ Pre-registration commit e8ec09 is before any score. Hash 3edff5606bad6fc16d5745
 | R2 Data | APPROVE the registration | The yaml hash matches the sidecar. A mismatched file cannot be scored. |
 | R7 SRE/Security | APPROVE the refusal to install | Named libraries were absent. Chronos weights were not downloaded. Peak RSS about 32 MB. HOLD files were not edited. |
 | Meta-Critic | APPROVE | Level 2: purged folds exist, and the old walk-forward helper was not rerouted. Look-ahead, leakage, and a zero-cost fill are caught. That catch is NOT_SURVIVED for promotion. |
+
+## Telegram LLM fallback (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+No log from 19:33 Tehran was on disk. Live probe: flash TimeoutError, retry HTTP 503, flash-lite TimeoutError, local model absent. Tests: pytest tests/test_telegram_llm_fallback.py tests/test_telegram_service.py tests/test_mehrdad_digest.py passed. The reply is the paper file. The one-hour alert is not confirmed. Lane A integrity OK.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R4 Intelligence | APPROVE the fallback | The menu is replaced. The model sentence without the registered facts is not sent. |
+| R7 SRE/Security | APPROVE | The health file stores the error class only. The key is not in the file. The bot process was not restarted. |
+| Meta-Critic | APPROVE | Level 2: a timeout class is not a profit date, and the hour alert stays off until this outage itself passes one hour. |

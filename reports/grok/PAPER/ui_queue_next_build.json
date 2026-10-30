@@ -38,6 +38,10 @@
   {
    "id": "mega9_shadow",
    "change": "Show the science pack as shadow. Do not paint a module as passed or promoted."
+  },
+  {
+   "id": "telegram_llm_health",
+   "change": "Show a health tile for the Telegram model chain: up or down, error class only, and that a free-form question falls back to the paper file. Do not paint a profit date."
   }
  ],
  "decides": false

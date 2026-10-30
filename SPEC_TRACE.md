@@ -308,3 +308,7 @@ Owner approval at 18:42 Tehran allows the existing token for one nightly paper n
 ## MEGA 9 (2026-10-30)
 
 Pre-registration docs/prereg/MEGA9.yaml commit e8ec09, sha256 3edff5606bad6fc16d5745c9b56a50a1e360eb3461978d3840046e66a9ec07f9. Twelve shadow modules under science/. Named libraries were not installed. Chronos weights were not downloaded. Moirai refused. Promoted **0**. States: M9-01 through M9-11 PARTIAL, M9-12 OPEN. The live paper broker was not rewritten. Peak RSS about **32 MB**. Gap IDs closed: **none**.
+
+## Telegram LLM fallback (2026-10-30)
+
+Free-form Telegram questions that would have been a menu now read the shared paper file after Gemini flash, flash-lite, and a local small model. The 19:33 log is absent. The live class is timeout, with one HTTP 503 on the retry. No local model is running. Promoted nothing. The hour alert is not confirmed. Gap IDs closed: **none**.

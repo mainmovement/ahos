@@ -557,3 +557,11 @@
 **Choice:** No install and no promotion. The pre-registration `docs/prereg/MEGA9.yaml` was committed as `ae8ec09` before any score. Its sha256 is `3edff5606bad6fc16d5745c9b56a50a1e360eb3461978d3840046e66a9ec07f9`, also stored in world-state hypotheses at version 82. A byte change that does not match that hash cannot be scored, and a later edit must raise `trial_count`. The named libraries were absent. Torch and Chronos weights were not downloaded. Moirai is refused. Own formulas cover the barriers, purged folds, conformal abstain, costs, a short changepoint step, hierarchical weights, the Kelly ceiling, fractional differentiation, expert weights, the block bootstrap, and a lock-plus-isolation veto. The legacy walk-forward helper was not rewritten. Process peak RSS on the shadow run was about 32 MB. Every module stays shadow. `promoted` is 0. The red team did not survive. Gap IDs closed: none.
 
 **Reason:** A fixture that abstains is not an out-of-sample pass, and a multi-hundred-megabyte install does not belong on this soak.
+
+## 2026-10-30: Telegram falls back to the paper file when Gemini times out
+
+**Question:** Gemini failed at 19:33 Tehran and the chat showed a menu. Should the bot invent a profit date, install a local model, or treat the outage as already longer than one hour?
+
+**Choice:** No. No log line from 19:33 was on disk. The live probe class is timeout. `gemini-flash-latest` raised TimeoutError, the retry was HTTP 503, `gemini-flash-lite-latest` then timed out, and no local small model is running. An earlier probe in the same hour got a flash-lite sentence that did not carry the registered facts, so it was not sent. The reply is the paper file: equity, readiness, soak hours, paused desks, blockers, and the rule `30 fresh closes + DSR>0.95 + PBO<0.5`. The one-hour Negahban alert is not confirmed. The outage clock starts at 2026-10-30T17:34:03Z. Bot process 11896 was left running. Gap IDs closed: none.
+
+**Reason:** A menu is not a status, and a clock that skips a later model answer is not an hour of downtime.

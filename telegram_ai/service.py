@@ -50,6 +50,7 @@ TG_UID_HEADER = "X-AHOS-TG-Uid"
 TG_TS_HEADER = "X-AHOS-TG-Ts"
 TG_SIG_HEADER = "X-AHOS-TG-Sig"
 
+from architecture.ai.telegram_llm_fallback import answer_question, is_bare_menu
 from .intent import parse, ParseResult, INFO_ONLY_INTENTS, LEDGER_MUTATING_INTENTS
 from .response_contract import FOOTER_MANDATED
 
@@ -91,6 +92,21 @@ class TelegramDomainService:
                 html_out = gw.get("answer_html") or ""
                 if not isinstance(html_out, str):
                     html_out = ""
+                if is_bare_menu(text_out):
+                    doc = answer_question(Path(__file__).resolve().parents[1], text)
+                    return {
+                        "text": doc["text"],
+                        "text_html": None,
+                        "intent": "llm_fallback",
+                        "status": "OK",
+                        "source": "llm_fallback",
+                        "focus_token": gw.get("focus_token") or gw.get("focusToken"),
+                        "evidence": {
+                            "error_class": doc.get("error_class"),
+                            "answered_from": doc.get("source"),
+                        },
+                        "footer_injected": False,
+                    }
                 return {
                     "text": text_out,
                     "text_html": html_out or None,
