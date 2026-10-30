@@ -3,66 +3,39 @@
 import type { Snap } from '@/dashboard_snapshot';
 
 /**
- * Minimal owner home. Numbers come from the Python status file (mehrdad_status.json
- * via the snapshot). This view does not decide and invents nothing: a missing value
- * shows as «—».
+ * The owner home. Numbers come from the Python status file. This view does not decide.
  */
-export function HomeBrief({ snap, stale }: { snap: Snap | null; stale?: boolean }) {
+export function HomeBrief({ snap }: { snap: Snap | null }) {
   const home = snap?.home;
   const equity = home?.equityUsd ?? snap?.paperLane?.markToMarketEquityUsd ?? null;
   const opens = home?.openNames ?? [];
-  const lesson = (home?.lessonsFa ?? [])[0] ?? null;
-  const pct = typeof home?.readinessPct === 'number' ? home.readinessPct : null;
-  const healthy = Boolean(snap) && !stale;
+  const lessons = home?.lessonsFa ?? [];
+  const pct = home?.readinessPct;
+  const equityText = typeof equity === 'number' ? `${equity.toFixed(2)} دلار` : 'نامشخص';
+  const pctText = typeof pct === 'number' ? `${pct}٪` : 'نامشخص';
 
   return (
-    <section dir='rtl' className='mx-auto flex w-full max-w-3xl flex-col gap-8 py-6'>
-      <div className='flex items-center justify-between'>
-        <span className='flex items-center gap-2 text-sm opacity-80'>
-          <span
-            aria-hidden
-            className={`inline-block h-2.5 w-2.5 rounded-full ${healthy ? 'bg-emerald-400' : 'bg-red-500'}`}
-          />
-          {healthy ? 'سالم' : 'مشکل'}
-        </span>
-      </div>
-
-      <div className='text-center'>
-        <div className='text-sm opacity-60'>موجودی</div>
-        <div className='mt-1 text-5xl font-light tabular-nums' dir='ltr'>
-          {typeof equity === 'number' ? `$${equity.toFixed(2)}` : '—'}
+    <section dir='rtl' className='rounded-xl border border-[var(--ahos-line,rgba(255,255,255,0.12))] p-4'>
+      <h1 className='text-xl'>خانه</h1>
+      <p className='mt-2 text-sm'>معاملهٔ واقعی خاموش است.</p>
+      <dl className='mt-4 grid gap-3 sm:grid-cols-2'>
+        <div>
+          <dt className='text-xs opacity-70'>سرمایهٔ کاغذی</dt>
+          <dd className='text-lg'>{equityText}</dd>
         </div>
-      </div>
-
-      <div>
-        <div className='mb-2 text-sm opacity-60'>معاملات باز · {opens.length}</div>
-        <div className='flex flex-wrap gap-2'>
-          {opens.length ? (
-            opens.map((n) => (
-              <span key={n} dir='ltr' className='rounded-full border border-white/15 px-3 py-1 text-sm'>
-                {n}
-              </span>
-            ))
-          ) : (
-            <span className='opacity-50'>—</span>
-          )}
+        <div>
+          <dt className='text-xs opacity-70'>آمادگی پول واقعی</dt>
+          <dd className='text-lg'>{pctText}</dd>
         </div>
-      </div>
-
-      <div>
-        <div className='mb-1 text-sm opacity-60'>درس امروز</div>
-        <p className='truncate text-lg'>{lesson ?? '—'}</p>
-      </div>
-
-      <div>
-        <div className='mb-2 flex justify-between text-sm opacity-60'>
-          <span>آمادگی پول واقعی</span>
-          <span>{pct === null ? '—' : `${pct}٪`}</span>
+        <div>
+          <dt className='text-xs opacity-70'>موقعیت باز</dt>
+          <dd>{opens.length ? opens.join('، ') : 'موقعیت بازی در این نما نیست'}</dd>
         </div>
-        <div className='h-2 w-full overflow-hidden rounded-full bg-white/10'>
-          <div className='h-full rounded-full bg-[#D4AF37]' style={{ width: `${Math.max(0, Math.min(100, pct ?? 0))}%` }} />
+        <div>
+          <dt className='text-xs opacity-70'>درس امروز</dt>
+          <dd>{lessons.length ? lessons.join(' ') : 'درس تازه‌ای در پرونده نیست.'}</dd>
         </div>
-      </div>
+      </dl>
     </section>
   );
 }
