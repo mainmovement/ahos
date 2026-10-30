@@ -397,3 +397,11 @@
 **Choice:** The most common cause is named. A tie uses the pre-registered order: fee drag, then wrong family, then bad timing, then regime, then unknown. The proposal is a sentence about leaving the existing gate where it is. The shadow replay drops that cause's closes and reports the pnl difference. It does not change a weight, a gate, or the live book. Unknown gets no fix.
 
 **Reason:** Applying the day's idea to the live book would move a gate from one session of losses. The 2026-10-30 book had one bad-timing loss and one regime loss, so the order named bad timing. The shadow difference was 0.0132 USD and was not applied.
+
+## 2026-10-30: Two seats filled, the other empty seats stay empty
+
+**Question:** Which of the empty registry seats should this mission mark EXISTS?
+
+**Choice:** AG-18 Learning Agent and AG-19 Self-Diagnostic. Each now has a module and a test: the learning loop and the daily diagnosis. Both still forbid PROMOTE. The other empty seats stay PLANNED, PARTIAL, or MISSING. AG-01 stays MISSING. The order is a pre-registered judgment that the weight path and the loss report change the paper book before the remaining seats do. It is not a fitted score.
+
+**Reason:** Flipping a status without a module would be a label. Filling every empty seat would claim agents this mission did not build.

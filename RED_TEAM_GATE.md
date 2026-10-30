@@ -542,3 +542,29 @@ Command: `pytest tests/test_self_diagnosis.py tests/test_learning_loop.py -q` �
 | R2 Data | APPROVE | Causes are counted from closed rows. A tie does not invent a third cause. |
 | R4 Council | APPROVE | applied_to_live is false. |
 | Meta-Critic | APPROVE | Unknown would have proposed no fix. |
+
+## Agent seats (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_seat_priority.py tests/test_org_lifecycle.py -q` → **6 passed**.
+
+Filled seats are now 11 of 43: the previous nine plus AG-18 and AG-19. Unfilled remain 32, including AG-01 MISSING. Both filled seats still forbid PROMOTE. Their evidence lines cite `learning_loop.py` and `self_diagnosis.py`. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The new seats do not change a weight or a gate by themselves. |
+| R2 Data | APPROVE | Fill still requires EXISTS, implemented, and the artifact file on disk. |
+| R4 Council | APPROVE | PROMOTE stays forbidden on both seats. AG-01 stays unfilled. |
+| Meta-Critic | APPROVE | The other 32 were left empty on purpose. |
+
+## Open items (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_open_items.py -q` → **1 passed**.
+
+`reports/grok/PAPER/open_items.md` lists the register rows that are still open or only mitigated, plus M13, M31, and M36. No gap id was closed. Edge stays UNPROVEN_EDGE. There is no file named FULL_GAP_REGISTER.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The report does not treat a shadow pnl difference as an edge. |
+| R2 Data | APPROVE | Statuses are the register's words. M-GAP-011's table and later note are both stated. |
+| R4 Council | APPROVE | Telegram, the 7-day soak, and the 72-hour receipt stay open. |
+| Meta-Critic | APPROVE | This stage is a list, not a closure. |

@@ -241,3 +241,11 @@ Weekly shortlist is the three newest distinct papers in `reports/grok/M44/arxiv_
 ## Self-diagnosis (2026-10-30)
 
 `reports/grok/PAPER/daily_diagnosis.json` names one cause for the UTC day and one shadow fix. 2026-10-30 had two losing closes (bad timing and regime); the order named bad timing. Shadow minus live was 0.0132 USD. Nothing was applied to the live book. Gates unchanged. Gap IDs closed: **none**.
+
+## Agent seats (2026-10-30)
+
+AG-18 and AG-19 are EXISTS because `architecture/university/learning_loop.py` and `architecture/university/self_diagnosis.py` exist and are tested. Filled seats: 11 of 43. Unfilled: 32. AG-01 remains MISSING. Neither new seat may PROMOTE. Gates unchanged. Gap IDs closed: **none**.
+
+## Open items (2026-10-30)
+
+`reports/grok/PAPER/open_items.md` is the list. There is no file named FULL_GAP_REGISTER. Still open or only mitigated: M-GAP-003, 004, 005, 006, 007, 008, 009, 010, 011, 012. Wall-clock rows still PARTIAL: M13, M31, M36 (`NOT_MET`). Edge remains UNPROVEN_EDGE. Gap IDs closed: **none**.
