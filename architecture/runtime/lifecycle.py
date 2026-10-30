@@ -227,7 +227,8 @@ class ApplicationLifecycleManager:
     def _record_lifecycle_event(self, action: str, state: str, meta: dict):
         try:
             db_path = self._local_db_path()
-            conn = sqlite3.connect(str(db_path))
+            from architecture.persistence.sqlite_wal import connect_writer
+            conn = connect_writer(db_path)
             conn.execute(
                 """CREATE TABLE IF NOT EXISTS runtime_lifecycle_events (
                     event_id TEXT PRIMARY KEY,

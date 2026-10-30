@@ -566,6 +566,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         live_weights, switch_version = dict(weights["weights"]), 0
     ledger = _Ledger(root, use_ledger)
     trades = load_paper_trades(root)
+    from architecture.markets.desk_expectancy_pause import paused_desk_names
+
+    paused_desks = paused_desk_names(trades)
     equity = float(paper_account_summary(root)["current_equity_usd"])
     halted, halt_reason = ledger.halted()
     killed, kill_reason = kill_switch(trades, equity, t)
@@ -951,6 +954,11 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             continue
         if memory["action"] == "SHRINK":
             notional *= float(memory.get("factor") or 1.0)
+        if desk in paused_desks:
+            log({**base, "event": "NO_TRADE", "reason": "DESK_EXPECTANCY_PAUSE", "price": price,
+                 "composite": comp, "independent_votes": vote_audit,
+                 "desk_pause": {"shadow": True, "applied_to_live_weights": False}})
+            continue
 
         desk_mult, desk_mult_src = effective_desk_notional_mult(root, desk)
         if desk_mult < 1.0:

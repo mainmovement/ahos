@@ -75,6 +75,33 @@ def _utc_stamp() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
+def _read_status(soak_dir: Path) -> dict[str, Any]:
+    path = soak_dir / "soak_status.json"
+    if not path.is_file():
+        return {}
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return doc if isinstance(doc, dict) else {}
+
+
+def _keep_window_start(previous: dict[str, Any], interval_sec: float) -> str:
+    """A running cadence keeps its window. A gap longer than three intervals starts a new one."""
+    start = previous.get("window_started_utc")
+    last = previous.get("last_cycle") if isinstance(previous.get("last_cycle"), dict) else {}
+    stamp = last.get("ts") if isinstance(last, dict) else None
+    if isinstance(start, str) and isinstance(stamp, str):
+        try:
+            last_dt = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+            age = (datetime.now(timezone.utc) - last_dt).total_seconds()
+        except ValueError:
+            age = 10**12
+        if age <= float(interval_sec) * 3:
+            return start
+    return _utc_stamp()
+
+
 def _append_jsonl(path: Path, record: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as fh:
@@ -507,10 +534,12 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
                       f"{reconcile.get('error')}", flush=True)
 
         state = _latest_state(ledger_path)
+        previous = _read_status(soak_dir)
         status: dict[str, Any] = {
             "soak": "M13-GOLD-PAPER",
             "paper_only": True,
             "started_hint": _utc_stamp(),
+            "window_started_utc": _keep_window_start(previous, interval_sec),
             "cycle_interval_sec": interval_sec,
             "planned_days": days,
             "cycles_ok": cycles_ok,

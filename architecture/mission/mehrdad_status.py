@@ -54,6 +54,9 @@ def build_mehrdad_status(root: Path) -> dict[str, Any]:
     for row in diagnosis.get("top_causes") or []:
         if isinstance(row, dict):
             lessons.append(_LESSON_FA.get(str(row.get("cause")), "علت ثبت شده و هنوز اعمال نشده است."))
+    drills = _read(paper / "operator_drills.json")
+    kill_ok = isinstance(drills.get("kill_switch"), dict) and drills["kill_switch"].get("passed") is True
+    judge_ok = isinstance(drills.get("judge"), dict) and drills["judge"].get("passed") is True
     items = [
         {
             "id": "paper_profit_months",
@@ -76,13 +79,21 @@ def build_mehrdad_status(root: Path) -> dict[str, Any]:
         },
         {
             "id": "kill_switch_drill",
-            "met": False,
-            "fa": "کلید قطع در پروندهٔ کاغذی هست و خاموش است. تمرینِ قطعِ اجباری ثبت نشده.",
+            "met": kill_ok,
+            "fa": (
+                "تمرین کلید قطع روی یک زیان ساختگی قطع کرد و کتاب زنده را عوض نکرد."
+                if kill_ok
+                else "کلید قطع در پروندهٔ کاغذی هست و خاموش است. تمرینِ قطعِ اجباری ثبت نشده."
+            ),
         },
         {
             "id": "judge_drill",
-            "met": False,
-            "fa": "داورِ کاغذی ارتقا نداده است. تمرینِ قضاوت برای پول واقعی انجام نشده.",
+            "met": judge_ok,
+            "fa": (
+                "داور یک دفتر پاره را زنجیرهٔ شکسته خواند و ارتقا نداد."
+                if judge_ok
+                else "داورِ کاغذی ارتقا نداده است. تمرینِ قضاوت برای پول واقعی انجام نشده."
+            ),
         },
         {
             "id": "tiny_capped_start",

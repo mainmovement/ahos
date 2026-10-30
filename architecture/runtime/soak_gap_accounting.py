@@ -160,6 +160,32 @@ def build_m36_72h_receipt(
     }
 
 
+def contiguous_window_start(text: str, interval_sec: float) -> str | None:
+    """First cycle of the tail that has no gap longer than three intervals."""
+    stamps: list[str] = []
+    for line in text.splitlines():
+        if "cycle" not in line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if row.get("kind") == "cycle" and isinstance(row.get("ts"), str):
+            stamps.append(row["ts"])
+    if not stamps:
+        return None
+    start = stamps[-1]
+    prev = _parse_iso(stamps[-1])
+    limit = float(interval_sec) * 3
+    for ts in reversed(stamps[:-1]):
+        cur = _parse_iso(ts)
+        if (prev - cur).total_seconds() > limit:
+            break
+        start = ts
+        prev = cur
+    return start
+
+
 def verify_logon_lightstart(logs_dir: Path) -> dict[str, Any]:
     """Confirm AHOS_Logon.ps1 invoked LightStart and light_start.log recorded a begin."""
     logs_dir = Path(logs_dir)
@@ -192,13 +218,27 @@ def export_soak_gap_receipts(root: Path) -> dict[str, Any]:
     heartbeat = build_heartbeat(root)
     logon = verify_logon_lightstart(root.parent / "AHOS_Launcher" / "logs")
     accounting["logon_lightstart"] = logon
-    started = None
+    status_doc: dict[str, Any] = {}
     if (root / STATUS_REL).is_file():
         try:
-            started = json.loads((root / STATUS_REL).read_text(encoding="utf-8")).get("started_hint")
+            loaded = json.loads((root / STATUS_REL).read_text(encoding="utf-8"))
+            status_doc = loaded if isinstance(loaded, dict) else {}
         except json.JSONDecodeError:
-            started = None
+            status_doc = {}
+    started = status_doc.get("window_started_utc") or status_doc.get("started_hint")
+    source = "window_started_utc" if status_doc.get("window_started_utc") else "started_hint"
+    if not status_doc.get("window_started_utc"):
+        runlog = root / "reports" / "grok" / "M13_SOAK" / "soak_runlog.jsonl"
+        if runlog.is_file():
+            rebuilt = contiguous_window_start(
+                runlog.read_text(encoding="utf-8", errors="replace"),
+                float(status_doc.get("cycle_interval_sec") or 900),
+            )
+            if rebuilt:
+                started = rebuilt
+                source = "runlog_contiguous"
     m36 = build_m36_72h_receipt(accounting, heartbeat, window_started_utc=started if isinstance(started, str) else None)
+    m36["window_clock_source"] = source
     m36["logon_lightstart_chain_seen"] = logon["chain_seen"]
     for rel, doc in ((OUT_REL, accounting), (HEARTBEAT_REL, heartbeat), (M36_REL, m36)):
         path = root / rel
