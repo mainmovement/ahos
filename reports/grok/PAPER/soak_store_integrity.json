@@ -1,15 +1,34 @@
 {
- "schema": "ahos.soak_store_integrity.v1",
- "paper_only": true,
- "generated_at": "2026-10-30T14:09:14Z",
- "stores": {
-  "ahos_local": "INTERRUPTED",
-  "e01_discovery": "INTERRUPTED",
-  "paper_trading": "ok",
-  "ahos_knowledge": "ok"
- },
- "every_store_ok": false,
- "running_soak_reloaded": false,
- "live_switch": false,
- "decides": false
+  "schema": "ahos.soak_store_integrity.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T15:14:10Z",
+  "stores": {
+    "ahos_local": "ok",
+    "e01_discovery": "ok",
+    "paper_trading": "ok",
+    "ahos_knowledge": "ok"
+  },
+  "method": {
+    "ahos_local": "backup_api_snapshot",
+    "e01_discovery": "backup_api_snapshot",
+    "paper_trading": "live_readonly_30s",
+    "ahos_knowledge": "live_readonly_30s"
+  },
+  "timeout_s": {
+    "ahos_local": 240,
+    "e01_discovery": 240,
+    "paper_trading": 30,
+    "ahos_knowledge": 30
+  },
+  "every_store_ok": true,
+  "prior_20s_live_check": {
+    "generated_at": "2026-10-30T14:09:14Z",
+    "ahos_local": "INTERRUPTED",
+    "e01_discovery": "INTERRUPTED"
+  },
+  "snapshot_receipt": "reports/grok/PAPER/store_integrity_snapshot.json",
+  "running_soak_reloaded": false,
+  "soak_pid": 14260,
+  "live_switch": false,
+  "decides": false
 }

@@ -714,3 +714,45 @@ Command: `pytest tests/test_mega5.py tests/test_mega4b.py tests/test_soak_snapsh
 Level 1. The overlay copied the previous ten proof flags from `vision_steps.json` instead of re-reading every older receipt in this pass. Those files are still on disk. `safety_veto` stays on the earlier rows; the new token log is a separate count of 9. News flags were not re-fetched.
 
 Level 2. Calling the overlay 61.5 percent would be a false vision claim if it were written into the 2026-09-12 audit. It was not. The served page, the seven remaining nights, the large-store soak check, calibration, and the live weights are still open.
+
+## MEGA 6 (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_mega6.py tests/test_mega4b.py tests/test_paper_trader.py tests/test_paper_trade_gates.py -q` → **15 passed**, then **28 passed** on the trader and gate files. Lane A integrity OK. Gap IDs closed: **none**. No dashboard file was edited. No rule was promoted.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | REJECT promotion | Fresh closes after 2026-10-30T14:46:47Z: 0. Shadow expectancy is null on every desk. Book expectancy is unchanged as a live weight. |
+| R2 Data | APPROVE | The desk list is frozen from the 14:08 decomposition. Later closes do not rewrite it. Missing spread or ATR is UNEVALUABLE, not a keep. |
+| R3 News | APPROVE | News weight was not written. The family count in shadow is 3. The live gate stays 2. |
+| R4 Intelligence (Kian) | APPROVE | `predicted_probability` is the signed-composite map, `calibrated` false, and it is not an entry vote. |
+| R5 Visual/UX | APPROVE | No app or dashboard file changed. Port 3200 was not rebuilt. |
+| R6 Learning | APPROVE | `mega6_red_team.json` says `NOT_SURVIVED` on all eight rules. `survived_red_team` is false. |
+| R7 SRE/Security | APPROVE | Soak window stayed 2026-10-29T00:45:31Z after PID 14260 replaced 11388. Integrity hook ran. Large stores are INTERRUPTED. Trader PID is 13020. HOLD was not removed. |
+| Meta-Critic | APPROVE | Level 2: a null shadow is not a better expectancy. The first reloaded cycle did not close a trade, so the Persian sentence is in the process and not yet on a new fill. |
+
+### Two-level self-critique
+
+Level 1. The live book numbers include one US close that arrived before the stamp. That close is in the book column and not in the shadow column.
+
+Level 2. Restarting the trader while its next fetch had not written is a boundary only because the ledger's last row was still 14:35:52Z. It is not proof that `close_reason_fa` has been stored on a live close.
+
+## MEGA 7 (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_mega7.py tests/test_token_pump_dump.py tests/test_tier_gate.py -q` → **31 passed**. `pytest tests/test_mega7.py -q` after the seat probe called `veto_check` → **4 passed**. `python scripts/freeze_lane_a.py` → Lane-A integrity OK (36 files). Gap IDs closed: **none**. No dashboard or app file was edited. Soak PID 14260 and trader PID 13020 were not restarted. No reboot.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | REJECT promotion | Family score is a lookback on 157 stored closes. mtf_trend dominates 148 of them. Breadth marginal is null. `pass_stats` false. Reasons `LOOKBACK_NOT_A_FRESH_SAMPLE` and `RED_TEAM_ABSENT`. Wicks' positive marginal is not a live weight. |
+| R2 Data | APPROVE the measurement, REJECT a new feed | News, macro, large_trades, and candles already have nonzero default weights. crypto_breadth stays 0. ECB and OPEC were not answered in this pass. |
+| R3 News | APPROVE | News weight was not raised. The news marginal on the out-of-sample window is -0.000266 USD. |
+| R4 Intelligence (Kian) | APPROVE | `ask()` returned CITED for a stored ETH-SWAP overlap and UNKNOWN for a question with no overlap. That function is not on every agent path. |
+| R5 Visual/UX | APPROVE | Family and fourth-regime lines were queued. Port 3200 was not rebuilt. |
+| R6 Learning | APPROVE | The logged `review_open` is action NONE. Regime rows stay SHADOW. arXiv task `M44ScoutDedupe` has `code_execution` false. |
+| R7 SRE/Security | APPROVE | Stall action HOLD. Window `2026-10-29T00:45:31Z`. `reboot_proven` false. Token strict mode fail-closes on missing dev history, whitelist, and fee flags. Lane A was not edited. |
+| Meta-Critic | APPROVE | Level 2: the 3-of-4 count can pass with zero LIQUIDITY_STRESS trades. Two bus senders are not every module. The running soak still has the 20-second integrity path until it is replaced. |
+
+### Two-level self-critique
+
+Level 1. The 115/124 claim was measured instead of repeated. The stored book is 148 of 157 contribution rows. The out-of-sample slice is the last 40 percent, and it was registered in the same second as the score because the registry file did not exist before this run. That stamp is not a fresh-close sample.
+
+Level 2. Calling the fourth regime DONE means the label and the count exist. It does not mean a gold track passed the exit gate, and it does not mean a stress cluster was fitted.

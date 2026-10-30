@@ -653,3 +653,14 @@ The 2026-08-20 classification table above is a historical snapshot. The living s
 - **M-GAP-005 stays MITIGATED.** The nightly copies returned `integrity_check` ok. The soak-cadence check at 20 seconds returned INTERRUPTED for `ahos_local.sqlite` and `e01_discovery.sqlite`, and ok for `paper_trading.sqlite` and `ahos_knowledge.sqlite` (`reports/grok/PAPER/soak_store_integrity.json`). The running soak PID 11388 does not have the six-hour hook. The next soak start will attach it. `every_store_ok` on that receipt is false.
 - The cause-drop shadow is `KEEP_SHADOW`. Measured DSR 0.9997 and PBO 0.0 are not a pass. `pass_stats` is false. Reasons: `POST_HOC_CAUSE_DROP`, `RED_TEAM_ABSENT`. Live weights were not written.
 - Current vision overlay is 16 of 26 (61.5 percent). The 2026-09-12 operational column stays 0 of 26. Readiness stays 50 percent. Gap IDs closed: none.
+
+## Addendum (2026-10-30) — MEGA 6, paper only
+
+- **M-GAP-005 stays MITIGATED.** The soak process that holds the six-hour hook is PID 14260. Its first status write at 2026-10-30T14:47:34Z checked the stores. `paper_trading` and `ahos_knowledge` were ok. `ahos_local` and `e01_discovery` were INTERRUPTED at the 20-second cap. `window_started_utc` stayed `2026-10-29T00:45:31Z`.
+- Entry and gold-exit shadows are registered and not applied. Fresh closes after the stamp: 0. No `SURVIVED_RED_TEAM`. Gap IDs closed: none.
+
+## Addendum (2026-10-30) — MEGA 7, paper only
+
+- **M-GAP-005 stays MITIGATED.** A backup-API snapshot at 2026-10-30T15:14:10Z returned ok for `ahos_local` and `e01_discovery` (`reports/grok/PAPER/store_integrity_snapshot.json`). PID 14260 was not restarted, so that process can still write the 20-second INTERRUPTED result. The snapshot does not close the every-snapshot acceptance line.
+- Family marginal is a lookback. `pass_stats` is false. No live weight was written. The fourth regime does not promote. OP-3 is open because no reboot was performed. Gap IDs closed: none.
+- Current vision overlay stays 16 of 26. The 2026-09-12 operational column stays 0 of 26. Readiness stays 50 percent.

@@ -1,0 +1,79 @@
+{
+  "schema": "ahos.family_marginal.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T15:35:50Z",
+  "registered_at": "2026-10-30T15:35:50Z",
+  "closes": 157,
+  "closes_with_contributions": 157,
+  "mtf_trend_dominant": 148,
+  "mtf_trend_dominant_share": 0.9427,
+  "families": [
+    {
+      "family": "mtf_trend",
+      "signal": "mtf_trend",
+      "oos_closes": 63,
+      "oos_with_nonzero_contribution": 63,
+      "oos_expectancy_usd": 0.004275,
+      "with_family_expectancy_usd": 0.004275,
+      "marginal_usd": 0.0,
+      "reason": null
+    },
+    {
+      "family": "news",
+      "signal": "news",
+      "oos_closes": 63,
+      "oos_with_nonzero_contribution": 43,
+      "oos_expectancy_usd": 0.004275,
+      "with_family_expectancy_usd": 0.004009,
+      "marginal_usd": -0.000266,
+      "reason": null
+    },
+    {
+      "family": "macro",
+      "signal": "macro",
+      "oos_closes": 63,
+      "oos_with_nonzero_contribution": 39,
+      "oos_expectancy_usd": 0.004275,
+      "with_family_expectancy_usd": 0.004133,
+      "marginal_usd": -0.000142,
+      "reason": null
+    },
+    {
+      "family": "whales",
+      "signal": "large_trades",
+      "oos_closes": 63,
+      "oos_with_nonzero_contribution": 7,
+      "oos_expectancy_usd": 0.004275,
+      "with_family_expectancy_usd": -0.001471,
+      "marginal_usd": -0.005746,
+      "reason": null
+    },
+    {
+      "family": "wicks",
+      "signal": "candles",
+      "oos_closes": 63,
+      "oos_with_nonzero_contribution": 45,
+      "oos_expectancy_usd": 0.004275,
+      "with_family_expectancy_usd": 0.008513,
+      "marginal_usd": 0.004238,
+      "reason": null
+    },
+    {
+      "family": "breadth",
+      "signal": "crypto_breadth",
+      "oos_closes": 63,
+      "oos_with_nonzero_contribution": 0,
+      "oos_expectancy_usd": 0.004275,
+      "with_family_expectancy_usd": null,
+      "marginal_usd": null,
+      "reason": "WEIGHT_ZERO_OR_ABSENT"
+    }
+  ],
+  "pass_stats": false,
+  "red_team": "NOT_SURVIVED",
+  "applied_to_live_weights": false,
+  "reasons": [
+    "LOOKBACK_NOT_A_FRESH_SAMPLE",
+    "RED_TEAM_ABSENT"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "ahos.mega6_red_team.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T14:46:49Z",
+  "registered_at": "2026-10-30T14:46:47Z",
+  "verdict": "NOT_SURVIVED",
+  "survived_red_team": false,
+  "rules": [
+    {
+      "rule": "VOTE_SCORE_FLOOR_0_15",
+      "verdict": "NOT_SURVIVED",
+      "pass_stats": false,
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ]
+    },
+    {
+      "rule": "THREE_FAMILIES",
+      "verdict": "NOT_SURVIVED",
+      "pass_stats": false,
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ]
+    },
+    {
+      "rule": "SPREAD_HALF_PUBLISHED",
+      "verdict": "NOT_SURVIVED",
+      "pass_stats": false,
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ]
+    },
+    {
+      "rule": "VOL_ATR_ABOVE_0_02",
+      "verdict": "NOT_SURVIVED",
+      "pass_stats": false,
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ]
+    },
+    {
+      "rule": "SESSION_EDGE_30M",
+      "verdict": "NOT_SURVIVED",
+      "pass_stats": false,
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ]
+    },
+    {
+      "rule": "ALL_ENTRY_FILTERS",
+      "verdict": "NOT_SURVIVED",
+      "pass_stats": false,
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ]
+    },
+    {
+      "rule": "GOLD_TRAIL_HALF_STOP",
+      "verdict": "NOT_SURVIVED",
+      "pass_stats": false,
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ]
+    },
+    {
+      "rule": "GOLD_TIME_STOP_6H",
+      "verdict": "NOT_SURVIVED",
+      "pass_stats": false,
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "ahos.mega6_preregistration.v1",
+  "paper_only": true,
+  "registered_at": "2026-10-30T14:46:47Z",
+  "params": {
+    "shadow_vote_score_floor": 0.15,
+    "live_vote_score_floor_unchanged": 0.05,
+    "shadow_min_agreeing_families": 3,
+    "live_min_agreeing_families_unchanged": 2,
+    "spread_fraction_of_published": 0.5,
+    "published_spread_fallback_pct": 0.5,
+    "vol_atr_max": 0.02,
+    "session_edge_minutes": 30,
+    "entries_desks": [
+      "ASIA_EQUITIES",
+      "CRYPTO",
+      "CRYPTO_FUTURES",
+      "FOREX",
+      "OIL",
+      "PB_TOKEN",
+      "US_EQUITIES"
+    ],
+    "entries_desks_source": "edge_decomposition.json generated_at 2026-10-30T14:08:32Z",
+    "gold_trail_arm_stop_mult": 1.0,
+    "gold_trail_giveback_stop_mult": 0.5,
+    "gold_time_stop_s": 21600,
+    "live_time_stop_unchanged": "12h and a small move, or 24h",
+    "probability_source": "SIGNED_COMPOSITE_LINEAR",
+    "probability_calibrated": false,
+    "applied_to_live_weights": false,
+    "min_fresh_closes": 30
+  },
+  "scoring_rule": "A close counts only when opened_at and closed_at are both after registered_at.",
+  "applied_to_live_weights": false
+}

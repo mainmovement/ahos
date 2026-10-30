@@ -1,0 +1,14 @@
+{
+  "schema": "ahos.store_integrity_snapshot.v1",
+  "paper_only": true,
+  "checked_at": "2026-10-30T15:14:10Z",
+  "method": "backup_api_snapshot",
+  "timeout_s": 240.0,
+  "stores": {
+    "ahos_local": "ok",
+    "e01_discovery": "ok"
+  },
+  "every_large_ok": true,
+  "live_switch": false,
+  "decides": false
+}

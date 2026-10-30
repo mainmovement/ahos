@@ -1,0 +1,107 @@
+{
+  "schema": "ahos.mega7_checklist.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T15:35:54Z",
+  "stall": {
+    "action": "HOLD",
+    "window_started_utc": "2026-10-29T00:45:31Z",
+    "age_s": 113.0,
+    "reboot_proven": false,
+    "paper_only": true
+  },
+  "promoted": false,
+  "applied_to_live_weights": false,
+  "items": [
+    {
+      "id": "D-1",
+      "item": "news as a real feature in the one scorer",
+      "state": "PARTIAL",
+      "evidence": "reports/grok/PAPER/family_marginal.json",
+      "note": "News is already a weighted input. Marginal on the stored book is a lookback and is not applied."
+    },
+    {
+      "id": "DS-2",
+      "item": "macro calendar from free ECB/OPEC feeds",
+      "state": "PARTIAL",
+      "evidence": "architecture/markets/desk_news.py",
+      "note": "ECB and OPEC were dropped earlier on certificate failure. Weight stays 0. No new feed was invented."
+    },
+    {
+      "id": "TM-13",
+      "item": "max-wallet, dev history, fee and whitelist before a PB_TOKEN open",
+      "state": "DONE",
+      "evidence": "architecture/markets/token_safety_live.py",
+      "note": "Strict mode fail-closes when dev history, whitelist, or fee flags are missing. A creator with prior honeypots is a breach."
+    },
+    {
+      "id": "TM-5",
+      "item": "fourth regime so 3-of-4 can be counted",
+      "state": "DONE",
+      "evidence": "architecture/intel/regimes.py",
+      "note": "LIQUIDITY_STRESS is a variance override at 0.002. The count gate is 3 of 4. It does not promote."
+    },
+    {
+      "id": "U-4",
+      "item": "one world state and AgentMessage bus, plus ask()",
+      "state": "PARTIAL",
+      "evidence": "reports/grok/PAPER/unified_cycle.json",
+      "note": "Cycle version 74. Silent: ['judge', 'dashboard']."
+    },
+    {
+      "id": "O-1",
+      "item": "knowledge ask for any agent",
+      "state": "PARTIAL",
+      "evidence": "reports/grok/PAPER/mega7_loops.json",
+      "note": "Cited status CITED. Unknown status UNKNOWN."
+    },
+    {
+      "id": "O-2",
+      "item": "commit or ignore the large uncommitted tree",
+      "state": "DONE",
+      "evidence": "reports/grok/DECISIONS_LOG.md",
+      "note": "Code commit 5325815 names the MEGA 7 modules. Runtime ledgers, soak logs, the bus, world state, and soak_pid.txt stay unstaged."
+    },
+    {
+      "id": "OP-3",
+      "item": "prove full start-up after reboot",
+      "state": "OPEN",
+      "evidence": "scripts/soak_stall.py",
+      "note": "A fresh soak is HOLD. A stalled soak would keep the window. No reboot was performed."
+    },
+    {
+      "id": "M44",
+      "item": "research worker fed by arXiv, GitHub, and Hugging Face",
+      "state": "PARTIAL",
+      "evidence": "reports/grok/M44/arxiv_scout.json",
+      "note": "tech_scout archives rows. This pass did not add a live GitHub or Hugging Face fetch."
+    },
+    {
+      "id": "GOLD-SCI",
+      "item": "seat filled by a tested module",
+      "state": "DONE",
+      "evidence": "architecture/mission/seats.py",
+      "note": "Probe returned LIQUIDITY_STRESS. Not added to the 43-agent registry."
+    },
+    {
+      "id": "GUARD-2",
+      "item": "seat filled by the token veto",
+      "state": "DONE",
+      "evidence": "architecture/mission/seats.py",
+      "note": "probe() called veto_check on a missing contract and got VETOED_FAIL_CLOSED. Max wallet remains 30 percent. Not a new registry agent."
+    },
+    {
+      "id": "loops",
+      "item": "mistake memory, research scout, and university shadow weights",
+      "state": "PARTIAL",
+      "evidence": "reports/grok/PAPER/mega7_loops.json",
+      "note": "review_open is on the paper open path. The stored book has no desk and side with three matching losses, so the logged call is NONE. arXiv task M44ScoutDedupe has code_execution false. GitHub and Hugging Face were not fetched. ASIA_EQUITIES regime weight stays SHADOW."
+    },
+    {
+      "id": "families",
+      "item": "walk-forward marginal contribution",
+      "state": "PARTIAL",
+      "evidence": "reports/grok/PAPER/family_marginal.json",
+      "note": "mtf_trend dominant share 0.9427 of 157 contribution rows. pass_stats false."
+    }
+  ]
+}

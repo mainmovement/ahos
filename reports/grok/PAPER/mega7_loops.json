@@ -1,0 +1,43 @@
+{
+  "schema": "ahos.mega7_loops.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T15:35:54Z",
+  "mistake_memory": {
+    "action": "NONE",
+    "factor": 1.0,
+    "cause": null,
+    "matches": 0,
+    "applied_to_live_weights": false
+  },
+  "knowledge_ask_cited": "CITED",
+  "knowledge_ask_unknown": "UNKNOWN",
+  "arxiv_scout_present": true,
+  "github_hf_scout": "PARTIAL",
+  "github_hf_reason": "tech_scout archives rows. This pass did not add a live GitHub or Hugging Face fetch.",
+  "university_shadow_weight": 0,
+  "applied_to_live_weights": false,
+  "decides": false,
+  "mistake_memory_example": {
+    "desk": "CRYPTO",
+    "side": "SHORT",
+    "review": {
+      "action": "NONE",
+      "factor": 1.0,
+      "cause": null,
+      "matches": 0,
+      "applied_to_live_weights": false
+    },
+    "note": "No stored desk and side has three matching losses, so the live rule returns NONE."
+  },
+  "university_shadow_example": {
+    "path": "reports/grok/PAPER/regime_weights.json",
+    "desk": "ASIA_EQUITIES",
+    "status": "SHADOW",
+    "applied_to_live_weights": false
+  },
+  "research_task": {
+    "path": "reports/grok/M44/scout_research_tasks.json",
+    "task_id": "M44ScoutDedupe",
+    "code_execution": false
+  }
+}

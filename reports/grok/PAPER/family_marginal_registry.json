@@ -1,0 +1,16 @@
+{
+  "schema": "ahos.family_marginal_registry.v1",
+  "paper_only": true,
+  "registered_at": "2026-10-30T15:35:50Z",
+  "families": {
+    "mtf_trend": "mtf_trend",
+    "news": "news",
+    "macro": "macro",
+    "whales": "large_trades",
+    "wicks": "candles",
+    "breadth": "crypto_breadth"
+  },
+  "oos_fraction": 0.4,
+  "applied_to_live_weights": false,
+  "promotable": false
+}

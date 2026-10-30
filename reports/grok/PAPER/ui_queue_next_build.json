@@ -26,6 +26,14 @@
   {
    "id": "user_position_tracking",
    "change": "Confirm /paper on the swapped bundle reads the open-name receipt."
+  },
+  {
+   "id": "family_marginal",
+   "change": "Show each family's walk-forward marginal as unapplied. Do not paint a zero-weight family as an edge."
+  },
+  {
+   "id": "regime_fourth",
+   "change": "Show LIQUIDITY_STRESS as the fourth label. The page must not say the 3-of-4 count has passed."
   }
  ],
  "decides": false

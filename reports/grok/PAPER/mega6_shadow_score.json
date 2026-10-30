@@ -1,0 +1,189 @@
+{
+  "schema": "ahos.mega6_shadow_score.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T14:46:49Z",
+  "registered_at": "2026-10-30T14:46:47Z",
+  "book_closes": 156,
+  "fresh_closes": 0,
+  "applied_to_live_weights": false,
+  "promoted": false,
+  "book": [
+    {
+      "desk": "ASIA_EQUITIES",
+      "closes": 26,
+      "live_expectancy_usd": -0.000873,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "CRYPTO",
+      "closes": 43,
+      "live_expectancy_usd": -0.012865,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "CRYPTO_FUTURES",
+      "closes": 4,
+      "live_expectancy_usd": -0.002075,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "closes": 4,
+      "live_expectancy_usd": 0.0412,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "FOREX",
+      "closes": 18,
+      "live_expectancy_usd": -0.001722,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "GOLD",
+      "closes": 14,
+      "live_expectancy_usd": -0.023593,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "LISTED_FUTURES",
+      "closes": 2,
+      "live_expectancy_usd": 0.00355,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "OIL",
+      "closes": 27,
+      "live_expectancy_usd": -0.005178,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "PB_TOKEN",
+      "closes": 14,
+      "live_expectancy_usd": -0.010264,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    },
+    {
+      "desk": "US_EQUITIES",
+      "closes": 4,
+      "live_expectancy_usd": 0.031825,
+      "shadow_expectancy_usd": null,
+      "shadow_reason": "AWAITING_FRESH_CLOSES"
+    }
+  ],
+  "fresh_by_desk": [],
+  "rules": [
+    {
+      "rule": "VOTE_SCORE_FLOOR_0_15",
+      "fresh_evaluable": 0,
+      "unevaluable": 0,
+      "live_expectancy_usd": null,
+      "shadow_expectancy_usd": null,
+      "pass_stats": false,
+      "red_team": "NOT_SURVIVED",
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ],
+      "applied_to_live_weights": false
+    },
+    {
+      "rule": "THREE_FAMILIES",
+      "fresh_evaluable": 0,
+      "unevaluable": 0,
+      "live_expectancy_usd": null,
+      "shadow_expectancy_usd": null,
+      "pass_stats": false,
+      "red_team": "NOT_SURVIVED",
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ],
+      "applied_to_live_weights": false
+    },
+    {
+      "rule": "SPREAD_HALF_PUBLISHED",
+      "fresh_evaluable": 0,
+      "unevaluable": 0,
+      "live_expectancy_usd": null,
+      "shadow_expectancy_usd": null,
+      "pass_stats": false,
+      "red_team": "NOT_SURVIVED",
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ],
+      "applied_to_live_weights": false
+    },
+    {
+      "rule": "VOL_ATR_ABOVE_0_02",
+      "fresh_evaluable": 0,
+      "unevaluable": 0,
+      "live_expectancy_usd": null,
+      "shadow_expectancy_usd": null,
+      "pass_stats": false,
+      "red_team": "NOT_SURVIVED",
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ],
+      "applied_to_live_weights": false
+    },
+    {
+      "rule": "SESSION_EDGE_30M",
+      "fresh_evaluable": 0,
+      "unevaluable": 0,
+      "live_expectancy_usd": null,
+      "shadow_expectancy_usd": null,
+      "pass_stats": false,
+      "red_team": "NOT_SURVIVED",
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ],
+      "applied_to_live_weights": false
+    },
+    {
+      "rule": "ALL_ENTRY_FILTERS",
+      "fresh_evaluable": 0,
+      "unevaluable": 0,
+      "live_expectancy_usd": null,
+      "shadow_expectancy_usd": null,
+      "pass_stats": false,
+      "red_team": "NOT_SURVIVED",
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ],
+      "applied_to_live_weights": false
+    },
+    {
+      "rule": "GOLD_TRAIL_HALF_STOP",
+      "fresh_evaluable": 0,
+      "unevaluable": 0,
+      "live_expectancy_usd": null,
+      "shadow_expectancy_usd": null,
+      "pass_stats": false,
+      "red_team": "NOT_SURVIVED",
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ],
+      "applied_to_live_weights": false
+    },
+    {
+      "rule": "GOLD_TIME_STOP_6H",
+      "fresh_evaluable": 0,
+      "unevaluable": 0,
+      "live_expectancy_usd": null,
+      "shadow_expectancy_usd": null,
+      "pass_stats": false,
+      "red_team": "NOT_SURVIVED",
+      "reasons": [
+        "AWAITING_FRESH_CLOSES"
+      ],
+      "applied_to_live_weights": false
+    }
+  ]
+}
