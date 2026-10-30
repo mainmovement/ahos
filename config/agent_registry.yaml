@@ -577,7 +577,7 @@ agents:
     role_fa: "یادگیری از خطا و درس‌نامهٔ کاغذی"
     input_contract_summary: "ورودی: lessons، stats; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
     output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
-    status: PARTIAL
+    status: EXISTS
     lane: A
     form: service
     cadence: event_driven
@@ -589,7 +589,7 @@ agents:
     forbidden_authority: [DECIDE, PROMOTE]
     required_probes: [OVERFIT_CHECK]
     version: "lessons-v1"
-    evidence: "paper_trading/lessons.py (armed; 0 closed trades ⇒ 0 lessons — structural honesty)"
+    evidence: "architecture/university/learning_loop.py; tests/test_learning_loop.py; a hit rate stays shadow until PASS_STATS and SURVIVED_RED_TEAM"
     ops:
       runtime: python_lib
       boot_class: NON_CRITICAL
@@ -610,7 +610,7 @@ agents:
     role_fa: "خودعیب‌یابی و ممیزی زنده"
     input_contract_summary: "ورودی: probes، audits; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
     output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
-    status: PARTIAL
+    status: EXISTS
     lane: SHARED
     form: service
     cadence: periodic
@@ -622,7 +622,7 @@ agents:
     forbidden_authority: [DECIDE, PROMOTE]
     required_probes: [TRUST_ASSUMPTION_PROBE]
     version: "pal-probe-v1"
-    evidence: "engine/pal_probe.py; battery re-run 2026-08-13 (PRB-20260813-001..017)"
+    evidence: "architecture/university/self_diagnosis.py; tests/test_self_diagnosis.py; the daily fix stays shadow"
     ops:
       runtime: python_service
       boot_class: NON_CRITICAL
