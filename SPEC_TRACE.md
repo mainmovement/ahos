@@ -261,3 +261,7 @@ AG-18 and AG-19 are EXISTS because `architecture/university/learning_loop.py` an
 ## KL-DRO shadow (2026-10-30)
 
 A static pass is `SHADOW_CANDIDATE`. `architecture/university/kl_dro_shadow.py` scores our own KL-robust mean on closed paper trades. This week's result is `ARCHIVE` `FAILED_OOS`: DSR 0.0317, PBO 0.1429, 88 steps, 36 out-of-sample returns, hit rate 0.6023. world2vec has no implementation yet. Live weight unchanged. Gap IDs closed: **none**.
+
+## Unified world state (2026-10-30)
+
+`architecture/mission/world_state.py` versions `reports/grok/PAPER/world_state.json`. The bus log is `agent_bus.jsonl` and accepts only `AgentMessage`. Live receipt `unified_cycle.json` at 2026-10-30T05:40:18Z is version 2, 84 messages, PID 8880. Judge and dashboard did not fire. There is still no file named `FULL_GAP_REGISTER`. Gap IDs closed: **none**. M13, M31, and M36 stay PARTIAL.

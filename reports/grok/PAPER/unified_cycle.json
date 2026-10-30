@@ -1,0 +1,83 @@
+{
+ "schema": "ahos.unified_cycle.v1",
+ "generated_at": "2026-10-30T05:40:18Z",
+ "paper_only": true,
+ "decides": false,
+ "live_trading": false,
+ "world_state_version": 2,
+ "messages_delivered": 84,
+ "modules_fired": [
+  "council",
+  "desks",
+  "didehban",
+  "families",
+  "kill_switch",
+  "negahban",
+  "research",
+  "university"
+ ],
+ "message_senders": [
+  "AG-09",
+  "AG-33"
+ ],
+ "modules_silent": [
+  {
+   "module": "judge",
+   "reason": "NOT_IN_REGISTRY",
+   "messages_sent": 0
+  },
+  {
+   "module": "dashboard",
+   "reason": "NOT_IN_REGISTRY",
+   "messages_sent": 0
+  }
+ ],
+ "agents_with_no_outbound": [
+  "AG-01",
+  "AG-02",
+  "AG-03",
+  "AG-04",
+  "AG-05",
+  "AG-06",
+  "AG-07",
+  "AG-08",
+  "AG-10",
+  "AG-11",
+  "AG-12",
+  "AG-13",
+  "AG-14",
+  "AG-15",
+  "AG-16",
+  "AG-17",
+  "AG-18",
+  "AG-19",
+  "AG-20",
+  "AG-21",
+  "AG-22",
+  "AG-23",
+  "AG-24",
+  "AG-25",
+  "AG-26",
+  "AG-27",
+  "AG-28",
+  "AG-29",
+  "AG-30",
+  "AG-31",
+  "AG-32",
+  "AG-34",
+  "AG-35",
+  "AG-36",
+  "AG-37",
+  "AG-38",
+  "AG-39",
+  "AG-40",
+  "AG-41",
+  "AG-42",
+  "AG-43"
+ ],
+ "critique": {
+  "level_1": "The cycle reads files already on disk, versions one world state, and logs AgentMessage envelopes from Didehban and Negahban to every other registry id.",
+  "level_2": "Other modules still write their own files. This store does not replace the mission ledger and does not make a silent seat live. The design-only communication protocol envelope is not this bus."
+ },
+ "gaps_closed": []
+}

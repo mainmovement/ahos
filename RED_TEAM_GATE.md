@@ -603,3 +603,18 @@ Command: `pytest tests/test_tech_scout.py tests/test_kl_dro_shadow.py -q` → **
 | R2 Data | APPROVE | Returns are realized pnl divided by notional on our closes. A desk with no close has a null score. Sample size is stored. |
 | R4 Council | APPROVE | The red team did not survive because it was not claimed. The archive reason is FAILED_OOS. |
 | Meta-Critic | APPROVE | No upstream code ran. The live weight is untouched. |
+
+## Unified world state (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_unified_cycle.py -q` → **2 passed**. Live paper cycle at 2026-10-30T05:40:18Z, trader PID 8880, world state version **2**, **84** OBSERVE messages, senders **AG-09** and **AG-33**. **41** registry ids sent nothing. Judge and dashboard are `NOT_IN_REGISTRY` and sent nothing. `decides` is false. Gap IDs closed: **none**. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The store does not size, score, or promote. DSR and PBO gates are unchanged. |
+| R2 Data | APPROVE | Sections point at files already on G:. A missing file is ABSENT, not a filled book. |
+| R3 News | APPROVE | Didehban's bus claim is evidence only. News weight stays 0. |
+| R4 Intelligence (Kian) | APPROVE | Persian text reuses the row's `kian_explain_fa` or quotes the logged reason. An unknown code is marked untranslated. |
+| R5 Visual/UX | APPROVE | No dashboard build. The dashboard has no registry id and is reported silent. |
+| R6 Learning | APPROVE | Lesson and hypothesis sections are counts and paths. They do not write a live weight. |
+| R7 SRE/Security | APPROVE | Negahban sends OBSERVE. The bus rejects a bare dict. Paths stay under the repo on G:. |
+| Meta-Critic | APPROVE | This is not the design-only protocol envelope, and it is not a second decision brain. Level 2: other modules still write their own files. |
