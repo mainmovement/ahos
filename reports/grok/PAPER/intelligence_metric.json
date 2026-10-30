@@ -1,0 +1,31 @@
+{
+ "schema": "ahos.intelligence_metric.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T05:51:20Z",
+ "weeks": [
+  {
+   "week": "2026-W43",
+   "n": 35,
+   "win_rate": 0.2857,
+   "profit_factor": 0.5856,
+   "expectancy_usd": -0.0115,
+   "brier": 0.2306,
+   "explained_pct": 0.0
+  },
+  {
+   "week": "2026-W44",
+   "n": 108,
+   "win_rate": 0.4259,
+   "profit_factor": 0.6635,
+   "expectancy_usd": -0.0054,
+   "brier": 0.2493,
+   "explained_pct": 0.1852
+  }
+ ],
+ "status": "TREND_NOT_UP",
+ "reasons": [
+  "brier 2026-W43=0.2306 2026-W44=0.2493"
+ ],
+ "decides": false,
+ "applied_to_live_weights": false
+}

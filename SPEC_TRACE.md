@@ -265,3 +265,7 @@ A static pass is `SHADOW_CANDIDATE`. `architecture/university/kl_dro_shadow.py` 
 ## Unified world state (2026-10-30)
 
 `architecture/mission/world_state.py` versions `reports/grok/PAPER/world_state.json`. The bus log is `agent_bus.jsonl` and accepts only `AgentMessage`. Live receipt `unified_cycle.json` at 2026-10-30T05:40:18Z is version 2, 84 messages, PID 8880. Judge and dashboard did not fire. There is still no file named `FULL_GAP_REGISTER`. Gap IDs closed: **none**. M13, M31, and M36 stay PARTIAL.
+
+## Learning behaviour (2026-10-30)
+
+Closes become university cases. Causes add `BAD_DATA` and `NEWS_TRAP`. Weekly exam, decayed reliability, calibration, the day's top causes, and the week-over-week metric are files under `reports/grok/PAPER/`. Live trader PID 11156 at 2026-10-30T05:51:22Z: intelligence `TREND_NOT_UP` (Brier 0.2306 to 0.2493), W44 win rate 0.4259, profit factor 0.6635, expectancy -0.0054. Weights not applied. Gap IDs closed: **none**.

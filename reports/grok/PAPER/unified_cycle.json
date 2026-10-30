@@ -1,10 +1,10 @@
 {
  "schema": "ahos.unified_cycle.v1",
- "generated_at": "2026-10-30T05:40:18Z",
+ "generated_at": "2026-10-30T05:51:22Z",
  "paper_only": true,
  "decides": false,
  "live_trading": false,
- "world_state_version": 2,
+ "world_state_version": 4,
  "messages_delivered": 84,
  "modules_fired": [
   "council",

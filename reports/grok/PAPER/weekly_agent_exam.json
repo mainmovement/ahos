@@ -1,0 +1,52 @@
+{
+ "schema": "ahos.weekly_agent_exam.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T05:51:20Z",
+ "loss_cases": 87,
+ "scores": [
+  {
+   "agent_id": "AG-33",
+   "n": 87,
+   "correct": 34,
+   "accuracy": 0.3908,
+   "applied_to_live_weights": false
+  },
+  {
+   "agent_id": "AG-04",
+   "n": 87,
+   "correct": 13,
+   "accuracy": 0.1494,
+   "applied_to_live_weights": false
+  },
+  {
+   "agent_id": "AG-08",
+   "n": 87,
+   "correct": 14,
+   "accuracy": 0.1609,
+   "applied_to_live_weights": false
+  },
+  {
+   "agent_id": "AG-09",
+   "n": 87,
+   "correct": 14,
+   "accuracy": 0.1609,
+   "applied_to_live_weights": false
+  },
+  {
+   "agent_id": "AG-19",
+   "n": 87,
+   "correct": 6,
+   "accuracy": 0.069,
+   "applied_to_live_weights": false
+  },
+  {
+   "agent_id": "AG-18",
+   "n": 87,
+   "correct": 34,
+   "accuracy": 0.3908,
+   "applied_to_live_weights": false
+  }
+ ],
+ "decides": false,
+ "applied_to_live_weights": false
+}

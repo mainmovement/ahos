@@ -618,3 +618,18 @@ Command: `pytest tests/test_unified_cycle.py -q` → **2 passed**. Live paper cy
 | R6 Learning | APPROVE | Lesson and hypothesis sections are counts and paths. They do not write a live weight. |
 | R7 SRE/Security | APPROVE | Negahban sends OBSERVE. The bus rejects a bare dict. Paths stay under the repo on G:. |
 | Meta-Critic | APPROVE | This is not the design-only protocol envelope, and it is not a second decision brain. Level 2: other modules still write their own files. |
+
+## Learning behaviour (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_behaviour_learning.py tests/test_learning_loop.py tests/test_self_diagnosis.py -q` → **13 passed**. Live reports written by paper trader PID **11156** at 2026-10-30T05:51:22Z. World state version 4. `decides` is false. `applied_to_live_weights` is false. Gap IDs closed: **none**. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | W44 win rate 0.4259, profit factor 0.6635, expectancy -0.0054. Status TREND_NOT_UP because Brier rose 0.2306 to 0.2493. No promotion. |
+| R2 Data | APPROVE | Bad data is a witness conflict. A missing composite is left out of the Brier sample. A holdout under 8 rows is INSUFFICIENT_HOLDOUT. |
+| R3 News | APPROVE | A news vote on the losing side is NEWS_TRAP. Today's 2 news-trap losses stay a shadow fix. News weight stays 0. |
+| R4 Intelligence (Kian) | APPROVE | Explained share is 0.1852 because older closes have no Persian text. The metric does not fill that gap with a sentence. |
+| R5 Visual/UX | APPROVE | No dashboard build. The reports are JSON on G:. |
+| R6 Learning | APPROVE | Agent accuracies on 87 losses: AG-33 0.3908, AG-18 0.3908, AG-08 and AG-09 0.1609, AG-04 0.1494, AG-19 0.069. They see only their own fields. |
+| R7 SRE/Security | APPROVE | Three matching losses shrink or veto. One loss does not. The live weight file is not the target. |
+| Meta-Critic | APPROVE | Level 2: an out-of-sample Brier improvement on OIL and ASIA is recorded and not applied. The loop did not make the week better. |

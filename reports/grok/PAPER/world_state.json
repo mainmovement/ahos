@@ -1,10 +1,10 @@
 {
  "schema": "ahos.world_state.v1",
- "version": 2,
+ "version": 4,
  "paper_only": true,
  "decides": false,
  "live_trading": false,
- "generated_at": "2026-10-30T05:40:17Z",
+ "generated_at": "2026-10-30T05:51:21Z",
  "sections": {
   "positions": {
    "status": "PRESENT",
@@ -31,7 +31,7 @@
   "news": {
    "status": "PRESENT",
    "newsroom": "reports/grok/M18/newsroom_snapshot.json",
-   "desk_news_rows": 6,
+   "desk_news_rows": 8,
    "decides": false,
    "weight": 0
   },
@@ -43,6 +43,11 @@
   "lessons": {
    "status": "PRESENT",
    "university_case_rows": 2,
+   "exam": "reports/grok/PAPER/weekly_agent_exam.json",
+   "reliability": "reports/grok/PAPER/reliability_shadow.json",
+   "calibration": "reports/grok/PAPER/calibration_weekly.json",
+   "intelligence": "reports/grok/PAPER/intelligence_metric.json",
+   "diagnosis": "reports/grok/PAPER/daily_diagnosis.json",
    "decides": false
   },
   "hypotheses": {
@@ -178,12 +183,33 @@
      "event": "NO_TRADE",
      "symbol": "CL",
      "desk": "LISTED_FUTURES",
-     "fa": "ردیف NO_TRADE برای CL روی میز LISTED_FUTURES.\nدلیل ثبت‌شده: COMPOSITE_BELOW_ENTRY. ترجمهٔ فارسی این کد از پیش ثبت نشده است.\nاین متن از لاگ کاغذی خوانده شده و حکم معامله نیست.\nوضعیت لبه: UNPROVEN_EDGE.",
-     "families": [],
+     "fa": "ردیف NO_TRADE برای CL روی میز LISTED_FUTURES.\nدلیل ثبت‌شده: FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES. ترجمهٔ فارسی این کد از پیش ثبت نشده است.\nاین متن از لاگ کاغذی خوانده شده و حکم معامله نیست.\nوضعیت لبه: UNPROVEN_EDGE.",
+     "families": [
+      {
+       "family": "news",
+       "vote": "AGREE"
+      },
+      {
+       "family": "macro_central_bank",
+       "vote": "FLAT"
+      },
+      {
+       "family": "whales",
+       "vote": "DISAGREE"
+      },
+      {
+       "family": "candle_wicks",
+       "vote": "AGREE"
+      },
+      {
+       "family": "research",
+       "vote": "UNAVAILABLE"
+      }
+     ],
      "lessons": "درس جدا در این ردیف نیست.",
      "research": null,
      "risk": [
-      "دلیل ثبت‌شده: COMPOSITE_BELOW_ENTRY. ترجمهٔ فارسی این کد از پیش ثبت نشده است."
+      "دلیل ثبت‌شده: FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES. ترجمهٔ فارسی این کد از پیش ثبت نشده است."
      ],
      "decides": false,
      "paper_only": true

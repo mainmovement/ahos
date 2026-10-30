@@ -1,0 +1,378 @@
+{
+ "schema": "ahos.calibration_weekly.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T05:51:20Z",
+ "by_desk": {
+  "CRYPTO": {
+   "n": 42,
+   "brier": 0.2167,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 30,
+     "mean_confidence": 0.311,
+     "hit_rate": 0.2667
+    },
+    {
+     "lo": 0.4,
+     "n": 12,
+     "mean_confidence": 0.4382,
+     "hit_rate": 0.4167
+    },
+    {
+     "lo": 0.6,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.2191,
+   "oos_brier_recalibrated": 0.2191,
+   "alpha": 1.0,
+   "status": "NO_OOS_IMPROVEMENT",
+   "applied_to_entry": false
+  },
+  "PB_TOKEN": {
+   "n": 13,
+   "brier": 0.2708,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 8,
+     "mean_confidence": 0.298,
+     "hit_rate": 0.375
+    },
+    {
+     "lo": 0.4,
+     "n": 4,
+     "mean_confidence": 0.4865,
+     "hit_rate": 0.25
+    },
+    {
+     "lo": 0.6,
+     "n": 1,
+     "mean_confidence": 0.6307,
+     "hit_rate": 0.0
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.2594,
+   "oos_brier_recalibrated": 0.2455,
+   "alpha": 1.0,
+   "status": "INSUFFICIENT_HOLDOUT",
+   "applied_to_entry": false
+  },
+  "OIL": {
+   "n": 25,
+   "brier": 0.3012,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 12,
+     "mean_confidence": 0.3133,
+     "hit_rate": 0.75
+    },
+    {
+     "lo": 0.4,
+     "n": 10,
+     "mean_confidence": 0.4494,
+     "hit_rate": 0.2
+    },
+    {
+     "lo": 0.6,
+     "n": 3,
+     "mean_confidence": 0.6128,
+     "hit_rate": 0.6667
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.2808,
+   "oos_brier_recalibrated": 0.2599,
+   "alpha": 0.5,
+   "status": "OOS_IMPROVED_NOT_APPLIED",
+   "applied_to_entry": false
+  },
+  "ASIA_EQUITIES": {
+   "n": 26,
+   "brier": 0.2251,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 14,
+     "mean_confidence": 0.3566,
+     "hit_rate": 0.3571
+    },
+    {
+     "lo": 0.4,
+     "n": 12,
+     "mean_confidence": 0.4906,
+     "hit_rate": 0.5
+    },
+    {
+     "lo": 0.6,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.2339,
+   "oos_brier_recalibrated": 0.2317,
+   "alpha": 1.25,
+   "status": "OOS_IMPROVED_NOT_APPLIED",
+   "applied_to_entry": false
+  },
+  "FOREX": {
+   "n": 17,
+   "brier": 0.1984,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 9,
+     "mean_confidence": 0.3183,
+     "hit_rate": 0.1111
+    },
+    {
+     "lo": 0.4,
+     "n": 8,
+     "mean_confidence": 0.4503,
+     "hit_rate": 0.5
+    },
+    {
+     "lo": 0.6,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.182,
+   "oos_brier_recalibrated": 0.1707,
+   "alpha": 1.0,
+   "status": "INSUFFICIENT_HOLDOUT",
+   "applied_to_entry": false
+  },
+  "GOLD": {
+   "n": 13,
+   "brier": 0.2252,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 10,
+     "mean_confidence": 0.3246,
+     "hit_rate": 0.3
+    },
+    {
+     "lo": 0.4,
+     "n": 3,
+     "mean_confidence": 0.4612,
+     "hit_rate": 0.3333
+    },
+    {
+     "lo": 0.6,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.215,
+   "oos_brier_recalibrated": 0.2199,
+   "alpha": 1.0,
+   "status": "INSUFFICIENT_HOLDOUT",
+   "applied_to_entry": false
+  },
+  "EU_EQUITIES": {
+   "n": 3,
+   "brier": 0.4119,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 2,
+     "mean_confidence": 0.3079,
+     "hit_rate": 1.0
+    },
+    {
+     "lo": 0.4,
+     "n": 1,
+     "mean_confidence": 0.4733,
+     "hit_rate": 1.0
+    },
+    {
+     "lo": 0.6,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.3829,
+   "oos_brier_recalibrated": 0.314,
+   "alpha": 1.0,
+   "status": "INSUFFICIENT_HOLDOUT",
+   "applied_to_entry": false
+  },
+  "US_EQUITIES": {
+   "n": 3,
+   "brier": 0.37,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 3,
+     "mean_confidence": 0.341,
+     "hit_rate": 0.6667
+    },
+    {
+     "lo": 0.4,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.6,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.2812,
+   "oos_brier_recalibrated": 0.2625,
+   "alpha": 1.0,
+   "status": "INSUFFICIENT_HOLDOUT",
+   "applied_to_entry": false
+  },
+  "LISTED_FUTURES": {
+   "n": 1,
+   "brier": 0.337,
+   "reliability": [
+    {
+     "lo": 0.0,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.2,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.4,
+     "n": 1,
+     "mean_confidence": 0.4195,
+     "hit_rate": 1.0
+    },
+    {
+     "lo": 0.6,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    },
+    {
+     "lo": 0.8,
+     "n": 0,
+     "mean_confidence": null,
+     "hit_rate": null
+    }
+   ],
+   "oos_brier": 0.337,
+   "oos_brier_recalibrated": 0.337,
+   "alpha": 1.0,
+   "status": "INSUFFICIENT_HOLDOUT",
+   "applied_to_entry": false
+  }
+ },
+ "decides": false,
+ "applied_to_live_weights": false
+}
