@@ -211,3 +211,16 @@ Command: `G:\robat\ahos\.venv\Scripts\python.exe -m pytest tests/test_org_lifecy
 | R6 University | N/A | |
 | R7 SRE | APPROVE | `transition_agent_lifecycle` rejects ABSENT → LIVE_OBSERVED. No path to live trading. Lane A not edited. |
 | Meta-Critic | APPROVE | 15 LIVE_OBSERVED rows are a file-and-flag observation. Only 9 seats meet the fill rule. The other 34 are unfilled on purpose in this receipt. |
+
+## P0 Stage 4 addendum — calibration import and gate window (2026-10-30)
+
+`log_odds_recalibrate` is restored in `architecture/learning/calibration.py` (logit scaled by alpha, then sigmoid). `p=0.5` stays `0.5`. `tests/test_m58_operational_loops.py` collects and passes again. That fix is its own commit, separate from the organisation census.
+
+Gate window at `2026-10-30T00:52:05Z`: live since `2026-10-30T00:40:16Z`, **elapsed 0.197h**, status **`INSUFFICIENT_WINDOW`**. Opens **0**, blocks **0**, `by_desk` empty. No desk reached `MULTI_SIGNAL_AGREEMENT` or an OPEN, so “families that never fire” is **not observed**, not a feed verdict. A six-hour report is not claimed.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Recalibration is the identity at alpha=1 and a monotone sharpening at alpha=1.2. It does not touch the promotion gate. |
+| R2 Data | APPROVE | The window report reads the paper log after the gate timestamp only. Empty desks stay empty. |
+| R6 University | APPROVE | M58 Brier test is green again. Thresholds still do not move from loss cases. |
+| Meta-Critic | APPROVE | Twelve minutes is not six hours. Zero blocks means the composite or the session gate stopped the cycle earlier. It does not mean every family fired. |

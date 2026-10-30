@@ -1,0 +1,13 @@
+{
+  "schema": "ahos.gate_window_report.v1",
+  "generated_at": "2026-10-30T00:52:05Z",
+  "paper_only": true,
+  "gate_live_at": "2026-10-30T00:40:16Z",
+  "required_hours": 6.0,
+  "elapsed_hours": 0.197,
+  "window_status": "INSUFFICIENT_WINDOW",
+  "opens": 0,
+  "blocks": 0,
+  "by_desk": [],
+  "honesty": "families_never_agreed_in_window is only about rows that reached the vote gate inside this elapsed slice. INSUFFICIENT_WINDOW means six hours have not passed since the gate process started."
+}

@@ -153,3 +153,7 @@ University dry-run: knowledge store **251** claims (46 new winning CLOSE claims 
 ## P0 Stage 4 note (2026-10-30)
 
 `reports/grok/M12/org_lifecycle_snapshot.json`: **9/43** seats filled (AG-02, AG-03, AG-07, AG-08, AG-09, AG-15, AG-16, AG-17, AG-21). Unfilled: **21 PLANNED, 12 PARTIAL, AG-01 MISSING**. `AgentMessage` required actions are OBSERVE, ADVISE, ABSTAIN, REQUEST_EVIDENCE. Lifecycle has no ABSENT→LIVE jump. Gap IDs closed: **none**.
+
+## P0 Stage 4 addendum (2026-10-30)
+
+`log_odds_recalibrate` is back so `test_m58_operational_loops` imports. Gate window `reports/grok/PAPER/gate_window_report.json` at 00:52Z is **`INSUFFICIENT_WINDOW`** (0.197h of 6h): opens 0, blocks 0, no per-desk family census yet.
