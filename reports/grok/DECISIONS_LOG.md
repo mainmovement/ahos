@@ -365,3 +365,11 @@
 **Choice:** Frankfurter stays a daily sanity check at 2%. It is logged and it does not set the per-cycle skip. The 0.5% FX witness is the Hyperliquid EUR and JPY perp against the TradingView spot. Those two have no listed future, so the reference is the spot primary. WTI and Brent had not been in the TradingView primary map; only CL and BZ were, so the cash quotes never left Yahoo. GC was copied from the Yahoo gold future before routing, and the batch replaced only XAU. WTI now shares `NYMEX:CL1!` with CL, and Brent shares `ICEEUR:BRN1!` with BZ, still one scanner row. GC uses `COMEX:GC1!`, which returned a 600-second print from this laptop. Oil is witnessed by Hyperliquid. GC is witnessed by Hyperliquid and `api.gold-api.com`. The gold API is not compared with oil. Yahoo remains the fallback when TradingView does not answer.
 
 **Reason:** A prior-day rate is not a same-cycle price. The cash symbols fell back because the router never asked TradingView for them. The 0.5% bar is unchanged.
+
+## 2026-10-30: Crypto breadth is a shadow family
+
+**Question:** Which keyless breadth feeds answer from this laptop, and can the new family open a paper trade?
+
+**Choice:** Binance 24h tickers, OKX spot tickers, and CoinGecko's top 250 answered. A sign is recorded only when at least two of those 24h breadths are on the same side of one half. One venue, or a split, stays unscored. 1h and 7d are logged from CoinGecko and do not set the sign by themselves. DexScreener returned HTTP 403, so it is not called for this family. The all-network GeckoTerminal trending list timed out. Ethereum trending pools answered and stay in PB_TOKEN discovery, still behind GoPlus, honeypot.is, and the LP-lock veto. Binance and OKX funding and open-interest change are logged for BTC, ETH, and SOL and do not change the existing funding weight. The family is on the scorecard at composite weight 0. It does not count toward the two-family entry gate. Weight stays 0 until PASS_STATS and SURVIVED_RED_TEAM, and the cycle forces the weight back to 0.
+
+**Reason:** A shadow family that counted as an agreeing vote would change who gets opened. The blocked feeds are not given invented prices.

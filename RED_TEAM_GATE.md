@@ -490,3 +490,16 @@ CNBC is primary only for SPX, NDX, SPY, QQQ, and NVDA. Brent is not on that requ
 | Meta-Critic | APPROVE | FDAX stays off the book. The rejected print is not an exit. |
 
 Frankfurter no longer feeds the 0.5% skip. A prior-day gap is a daily sanity result at 2%. The FX cycle witness is the Hyperliquid EUR and JPY perp. WTI, Brent, and GC take the TradingView primary: shared CL and Brent rows, and `COMEX:GC1!` for GC. `pytest tests/test_quote_router.py tests/test_tradingview_batch.py tests/test_frankfurter_fx.py tests/test_paper_trader.py -q` → **28 passed**. Gates stay 2 families and 2× fees.
+
+## Crypto breadth shadow family (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_crypto_breadth.py tests/test_crypto_futures_context.py tests/test_breadth_token_discovery.py tests/test_paper_trade_gates.py tests/test_family_vote_scorecard.py tests/test_cftc_cot_and_coverage.py tests/test_paper_trader.py -q` → **48 passed**.
+
+The family is advisory. Two public 24h breadths must agree before a sign is scored. It does not count toward the two-family gate and the cycle forces its weight to 0. DexScreener's 403 is not treated as a candidate. A trending honeypot stays vetoed. Funding and open interest are context. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The new sign cannot complete the entry pair. |
+| R2 Data | APPROVE | A single venue and a split both stay unscored. |
+| R4 Council | APPROVE | Weight is forced to 0. Discovery vetoes are unchanged. |
+| Meta-Critic | APPROVE | This is a scorecard row, not an entry authority. |

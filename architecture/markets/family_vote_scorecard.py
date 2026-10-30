@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from architecture.markets.paper_trade_gates import INDEPENDENT_VOTE_FAMILIES, family_vote_signs
+from architecture.markets.paper_trade_gates import INDEPENDENT_VOTE_FAMILIES, SHADOW_VOTE_FAMILIES, family_vote_signs
 
 OBS_REL = Path("reports") / "grok" / "PAPER" / "family_vote_observations.jsonl"
 SCORECARD_REL = Path("reports") / "grok" / "PAPER" / "weekly_family_vote_scorecard.json"
@@ -177,7 +177,7 @@ def build_weekly_family_scorecard(root: Path, *, now: datetime | None = None) ->
     tape = _tape(_load_rows(root))
     votes = _explode(rows)
     families: dict[str, Any] = {}
-    for family in INDEPENDENT_VOTE_FAMILIES:
+    for family in list(INDEPENDENT_VOTE_FAMILIES) + list(SHADOW_VOTE_FAMILIES):
         cell: dict[str, Any] = {}
         for label, horizon_s, slack_s in HORIZONS:
             hits = misses = ties = pending = no_print = 0

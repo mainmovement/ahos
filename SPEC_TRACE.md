@@ -224,4 +224,8 @@ Live crypto swaps and listed futures start at 1x. Steps are 2x, then 3x, then 5x
 
 ## Keyless public quotes (2026-10-30)
 
+## Crypto breadth (2026-10-30)
+
+Shadow family `crypto_breadth` on CRYPTO and CRYPTO_FUTURES. Sources that answered: Binance 24h, OKX spot, CoinGecko top 250. A sign requires two 24h breadths on the same side of one half. 1h and 7d are logged. DexScreener returned HTTP 403 and is not a live candidate source. GeckoTerminal eth trending remains the new-token feed and still stops at GoPlus, honeypot.is, and the LP-lock veto. Binance and OKX funding and open-interest change are context for BTC, ETH, and SOL. Composite weight 0. The family is on the scorecard and does not count toward the two-family gate. The cycle forces the weight to 0. Gates unchanged. Gap IDs closed: **none**.
+
 CNBC is the primary for SPX, NDX, SPY, QQQ, and NVDA. TradingView is one batch and is the primary for EURUSD, USDJPY, XAU, NI225, HSI, DAX, ES, NQ, NKD, CL, BZ, WTI, BRENT, and GC. WTI shares the CL row and BRENT shares the BZ row. GC is `COMEX:GC1!`. Delay follows the feed: streaming stays streaming; DAX and FDAX are 900 seconds; the listed futures and GC are 600 seconds. FDAX is not in the book. Hyperliquid xyz mids witness the cycle, including EUR and JPY for the 0.5% FX check. `api.gold-api.com` witnesses XAU and GC. Frankfurter is a daily sanity check at 2% and does not set the cycle skip. SPX is compared with ES and NDX with NQ when that future printed. A cycle witness gap above 0.5% skips the symbol, including an open position. Yahoo remains the fallback. Brent is not read from CNBC. The apex gold host that returned HTML is not used. No keys. Gates unchanged. Gap IDs closed: **none**.

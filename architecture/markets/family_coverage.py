@@ -44,6 +44,7 @@ def family_coverage() -> dict[str, Any]:
     from architecture.markets.listed_futures_paper import coverage_rows
 
     rows.extend(coverage_rows())
+    rows.extend(_breadth_rows())
     return {
         "schema": "ahos.family_coverage.v1",
         "paper_only": True,
@@ -54,6 +55,32 @@ def family_coverage() -> dict[str, Any]:
         },
         "rows": rows,
     }
+
+
+def _breadth_rows() -> list[dict[str, Any]]:
+    rows = []
+    for desk in ("CRYPTO", "CRYPTO_FUTURES"):
+        rows.append({
+            "desk": desk,
+            "family": "crypto_breadth",
+            "members": ["crypto_breadth"],
+            "status": "ADVISORY_SHADOW",
+            "composite_weight": 0,
+            "counts_toward_entry_gate": False,
+            "source": "binance 24h, okx spot, coingecko top 250; funding and open interest are context",
+        })
+    rows.append({
+        "desk": "PB_TOKEN",
+        "family": "crypto_breadth",
+        "members": [],
+        "status": "DISCOVERY_ONLY",
+        "composite_weight": 0,
+        "counts_toward_entry_gate": False,
+        "source": "geckoterminal eth trending pools",
+        "dropped": "dexscreener HTTP 403 from this network",
+        "vetoes": "goplus, honeypot.is, lp lock",
+    })
+    return rows
 
 
 def _row(desk: str, family: str, members: tuple[str, ...]) -> dict[str, Any]:

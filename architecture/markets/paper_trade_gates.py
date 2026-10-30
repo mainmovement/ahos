@@ -16,6 +16,11 @@ INDEPENDENT_VOTE_FAMILIES: dict[str, tuple[str, ...]] = {
     "research": ("research_overlay",),
 }
 
+# Logged and scored, but not an entry vote. Weight stays 0.
+SHADOW_VOTE_FAMILIES: dict[str, tuple[str, ...]] = {
+    "crypto_breadth": ("crypto_breadth",),
+}
+
 # Desks net-negative on live book (EDGE_REPORT 2026-10-29); paper-only size haircut until owner review.
 DESK_NOTIONAL_MULT: dict[str, float] = {
     "ASIA_EQUITIES": 0.35,
@@ -87,7 +92,7 @@ def _finite_scores(members: list[dict], family: str) -> tuple[list[float], bool]
         if s.get("available") and isinstance(s.get("score"), (int, float)) and not isinstance(s.get("score"), bool)
     ]
     advisory = False
-    if not scores and family == "research":
+    if not scores and family in ("research", "crypto_breadth"):
         for s in members:
             evidence = s.get("evidence") if isinstance(s.get("evidence"), dict) else {}
             raw = evidence.get("advisory_vote_score")
@@ -101,7 +106,8 @@ def _finite_scores(members: list[dict], family: str) -> tuple[list[float], bool]
 def family_vote_signs(sigs: list[dict]) -> list[dict]:
     """Each family's own sign. This does not open a trade and does not change a weight."""
     out: list[dict] = []
-    for family, names in INDEPENDENT_VOTE_FAMILIES.items():
+    families = list(INDEPENDENT_VOTE_FAMILIES.items()) + list(SHADOW_VOTE_FAMILIES.items())
+    for family, names in families:
         members = [s for s in sigs if isinstance(s, dict) and s.get("name") in names]
         if not members:
             out.append({"family": family, "sign": "ABSENT"})
@@ -120,6 +126,9 @@ def family_vote_signs(sigs: list[dict]) -> list[dict]:
         row = {"family": family, "sign": sign, "mean_score": round(mean, 4), "composite_weight": 0.0}
         if advisory:
             row["advisory"] = True
+        if family in SHADOW_VOTE_FAMILIES:
+            row["shadow"] = True
+            row["counts_toward_entry_gate"] = False
         out.append(row)
     return out
 

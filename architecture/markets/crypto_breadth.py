@@ -182,6 +182,89 @@ def build_breadth_snapshot(*, binance: Any = None, okx: Any = None, coingecko: A
     }
 
 
+def lock_shadow_weight(weights: dict[str, Any]) -> dict[str, Any]:
+    """The saved weight file cannot turn this family on."""
+    weights["crypto_breadth"] = 0.0
+    return weights
+
+
+BINANCE_24H_URL = "https://api.binance.com/api/v3/ticker/24hr"
+OKX_SPOT_URL = "https://www.okx.com/api/v5/market/tickers?instType=SPOT"
+COINGECKO_MARKETS_URL = (
+    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc"
+    "&per_page=250&page=1&price_change_percentage=1h,24h,7d"
+)
+
+
+def _pull(getter, url: str, source: str) -> tuple[Any, int]:
+    try:
+        data, latency = getter(url, source)
+    except Exception:
+        return None, 0
+    return data, int(latency or 0)
+
+
+def load_cycle_snapshot(*, getter=None) -> dict[str, Any]:
+    """One breadth pass plus funding and open-interest context. No keys."""
+    if getter is None:
+        from architecture.markets.http_guard import fetch_json
+
+        def getter(url: str, source: str):
+            result = fetch_json(url, source=source)
+            if not result.get("ok"):
+                return None, int(result.get("latency_ms") or 0)
+            return result.get("data"), int(result.get("latency_ms") or 0)
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    from architecture.markets.crypto_futures_context import SYMBOLS, build_futures_context
+
+    jobs: list[tuple[str, str, str]] = [
+        ("binance", BINANCE_24H_URL, "binance_breadth"),
+        ("okx", OKX_SPOT_URL, "okx_breadth"),
+        ("coingecko", COINGECKO_MARKETS_URL, "coingecko_breadth"),
+    ]
+    for sym in SYMBOLS:
+        jobs.extend((
+            (f"binance_funding_{sym}", f"https://fapi.binance.com/fapi/v1/premiumIndex?symbol={sym}USDT", f"binance_funding_{sym}"),
+            (f"binance_oi_{sym}", f"https://fapi.binance.com/futures/data/openInterestHist?symbol={sym}USDT&period=1h&limit=2", f"binance_oi_{sym}"),
+            (f"okx_funding_{sym}", f"https://www.okx.com/api/v5/public/funding-rate?instId={sym}-USDT-SWAP", f"okx_funding_{sym}"),
+            (f"okx_oi_{sym}", f"https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId={sym}-USDT-SWAP", f"okx_oi_{sym}"),
+            (f"okx_oi_hist_{sym}", f"https://www.okx.com/api/v5/rubik/stat/contracts/open-interest-history?instId={sym}-USDT-SWAP&period=1H", f"okx_oi_hist_{sym}"),
+        ))
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        fetched = {key: pool.submit(_pull, getter, url, source) for key, url, source in jobs}
+        got = {key: job.result() for key, job in fetched.items()}
+    snapshot = build_breadth_snapshot(
+        binance=got["binance"][0], okx=got["okx"][0], coingecko=got["coingecko"][0],
+        latency_ms={"binance": got["binance"][1], "okx": got["okx"][1], "coingecko": got["coingecko"][1]},
+    )
+    futures_payload = {
+        sym: {
+            "binance_funding": got[f"binance_funding_{sym}"][0],
+            "binance_oi": got[f"binance_oi_{sym}"][0],
+            "okx_funding": got[f"okx_funding_{sym}"][0],
+            "okx_oi": got[f"okx_oi_{sym}"][0],
+            "okx_oi_hist": got[f"okx_oi_hist_{sym}"][0],
+        }
+        for sym in SYMBOLS
+    }
+    snapshot["futures"] = build_futures_context(futures_payload)
+    signal = advisory_signal(snapshot)
+    signal["evidence"]["futures"] = snapshot["futures"]
+    return {"signal": signal, "log": {
+        "paper_only": True,
+        "composite_weight": 0.0,
+        "counts_toward_entry_gate": False,
+        "advisory_score": snapshot.get("advisory_score"),
+        "agreement": snapshot.get("agreement"),
+        "venues": snapshot.get("venues"),
+        "futures": snapshot["futures"],
+        "latency_ms": snapshot.get("latency_ms"),
+        "dropped_sources": snapshot.get("dropped_sources"),
+    }}
+
+
 def advisory_signal(snapshot: dict[str, Any]) -> dict[str, Any]:
     """Unavailable to combine(). The scorecard reads advisory_vote_score."""
     return {

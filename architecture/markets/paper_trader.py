@@ -42,6 +42,7 @@ STATE_REL = PAPER_DIR / "paper_positions.json"
 STATUS_REL = PAPER_DIR / "paper_trader_status.json"
 WEIGHTS_REL = PAPER_DIR / "signal_weights.json"
 LESSONS_REL = PAPER_DIR / "signal_lessons.jsonl"
+BREADTH_REL = PAPER_DIR / "crypto_breadth.jsonl"
 MISSION_LEDGER_REL = Path("data") / "mission_ledger" / "mission_ledger.jsonl"
 M49_DB_REL = Path("data") / "mission_ledger" / "m49_lessons.sqlite"   # same store gold_paper.py uses
 AGENT = "agent:paper_trader"
@@ -555,6 +556,17 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     positions: dict[str, Any] = state["positions"]
     per_desk_n = {d: max(1, sum(1 for v in instruments.values() if v[0] == d)) for d in DESK_WEIGHTS}
     events: list[dict[str, Any]] = []
+    breadth_pack = None
+    if signals_fn is None:
+        try:
+            from architecture.markets.crypto_breadth import load_cycle_snapshot
+
+            breadth_pack = load_cycle_snapshot()
+            log_row = dict(breadth_pack["log"])
+            log_row["ts"] = _iso(t)
+            _append(root, BREADTH_REL, log_row)
+        except Exception:
+            breadth_pack = None
 
     def log(row: dict[str, Any]) -> None:
         _append(root, LEDGER_REL, row)
@@ -632,6 +644,8 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
 
         research_desk = signal_desk(sym) if desk == "LISTED_FUTURES" and signals_fn is None else desk
         sigs = append_research_signal(root, research_desk, sigs)
+        if desk in ("CRYPTO", "CRYPTO_FUTURES") and breadth_pack and breadth_pack.get("signal"):
+            sigs.append(breadth_pack["signal"])
         pred_log = research_predictions_for_trade(root, research_desk)
         regime = sb.vol_regime(ohlcv)
         oflow = next((s for s in sigs if s["name"] == "order_flow"), None)
@@ -643,6 +657,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if not ov or not ov.get("available"):
             live_w["research_overlay"] = 0.0
         live_w["cftc_cot"] = 0.0
+        from architecture.markets.crypto_breadth import lock_shadow_weight
+
+        lock_shadow_weight(live_w)
         comb = sb.combine(sigs, live_w)
         comp = comb["composite"]
         mtf = next((s for s in sigs if s["name"] == "mtf_trend"), None)
