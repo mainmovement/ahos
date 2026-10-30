@@ -1,0 +1,14 @@
+{
+ "schema": "ahos.agreed_witness.v1",
+ "paper_only": true,
+ "identity_id": "witness:NKD:tradingview:CME:NKD1!+yahoo_finance:NKD=F",
+ "symbol": "NKD",
+ "source_a": "tradingview:CME:NKD1!",
+ "source_b": "yahoo_finance:NKD=F",
+ "gap": 0.00056,
+ "tolerance": 0.0035,
+ "verdict": "VERIFIED",
+ "observed_at": "2026-10-30T12:22:02Z",
+ "live_switch": false,
+ "decides": false
+}

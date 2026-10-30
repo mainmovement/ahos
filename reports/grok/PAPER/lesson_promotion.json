@@ -1,0 +1,24 @@
+{
+ "schema": "ahos.lesson_promotion.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T12:30:17Z",
+ "rules": [
+  "NEWS_TRAP",
+  "BAD_TIMING"
+ ],
+ "baseline_closed_at": "2026-10-30T12:22:02Z",
+ "further_closes": 0,
+ "further_required": 30,
+ "oos_further_expectancy_usd": null,
+ "red_team": null,
+ "promote_to_live_weights": false,
+ "applied_to_live_weights": false,
+ "decision": "KEEP_SHADOW",
+ "reasons": [
+  "AWAITING_30_FURTHER_CLOSES",
+  "OOS_EXPECTANCY_NOT_POSITIVE",
+  "RED_TEAM_ABSENT"
+ ],
+ "news_weight": null,
+ "decides": false
+}

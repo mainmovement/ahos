@@ -4,8 +4,8 @@
  "audit_date": "2026-09-12",
  "audit_operational_impl": 0,
  "audit_rows": 26,
- "current_impl": 5,
- "current_impl_pct": 19.2,
+ "current_impl": 10,
+ "current_impl_pct": 38.5,
  "live_switch": false,
  "rows": [
   {
@@ -35,7 +35,7 @@
   {
    "id": "identity_resolution",
    "step": "Store one symbol whose two witnesses agree and keep that id.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
@@ -59,13 +59,13 @@
   {
    "id": "onchain_intelligence",
    "step": "Record one whale score that is not ABSENT on a desk still allowed to open.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
    "id": "liquidity_whale_demand",
    "step": "Attach a liquidity figure to one open paper position.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
@@ -89,7 +89,7 @@
   {
    "id": "user_position_tracking",
    "step": "Make the running /paper page read the open-name receipt.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
@@ -113,7 +113,7 @@
   {
    "id": "ai_conversational",
    "step": "One Kian answer that cites a stored close, or UNKNOWN.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {

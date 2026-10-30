@@ -1,0 +1,18 @@
+{
+ "schema": "ahos.knowledge_answer.v1",
+ "paper_only": true,
+ "question": "why ETH-SWAP CRYPTO_FUTURES close",
+ "answer": "ETH-SWAP CRYPTO_FUTURES NEWS_TRAP SIGNAL_REVERSAL",
+ "citations": [
+  "paper_close:ETH-SWAP:CRYPTO_FUTURES:2026-10-30T12:22:02Z"
+ ],
+ "overlap": [
+  "crypto",
+  "eth-swap",
+  "futures"
+ ],
+ "status": "CITED",
+ "decides": false,
+ "generated_at": "2026-10-30T12:31:10Z",
+ "live_switch": false
+}

@@ -1,0 +1,17 @@
+{
+ "schema": "ahos.whale_score_proof.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T12:31:10Z",
+ "status": "STORED",
+ "score": {
+  "ts": "2026-10-30T12:22:02Z",
+  "symbol": "GC",
+  "desk": "LISTED_FUTURES",
+  "sign": "SHORT",
+  "mean_score": -0.1964,
+  "composite_weight": 0.0,
+  "source": "G:\\robat\\ahos\\reports\\grok\\PAPER\\family_vote_observations.jsonl"
+ },
+ "live_switch": false,
+ "decides": false
+}

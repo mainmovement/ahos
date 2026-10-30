@@ -1,0 +1,15 @@
+{
+ "schema": "ahos.open_liquidity.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T12:31:10Z",
+ "attached": {
+  "symbol": "BZ",
+  "value": 2608506.0,
+  "unit": "contracts",
+  "source": "cftc_cot",
+  "field": "open_interest"
+ },
+ "status": "ATTACHED",
+ "live_switch": false,
+ "decides": false
+}

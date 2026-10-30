@@ -1,94 +1,128 @@
 {
  "schema": "ahos.desk_pause.v1",
  "paper_only": true,
- "generated_at": "2026-10-30T11:51:17Z",
+ "generated_at": "2026-10-30T12:30:17Z",
  "min_closes": 20,
+ "early_closes": 10,
  "desks": [
   {
    "desk": "ASIA_EQUITIES",
    "closes": 26,
    "net_pnl_usd": -0.0227,
    "expectancy_usd": -0.000873,
+   "mean_fee_usd": 0.002033,
    "paused": true,
-   "shadow": true
+   "shadow": true,
+   "size_factor": 1.0,
+   "early_warning": false
   },
   {
    "desk": "CRYPTO",
    "closes": 43,
    "net_pnl_usd": -0.5532,
    "expectancy_usd": -0.012865,
+   "mean_fee_usd": 0.010746,
    "paused": true,
-   "shadow": true
+   "shadow": true,
+   "size_factor": 1.0,
+   "early_warning": false
   },
   {
    "desk": "CRYPTO_FUTURES",
-   "closes": 1,
-   "net_pnl_usd": -0.0549,
-   "expectancy_usd": -0.0549,
+   "closes": 2,
+   "net_pnl_usd": -0.0613,
+   "expectancy_usd": -0.03065,
+   "mean_fee_usd": 0.003314,
    "paused": false,
-   "shadow": false
+   "shadow": false,
+   "size_factor": 1.0,
+   "early_warning": false
   },
   {
    "desk": "EU_EQUITIES",
    "closes": 4,
    "net_pnl_usd": 0.1648,
    "expectancy_usd": 0.0412,
+   "mean_fee_usd": 0.004967,
    "paused": false,
-   "shadow": false
+   "shadow": false,
+   "size_factor": 1.0,
+   "early_warning": false
   },
   {
    "desk": "FOREX",
    "closes": 18,
    "net_pnl_usd": -0.031,
    "expectancy_usd": -0.001722,
+   "mean_fee_usd": 0.001632,
    "paused": false,
-   "shadow": false
+   "shadow": false,
+   "size_factor": 1.0,
+   "early_warning": false
   },
   {
    "desk": "GOLD",
-   "closes": 13,
-   "net_pnl_usd": -0.3451,
-   "expectancy_usd": -0.026546,
+   "closes": 14,
+   "net_pnl_usd": -0.3303,
+   "expectancy_usd": -0.023593,
+   "mean_fee_usd": 0.008066,
    "paused": false,
-   "shadow": false
+   "shadow": false,
+   "size_factor": 0.5,
+   "early_warning": true
   },
   {
    "desk": "LISTED_FUTURES",
-   "closes": 1,
-   "net_pnl_usd": 0.0002,
-   "expectancy_usd": 0.0002,
+   "closes": 2,
+   "net_pnl_usd": 0.0071,
+   "expectancy_usd": 0.00355,
+   "mean_fee_usd": 0.001319,
    "paused": false,
-   "shadow": false
+   "shadow": false,
+   "size_factor": 1.0,
+   "early_warning": false
   },
   {
    "desk": "OIL",
    "closes": 27,
    "net_pnl_usd": -0.1398,
    "expectancy_usd": -0.005178,
+   "mean_fee_usd": 0.004045,
    "paused": true,
-   "shadow": true
+   "shadow": true,
+   "size_factor": 1.0,
+   "early_warning": false
   },
   {
    "desk": "PB_TOKEN",
    "closes": 14,
    "net_pnl_usd": -0.1437,
    "expectancy_usd": -0.010264,
+   "mean_fee_usd": 0.010715,
    "paused": false,
-   "shadow": false
+   "shadow": false,
+   "size_factor": 1.0,
+   "early_warning": false
   },
   {
    "desk": "US_EQUITIES",
    "closes": 3,
    "net_pnl_usd": 0.0948,
    "expectancy_usd": 0.0316,
+   "mean_fee_usd": 0.002048,
    "paused": false,
-   "shadow": false
+   "shadow": false,
+   "size_factor": 1.0,
+   "early_warning": false
   }
  ],
  "paused_desks": [
   "ASIA_EQUITIES",
   "CRYPTO",
   "OIL"
+ ],
+ "early_warning_desks": [
+  "GOLD"
  ],
  "carrying_desks": [
   "EU_EQUITIES",

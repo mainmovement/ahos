@@ -1,0 +1,24 @@
+{
+ "schema": "ahos.paper_open_names.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T12:31:10Z",
+ "source": "reports/grok/PAPER/mehrdad_status.json",
+ "reader": "app/paper/page.tsx",
+ "open_names": [
+  "BRENT",
+  "BTC-SWAP",
+  "BZ",
+  "CL",
+  "ES",
+  "GC",
+  "HSI",
+  "NKD",
+  "NQ",
+  "SPX",
+  "WTI",
+  "XAU"
+ ],
+ "live_switch": false,
+ "served_build": "NOT_REBUILT",
+ "decides": false
+}
