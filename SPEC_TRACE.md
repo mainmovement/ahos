@@ -213,3 +213,7 @@ Crypto spot: Binance public REST fill when it agrees with OKX public REST. Swaps
 ## Swap families (2026-10-30)
 
 `CRYPTO_FUTURES` uses the spot whale feeds on BTC, ETH, and SOL, and the crypto research pipeline at weight 0 unless PASS_STATS and SURVIVED_RED_TEAM. Asia whales are `ABSENT_BY_DESIGN`. No free Nikkei or Hang Seng positioning file is wired. Gates unchanged. Gap IDs closed: **none**.
+
+## Listed futures (2026-10-30)
+
+Separate from the cash books and from `CRYPTO_FUTURES`. Symbols: CL, BZ, GC, ES, NQ, NKD. FDAX omitted: no Yahoo continuous ticker. Yahoo continuous fill, TradingView witness, Globex or ICE Brent hours, flatten five calendar days before the paper last-trade date, simulated liquidation, cap 0.10 of equity, leverage held at 1.0. Oil and gold reuse the existing CFTC file. ES, NQ, and NKD whales are absent. Gates unchanged. Gap IDs closed: **none**.

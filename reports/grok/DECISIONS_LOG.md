@@ -317,3 +317,11 @@
 **Choice:** The swap desk calls the same public whale feeds as spot, on the underlying coin: large trades, exchange netflow, and the BTC mempool sample. Research uses the same `CRYPTO_UNIVERSE_DESK` pipeline, still at composite weight 0 unless PASS_STATS and SURVIVED_RED_TEAM. Asia whales stay `ABSENT_BY_DESIGN`. No free public positioning file for Nikkei or Hang Seng is wired, and none was invented.
 
 **Reason:** The swap book was leaving those families unscored because the symbol was `BTC-SWAP` and the desk was not the spot desk. The feeds are keyed by BTC, ETH, and SOL. Asia has no equivalent free file.
+
+## 2026-10-30: Listed futures are a separate 1x paper book
+
+**Question:** How should oil, gold, and index futures trade on paper without replacing the cash books or the crypto swap book?
+
+**Choice:** A `LISTED_FUTURES` book holds CL, BZ, GC, ES, NQ, and NKD. The total book is capped at 0.10 of equity. Leverage stays 1.0 until a week of family scorecard, and a finished week still does not raise it. Long and short are allowed. Yahoo continuous is the fill. TradingView is the second witness. CL, BZ, and GC reuse the cash book's Yahoo print and its witness. ES, NQ, and NKD have their own Yahoo contracts and TradingView roots. FDAX is omitted because Yahoo has no free continuous FDAX or FDXS ticker. The session is the futures session: CME Globex overnight for CL, GC, ES, NQ, and NKD, and the existing ICE Brent hours for BZ. Cash SPX and NDX stay on the NYSE session. A position flattens five calendar days before the paper last-trade date. There is no invented calendar-spread fill. Oil and gold use the existing CFTC file. ES, NQ, and NKD whales stay absent. News, macro, and research use the underlying cash desk. Maintenance margin is a pre-registered 0.05. The high-leverage education engine is not wired.
+
+**Reason:** The cash books and the 1x crypto swaps stay in place. A second futures book needs its own cap so it does not spend the oil, gold, or equity cash budgets, and it does not spend the crypto swap cap. FDAX without a Yahoo execution print would be a one-source fill.

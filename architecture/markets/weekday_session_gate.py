@@ -29,6 +29,8 @@ VENUES: dict[str, dict] = {
 SYMBOL_VENUE: dict[str, str] = {
     "SPX": "NYSE", "QQQ": "NYSE", "NDX": "NYSE", "DAX": "XETRA", "N225": "TSE", "HSI": "HKEX", "BRENT": "ICE_BRENT",
     "XAU": "CME_GLOBEX", "WTI": "CME_GLOBEX", "EURUSD": "FX_OTC", "USDJPY": "FX_OTC",
+    "CL": "CME_GLOBEX", "GC": "CME_GLOBEX", "ES": "CME_GLOBEX", "NQ": "CME_GLOBEX", "NKD": "CME_GLOBEX",
+    "BZ": "ICE_BRENT",
 }
 
 # Official 2026–2027 full-day exchange holidays (ISO YYYY-MM-DD in the venue's local date; for 24x5 venues, the

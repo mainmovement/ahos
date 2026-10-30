@@ -54,6 +54,9 @@ YAHOO_SYMBOLS: dict[str, str] = {
     "SPY": "SPY",
     "QQQ": "QQQ",
     "NVDA": "NVDA",
+    "ES": "ES=F",
+    "NQ": "NQ=F",
+    "NKD": "NKD=F",
     "EXW1.DE": "EXW1.DE",
     "EURUSD": "EURUSD=X",
     "USDJPY": "JPY=X",
@@ -187,7 +190,10 @@ def fetch_yahoo_quote(yahoo_sym: str, *, timeout: float = 6.0) -> dict[str, Any]
 
 # Continuous Yahoo futures roll on Yahoo's own schedule, which differs from TradingView/Stooq "1!" continuous
 # contracts (e.g. BZ=F already on Jan while ICE BRN1! is still Dec). The witness must compare the SAME month.
-FUTURES_ROOTS: dict[str, tuple[str, str]] = {"BRENT": ("BZ", "NYM"), "WTI": ("CL", "NYM"), "XAU": ("GC", "CMX")}
+FUTURES_ROOTS: dict[str, tuple[str, str]] = {
+    "BRENT": ("BZ", "NYM"), "WTI": ("CL", "NYM"), "XAU": ("GC", "CMX"),
+    "ES": ("ES", "CME"), "NQ": ("NQ", "CME"), "NKD": ("NKD", "CME"),
+}
 MONTH_CODES = "FGHJKMNQUVXZ"
 _CONTRACT_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
 CONTRACT_CACHE_TTL_S = 3600.0
@@ -313,13 +319,18 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
     # gold primary = COMEX futures on Yahoo; PAXG kept as cross-check
     quotes["XAU"] = yq["GOLD_FUT"]
     quotes["PAXG"] = cg["XAU"]
-    for k in ("BRENT", "WTI", "SPX", "NDX", "DAX", "N225", "DXY", "US10Y", "HSI", "SPY", "QQQ", "NVDA", "EXW1.DE", "EURUSD", "USDJPY"):
+    for k in ("BRENT", "WTI", "SPX", "NDX", "DAX", "N225", "DXY", "US10Y", "HSI", "SPY", "QQQ", "NVDA", "EXW1.DE",
+              "EURUSD", "USDJPY", "ES", "NQ", "NKD"):
         quotes[k] = yq[k]
     for k in FUTURES_ROOTS:
         if quotes.get(k, {}).get("price") is not None:
             res = resolve_yahoo_contract_month(k, quotes[k])
             quotes[k]["contract_month"] = (res or {}).get("contract_month")
             quotes[k]["contract_symbol"] = (res or {}).get("contract_symbol")
+    # Listed CL/BZ/GC reuse the cash Yahoo print, including the month Yahoo identified.
+    for listed, cash in (("CL", "WTI"), ("BZ", "BRENT"), ("GC", "XAU")):
+        src = quotes.get(cash)
+        quotes[listed] = dict(src) if isinstance(src, dict) else unavailable_quote("yahoo_finance")
 
     macro: dict[str, Any] = {"fear_greed": None, "fear_greed_label": None, "total_mcap_usd": None,
                              "mcap_change_24h_pct": None, "btc_dominance_pct": None,

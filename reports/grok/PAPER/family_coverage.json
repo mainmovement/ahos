@@ -492,6 +492,111 @@
       "status": "ADVISORY_VOTE",
       "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
       "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "LISTED_FUTURES",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "same family as the underlying cash desk",
+      "underlying_desk": {
+        "CL": "OIL",
+        "BZ": "OIL",
+        "GC": "GOLD",
+        "ES": "US_EQUITIES",
+        "NQ": "US_EQUITIES",
+        "NKD": "ASIA_EQUITIES"
+      }
+    },
+    {
+      "desk": "LISTED_FUTURES",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "same family as the underlying cash desk",
+      "underlying_desk": {
+        "CL": "OIL",
+        "BZ": "OIL",
+        "GC": "GOLD",
+        "ES": "US_EQUITIES",
+        "NQ": "US_EQUITIES",
+        "NKD": "ASIA_EQUITIES"
+      }
+    },
+    {
+      "desk": "LISTED_FUTURES",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "CFTC_COT",
+      "composite_weight": 0,
+      "symbols_on_cftc": {
+        "CL": [
+          "OIL",
+          "WTI"
+        ],
+        "BZ": [
+          "OIL",
+          "BRENT"
+        ],
+        "GC": [
+          "GOLD",
+          "XAU"
+        ]
+      },
+      "absent_by_design": [
+        "ES",
+        "NQ",
+        "NKD"
+      ],
+      "omitted_no_yahoo_continuous": {
+        "FDAX": "Yahoo has no free continuous FDAX or FDXS ticker. A TradingView print alone is not the execution feed."
+      },
+      "reason": "ES, NQ, and NKD have no verified free public positioning file. Oil and gold use the existing CFTC contract."
+    },
+    {
+      "desk": "LISTED_FUTURES",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "same family as the underlying cash desk",
+      "underlying_desk": {
+        "CL": "OIL",
+        "BZ": "OIL",
+        "GC": "GOLD",
+        "ES": "US_EQUITIES",
+        "NQ": "US_EQUITIES",
+        "NKD": "ASIA_EQUITIES"
+      }
+    },
+    {
+      "desk": "LISTED_FUTURES",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "same pipeline as the underlying cash desk",
+      "pipeline_by_symbol": {
+        "CL": "OIL_DESK",
+        "BZ": "OIL_DESK",
+        "GC": "GOLD_DESK",
+        "ES": "US_EQUITIES_DESK",
+        "NQ": "US_EQUITIES_DESK",
+        "NKD": "ASIA_EQUITIES_DESK"
+      }
     }
   ]
 }

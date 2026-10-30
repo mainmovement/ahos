@@ -58,16 +58,22 @@ INSTRUMENTS: dict[str, tuple[str, float, float]] = {   # sym -> (desk, fee/side,
     "DAX": ("EU_EQUITIES", 0.0004, 0.0003),
     "N225": ("ASIA_EQUITIES", 0.0004, 0.0003), "HSI": ("ASIA_EQUITIES", 0.0004, 0.0003),
     "EURUSD": ("FOREX", 0.0002, 0.0001), "USDJPY": ("FOREX", 0.0002, 0.0001),
+    "CL": ("LISTED_FUTURES", 0.0005, 0.0004), "BZ": ("LISTED_FUTURES", 0.0005, 0.0004),
+    "GC": ("LISTED_FUTURES", 0.0004, 0.0003),
+    "ES": ("LISTED_FUTURES", 0.0003, 0.0002), "NQ": ("LISTED_FUTURES", 0.0003, 0.0002),
+    "NKD": ("LISTED_FUTURES", 0.0004, 0.0003),
 }
 DESK_WEIGHTS = {"CRYPTO": 0.25, "CRYPTO_FUTURES": 0.10, "PB_TOKEN": 0.05, "GOLD": 0.15, "OIL": 0.15,
-                "US_EQUITIES": 0.15, "EU_EQUITIES": 0.10, "ASIA_EQUITIES": 0.10, "FOREX": 0.10}
+                "US_EQUITIES": 0.15, "EU_EQUITIES": 0.10, "ASIA_EQUITIES": 0.10, "FOREX": 0.10,
+                "LISTED_FUTURES": 0.10}
 CLUSTER_OF_DESK = {
     "CRYPTO": "crypto", "CRYPTO_FUTURES": "crypto_futures", "PB_TOKEN": "crypto",
     "GOLD": "metals", "OIL": "energy",
     "US_EQUITIES": "equities", "EU_EQUITIES": "equities", "ASIA_EQUITIES": "equities",
-    "FOREX": "fx",
+    "FOREX": "fx", "LISTED_FUTURES": "listed_futures",
 }
-CLUSTER_CAPS = {"crypto": 0.35, "crypto_futures": 0.10, "metals": 0.20, "energy": 0.20, "equities": 0.40, "fx": 0.15}
+CLUSTER_CAPS = {"crypto": 0.35, "crypto_futures": 0.10, "metals": 0.20, "energy": 0.20, "equities": 0.40, "fx": 0.15,
+                "listed_futures": 0.10}
 
 
 def logged_witness(witness: dict) -> dict:
@@ -456,6 +462,9 @@ def gather_witness(quotes: dict[str, Any], *, fetch_b: Callable[[], dict[str, An
     else:
         months = {s: (quotes.get(s) or {}).get("contract_month") for s in FUTURES}
         second = fetch_second_sources(contract_months={s: m for s, m in months.items() if m})
+        from architecture.markets.listed_futures_paper import overlay_cash_witnesses
+
+        overlay_cash_witnesses(second)
         if any(str(s).endswith("-SWAP") for s in syms):
             try:
                 from architecture.markets.crypto_futures_paper import fetch_swap_witnesses
@@ -471,6 +480,9 @@ def gather_witness(quotes: dict[str, Any], *, fetch_b: Callable[[], dict[str, An
         third = fetch_c(third_source_needed(pre))
     elif fetch_b is None:
         third = fetch_third_sources(third_source_needed(pre))
+        from architecture.markets.listed_futures_paper import overlay_cash_witnesses
+
+        overlay_cash_witnesses(third)
     else:
         third = {}
     return {s: (witness(s, quotes.get(s), second.get(s), third.get(s)) if s in third else pre[s]) for s in syms}
@@ -575,8 +587,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if signals_fn:
             sigs = signals_fn(sym, desk, q)
         else:
-            sigs = [sb.mtf_trend(ohlcv), sb.candle_patterns(ohlcv), sb.zscore_mr(ohlcv), sb.news_signal(desk, news),
-                    sb.macro_pressure(desk, quotes, wit), sb.macro_event(desk, root), sb.event_shock(desk, sym, root)]
+            from architecture.markets.listed_futures_paper import DESK as LISTED_DESK
+            from architecture.markets.listed_futures_paper import signal_desk
+
+            family_desk = signal_desk(sym) if desk == LISTED_DESK else desk
+            sigs = [sb.mtf_trend(ohlcv), sb.candle_patterns(ohlcv), sb.zscore_mr(ohlcv), sb.news_signal(family_desk, news),
+                    sb.macro_pressure(family_desk, quotes, wit), sb.macro_event(family_desk, root),
+                    sb.event_shock(family_desk, sym, root)]
             if desk == "CRYPTO":
                 fund_hist = state["brain"].setdefault("funding_history", {}).setdefault(sym, [])
                 sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym, fund_hist), sb.stablecoin_flow(state["brain"]),
@@ -587,16 +604,27 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 base_sym = whale_underlying(desk, sym)
                 if base_sym:
                     sigs += [sb.large_trades(base_sym), sb.exchange_netflow(base_sym), sb.whale_mempool(base_sym)]
+            elif desk == "LISTED_FUTURES":
+                from architecture.markets.cftc_cot import cftc_cot_signal
+                from architecture.markets.listed_futures_paper import cftc_pair
+
+                pair = cftc_pair(sym)
+                if pair:
+                    cot = cftc_cot_signal(root, pair[0], pair[1])
+                    if cot is not None:
+                        sigs.append(cot)
             elif desk in ("OIL", "GOLD"):
                 from architecture.markets.cftc_cot import cftc_cot_signal
 
                 cot = cftc_cot_signal(root, desk, sym)
                 if cot is not None:
                     sigs.append(cot)
+        from architecture.markets.listed_futures_paper import signal_desk
         from architecture.markets.research_desk_signal import append_research_signal, research_predictions_for_trade
 
-        sigs = append_research_signal(root, desk, sigs)
-        pred_log = research_predictions_for_trade(root, desk)
+        research_desk = signal_desk(sym) if desk == "LISTED_FUTURES" and signals_fn is None else desk
+        sigs = append_research_signal(root, research_desk, sigs)
+        pred_log = research_predictions_for_trade(root, research_desk)
         regime = sb.vol_regime(ohlcv)
         oflow = next((s for s in sigs if s["name"] == "order_flow"), None)
         if oflow and (oflow.get("evidence") or {}).get("depth_disagreement"):
@@ -638,6 +666,15 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
 
                 accrue_funding(pos, q.get("funding_rate_8h"), t)
                 if simulated_liquidation(side, price, pos.get("liquidation_price")):
+                    reason = "SIMULATED_LIQUIDATION"
+            elif desk == "LISTED_FUTURES":
+                from architecture.markets.listed_futures_paper import roll_due, simulated_liquidation
+
+                month = q.get("contract_month") or pos.get("contract_month")
+                asof = datetime.fromtimestamp(t, tz=timezone.utc).date()
+                if roll_due(sym, month, asof):
+                    reason = "CONTRACT_ROLL"
+                elif simulated_liquidation(side, price, pos.get("liquidation_price")):
                     reason = "SIMULATED_LIQUIDATION"
             if reason is None and move <= -pos["stop_pct"]:
                 reason = "STOP_LOSS"
@@ -725,7 +762,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         moment = datetime.fromtimestamp(t, tz=timezone.utc)
         gate = symbol_session(sym, moment)
         session_gate = {"evaluated": True, "venue": gate.get("venue"), "open": gate.get("open") is True}
-        if desk in CASH_DESKS and session_gate["open"] is not True:
+        if (desk in CASH_DESKS or desk == "LISTED_FUTURES") and session_gate["open"] is not True:
             age = None if mt is None else t - mt
             if age is None or age < 0:
                 freshness = "UNKNOWN"
@@ -757,6 +794,15 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             brain["token_safety_veto"] = {k: tv.get(k) for k in ("verdict", "allowed", "sources_verified", "reasons")}
             if not tv.get("allowed"):
                 why = f"TOKEN_SAFETY_VETO:{','.join(tv.get('reasons') or ['fail_closed'])}"
+        if why is None and desk == "LISTED_FUTURES":
+            from architecture.markets.listed_futures_paper import roll_due
+
+            asof = datetime.fromtimestamp(t, tz=timezone.utc).date()
+            month = q.get("contract_month")
+            if not month:
+                why = "CONTRACT_MONTH_UNKNOWN"
+            elif roll_due(sym, month, asof):
+                why = "CONTRACT_ROLL"
         if why is None and str(sym).startswith("DEX_"):
             from architecture.markets.token_safety_live import dynamic_token_block
 
@@ -836,6 +882,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             brain["futures"] = leverage_decision(root)
             open_fut = sum(p["notional_usd"] for p in positions.values() if p.get("desk") == "CRYPTO_FUTURES")
             notional = round(min(notional, book_notional_cap(equity, open_fut)), 4)
+        if desk == "LISTED_FUTURES":
+            from architecture.markets.listed_futures_paper import book_notional_cap as listed_cap
+            from architecture.markets.listed_futures_paper import leverage_decision as listed_leverage
+
+            brain["listed_futures"] = listed_leverage(root)
+            open_listed = sum(p["notional_usd"] for p in positions.values() if p.get("desk") == "LISTED_FUTURES")
+            notional = round(min(notional, listed_cap(equity, open_listed)), 4)
         if str(sym).startswith("DEX_"):
             from architecture.markets.token_safety_live import DYNAMIC_TOKEN_EQUITY
 
@@ -891,6 +944,17 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 "funding_usd": 0.0,
                 "funding_ts": t,
                 "leverage": 1.0,
+            }
+        elif desk == "LISTED_FUTURES":
+            from architecture.markets.listed_futures_paper import MAINTENANCE_MARGIN_RATE, liquidation_price as _listed_liq
+
+            liq = _listed_liq(side, fill)
+            fut_fields = {
+                "liquidation_price": None if liq is None else round(liq, 8),
+                "leverage": 1.0,
+                "initial_margin_usd": round(notional, 4),
+                "maintenance_margin_rate": MAINTENANCE_MARGIN_RATE,
+                "contract_month": q.get("contract_month"),
             }
         if str(sym).startswith("DEX_"):
             fut_fields["entry_liquidity_usd"] = q.get("liquidity_usd")

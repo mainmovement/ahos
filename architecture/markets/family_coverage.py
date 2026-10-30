@@ -41,6 +41,9 @@ def family_coverage() -> dict[str, Any]:
     for desk in DESK_TO_PIPELINE:
         for family, members in INDEPENDENT_VOTE_FAMILIES.items():
             rows.append(_row(desk, family, members))
+    from architecture.markets.listed_futures_paper import coverage_rows
+
+    rows.extend(coverage_rows())
     return {
         "schema": "ahos.family_coverage.v1",
         "paper_only": True,

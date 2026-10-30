@@ -445,3 +445,16 @@ Command: `pytest tests/test_cftc_cot_and_coverage.py tests/test_research_desk_si
 | R2 Data | APPROVE | The whale call uses the spot coin. Asia is not given a fabricated flow. |
 | R4 Council | APPROVE | An absent family is still not an agreement. |
 | Meta-Critic | APPROVE | Sharing the spot feed is the same public file. It is not a new authority. |
+
+## Listed futures book (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_listed_futures_paper.py tests/test_cftc_cot_and_coverage.py -q` → **15 passed**.
+
+`LISTED_FUTURES` is CL, BZ, GC, ES, NQ, and NKD. Cap 0.10 of equity in total. Leverage applied is 1.0, including after a scorecard week. Yahoo continuous is the fill. TradingView is the second witness. FDAX is not on the book: Yahoo returned no continuous FDAX or FDXS ticker. Globex symbols can open while NYSE cash is closed, and they stay closed over the weekend halt. A December 2026 CL position flattens on the roll window. A short GC flattens at the simulated liquidation price. Cash WTI and XAU are not opened by those fills. ES, NQ, and NKD have no CFTC row. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The book cap is 0.10. A finished scorecard week does not raise leverage. |
+| R2 Data | APPROVE | FDAX is omitted. The fill is Yahoo. TradingView is the witness. |
+| R4 Council | APPROVE | News and research stay on the underlying cash desk. Index futures do not get a fabricated whale score. |
+| Meta-Critic | APPROVE | This book does not replace WTI, XAU, SPX, or the crypto swaps. The roll is a flatten, not an invented spread. |
