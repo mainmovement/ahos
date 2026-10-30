@@ -161,3 +161,7 @@ University dry-run: knowledge store **251** claims (46 new winning CLOSE claims 
 ## P0 Stage 5 note (2026-10-30)
 
 Hold surface only. News vote still requires two sources; credibility is logged and is 0 without corroboration. `fca_news` is an unverified candidate. M44 dedupe 80→74 into one non-executing research task. Digest send **BLOCKED** (0 sends, 11 local nights). Scanners pip-audit, gitleaks, bandit are **TOOL_ABSENT**. Gate window still **`INSUFFICIENT_WINDOW`** (0.325h). Not every desk stopped at the composite floor. Gap IDs closed: **none**. M31 send streak stays open.
+
+## P0 Stage 6 note (2026-10-30)
+
+`M-REGIME-4` stays **UNMEASURABLE**. Owner question: `reports/grok/M13/M-REGIME-4_OWNER_QUESTION.md`. Three regime labels kept. Quote-clock fix is commit **`dabe63f`**: age is taken after the download. Gap IDs closed: **none**.

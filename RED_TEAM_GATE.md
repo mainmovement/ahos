@@ -243,3 +243,20 @@ News score stays 0 unless two sources agree. Credibility is the M80 product form
 | R6 University | APPROVE | Dedupe drops a repeated arXiv id before the worker contract. |
 | R7 SRE | APPROVE | Injection corpus is a real check. Missing scanners are TOOL_ABSENT. Lane A not edited. HOLD untouched. |
 | Meta-Critic | APPROVE | This is not a six-hour result and not a feed-health certificate. CRYPTO cleared the composite bar twice and then failed the fee gate. |
+
+## P0 Stage 6 — data depth and M-REGIME-4 (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Quote clock, separate commit **`dabe63f`**: live FOREX and PB_TOKEN rows were 4–11 seconds ahead of the cycle timestamp (`ts` 00:40:16Z, `market_time` 00:40:24Z to 00:40:27Z). That is Yahoo `regularMarketTime` during the download, measured against a clock frozen before `fetch()`. It is not an hour-scale timezone shift. Age now uses `quote_asof = now()` after quotes and the DEX merge are in hand. A stamp still ahead of that post-download clock stays `QUOTE_TIME_AHEAD`. Tests: the new case plus the existing one-second-ahead rejection, **6 passed** with the witness probe file.
+
+Regime gate: not changed. Three labels remain `BULL_TREND`, `BEAR_VOLATILE`, `NEUTRAL_CHOP`. The owner question is `reports/grok/M13/M-REGIME-4_OWNER_QUESTION.md`. Coverage stays **UNMEASURABLE**. No fourth regime.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Regime set and the 3-of-4 clause are untouched. |
+| R2 Data | APPROVE | Quote age moves to the post-download clock. A one-second lead over that clock still skips. |
+| R3 News | N/A | |
+| R4 Council | APPROVE | The regime question is unanswered on purpose. |
+| R5 UX | N/A | No laptop build. |
+| R6 University | N/A | |
+| R7 SRE | APPROVE | Lane A not edited. The running trader must be reloaded before the new age check is live. |
+| Meta-Critic | APPROVE | Seconds of download latency were mislabeled as a future quote. The missing regime is still missing. |

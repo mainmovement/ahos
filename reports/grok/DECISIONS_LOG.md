@@ -213,3 +213,11 @@
 **Choice:** FINDING was `cve_supply_chain_audit`: **setuptools 65.5.0** on the default `python` interpreter (below floor 84.1.0); receipt also wrongly counted `status==PASS` instead of `verdict==CLEAN`. Fixed by upgrading setuptools in `G:\\robat\\ahos\\.venv`, auditing via `resolve_ahos_python_exe`, and registering four **AHOS_*** Task Scheduler jobs (arxiv daily, pipeline 6h, exam Sat 09:00, Negahban daily) with run receipts under `CONTINUATION/scheduled_runs/`. Filled `ahos_knowledge.sqlite` via `KnowledgeSyncBridge.sync_documented_lessons` + empirical sync (**205** claims).
 
 **Reason:** Owner asked for real scheduling on G: paths, accurate Negahban verdict, Didehban 100+ source registry, and non-empty knowledge store from real lessons.
+
+## 2026-10-30: M-REGIME-4 left as an owner question
+
+**Question:** The soak exit gate wants at least 3 of 4 regimes. The classifier defines 3 labels. Should a fourth regime be named, or should the gate be amended to 3?
+
+**Choice:** No choice. The question is in `reports/grok/M13/M-REGIME-4_OWNER_QUESTION.md`. A fourth label was not invented and the gate text was not rewritten.
+
+**Reason:** Stage 6 is a human gate. `n_regimes=4` would fall back to `NEUTRAL_CHOP`, which is not a new regime. Data depth of the three existing labels stays as it is. Status remains UNMEASURABLE.
