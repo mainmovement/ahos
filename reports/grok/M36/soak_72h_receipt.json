@@ -1,13 +1,17 @@
 {
   "schema": "ahos.m36_soak_72h_receipt.v1",
-  "generated_at": "2026-10-30T00:39:58Z",
+  "generated_at": "2026-10-30T06:13:32Z",
   "paper_only": true,
   "target_continuous_hours": 72,
   "status": "NOT_MET",
-  "reason": "GAP_NOTES shows repeated process death and at least one multi-hour host gap. No unbroken 72h window is claimed.",
+  "current_window_status": "IN_PROGRESS",
+  "elapsed_hours": 0.18,
+  "window_started_utc": "2026-10-30T06:02:43Z",
+  "reason": "The current window is running and has not reached 72 hours.",
   "longest_recorded_gap_hours": 16.05,
   "relaunch_rows_parsed": 33,
   "heartbeat_stale": false,
-  "last_cycle_utc": "2026-10-30T00:32:29Z",
+  "last_cycle_utc": "2026-10-30T06:02:37Z",
+  "auto_restart": "G:/robat/AHOS_Launcher/start_soak.ps1",
   "logon_lightstart_chain_seen": true
 }

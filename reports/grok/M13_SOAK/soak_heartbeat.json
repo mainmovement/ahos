@@ -1,11 +1,11 @@
 {
   "schema": "ahos.soak_heartbeat.v1",
-  "generated_at": "2026-10-30T00:39:58Z",
+  "generated_at": "2026-10-30T06:13:32Z",
   "paper_only": true,
-  "last_cycle_utc": "2026-10-30T00:32:29Z",
+  "last_cycle_utc": "2026-10-30T06:02:37Z",
   "cycle_interval_sec": 900.0,
-  "age_sec": 449.8,
+  "age_sec": 655.6,
   "stale": false,
-  "cycles_ok": 109,
+  "cycles_ok": 131,
   "cycles_failed": 0
 }

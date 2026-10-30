@@ -648,3 +648,18 @@ Command: `pytest tests/test_research_reasoning.py tests/test_tech_scout.py tests
 | R6 Learning | APPROVE | Sixty-one regime cells and zero proposed size changes. Live desk multipliers are untouched. |
 | R7 SRE/Security | APPROVE | Self-repair applied is false because the red team is absent. The Gemini key is not in the receipt. No upstream code ran. |
 | Meta-Critic | APPROVE | Level 2: a hit rate above 0.60 on both shadows is recorded and is not a promotion. |
+
+## Owner readiness (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_owner_readiness.py tests/test_seat_priority.py tests/test_m12_agent_registration.py tests/test_soak_gap_accounting.py tests/test_org_lifecycle.py -q` → **32 passed**. Lane A integrity OK. Gap IDs closed: **none**. The live switch is false. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Readiness is 16.7 percent. Drawdown 1.88 percent is inside the 20 percent cap. Expectancy is negative. DSR and PBO are not passed. |
+| R2 Data | APPROVE | The vision audit's operational column is used as written. None of 26 P0/P1 rows are IMPL. The trace's 119 REAL rows are reported separately. |
+| R3 News | APPROVE | AG-33 is filled from desk news. News weight stays 0. |
+| R4 Intelligence (Kian) | APPROVE | Mehrdad's page lists what is missing in Persian. The screenshot `shot_home.png` could not be read from this session. |
+| R5 Visual/UX | APPROVE | The home view hides the existing panels behind جزئیات فنی. The dashboard port did not answer, so the browser was not exercised. |
+| R6 Learning | APPROVE | AG-40 is the mistake-memory seat. It still cannot PROMOTE. |
+| R7 SRE/Security | APPROVE | Soak PID 7988 is IN_PROGRESS at 0.18 hours, status NOT_MET. The path file refuses a profile directory on C:. HOLD stays on. |
+| Meta-Critic | APPROVE | Level 2: calling the trace 97 percent done would hide the owner audit. That number is not the vision percent. |

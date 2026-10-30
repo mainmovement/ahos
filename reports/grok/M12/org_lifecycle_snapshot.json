@@ -1,9 +1,9 @@
 {
   "schema": "ahos.org_lifecycle.v1",
-  "generated_at": "2026-10-30T00:49:45Z",
+  "generated_at": "2026-10-30T06:13:33Z",
   "paper_only": true,
   "registry_agents": 43,
-  "filled_seats": 9,
+  "filled_seats": 14,
   "unfilled_seats": [
     {
       "agent_id": "AG-01",
@@ -66,20 +66,6 @@
       "name": "Red Team",
       "registry_status": "PARTIAL",
       "lifecycle_state": "ARTIFACT_PRESENT",
-      "why_unfilled": "registry status PARTIAL"
-    },
-    {
-      "agent_id": "AG-18",
-      "name": "Learning Agent",
-      "registry_status": "PARTIAL",
-      "lifecycle_state": "LIVE_OBSERVED",
-      "why_unfilled": "registry status PARTIAL"
-    },
-    {
-      "agent_id": "AG-19",
-      "name": "Self-Diagnostic",
-      "registry_status": "PARTIAL",
-      "lifecycle_state": "LIVE_OBSERVED",
       "why_unfilled": "registry status PARTIAL"
     },
     {
@@ -167,20 +153,6 @@
       "why_unfilled": "registry status PLANNED"
     },
     {
-      "agent_id": "AG-33",
-      "name": "Negar (News Intelligence Division Lead)",
-      "registry_status": "PLANNED",
-      "lifecycle_state": "ARTIFACT_PRESENT",
-      "why_unfilled": "registry status PLANNED"
-    },
-    {
-      "agent_id": "AG-34",
-      "name": "Bijan (Chart Intelligence)",
-      "registry_status": "PLANNED",
-      "lifecycle_state": "ARTIFACT_PRESENT",
-      "why_unfilled": "registry status PLANNED"
-    },
-    {
       "agent_id": "AG-35",
       "name": "Shida (GitHub Intelligence)",
       "registry_status": "PLANNED",
@@ -216,13 +188,6 @@
       "why_unfilled": "registry status PLANNED"
     },
     {
-      "agent_id": "AG-40",
-      "name": "Homan (Failure Analysis & Post-trade Learning)",
-      "registry_status": "PLANNED",
-      "lifecycle_state": "ARTIFACT_PRESENT",
-      "why_unfilled": "registry status PLANNED"
-    },
-    {
       "agent_id": "AG-41",
       "name": "Farzaneh (Dean of AHOS University)",
       "registry_status": "PLANNED",
@@ -246,8 +211,8 @@
   ],
   "lifecycle_counts": {
     "DESIGNED": 1,
-    "LIVE_OBSERVED": 15,
-    "ARTIFACT_PRESENT": 27
+    "LIVE_OBSERVED": 18,
+    "ARTIFACT_PRESENT": 24
   },
   "agents": [
     {
@@ -440,24 +405,24 @@
     {
       "agent_id": "AG-18",
       "name": "Learning Agent",
-      "registry_status": "PARTIAL",
+      "registry_status": "EXISTS",
       "lifecycle_state": "LIVE_OBSERVED",
       "artifact": "reports/grok/M49/lessons_snapshot.json",
       "artifact_present": true,
       "implemented": true,
       "live_flag": true,
-      "seat_filled": false
+      "seat_filled": true
     },
     {
       "agent_id": "AG-19",
       "name": "Self-Diagnostic",
-      "registry_status": "PARTIAL",
+      "registry_status": "EXISTS",
       "lifecycle_state": "LIVE_OBSERVED",
       "artifact": "reports/grok/M46/self_debug_receipt.json",
       "artifact_present": true,
       "implemented": true,
       "live_flag": true,
-      "seat_filled": false
+      "seat_filled": true
     },
     {
       "agent_id": "AG-20",
@@ -605,24 +570,24 @@
     {
       "agent_id": "AG-33",
       "name": "Negar (News Intelligence Division Lead)",
-      "registry_status": "PLANNED",
-      "lifecycle_state": "ARTIFACT_PRESENT",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
       "artifact": "reports/grok/M18/newsroom_snapshot.json",
       "artifact_present": true,
-      "implemented": false,
-      "live_flag": false,
-      "seat_filled": false
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
     },
     {
       "agent_id": "AG-34",
       "name": "Bijan (Chart Intelligence)",
-      "registry_status": "PLANNED",
-      "lifecycle_state": "ARTIFACT_PRESENT",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
       "artifact": "reports/grok/M60_F/signal_fusion_snapshot.json",
       "artifact_present": true,
-      "implemented": false,
-      "live_flag": false,
-      "seat_filled": false
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
     },
     {
       "agent_id": "AG-35",
@@ -682,13 +647,13 @@
     {
       "agent_id": "AG-40",
       "name": "Homan (Failure Analysis & Post-trade Learning)",
-      "registry_status": "PLANNED",
-      "lifecycle_state": "ARTIFACT_PRESENT",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
       "artifact": "reports/grok/M29/crisis_replay_receipt.json",
       "artifact_present": true,
-      "implemented": false,
-      "live_flag": false,
-      "seat_filled": false
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
     },
     {
       "agent_id": "AG-41",

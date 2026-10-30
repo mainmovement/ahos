@@ -1,0 +1,639 @@
+{
+ "schema": "ahos.owner_gap_census.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T06:13:32Z",
+ "full_gap_register_file": false,
+ "production_register": "AHOS_GAP_REGISTER.md",
+ "gaps": [
+  {
+   "id": "M-GAP-001",
+   "register_status": "CLOSED",
+   "kind": "REAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-002",
+   "register_status": "CLOSED",
+   "kind": "REAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-003",
+   "register_status": "OPEN",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-004",
+   "register_status": "OPEN",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-005",
+   "register_status": "OPEN",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-006",
+   "register_status": "MITIGATED",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-007",
+   "register_status": "MITIGATED",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-008",
+   "register_status": "OPEN",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-014",
+   "register_status": "CLOSED",
+   "kind": "REAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-015",
+   "register_status": "CLOSED",
+   "kind": "REAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-016",
+   "register_status": "CLOSED",
+   "kind": "REAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-013",
+   "register_status": "CLOSED",
+   "kind": "REAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-009",
+   "register_status": "OPEN",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-010",
+   "register_status": "MITIGATED",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-011",
+   "register_status": "OPEN",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-012",
+   "register_status": "OPTIONAL",
+   "kind": "PARTIAL",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-003 (168h soak)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-004 (CI)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-005 (SQLite WAL)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-006 (drift vs NTP)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-007 (live egress)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-008 (calibration measurement)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-009 (live Telegram)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-010 (7-night backups)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-011 (CMC + launchpads)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-012 (off-box watchdog)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-017 (Telegram tests contradicted W57 lockdown)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-018 (undocumented AHOS_GATEWAY_URL / alert env keys)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-019 (n8n guide claimed Telegram → independent NLU)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-020 (exchange-key env veto dead-check)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-021 (owner actions scattered)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-022 (stale SECURITY/MISSING/STRATEGIC docs)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-023 (Gecko `pool_created_at` never reached SQLite `pair_created_ts`)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-024 (Telegram HTML `escapeHtml` / `format_pump_alert` no-op)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-025 (Python JSON vs TS/Postgres opportunity keys often unmatched → UNAVAILABLE)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-026 (Command Center did not fetch `/api/alerts`)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-030 (10 leaf modules never imported — dead-code candidates)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-031 (4 genuine unreferenced entrypoints)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-032 (`paper_trading/cycle.py` orphan status)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-027 (four agent taxonomies overlap with no explicit mapping; \"agent 01\" means four unrelated things)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-028 (no Slice-1 agent can execute — mechanical, not a wiring gap)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-029 (`ColumnarKnowledgeStore` leaked one sqlite connection per call)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-030 (10 leaf modules never imported — dead-code candidates)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-033 (locale-encoding defect makes the local soak suite uncollectable on the operator's own Windows host)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-034 (soak pre-registration records the wrong verdict for the full suite)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-035 (the production daemon consults no control plane at all; two candidate planes are test-only)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-036 (recorder could not launch the documented relative-path command on Windows)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-037 (`validate_imports.py` fails on every warm host, so the soak pre-registration gate cannot pass)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-031 (role-H substrate `engine/oss_audit` is an unreferenced orphan)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-035 (three control-plane surfaces, two test-only, the daemon consults none)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-038 (the doctrine-registry enforcement glob does not cover `MASTER_DIRECTIVE_W43.md`)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-039 (`PROJECT_STATE.md` is stale despite claiming to be always-current)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-038 (`MASTER_DIRECTIVE_W43.md` is not covered by doctrine-registry enforcement)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-037 (`validate_imports.py` FAIL is 100% gitignored build artifacts)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-039 (`PROJECT_STATE.md` stale)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-040 (the doctrine mandates logging wave-opening verification facts; nothing did)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-041 (`scripts/month1_failure_matrix.py` invoked the POSIX `grep` binary, which does not exist on a default Windows install)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-042 (`test_operation_report_dependency_hashes_are_real` failed on a clean tree)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  },
+  {
+   "id": "M-GAP-043 (`test_no_fake_calibration_on_this_host` failed)",
+   "register_status": "UNKNOWN",
+   "kind": "MISSING",
+   "evidence": "AHOS_GAP_REGISTER.md"
+  }
+ ],
+ "open_or_mitigated_ids": [
+  "M-GAP-003",
+  "M-GAP-004",
+  "M-GAP-005",
+  "M-GAP-006",
+  "M-GAP-007",
+  "M-GAP-008",
+  "M-GAP-009",
+  "M-GAP-010",
+  "M-GAP-011",
+  "M-GAP-012",
+  "M-GAP-003 (168h soak)",
+  "M-GAP-004 (CI)",
+  "M-GAP-005 (SQLite WAL)",
+  "M-GAP-006 (drift vs NTP)",
+  "M-GAP-007 (live egress)",
+  "M-GAP-008 (calibration measurement)",
+  "M-GAP-009 (live Telegram)",
+  "M-GAP-010 (7-night backups)",
+  "M-GAP-011 (CMC + launchpads)",
+  "M-GAP-012 (off-box watchdog)",
+  "M-GAP-017 (Telegram tests contradicted W57 lockdown)",
+  "M-GAP-018 (undocumented AHOS_GATEWAY_URL / alert env keys)",
+  "M-GAP-019 (n8n guide claimed Telegram → independent NLU)",
+  "M-GAP-020 (exchange-key env veto dead-check)",
+  "M-GAP-021 (owner actions scattered)",
+  "M-GAP-022 (stale SECURITY/MISSING/STRATEGIC docs)",
+  "M-GAP-023 (Gecko `pool_created_at` never reached SQLite `pair_created_ts`)",
+  "M-GAP-024 (Telegram HTML `escapeHtml` / `format_pump_alert` no-op)",
+  "M-GAP-025 (Python JSON vs TS/Postgres opportunity keys often unmatched → UNAVAILABLE)",
+  "M-GAP-026 (Command Center did not fetch `/api/alerts`)",
+  "M-GAP-030 (10 leaf modules never imported — dead-code candidates)",
+  "M-GAP-031 (4 genuine unreferenced entrypoints)",
+  "M-GAP-032 (`paper_trading/cycle.py` orphan status)",
+  "M-GAP-027 (four agent taxonomies overlap with no explicit mapping; \"agent 01\" means four unrelated things)",
+  "M-GAP-028 (no Slice-1 agent can execute — mechanical, not a wiring gap)",
+  "M-GAP-029 (`ColumnarKnowledgeStore` leaked one sqlite connection per call)",
+  "M-GAP-030 (10 leaf modules never imported — dead-code candidates)",
+  "M-GAP-033 (locale-encoding defect makes the local soak suite uncollectable on the operator's own Windows host)",
+  "M-GAP-034 (soak pre-registration records the wrong verdict for the full suite)",
+  "M-GAP-035 (the production daemon consults no control plane at all; two candidate planes are test-only)",
+  "M-GAP-036 (recorder could not launch the documented relative-path command on Windows)",
+  "M-GAP-037 (`validate_imports.py` fails on every warm host, so the soak pre-registration gate cannot pass)",
+  "M-GAP-031 (role-H substrate `engine/oss_audit` is an unreferenced orphan)",
+  "M-GAP-035 (three control-plane surfaces, two test-only, the daemon consults none)",
+  "M-GAP-038 (the doctrine-registry enforcement glob does not cover `MASTER_DIRECTIVE_W43.md`)",
+  "M-GAP-039 (`PROJECT_STATE.md` is stale despite claiming to be always-current)",
+  "M-GAP-038 (`MASTER_DIRECTIVE_W43.md` is not covered by doctrine-registry enforcement)",
+  "M-GAP-037 (`validate_imports.py` FAIL is 100% gitignored build artifacts)",
+  "M-GAP-039 (`PROJECT_STATE.md` stale)",
+  "M-GAP-040 (the doctrine mandates logging wave-opening verification facts; nothing did)",
+  "M-GAP-041 (`scripts/month1_failure_matrix.py` invoked the POSIX `grep` binary, which does not exist on a default Windows install)",
+  "M-GAP-042 (`test_operation_report_dependency_hashes_are_real` failed on a clean tree)",
+  "M-GAP-043 (`test_no_fake_calibration_on_this_host` failed)"
+ ],
+ "trace_counts": {
+  "REAL": 119,
+  "PARTIAL": 3,
+  "MISSING": 0,
+  "PLACEHOLDER": 0
+ },
+ "vision_p0_p1": [
+  {
+   "capability": "Core intelligence / One Brain",
+   "priority": "P0",
+   "operational": "PART",
+   "kind": "PARTIAL",
+   "gap": "TS dual-stack remains",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Token discovery",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "Windows live probe",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Opportunity intelligence",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "calibration data",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Evidence system",
+   "priority": "P0",
+   "operational": "PART",
+   "kind": "PARTIAL",
+   "gap": "live accrual",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Identity resolution",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "W2 not main; W4 unmerged",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Security / scam / honeypot",
+   "priority": "P0",
+   "operational": "PART",
+   "kind": "PARTIAL",
+   "gap": "live E2E",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Market intelligence",
+   "priority": "P1",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "live data",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "News intelligence",
+   "priority": "P1",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "live feeds",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "On-chain intelligence",
+   "priority": "P1",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "—",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Liquidity / whale / demand",
+   "priority": "P1",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "—",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Explainable scoring",
+   "priority": "P1",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "W2 branch",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Calibration",
+   "priority": "P1",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "owner data",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Paper trading",
+   "priority": "P0",
+   "operational": "PART",
+   "kind": "PARTIAL",
+   "gap": "—",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "User position tracking",
+   "priority": "P1",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "live UX",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Telegram (Sun Sniper)",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "token + gateway URL",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Alerts (loud)",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "live",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Web dashboard",
+   "priority": "P0",
+   "operational": "PART",
+   "kind": "PARTIAL",
+   "gap": "not operator-verified",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "AI conversational UI",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "E2E quality",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Persian-first UX",
+   "priority": "P0",
+   "operational": "PART",
+   "kind": "PARTIAL",
+   "gap": "full product copy",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "System status / observability",
+   "priority": "P1",
+   "operational": "PART",
+   "kind": "PARTIAL",
+   "gap": "168h M-GAP-003",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Provider architecture",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "Windows probe",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Knowledge / memory",
+   "priority": "P1",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "not UI-wired",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Security ops",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "rotate token",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Reliability",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "owner run",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Windows / local-first",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "Windows G1-G10",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  },
+  {
+   "capability": "Launch / deployment",
+   "priority": "P0",
+   "operational": "NO",
+   "kind": "MISSING",
+   "gap": "all G3-G6",
+   "evidence": "docs/supervision/AHOS_VISION_ALIGNMENT_AUDIT.md"
+  }
+ ],
+ "vision_p0_p1_operational_real": [],
+ "vision_p0_p1_working_pct": 0.0,
+ "closed_this_mission": [],
+ "not_closed_reason": "P0 and P1 rows in the owner audit are not operationally IMPL. M-GAP-003, M-GAP-004, M-GAP-005, M-GAP-008, M-GAP-009 and the 72h soak still need time, a credential, or an external permission. This census does not relabel them.",
+ "decides": false
+}

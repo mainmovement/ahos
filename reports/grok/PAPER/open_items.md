@@ -30,7 +30,7 @@ Closed in the register and left closed: M-GAP-001, 002, 013, 014, 015, 016, 017,
 
 ## Left open by this mission
 
-- 32 agent seats remain unfilled, including AG-01 MISSING. Only AG-18 and AG-19 were filled, because those two received a module and a test.
+- 29 agent seats remain unfilled, including AG-01 MISSING. Filled seats are 14 of 43. The three added on 2026-10-30 are AG-40, AG-34, and AG-33, each with a module that already runs and still forbids PROMOTE.
 - SSRN is `ABSENT_NO_FEED`. No paper was invented.
 - The three weekly research ideas have a null predicted score on every desk. They stay shadow.
 - The 2026-10-30 diagnosis (bad timing, shadow difference 0.0132 USD) was not applied.

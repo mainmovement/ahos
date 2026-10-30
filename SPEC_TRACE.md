@@ -273,3 +273,7 @@ Closes become university cases. Causes add `BAD_DATA` and `NEWS_TRAP`. Weekly ex
 ## Research institute (2026-10-30)
 
 Two candidates were scored on the closed paper book. KL-DRO: DSR 0.0317, PBO 0.1429, hit rate 0.6023, `ARCHIVE` `FAILED_OOS`. Latent world model (our exponential average, not an upstream download): DSR 0.376, PBO 0.9143, hit rate 0.6477, `ARCHIVE` `FAILED_OOS`. Both used 88 steps and 36 out-of-sample returns. The ten family pairs fail the same gate (winner news+research, DSR 0.0005, PBO 0.4). Regime cells: 61, proposed size changes: 0. Gemini status READY, advisory weight 0, sentence ungrounded. Self-repair was not applied. Hardware tier T8 at 7.93 GB. Gap IDs closed: **none**. M13, M31, and M36 stay PARTIAL.
+
+## Owner readiness (2026-10-30)
+
+There is no file named `FULL_GAP_REGISTER`. `reports/grok/PAPER/owner_gap_table.json` is the census. Vision-audit P0/P1 operational IMPL: **0 of 26**. SPEC_TRACE counts: **119 REAL**, **3 PARTIAL**, **0 MISSING**. Those three partial rows are still M13, M31, and M36. Mehrdad's page is `reports/grok/PAPER/mehrdad_status.html`. Readiness **16.7** percent. Live switch **false**. Equity **98.9235**. Open paper positions **15**. Filled seats **14 of 43** (AG-33, AG-34, AG-40 added). Soak PID **7988**, window start **2026-10-30T06:02:43Z**, elapsed **0.18** hours at **2026-10-30T06:13:32Z**, status **NOT_MET**, current window **IN_PROGRESS**. Path config `config/ahos_root.json`. Gap IDs closed: **none**.
