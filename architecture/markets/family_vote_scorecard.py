@@ -170,45 +170,61 @@ def _rate(hits: int, misses: int) -> float | None:
     return round(hits / resolved, 4)
 
 
+def _horizon_cell(items: list[dict[str, Any]], tape: dict[str, list[tuple[datetime, float]]], now: datetime) -> dict[str, Any]:
+    cell: dict[str, Any] = {}
+    for label, horizon_s, slack_s in HORIZONS:
+        hits = misses = ties = pending = no_print = 0
+        for item in _nonoverlapping(items, horizon_s):
+            if now < item["ts"] + timedelta(seconds=horizon_s):
+                pending += 1
+                continue
+            found = _future_price(tape.get(item["symbol"]) or [], item["ts"], horizon_s, slack_s)
+            if found is None:
+                no_print += 1
+                continue
+            future, _when = found
+            ret = (future - item["price"]) / item["price"]
+            if ret == 0:
+                ties += 1
+                continue
+            up = ret > 0
+            hit = (item["sign"] == "LONG" and up) or (item["sign"] == "SHORT" and not up)
+            if hit:
+                hits += 1
+            else:
+                misses += 1
+        cell[label] = {
+            "hits": hits,
+            "misses": misses,
+            "ties": ties,
+            "pending": pending,
+            "no_print_in_window": no_print,
+            "hit_rate": _rate(hits, misses),
+        }
+    return cell
+
+
 def build_weekly_family_scorecard(root: Path, *, now: datetime | None = None) -> dict[str, Any]:
     now = now or _utc_now()
     week = _iso_week(now)
     rows = [row for row in _load_rows(root) if _iso_week(_parse(str(row.get("ts") or "")) or now) == week]
     tape = _tape(_load_rows(root))
     votes = _explode(rows)
-    families: dict[str, Any] = {}
-    for family in list(INDEPENDENT_VOTE_FAMILIES) + list(SHADOW_VOTE_FAMILIES):
-        cell: dict[str, Any] = {}
-        for label, horizon_s, slack_s in HORIZONS:
-            hits = misses = ties = pending = no_print = 0
-            for item in _nonoverlapping([v for v in votes if v["family"] == family], horizon_s):
-                if now < item["ts"] + timedelta(seconds=horizon_s):
-                    pending += 1
-                    continue
-                found = _future_price(tape.get(item["symbol"]) or [], item["ts"], horizon_s, slack_s)
-                if found is None:
-                    no_print += 1
-                    continue
-                future, _when = found
-                ret = (future - item["price"]) / item["price"]
-                if ret == 0:
-                    ties += 1
-                    continue
-                up = ret > 0
-                hit = (item["sign"] == "LONG" and up) or (item["sign"] == "SHORT" and not up)
-                if hit:
-                    hits += 1
-                else:
-                    misses += 1
-            cell[label] = {
-                "hits": hits,
-                "misses": misses,
-                "ties": ties,
-                "pending": pending,
-                "no_print_in_window": no_print,
-                "hit_rate": _rate(hits, misses),
-            }
-        families[family] = cell
+    names = list(INDEPENDENT_VOTE_FAMILIES) + list(SHADOW_VOTE_FAMILIES)
+    families = {
+        family: _horizon_cell([v for v in votes if v["family"] == family], tape, now)
+        for family in names
+    }
+    by_desk: dict[str, Any] = {}
+    for desk in sorted({str(v["desk"]) for v in votes if v.get("desk")}):
+        by_desk[desk] = {
+            family: _horizon_cell(
+                [v for v in votes if v["family"] == family and v.get("desk") == desk],
+                tape,
+                now,
+            )
+            for family in names
+        }
     return {
         "schema": SCHEMA,
         "week": week,
@@ -221,6 +237,7 @@ def build_weekly_family_scorecard(root: Path, *, now: datetime | None = None) ->
             "24h": "first print in [24h, 25h]; overlapping votes inside 24h are not counted twice",
         },
         "families": families,
+        "by_desk": by_desk,
         "honesty": "Pending and missing prints are not hits. A zero move is a tie and is outside the rate. This scorecard does not change a weight.",
     }
 

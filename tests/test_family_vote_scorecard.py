@@ -36,6 +36,8 @@ def test_scorecard_is_counterfactual_and_does_not_change_weights(tmp_path):
     assert news["hits"] == 1
     assert news["misses"] == 1
     assert news["hit_rate"] == 0.5
+    assert doc["by_desk"]["CRYPTO"]["news"]["4h"]["hits"] == 1
+    assert doc["by_desk"]["CRYPTO"]["news"]["4h"]["misses"] == 1
     assert wicks["hits"] == 1
     assert wicks["misses"] == 1
     assert doc["families"]["macro_central_bank"]["4h"]["hits"] == 0

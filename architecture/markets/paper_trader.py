@@ -264,10 +264,11 @@ def load_weights(root: Path) -> dict[str, Any]:
 
 
 def university_lesson(root: Path, w: dict[str, Any], close_row: dict[str, Any], contributions: list[dict[str, Any]]) -> None:
-    """M49/M58-style lesson from a REAL closed paper trade -> bounded, versioned weight change."""
+    """Record the close. A hit rate proposes a shadow candidate and does not edit the live weight."""
     win = close_row["realized_pnl_usd"] > 0
     direction = 1 if close_row["side"] == "LONG" else -1
-    changed = {}
+    changed: dict[str, Any] = {}
+    shadow: list[dict[str, Any]] = []
     for c in contributions:
         if abs(c["score"]) < 0.1:
             continue
@@ -276,14 +277,20 @@ def university_lesson(root: Path, w: dict[str, Any], close_row: dict[str, Any], 
         st["n"] += 1
         st["hits"] += int(agreed == win)
         if st["n"] >= 10:
-            base = sb.DEFAULT_WEIGHTS.get(c["signal"], 0.05)
-            new = round(base * max(0.5, min(1.5, 0.5 + st["hits"] / st["n"])), 4)
-            if new != w["weights"].get(c["signal"]):
-                changed[c["signal"]] = [w["weights"].get(c["signal"]), new]
-                w["weights"][c["signal"]] = new
-    if changed:
-        w["history"].append({"version": w["version"], "weights": dict(w["weights"]), "at": close_row["closed_at"]})
-        w["version"] += 1
+            base = float(w["weights"].get(c["signal"], sb.DEFAULT_WEIGHTS.get(c["signal"], 0.0)))
+            candidate = round(base * max(0.5, min(1.5, 0.5 + st["hits"] / st["n"])), 4)
+            shadow.append({
+                "signal": c["signal"],
+                "current_weight": base,
+                "candidate_weight": candidate,
+                "gate": "SHADOW",
+                "red_team": None,
+                "dsr": None,
+                "pbo": None,
+                "reason": "hit_rate_without_DSR_PBO",
+                "applied_to_live_weights": False,
+                "closed_at": close_row.get("closed_at"),
+            })
     m49_id = None
     try:  # M49: the one lessons ledger (append-only hash chain, UNVERIFIED until reviewer 16)
         from architecture.learning.lessons_ledger import LessonsLedger
@@ -322,7 +329,16 @@ def university_lesson(root: Path, w: dict[str, Any], close_row: dict[str, Any], 
     _append(root, LESSONS_REL, {"m49_lesson_id": m49_id, "ts": close_row["closed_at"], "symbol": close_row["symbol"], "win": win,
                                 "mistake_case": mistake,
                                 "pnl_usd": close_row["realized_pnl_usd"], "signals": contributions,
-                                "weights_changed": changed, "weights_version": w["version"], "paper_only": True})
+                                "weights_changed": changed, "weights_version": w["version"], "paper_only": True,
+                                "shadow_weight_proposals": shadow})
+    try:
+        from architecture.university.learning_loop import PROPOSALS_REL, append_university_case
+
+        append_university_case(root, close_row)
+        for item in shadow:
+            _append(root, PROPOSALS_REL, item)
+    except Exception:
+        pass
     _save_json(root / WEIGHTS_REL, w)
 
 

@@ -373,3 +373,11 @@
 **Choice:** Binance 24h tickers, OKX spot tickers, and CoinGecko's top 250 answered. A sign is recorded only when at least two of those 24h breadths are on the same side of one half. One venue, or a split, stays unscored. 1h and 7d are logged from CoinGecko and do not set the sign by themselves. DexScreener returned HTTP 403, so it is not called for this family. The all-network GeckoTerminal trending list timed out. Ethereum trending pools answered and stay in PB_TOKEN discovery, still behind GoPlus, honeypot.is, and the LP-lock veto. Binance and OKX funding and open-interest change are logged for BTC, ETH, and SOL and do not change the existing funding weight. The family is on the scorecard at composite weight 0. It does not count toward the two-family entry gate. Weight stays 0 until PASS_STATS and SURVIVED_RED_TEAM, and the cycle forces the weight back to 0.
 
 **Reason:** A shadow family that counted as an agreeing vote would change who gets opened. The blocked feeds are not given invented prices.
+
+## 2026-10-30: A hit rate does not edit a live weight
+
+**Question:** When a closed paper trade has ten outcomes for a signal, should the university lesson still rewrite that signal's live weight?
+
+**Choice:** No. The close writes a university case (win or loss, one cause, families that voted with the profitable direction and families that voted against it). The weekly scorecard's 4h and 24h hit rates, including a per-desk split, can propose a candidate multiplier. The live weight changes only when that proposal has PASS_STATS, SURVIVED_RED_TEAM, deflated Sharpe above 0.95, and PBO under 0.5 on the supplied out-of-sample paths. One path, or a missing DSR or PBO, stays shadow. The old n>=10 rewrite is removed.
+
+**Reason:** A hit rate is not an out-of-sample deflated Sharpe. Letting it move a live weight would change later paper size without the promotion gate.

@@ -503,3 +503,16 @@ The family is advisory. Two public 24h breadths must agree before a sign is scor
 | R2 Data | APPROVE | A single venue and a split both stay unscored. |
 | R4 Council | APPROVE | Weight is forced to 0. Discovery vetoes are unchanged. |
 | Meta-Critic | APPROVE | This is a scorecard row, not an entry authority. |
+
+## Learning loop (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_learning_loop.py tests/test_family_vote_scorecard.py tests/test_paper_trade_gates.py -q` → **19 passed**.
+
+A close writes a university case and, after ten outcomes, a shadow candidate. It does not rewrite `signal_weights`. A proposal applies only with PASS_STATS, SURVIVED_RED_TEAM, DSR above 0.95, and PBO under 0.5. A forged PASS_STATS with DSR 0.5 does not apply. One trial path stays shadow. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The hit-rate multiplier is not applied. DSR and PBO are required and are not invented when the sample is short. |
+| R2 Data | APPROVE | Fee drag is the sign flip from fees. Anything else unmatched stays UNKNOWN. |
+| R4 Council | APPROVE | The live weight file is unchanged by ten hits. |
+| Meta-Critic | APPROVE | The case records who was right. It does not open a trade. |
