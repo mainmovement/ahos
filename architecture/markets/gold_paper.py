@@ -746,6 +746,18 @@ def run_gold_paper_cycle(
 
     track = _track_from_ledger(ledger)
     result = track.run_cycle(witness, now=now, ledger=ledger)
+    try:
+        from pathlib import Path
+
+        from architecture.markets.shadow_cycle import shadow_tick
+
+        shadow_tick(
+            Path(__file__).resolve().parents[2],
+            cycle_id=result.cycle,
+            source="soak",
+        )
+    except Exception:
+        pass
     return result, witness
 
 

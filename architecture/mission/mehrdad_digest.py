@@ -152,6 +152,12 @@ _FA_FIX = {
 }
 
 
+def _running_counts(root: Path) -> str:
+    from architecture.markets.shadow_cycle import running_counts_fa
+
+    return running_counts_fa(root)
+
+
 def _helping(root: Path) -> str:
     """Which shadow fix is ahead on fresh closes. No Latin identifiers."""
     path = Path(root) / "reports" / "grok" / "PAPER" / "mega12_shadow.json"
@@ -252,6 +258,7 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
         soak_line,
         "چند روش تازه در حال آزمایش‌اند و هنوز به معاملهٔ واقعی نرسیده‌اند.",
         _helping(root),
+        _running_counts(root),
         "اگر مدل پاسخ‌گو قطع باشد، وضعیت از پرونده خوانده می‌شود و معامله‌ای باز نمی‌شود.",
         "",
         f"مشکل: {problem}",

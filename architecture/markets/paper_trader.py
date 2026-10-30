@@ -1259,4 +1259,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         run_unified_cycle(root)
     except Exception:
         pass
+    try:
+        from architecture.markets.shadow_cycle import shadow_tick
+
+        shadow_tick(root, cycle_id=(status.get("last_cycle") or {}).get("closes"), source="paper_trader")
+    except Exception:
+        pass
     return status

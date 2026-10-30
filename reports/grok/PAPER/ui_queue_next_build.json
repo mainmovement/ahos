@@ -54,6 +54,10 @@
   {
    "id": "mega12_fixes",
    "change": "Show news cooldown, gold exits, capital tilt, and the entry rule as shadow. Do not paint a fix as helping until a fresh close exists."
+  },
+  {
+   "id": "mega13_running_counts",
+   "change": "Show live, shadow-live, and dead counts from the running soak and trader. Do not paint a module live unless that process logged it."
   }
  ],
  "decides": false

@@ -1,0 +1,26 @@
+{
+  "schema": "ahos.mega13_checklist.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T22:50:00Z",
+  "promoted": false,
+  "applied_to_live": false,
+  "running": {
+    "soak_pid": 14260,
+    "soak_last_cycle": 1452,
+    "soak_last_ts": "2026-10-30T22:36:08Z",
+    "soak_cycles_last_hour": 4,
+    "trader_pid": 13020,
+    "trader_updated_at": "2026-10-30T22:43:39Z",
+    "bus_rows_last_hour": 504,
+    "bus_senders": ["AG-09", "AG-33"],
+    "shadow_tick_from_those_pids": 0
+  },
+  "items": [
+    {"id": "1", "item": "audit last hour", "state": "DONE", "evidence": "soak cycle 1452 and bus rows"},
+    {"id": "2", "item": "wire dead modules into the cycle", "state": "PARTIAL", "evidence": "architecture/markets/shadow_cycle.py"},
+    {"id": "3", "item": "26 strategy signals", "state": "PARTIAL", "evidence": "manual tick pid 9432"},
+    {"id": "4", "item": "MEGA12 counters each cycle", "state": "PARTIAL", "evidence": "fresh close 1, not logged by pid 13020"},
+    {"id": "5", "item": "mistake to judge loop", "state": "PARTIAL", "evidence": "manual tick judge NO_PROMOTION"},
+    {"id": "6", "item": "Persian counts in the digest", "state": "PARTIAL", "evidence": "architecture/mission/mehrdad_digest.py"}
+  ]
+}

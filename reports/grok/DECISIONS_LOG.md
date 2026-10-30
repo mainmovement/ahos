@@ -589,3 +589,11 @@
 **Choice:** No. `docs/prereg/MEGA12.yaml` was committed as `b9535cb` before the score. Its sha256 is `82e5e1b676cc30476a648ce9f43a655a51b38aa5170bd4c48116d6ae0020ff32`. A close counts only when it was opened and closed after 2026-10-30T19:10:04Z. That fresh count is 0, so loss avoided, the gold pick, the tilt weights, and the dependency share are empty. A lookback tag found 7 stored entries inside 60 minutes of a high-impact event and 0.0303 dollars of losses on those skips. That tag is not the test. Gold rows have no stored path for an ATR trail, a time-stop price, or a one-R partial, so those variants are unevaluable. Live floors stay 2 families, 0.05, and 2× fees. Promoted 0. The red team did not survive. Gap IDs closed: none.
 
 **Reason:** A tag on an old close is not a fresh sample, and a missing gold path is not a stop.
+
+## 2026-10-30: MEGA13 does not restart the running soak or trader
+
+**Question:** Should soak 14260 and trader 13020 be restarted so the new shadow tick loads into the processes that are already cycling?
+
+**Choice:** No. Those processes loaded their code at 18:17 and 18:20 local. In the last hour the soak logged cycles through 1452 at 2026-10-30T22:36:08Z, and the bus shows 504 messages from AG-09 and AG-33 only. The shadow tick is now on the cycle path in the files, and a manual process 9432 logged one pass. Neither running pid has logged that pass. One gold close was opened at 2026-10-30T19:21:18Z and closed at 2026-10-30T22:34:31Z. That is one fresh close, under 30. The judge on the manual pass is NO_PROMOTION. Promoted 0. Gap IDs closed: none.
+
+**Reason:** A restart would break the soak clock the last registration left closed until 2026-11-01T00:45:31Z, and a manual pid is not the running trader.
