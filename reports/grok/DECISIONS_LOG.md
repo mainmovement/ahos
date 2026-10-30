@@ -309,3 +309,11 @@
 **Choice:** Crypto spot fills on Binance public REST when that print agrees with OKX public REST. OKX is the witness. A disagreement leaves the fill on Yahoo or CoinGecko. Swap marks stay on OKX public REST, with Binance as the witness. QQQ, SPY, and NVDA use Alpaca's free IEX feed only when a key is already present and the IEX print agrees with Yahoo. SPX and NDX stay on Yahoo, because IEX does not print those indexes. Forex, gold, and oil use the OANDA practice host only when a practice token is present and it agrees with Yahoo. EU and Asia stay on Yahoo plus the existing second witness. Each quote records source, role, and latency. No paid feed. The cycle transport is REST.
 
 **Reason:** The environment and the operator env file have no Alpaca key and no OANDA token, so those desks stay on Yahoo and the quote says `ABSENT_NO_KEY`. A websocket client is not pinned. Public REST is the same keyless book.
+
+## 2026-10-30: Swap books share spot whale and research families
+
+**Question:** Should BTC, ETH, and SOL swaps score the whale and research families, and what whale source should Asia use?
+
+**Choice:** The swap desk calls the same public whale feeds as spot, on the underlying coin: large trades, exchange netflow, and the BTC mempool sample. Research uses the same `CRYPTO_UNIVERSE_DESK` pipeline, still at composite weight 0 unless PASS_STATS and SURVIVED_RED_TEAM. Asia whales stay `ABSENT_BY_DESIGN`. No free public positioning file for Nikkei or Hang Seng is wired, and none was invented.
+
+**Reason:** The swap book was leaving those families unscored because the symbol was `BTC-SWAP` and the desk was not the spot desk. The feeds are keyed by BTC, ETH, and SOL. Asia has no equivalent free file.

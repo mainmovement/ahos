@@ -432,3 +432,16 @@ Crypto spot uses Binance and OKX public REST. No key. When the two prices agree,
 | R2 Data | APPROVE | Missing keys stay on Yahoo. An index is not replaced by an ETF print. |
 | R7 SRE | APPROVE | The request header is not a quote field. Lane A not edited. No paid URL. |
 | Meta-Critic | APPROVE | REST is the public book. A missing key is recorded. It is not a silent Yahoo rename. |
+
+## Swap families and Asia whales (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_cftc_cot_and_coverage.py tests/test_research_desk_signal.py tests/test_paper_trade_gates.py -q` → **22 passed**.
+
+`BTC-SWAP`, `ETH-SWAP`, and `SOL-SWAP` call `large_trades`, `exchange_netflow`, and `whale_mempool` on BTC, ETH, and SOL. Research for `CRYPTO_FUTURES` reads `CRYPTO_UNIVERSE_DESK`. Weight stays 0 unless the batch path is PASS_STATS and SURVIVED_RED_TEAM. Asia whales are `ABSENT_BY_DESIGN` with no source. Nikkei and Hang Seng have no verified free positioning file in this tree. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The swap research row is advisory. It does not raise a weight. |
+| R2 Data | APPROVE | The whale call uses the spot coin. Asia is not given a fabricated flow. |
+| R4 Council | APPROVE | An absent family is still not an agreement. |
+| Meta-Critic | APPROVE | Sharing the spot feed is the same public file. It is not a new authority. |

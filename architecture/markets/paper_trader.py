@@ -581,6 +581,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 fund_hist = state["brain"].setdefault("funding_history", {}).setdefault(sym, [])
                 sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym, fund_hist), sb.stablecoin_flow(state["brain"]),
                          sb.exchange_netflow(sym), sb.whale_mempool(sym), sb.stablecoin_impulse(sym)]
+            elif desk == "CRYPTO_FUTURES":
+                from architecture.markets.family_coverage import whale_underlying
+
+                base_sym = whale_underlying(desk, sym)
+                if base_sym:
+                    sigs += [sb.large_trades(base_sym), sb.exchange_netflow(base_sym), sb.whale_mempool(base_sym)]
             elif desk in ("OIL", "GOLD"):
                 from architecture.markets.cftc_cot import cftc_cot_signal
 

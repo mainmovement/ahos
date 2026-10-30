@@ -15,6 +15,7 @@ from architecture.learning.strategy_switch import RED_REL
 
 DESK_TO_PIPELINE = {
     "CRYPTO": "CRYPTO_UNIVERSE_DESK",
+    "CRYPTO_FUTURES": "CRYPTO_UNIVERSE_DESK",
     "PB_TOKEN": "CRYPTO_UNIVERSE_DESK",
     "GOLD": "GOLD_DESK",
     "OIL": "OIL_DESK",

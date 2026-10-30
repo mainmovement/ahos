@@ -209,3 +209,7 @@ Safety snapshot refreshes at 5 hours via GoPlus and honeypot.is. The live cycle 
 ## Free native prices (2026-10-30)
 
 Crypto spot: Binance public REST fill when it agrees with OKX public REST. Swaps: OKX mark, Binance witness, latency on the quote. US IEX names use Alpaca only with a key and only when they agree with Yahoo. SPX and NDX stay on Yahoo. Forex, gold, and oil use OANDA practice only with a token. No key is configured, so those desks stay on Yahoo with `ABSENT_NO_KEY`. EU and Asia stay on Yahoo plus the second witness. Gates unchanged. Gap IDs closed: **none**.
+
+## Swap families (2026-10-30)
+
+`CRYPTO_FUTURES` uses the spot whale feeds on BTC, ETH, and SOL, and the crypto research pipeline at weight 0 unless PASS_STATS and SURVIVED_RED_TEAM. Asia whales are `ABSENT_BY_DESIGN`. No free Nikkei or Hang Seng positioning file is wired. Gates unchanged. Gap IDs closed: **none**.

@@ -15,6 +15,20 @@ from architecture.markets.paper_trade_gates import (
 )
 from architecture.markets.research_desk_signal import DESK_TO_PIPELINE
 
+WHALE_UNDERLYINGS = frozenset({"BTC", "ETH", "SOL"})
+
+
+def whale_underlying(desk: str, sym: str) -> str | None:
+    """Public whale feeds are keyed by the spot coin. Swaps use that same coin."""
+    if desk == "CRYPTO" and sym in WHALE_UNDERLYINGS:
+        return sym
+    if desk == "CRYPTO_FUTURES" and sym.endswith("-SWAP"):
+        base = sym.split("-", 1)[0]
+        if base in WHALE_UNDERLYINGS:
+            return base
+    return None
+
+
 _IN_CYCLE = {
     "news": "news_signal when two sources corroborate",
     "macro_central_bank": "macro_pressure and macro_event",
@@ -48,12 +62,21 @@ def _row(desk: str, family: str, members: tuple[str, ...]) -> dict[str, Any]:
             "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
             "source": "existing shadow-registry and strategy-switch predicted_score",
         }
-    if family == "whales" and desk == "CRYPTO":
+    if family == "whales" and desk in ("CRYPTO", "CRYPTO_FUTURES"):
         return {
             **base,
             "status": "LIVE_FEEDS",
             "composite_weight": "exchange_netflow and whale_mempool are 0; large_trades keeps its existing weight",
-            "source": "large_trades, exchange_netflow, whale_mempool",
+            "source": "large_trades, exchange_netflow, whale_mempool on BTC, ETH, and SOL",
+            "underlying": "spot coin" if desk == "CRYPTO_FUTURES" else "same symbol",
+        }
+    if family == "whales" and desk == "ASIA_EQUITIES":
+        return {
+            **base,
+            "status": "ABSENT_BY_DESIGN",
+            "composite_weight": 0,
+            "source": None,
+            "reason": "no verified free public positioning file for Nikkei or Hang Seng",
         }
     if family == "whales":
         record = selection_record()

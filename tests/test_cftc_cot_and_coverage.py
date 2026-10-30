@@ -1,6 +1,7 @@
 import json
 import math
 from datetime import datetime, timezone
+from pathlib import Path
 
 from architecture.markets.cftc_cot import (
     GOLD_CODE,
@@ -178,6 +179,25 @@ def test_coverage_marks_codes_and_keeps_gates():
     assert rows[("PB_TOKEN", "whales")]["status"] == "ABSENT_BY_DESIGN"
     assert rows[("US_EQUITIES", "whales")]["status"] == "ABSENT_BY_DESIGN"
     assert rows[("CRYPTO", "whales")]["status"] == "LIVE_FEEDS"
+    assert rows[("CRYPTO_FUTURES", "whales")]["status"] == "LIVE_FEEDS"
+    assert rows[("CRYPTO_FUTURES", "whales")]["underlying"] == "spot coin"
+    assert rows[("CRYPTO_FUTURES", "research")]["status"] == "ADVISORY_VOTE"
+    assert rows[("ASIA_EQUITIES", "whales")]["status"] == "ABSENT_BY_DESIGN"
+    assert rows[("ASIA_EQUITIES", "whales")]["source"] is None
+    from architecture.markets.family_coverage import whale_underlying
+    from architecture.markets.research_desk_signal import DESK_TO_PIPELINE
+
+    assert whale_underlying("CRYPTO_FUTURES", "BTC-SWAP") == "BTC"
+    assert whale_underlying("CRYPTO_FUTURES", "ETH-SWAP") == "ETH"
+    assert whale_underlying("CRYPTO_FUTURES", "SOL-SWAP") == "SOL"
+    assert whale_underlying("ASIA_EQUITIES", "N225") is None
+    assert whale_underlying("ASIA_EQUITIES", "HSI") is None
+    assert DESK_TO_PIPELINE["CRYPTO_FUTURES"] == DESK_TO_PIPELINE["CRYPTO"]
+    from architecture.markets.research_desk_signal import research_overlay_for_desk
+
+    overlay = research_overlay_for_desk(Path("missing-root"), "CRYPTO_FUTURES")
+    assert overlay["evidence"]["pipeline_desk"] == "CRYPTO_UNIVERSE_DESK"
+    assert overlay["evidence"].get("reason") != "unknown_desk"
     blob = str(doc)
     assert "067411" not in blob
     assert "103.85" not in blob

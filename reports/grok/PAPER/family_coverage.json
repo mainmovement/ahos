@@ -37,7 +37,8 @@
       ],
       "status": "LIVE_FEEDS",
       "composite_weight": "exchange_netflow and whale_mempool are 0; large_trades keeps its existing weight",
-      "source": "large_trades, exchange_netflow, whale_mempool"
+      "source": "large_trades, exchange_netflow, whale_mempool on BTC, ETH, and SOL",
+      "underlying": "same symbol"
     },
     {
       "desk": "CRYPTO",
@@ -50,6 +51,58 @@
     },
     {
       "desk": "CRYPTO",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "CRYPTO_FUTURES",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "CRYPTO_FUTURES",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "CRYPTO_FUTURES",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "LIVE_FEEDS",
+      "composite_weight": "exchange_netflow and whale_mempool are 0; large_trades keeps its existing weight",
+      "source": "large_trades, exchange_netflow, whale_mempool on BTC, ETH, and SOL",
+      "underlying": "spot coin"
+    },
+    {
+      "desk": "CRYPTO_FUTURES",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "CRYPTO_FUTURES",
       "family": "research",
       "members": [
         "research_overlay"
@@ -367,7 +420,7 @@
       "status": "ABSENT_BY_DESIGN",
       "composite_weight": 0,
       "source": null,
-      "reason": "no verified free public positioning file is wired for this desk"
+      "reason": "no verified free public positioning file for Nikkei or Hang Seng"
     },
     {
       "desk": "ASIA_EQUITIES",
