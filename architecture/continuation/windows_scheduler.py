@@ -37,6 +37,13 @@ TASK_SPECS: list[dict[str, Any]] = [
         "schedule_type": "DAILY",
         "start_time": "05:30",
     },
+    {
+        "task_name": "AHOS_tech_scout_weekly",
+        "script": "scripts/scheduled/run_tech_scout_weekly.py",
+        "schedule_type": "WEEKLY",
+        "days": "SUN",
+        "start_time": "06:10",
+    },
 ]
 
 

@@ -34,5 +34,6 @@ Register-AhosTask -Name "AHOS_arxiv_scout_daily" -ScriptRel "scripts\scheduled\r
 Register-AhosTask -Name "AHOS_pipeline_6h" -ScriptRel "scripts\scheduled\run_pipeline_6h.py" -ScheduleType "HOURLY" -Modifier "6"
 Register-AhosTask -Name "AHOS_university_exam_sat" -ScriptRel "scripts\scheduled\run_university_exam_sat.py" -ScheduleType "WEEKLY" -Days "SAT" -StartTime "09:00"
 Register-AhosTask -Name "AHOS_negahban_daily" -ScriptRel "scripts\scheduled\run_negahban_daily.py" -ScheduleType "DAILY" -StartTime "05:30"
+Register-AhosTask -Name "AHOS_tech_scout_weekly" -ScriptRel "scripts\scheduled\run_tech_scout_weekly.py" -ScheduleType "WEEKLY" -Days "SUN" -StartTime "06:10"
 
 Write-Host "Registered AHOS_* tasks using $Py"
