@@ -727,8 +727,15 @@ def news_signal(desk: str, items: list[dict[str, Any]]) -> dict[str, Any]:
         hits.append({"title": it["title"][:120], "source": it["source"], "s": s, "age_h": round((now - it["ts"]) / 3600, 1)})
     corroborated = len(srcs) >= 2
     score = math.tanh(total / 3.0) if corroborated else 0.0
+    from architecture.markets.news_desk import credibility_score
+
+    assumed = 0.55
+    credibility = credibility_score([assumed] * len(srcs)) if corroborated else 0.0
     return _sig("news", score if hits else (0.0 if items else None),
                 {"items_matched": len(hits), "sources": sorted(srcs), "corroborated_2src": corroborated,
+                 "credibility": credibility, "assumed_source_reliability": assumed if corroborated else None,
+                 "two_source_rule": "score is 0 unless >=2 independent sources agree in sign",
+                 "authority": "EVIDENCE_ONLY",
                  "top": sorted(hits, key=lambda h: h["age_h"])[:4], "feeds_live": len({i["source"] for i in items})},
                 "rss:" + ",".join(sorted({i["source"] for i in items})), "§10")
 

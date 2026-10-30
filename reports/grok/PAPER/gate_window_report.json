@@ -1,13 +1,149 @@
 {
   "schema": "ahos.gate_window_report.v1",
-  "generated_at": "2026-10-30T00:52:05Z",
+  "generated_at": "2026-10-30T00:59:44Z",
   "paper_only": true,
   "gate_live_at": "2026-10-30T00:40:16Z",
   "required_hours": 6.0,
-  "elapsed_hours": 0.197,
+  "elapsed_hours": 0.325,
   "window_status": "INSUFFICIENT_WINDOW",
   "opens": 0,
   "blocks": 0,
   "by_desk": [],
+  "composite_stop_census": {
+    "entry_abs": 0.32,
+    "composite_below_entry_rows": 5,
+    "every_desk_stopped_at_composite_below_entry": false,
+    "by_desk": [
+      {
+        "desk": "ASIA_EQUITIES",
+        "reason_counts": {
+          "MARKET_CLOSED_OR_STALE": 5
+        },
+        "composite_below_entry_n": 0,
+        "composite_distribution": null,
+        "families_with_any_nonzero_score": [],
+        "family_hit_rows": {
+          "news": 0,
+          "macro_central_bank": 0,
+          "whales": 0,
+          "candle_wicks": 0,
+          "research": 0
+        }
+      },
+      {
+        "desk": "CRYPTO",
+        "reason_counts": {
+          "COMPOSITE_BELOW_ENTRY": 5,
+          "QUOTE_TIME_AHEAD": 3,
+          "WITNESS_CONFLICT": 1,
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 2
+        },
+        "composite_below_entry_n": 5,
+        "composite_distribution": {
+          "min": -0.2412,
+          "p50": -0.2158,
+          "max": -0.0757,
+          "buckets_vs_entry_0.32": {
+            "below_neg_entry": 0,
+            "inside_entry_band": 5,
+            "above_pos_entry": 0
+          }
+        },
+        "families_with_any_nonzero_score": [
+          "news",
+          "macro_central_bank",
+          "whales"
+        ],
+        "family_hit_rows": {
+          "news": 5,
+          "macro_central_bank": 5,
+          "whales": 2,
+          "candle_wicks": 0,
+          "research": 0
+        }
+      },
+      {
+        "desk": "EU_EQUITIES",
+        "reason_counts": {
+          "MARKET_CLOSED_OR_STALE": 5
+        },
+        "composite_below_entry_n": 0,
+        "composite_distribution": null,
+        "families_with_any_nonzero_score": [],
+        "family_hit_rows": {
+          "news": 0,
+          "macro_central_bank": 0,
+          "whales": 0,
+          "candle_wicks": 0,
+          "research": 0
+        }
+      },
+      {
+        "desk": "FOREX",
+        "reason_counts": {
+          "QUOTE_TIME_AHEAD": 6
+        },
+        "composite_below_entry_n": 0,
+        "composite_distribution": null,
+        "families_with_any_nonzero_score": [],
+        "family_hit_rows": {
+          "news": 0,
+          "macro_central_bank": 0,
+          "whales": 0,
+          "candle_wicks": 0,
+          "research": 0
+        }
+      },
+      {
+        "desk": "OIL",
+        "reason_counts": {
+          "SESSION_CLOSED": 5
+        },
+        "composite_below_entry_n": 0,
+        "composite_distribution": null,
+        "families_with_any_nonzero_score": [],
+        "family_hit_rows": {
+          "news": 0,
+          "macro_central_bank": 0,
+          "whales": 0,
+          "candle_wicks": 0,
+          "research": 0
+        }
+      },
+      {
+        "desk": "PB_TOKEN",
+        "reason_counts": {
+          "QUOTE_TIME_AHEAD": 5
+        },
+        "composite_below_entry_n": 0,
+        "composite_distribution": null,
+        "families_with_any_nonzero_score": [],
+        "family_hit_rows": {
+          "news": 0,
+          "macro_central_bank": 0,
+          "whales": 0,
+          "candle_wicks": 0,
+          "research": 0
+        }
+      },
+      {
+        "desk": "US_EQUITIES",
+        "reason_counts": {
+          "MARKET_CLOSED_OR_STALE": 10
+        },
+        "composite_below_entry_n": 0,
+        "composite_distribution": null,
+        "families_with_any_nonzero_score": [],
+        "family_hit_rows": {
+          "news": 0,
+          "macro_central_bank": 0,
+          "whales": 0,
+          "candle_wicks": 0,
+          "research": 0
+        }
+      }
+    ],
+    "signal_rule": "A family produced a signal when any of its member scores had absolute value above zero on a COMPOSITE_BELOW_ENTRY row. Zero is silence."
+  },
   "honesty": "families_never_agreed_in_window is only about rows that reached the vote gate inside this elapsed slice. INSUFFICIENT_WINDOW means six hours have not passed since the gate process started."
 }

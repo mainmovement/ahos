@@ -1,0 +1,13 @@
+{
+  "schema": "ahos.digest_streak.v1",
+  "generated_at": "2026-10-30T00:59:45Z",
+  "paper_only": true,
+  "local_digest_nights": 19,
+  "consecutive_local_nights": 11,
+  "streak_ends": "2026-10-30",
+  "sends": 0,
+  "send_status": "BLOCKED",
+  "target_consecutive_sends": 30,
+  "m31_gap": "OPEN",
+  "honesty": "A file on disk is not a send. The Telegram bridge stays BLOCKED until the owner opens it."
+}

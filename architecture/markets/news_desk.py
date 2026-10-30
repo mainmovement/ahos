@@ -32,7 +32,7 @@ class OsintClusterResult:
 
 
 _INJECTION_RE = re.compile(
-    r"(?:ignore\s+previous\s+instructions|disregard\s+everything|bypass\s+your\s+rules|act\s+as\s+root|execute\s+this\s+code|place\s+live\s+order)",
+    r"(?:ignore\s+previous\s+instructions|disregard\s+everything|bypass\s+your\s+rules|act\s+as\s+root|execute\s+this\s+code|place\s+live\s+order|reveal\s+(?:the\s+)?(?:system\s+)?prompt|send\s+(?:the\s+)?api\s+key)",
     re.IGNORECASE,
 )
 

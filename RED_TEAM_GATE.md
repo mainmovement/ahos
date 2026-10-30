@@ -224,3 +224,22 @@ Gate window at `2026-10-30T00:52:05Z`: live since `2026-10-30T00:40:16Z`, **elap
 | R2 Data | APPROVE | The window report reads the paper log after the gate timestamp only. Empty desks stay empty. |
 | R6 University | APPROVE | M58 Brier test is green again. Thresholds still do not move from loss cases. |
 | Meta-Critic | APPROVE | Twelve minutes is not six hours. Zero blocks means the composite or the session gate stopped the cycle earlier. It does not mean every family fired. |
+
+## P0 Stage 5 — Didehban, Negahban, research (2026-10-30, HOLD, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_stage5_hold.py tests/test_m80_negahban_audit.py tests/test_multi_signal_block_counter.py -q` → **9 passed**.
+
+Gate window at export: **`INSUFFICIENT_WINDOW`**, elapsed **0.325h** of 6h, opens **0**, two-family blocks **0**. `every_desk_stopped_at_composite_below_entry` is **false**. CRYPTO had 5 composite stops (min −0.2412, median −0.2158, max −0.0757, all inside ±0.32) and also 2 fee-drag stops. On those 5 composite rows the families with a non-zero score were **news, macro_central_bank, whales**. Candle wicks and research were silent on those rows. ASIA, EU, and US equities were `MARKET_CLOSED_OR_STALE`. OIL was `SESSION_CLOSED`. FOREX and PB_TOKEN were `QUOTE_TIME_AHEAD`. No composite distribution exists for those desks because the cycle never scored them. The same census is inside `gate_window_report.json` and is rewritten at the end of each paper cycle, so a later cycle past 6h will flip `window_status` to `COMPLETE` without a new claim today.
+
+News score stays 0 unless two sources agree. Credibility is the M80 product formula with assumed reliability 0.55, and it is 0 when the two-source rule fails. FCA was added as an unverified candidate (20 items, no parseable dates). Three other probed URLs were 404 or TLS and were not added. M44: 80 scout rows deduped to 74, one ResearchTask, `code_execution=false`. Digest files: 19 nights, 11 consecutive, **sends 0**, **send BLOCKED**. Prompt-injection corpus CLEAN. pip-audit, gitleaks, and bandit are **TOOL_ABSENT** and do not count as CLEAN.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | No weight change. News still cannot vote alone. |
+| R2 Data | APPROVE | Family hits are read from logged `signal_scores` after the gate timestamp. Silent desks stay silent. |
+| R3 News | APPROVE | Two-source rule and credibility are on the signal evidence and on the NO_TRADE row. Unverified feeds stay unverified. |
+| R4 Council | APPROVE | Research task constraints set experiments, claims, and predictions to 0. Send is BLOCKED. |
+| R5 UX | N/A | No laptop build. |
+| R6 University | APPROVE | Dedupe drops a repeated arXiv id before the worker contract. |
+| R7 SRE | APPROVE | Injection corpus is a real check. Missing scanners are TOOL_ABSENT. Lane A not edited. HOLD untouched. |
+| Meta-Critic | APPROVE | This is not a six-hour result and not a feed-health certificate. CRYPTO cleared the composite bar twice and then failed the fee gate. |

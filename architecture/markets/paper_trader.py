@@ -697,8 +697,17 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             if not tv.get("allowed"):
                 why = f"TOKEN_SAFETY_VETO:{','.join(tv.get('reasons') or ['fail_closed'])}"
         if why:
+            news_ev = (newsig or {}).get("evidence") if isinstance(newsig, dict) else None
             log({**base, "event": "NO_TRADE", "reason": why, "price": price, "composite": comp,
-                 "top_contributions": comb["contributions"][:5], "regime": regime["regime"], "signal_scores": scores}); continue
+                 "top_contributions": comb["contributions"][:5], "regime": regime["regime"], "signal_scores": scores,
+                 "news_desk": {
+                     "available": (newsig or {}).get("available") if isinstance(newsig, dict) else False,
+                     "score": (newsig or {}).get("score") if isinstance(newsig, dict) else None,
+                     "corroborated_2src": (news_ev or {}).get("corroborated_2src"),
+                     "credibility": (news_ev or {}).get("credibility"),
+                     "sources": (news_ev or {}).get("sources"),
+                     "authority": "EVIDENCE_ONLY",
+                 }}); continue
         from architecture.markets.edge_desk_policy import desk_entry_blocked_by_shadow_policy
 
         shadow_block, shadow_reason = desk_entry_blocked_by_shadow_policy(root, desk)
@@ -818,9 +827,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         unreal += (mp - p["entry_price"]) * p["qty"] * (1 if p["side"] == "LONG" else -1) - p["entry_fee_usd"]
     _save_json(root / STATE_REL, state)
     try:
-        from architecture.markets.multi_signal_block_counter import export_daily_block_counter
+        from architecture.markets.multi_signal_block_counter import export_daily_block_counter, export_gate_window_report
 
         export_daily_block_counter(root)
+        export_gate_window_report(root)
     except Exception:
         pass
     acct = paper_account_summary(root)

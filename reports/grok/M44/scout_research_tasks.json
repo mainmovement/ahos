@@ -1,0 +1,75 @@
+{
+  "schema": "ahos.m44_research_tasks.v1",
+  "status": "DEDUPED",
+  "papers_in": 80,
+  "papers_deduped": 74,
+  "task": {
+    "protocol_version": 1,
+    "task_id": "M44ScoutDedupe",
+    "agent_context_id": "research-context.m44-scout",
+    "mission_id": null,
+    "objective": "Read deduped arXiv observations. Do not execute code and do not promote a hypothesis.",
+    "supplied_items": [
+      {
+        "item_id": "arxiva2201-09790v1",
+        "item_type": "OBSERVATION",
+        "text": "Linear Laws of Markov Chains with an Application for Anomaly Detection in Bitcoin Prices",
+        "provenance_ref": "m44-arxiv"
+      },
+      {
+        "item_id": "arxiva2411-06327v2",
+        "item_type": "OBSERVATION",
+        "text": "Return and Volatility Forecasting Using On-Chain Flows in Cryptocurrency Markets",
+        "provenance_ref": "m44-arxiv"
+      },
+      {
+        "item_id": "arxiva2308-00013v1",
+        "item_type": "OBSERVATION",
+        "text": "Bitcoin Gold, Litecoin Silver:An Introduction to Cryptocurrency's Valuation and Trading Strategy",
+        "provenance_ref": "m44-arxiv"
+      },
+      {
+        "item_id": "arxiva2211-08281v1",
+        "item_type": "OBSERVATION",
+        "text": "Forecasting Bitcoin volatility spikes from whale transactions and CryptoQuant data using Synthesizer Transformer models",
+        "provenance_ref": "m44-arxiv"
+      },
+      {
+        "item_id": "arxiva2107-12041v5",
+        "item_type": "OBSERVATION",
+        "text": "Inverse and Quanto Inverse Options in a Black-Scholes World",
+        "provenance_ref": "m44-arxiv"
+      },
+      {
+        "item_id": "arxiva2501-05232v1",
+        "item_type": "OBSERVATION",
+        "text": "The Intraday Bitcoin Response to Tether Minting and Burning Events: Asymmetry, Investor Sentiment, And \"Whale Alerts\" On Twitter",
+        "provenance_ref": "m44-arxiv"
+      },
+      {
+        "item_id": "arxiva2210-12881v1",
+        "item_type": "OBSERVATION",
+        "text": "A Control Theoretic Approach to Infrastructure-Centric Blockchain Tokenomics",
+        "provenance_ref": "m44-arxiv"
+      },
+      {
+        "item_id": "arxiva2606-08141v1",
+        "item_type": "OBSERVATION",
+        "text": "A Structural Matrix Autoregressive Model for the Joint Dynamics of Volume, Volatility, and Returns",
+        "provenance_ref": "m44-arxiv"
+      }
+    ],
+    "constraints": {
+      "max_claims": 0,
+      "max_contradictions": 0,
+      "max_experiments": 0,
+      "max_hypotheses": 0,
+      "max_observations": 8,
+      "max_predictions": 0,
+      "max_reviews": 0
+    }
+  },
+  "code_execution": false,
+  "decides": false,
+  "send": "BLOCKED"
+}

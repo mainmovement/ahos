@@ -157,3 +157,7 @@ University dry-run: knowledge store **251** claims (46 new winning CLOSE claims 
 ## P0 Stage 4 addendum (2026-10-30)
 
 `log_odds_recalibrate` is back so `test_m58_operational_loops` imports. Gate window `reports/grok/PAPER/gate_window_report.json` at 00:52Z is **`INSUFFICIENT_WINDOW`** (0.197h of 6h): opens 0, blocks 0, no per-desk family census yet.
+
+## P0 Stage 5 note (2026-10-30)
+
+Hold surface only. News vote still requires two sources; credibility is logged and is 0 without corroboration. `fca_news` is an unverified candidate. M44 dedupe 80→74 into one non-executing research task. Digest send **BLOCKED** (0 sends, 11 local nights). Scanners pip-audit, gitleaks, bandit are **TOOL_ABSENT**. Gate window still **`INSUFFICIENT_WINDOW`** (0.325h). Not every desk stopped at the composite floor. Gap IDs closed: **none**. M31 send streak stays open.

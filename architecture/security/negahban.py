@@ -272,6 +272,66 @@ def check_ledger_integrity_copy(root: Path) -> dict[str, Any]:
     }
 
 
+def check_prompt_injection_corpus(root: Path | None = None) -> dict[str, Any]:
+    """Every corpus headline must be neutralized. A survivor is a FINDING."""
+    del root
+    from architecture.markets.news_desk import sanitize_untrusted_headline
+    from architecture.security.prompt_injection_corpus import CORPUS
+
+    survivors = []
+    for raw in CORPUS:
+        cleaned, hit = sanitize_untrusted_headline(raw)
+        if not hit or _INJECTION_STILL.search(cleaned):
+            survivors.append(raw[:80])
+    return {
+        "check": "prompt_injection_corpus",
+        "verdict": "CLEAN" if not survivors else "FINDING",
+        "corpus_n": len(CORPUS),
+        "survivors": survivors,
+    }
+
+
+_INJECTION_STILL = __import__("re").compile(
+    r"ignore\s+previous\s+instructions|disregard\s+everything|bypass\s+your\s+rules|act\s+as\s+root|execute\s+this\s+code|place\s+live\s+order|reveal\s+(?:the\s+)?(?:system\s+)?prompt|send\s+(?:the\s+)?api\s+key",
+    __import__("re").IGNORECASE,
+)
+
+
+def check_free_scanners(root: Path) -> list[dict[str, Any]]:
+    """pip-audit, gitleaks, and bandit when the binary exists. Absence is TOOL_ABSENT, not a fake CLEAN."""
+    import shutil
+
+    specs = (
+        ("pip_audit", ("pip-audit", "pip-audit.exe")),
+        ("gitleaks", ("gitleaks", "gitleaks.exe")),
+        ("bandit", ("bandit", "bandit.exe")),
+    )
+    rows = []
+    for name, binaries in specs:
+        exe = next((shutil.which(b) for b in binaries if shutil.which(b)), None)
+        if exe is None:
+            venv_name = binaries[-1]
+            candidate = root / ".venv" / "Scripts" / venv_name
+            exe = str(candidate) if candidate.is_file() else None
+        if not exe:
+            rows.append({"check": name, "verdict": "TOOL_ABSENT", "counts_toward_overall": False})
+            continue
+        try:
+            proc = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=20, cwd=str(root))
+            rows.append(
+                {
+                    "check": name,
+                    "verdict": "PRESENT_NOT_A_FINDING",
+                    "counts_toward_overall": False,
+                    "exe": exe,
+                    "version_rc": proc.returncode,
+                }
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            rows.append({"check": name, "verdict": "TOOL_ERROR", "counts_toward_overall": False, "error": type(exc).__name__})
+    return rows
+
+
 def run_whitehat_security_audit(root: Path | None = None) -> dict[str, Any]:
     repo = root or Path(__file__).resolve().parents[2]
     checks = [
@@ -281,6 +341,7 @@ def run_whitehat_security_audit(root: Path | None = None) -> dict[str, Any]:
         check_cve_audit(repo),
         check_lane_a_freeze(repo),
         check_ledger_integrity_copy(repo),
+        check_prompt_injection_corpus(repo),
     ]
     overall = "CLEAN" if all(c["verdict"] == "CLEAN" for c in checks) else "FINDING"
     return {
@@ -289,4 +350,6 @@ def run_whitehat_security_audit(root: Path | None = None) -> dict[str, Any]:
         "execution_mode": "PAPER_ONLY",
         "overall_verdict": overall,
         "checks": checks,
+        "external_scanners": check_free_scanners(repo),
+        "send": "BLOCKED",
     }

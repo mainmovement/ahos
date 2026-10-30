@@ -183,6 +183,8 @@ CANDIDATES: list[tuple[str, str, str]] = [
     ("prnewswire", "markets", "https://www.prnewswire.com/rss/news-releases-list.rss"), ("globenewswire", "markets", "https://www.globenewswire.com/RssFeed/orgclass/1/feedTitle/GlobeNewswire%20-%20News%20about%20Public%20Companies"),
     ("businesswire", "markets", "https://feed.businesswire.com/rss/home/?rss=G1QFDERJXkJeEFtRWA=="),
     ("accesswire", "markets", "https://www.accesswire.com/users/newswire/rss"),
+    # Stage 5: free official feed. Candidate only. Live check parsed items but no dates, so it is not verified.
+    ("fca_news", "official", "https://www.fca.org.uk/news/rss.xml"),
 ]
 
 

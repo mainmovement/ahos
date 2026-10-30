@@ -171,6 +171,7 @@ def build_gate_window_report(
                 "families_not_observed": list(INDEPENDENT_VOTE_FAMILIES) if cell["cycles_with_votes"] == 0 else [],
             }
         )
+    composite = _composite_stop_census(root, start)
     return {
         "schema": "ahos.gate_window_report.v1",
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -182,10 +183,124 @@ def build_gate_window_report(
         "opens": sum(d["opens"] for d in desks),
         "blocks": sum(d["blocks"] for d in desks),
         "by_desk": desks,
+        "composite_stop_census": composite,
         "honesty": (
             "families_never_agreed_in_window is only about rows that reached the vote gate inside this elapsed slice. "
             "INSUFFICIENT_WINDOW means six hours have not passed since the gate process started."
         ),
+    }
+
+
+def _median(vals: list[float]) -> float | None:
+    if not vals:
+        return None
+    s = sorted(vals)
+    mid = len(s) // 2
+    if len(s) % 2:
+        return s[mid]
+    return (s[mid - 1] + s[mid]) / 2.0
+
+
+def _families_with_any_signal(scores: dict[str, Any]) -> list[str]:
+    fired = []
+    for fam, names in INDEPENDENT_VOTE_FAMILIES.items():
+        for name in names:
+            try:
+                val = float(scores.get(name) or 0.0)
+            except (TypeError, ValueError):
+                continue
+            if abs(val) > 1e-9:
+                fired.append(fam)
+                break
+    return fired
+
+
+def _composite_buckets(vals: list[float], entry: float = 0.32) -> dict[str, int]:
+    buckets = {"below_neg_entry": 0, "inside_entry_band": 0, "above_pos_entry": 0}
+    for v in vals:
+        if v <= -entry:
+            buckets["below_neg_entry"] += 1
+        elif v >= entry:
+            buckets["above_pos_entry"] += 1
+        else:
+            buckets["inside_entry_band"] += 1
+    return buckets
+
+
+def _composite_stop_census(root: Path, start: datetime | None) -> dict[str, Any]:
+    """Per-desk composite distribution and which vote families produced a non-zero score."""
+    reasons: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    composites: dict[str, list[float]] = defaultdict(list)
+    family_hits: dict[str, dict[str, int]] = defaultdict(lambda: {f: 0 for f in INDEPENDENT_VOTE_FAMILIES})
+    composite_rows = 0
+    log = root / LOG_REL
+    if log.is_file() and start is not None:
+        for line in log.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            ts = _parse_utc(str(row.get("ts") or ""))
+            if ts is None or ts < start:
+                continue
+            if row.get("event") not in {"NO_TRADE", "SKIP", "OPEN"}:
+                continue
+            desk = str(row.get("desk") or "UNKNOWN")
+            reason = str(row.get("reason") or row.get("event"))
+            reasons[desk][reason] += 1
+            if row.get("event") == "NO_TRADE" and row.get("reason") == "COMPOSITE_BELOW_ENTRY":
+                composite_rows += 1
+                try:
+                    composites[desk].append(float(row.get("composite")))
+                except (TypeError, ValueError):
+                    pass
+                scores = row.get("signal_scores") if isinstance(row.get("signal_scores"), dict) else {}
+                for fam in _families_with_any_signal(scores):
+                    family_hits[desk][fam] += 1
+    desks = []
+    only_composite = True
+    saw_no_trade = False
+    session_like = ("MARKET", "QUOTE_TIME", "SESSION", "WITNESS", "STALE")
+    for desk in sorted(set(reasons) | set(composites)):
+        no_trade_reasons = {
+            k: v
+            for k, v in reasons[desk].items()
+            if k not in {"OPEN", "HOLD"} and not any(tok in k for tok in session_like)
+        }
+        if no_trade_reasons and set(no_trade_reasons) != {"COMPOSITE_BELOW_ENTRY"}:
+            only_composite = False
+        if no_trade_reasons:
+            saw_no_trade = True
+        vals = composites.get(desk) or []
+        desks.append(
+            {
+                "desk": desk,
+                "reason_counts": dict(reasons[desk]),
+                "composite_below_entry_n": len(vals),
+                "composite_distribution": None
+                if not vals
+                else {
+                    "min": round(min(vals), 4),
+                    "p50": round(_median(vals) or 0.0, 4),
+                    "max": round(max(vals), 4),
+                    "buckets_vs_entry_0.32": _composite_buckets(vals),
+                },
+                "families_with_any_nonzero_score": [
+                    fam for fam, n in family_hits[desk].items() if n > 0
+                ],
+                "family_hit_rows": family_hits[desk],
+            }
+        )
+    if not saw_no_trade:
+        only_composite = False
+    return {
+        "entry_abs": 0.32,
+        "composite_below_entry_rows": composite_rows,
+        "every_desk_stopped_at_composite_below_entry": bool(saw_no_trade and only_composite and composite_rows > 0),
+        "by_desk": desks,
+        "signal_rule": "A family produced a signal when any of its member scores had absolute value above zero on a COMPOSITE_BELOW_ENTRY row. Zero is silence.",
     }
 
 

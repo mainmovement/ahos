@@ -1,0 +1,74 @@
+{
+  "schema": "ahos.stage5_hold.v1",
+  "paper_only": true,
+  "send": "BLOCKED",
+  "window_status": "INSUFFICIENT_WINDOW",
+  "elapsed_hours": 0.325,
+  "opens": 0,
+  "blocks": 0,
+  "every_desk_composite_only": false,
+  "composite_rows": 5,
+  "desks": [
+    {
+      "desk": "CRYPTO",
+      "reasons": {
+        "COMPOSITE_BELOW_ENTRY": 5,
+        "QUOTE_TIME_AHEAD": 3,
+        "WITNESS_CONFLICT": 1,
+        "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 2
+      },
+      "families": [
+        "news",
+        "macro_central_bank",
+        "whales"
+      ],
+      "dist": {
+        "min": -0.2412,
+        "p50": -0.2158,
+        "max": -0.0757,
+        "buckets_vs_entry_0.32": {
+          "below_neg_entry": 0,
+          "inside_entry_band": 5,
+          "above_pos_entry": 0
+        }
+      }
+    }
+  ],
+  "scout_status": "DEDUPED",
+  "papers_in": 80,
+  "papers_deduped": 74,
+  "digest": {
+    "consecutive_local_nights": 11,
+    "sends": 0,
+    "send_status": "BLOCKED",
+    "local_digest_nights": 19
+  },
+  "injection": "CLEAN",
+  "scanners": [
+    {
+      "check": "pip_audit",
+      "verdict": "TOOL_ABSENT",
+      "counts_toward_overall": false
+    },
+    {
+      "check": "gitleaks",
+      "verdict": "TOOL_ABSENT",
+      "counts_toward_overall": false
+    },
+    {
+      "check": "bandit",
+      "verdict": "TOOL_ABSENT",
+      "counts_toward_overall": false
+    }
+  ],
+  "new_feeds": [
+    {
+      "id": "fca_news",
+      "verified": false,
+      "reason": "NO_DATES",
+      "items": 20,
+      "kept": true
+    }
+  ],
+  "feeds_probed_and_not_added": ["hkma_press HTTP_404", "norges_bank HTTP_404", "opec_press TLS"]
+}
