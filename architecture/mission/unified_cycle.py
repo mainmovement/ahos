@@ -278,6 +278,8 @@ def run_unified_cycle(root: Path, *, now: datetime | None = None) -> dict[str, A
 
         closes = load_paper_trades(root)
         publish_learning(root, closes)
+        from architecture.university.research_reasoning import publish_research
+        publish_research(root, closes)
         if closes:
             day = max(str(row.get("closed_at") or "")[:10] for row in closes)
             if day:
