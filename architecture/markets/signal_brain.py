@@ -39,6 +39,7 @@ NEWS_FEEDS = {
 }
 ASSET_TERMS = {
     "CRYPTO": r"bitcoin|btc|ether|eth\b|solana|crypto|stablecoin",
+    "CRYPTO_FUTURES": r"bitcoin|btc|ether|eth\b|solana|crypto|stablecoin",
     "PB_TOKEN": r"uniswap|\buni\b|chainlink|\blink\b|aave|defi|dex|token|ethereum",
     "GOLD": r"\bgold\b|bullion|precious metal",
     "OIL": r"\boil\b|crude|brent|wti|opec|barrel",

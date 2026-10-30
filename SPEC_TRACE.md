@@ -200,7 +200,7 @@ CFTC current file refreshes after Friday 15:30 America/New_York. ICE current-yea
 
 ## Crypto futures paper desk (2026-10-30)
 
-OKX public swap mark, Binance mark as the second witness, long and short, funding as paper cashflow, simulated liquidation, cap 0.10 of equity, leverage held at 1.0. Spot symbols stay on the crypto desk. Gates unchanged. Gap IDs closed: **none**.
+OKX public swap mark, Binance mark as the second witness, long and short, funding as paper cashflow, simulated liquidation, cap 0.10 of equity, leverage held at 1.0. Spot symbols stay on the crypto desk. News uses the existing crypto terms so the cycle does not die on an unknown desk key. Research stays unmapped. Gates unchanged. Gap IDs closed: **none**.
 
 ## Dynamic token safety (2026-10-30)
 

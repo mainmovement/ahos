@@ -392,6 +392,13 @@ The swap symbols are `BTC-SWAP`, `ETH-SWAP`, and `SOL-SWAP`. The execution price
 | R7 SRE | APPROVE | No wallet, no live order, Lane A not edited. The spot book is a different symbol. |
 | Meta-Critic | APPROVE | This is a paper swap. It does not adopt the unused 2.0 margin cap. |
 
+The first reload died on `KeyError('CRYPTO_FUTURES')` in `news_signal` before the swap symbol was logged. The desk now uses the existing crypto headline terms. Research stays unmapped, so that family remains unavailable on the swap book. Command: `pytest tests/test_crypto_futures_paper.py::test_futures_news_uses_the_same_crypto_terms -q` → **1 passed**.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R3 News | APPROVE | No new source and no new weight. The matcher no longer crashes the cycle. |
+| Meta-Critic | APPROVE | A missing desk key was a crash, not an absent feed. |
+
 ## Dynamic token safety (2026-10-30, PAPER_ONLY, NO_PUSH)
 
 Command: `pytest tests/test_token_pump_dump.py tests/test_stage6_deepening.py tests/test_stage4_closures.py tests/test_paper_trader.py -q` with the stage 6 and stage 4 files narrowed to the veto tests → **23 passed** on the combined token and paper-trader run, and **4 passed** on the stage 6 veto/funnel selection.

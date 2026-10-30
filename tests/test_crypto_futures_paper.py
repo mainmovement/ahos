@@ -28,6 +28,14 @@ def _bars(start: float, n: int = 40) -> list[list[float]]:
     return [[start, start + 0.2, start - 0.2, start, 10.0] for _ in range(n)]
 
 
+def test_futures_news_uses_the_same_crypto_terms() -> None:
+    from architecture.markets.signal_brain import ASSET_TERMS, news_signal
+
+    assert ASSET_TERMS["CRYPTO_FUTURES"] == ASSET_TERMS["CRYPTO"]
+    sig = news_signal("CRYPTO_FUTURES", [])
+    assert sig["name"] == "news"
+
+
 def test_leverage_stays_one_and_the_book_cap_is_ten_percent(tmp_path: Path) -> None:
     fresh = leverage_decision(tmp_path, requested=1.5)
     assert fresh["applied"] == 1.0

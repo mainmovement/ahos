@@ -278,6 +278,14 @@
 
 **Reason:** The owner approved this desk under the strictest cap. A public mark is not an order. The 2-family and 2× fee gates stay as they are.
 
+## 2026-10-30: Futures news uses the crypto headline list
+
+**Question:** The first live cycle died with `KeyError('CRYPTO_FUTURES')` inside the news matcher. Should the swap desk get its own headline list?
+
+**Choice:** No. It uses the same bitcoin, ether, and solana terms as the spot crypto desk. It does not get the crypto research pipeline, and it does not get a new weight.
+
+**Reason:** The crash stopped the paper cycle on the fourth symbol. A separate headline list would be invented. The underlying names are the same.
+
 ## 2026-10-30: Dynamic token safety and pump-dump exits
 
 **Question:** How should a new token stay paper-only when the safety snapshot goes stale, and what exit is allowed after entry?
