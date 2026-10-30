@@ -1,0 +1,41 @@
+schema: ahos.mega11_prereg.v1
+paper_only: true
+shadow_only: true
+registered_for: desk focus on fresh shadow closes
+promotion:
+  dsr_min: 0.95
+  pbo_max: 0.5
+  min_oos: 30
+  after_fees: true
+  red_team: required
+  state_until_then: shadow
+change_rule: >
+  Any edit to this file is a new trial. trial_count must increase by one
+  in the same edit. A file whose bytes no longer match the registered hash
+  cannot be scored. The stored book from before this file is not the sample.
+hypothesis: >
+  On shadow closes whose bar time is strictly after the commit that added
+  this file, the mean fill of US_EQUITIES and EU_EQUITIES is above zero
+  and the mean fill of GOLD and CRYPTO is below zero. The rank is
+  strategy, then desk, then regime, by that fresh mean. Means already
+  seen on the stored book are the motive, not the sample.
+metric: fresh_mean_fill_by_strategy_desk_regime
+threshold:
+  us_eu_mean_gt: 0
+  gold_crypto_mean_lt: 0
+  min_fresh_closes: 30
+data_window: none_at_registration
+cv_scheme: fresh_closes_after_this_commit_only
+trial_count: 1
+fresh_rule: >
+  A close counts only when its bar time is strictly after the commit that
+  added this file. A rescore of older rows is a lookback and is excluded
+  from the rank.
+spread_rule: >
+  A high-low range from a free intraday bar is an estimate. It is not a
+  bid or an ask, and it does not open a name.
+soak_restart_rule: >
+  The running soak is not restarted before 2026-11-01T00:45:31Z. Science
+  libraries are not installed unless free RAM is above 2048 MB after that
+  restart. This file does not authorize either action early.
+applied_to_live: false
