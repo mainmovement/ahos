@@ -592,3 +592,14 @@ Command: `pytest tests/test_tech_scout.py -q` → **4 passed**. Live run `AHOS_t
 | R2 Data | APPROVE | A missing license, a stale push, and an oversized model are archived. Papers are not treated as installable code. |
 | R4 Council | APPROVE | The review records executed false, no dependencies added, and no candidate network call. |
 | Meta-Critic | APPROVE | The task command stays on G:\robat\ahos. The live weight is untouched. |
+
+## KL-DRO shadow (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_tech_scout.py tests/test_kl_dro_shadow.py -q` → **7 passed**. The five static passes are reopened as `SHADOW_CANDIDATE`. Our KL-robust mean was scored on closed paper trades: 88 steps, 36 out-of-sample returns, DSR 0.0317, PBO 0.1429, counterfactual hit rate 0.6023. Decision `ARCHIVE` `FAILED_OOS`. world2vec stays queued with `NO_OWN_IMPLEMENTATION`. `applied_to_live_weights` is false. Upstream code was not executed. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | DSR 0.0317 is below 0.95. The hit rate is recorded and is not a promotion. |
+| R2 Data | APPROVE | Returns are realized pnl divided by notional on our closes. A desk with no close has a null score. Sample size is stored. |
+| R4 Council | APPROVE | The red team did not survive because it was not claimed. The archive reason is FAILED_OOS. |
+| Meta-Critic | APPROVE | No upstream code ran. The live weight is untouched. |
