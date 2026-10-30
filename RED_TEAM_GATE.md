@@ -351,3 +351,16 @@ Each cycle that has a signed family vote appends that sign and the price. The we
 | R4 Council | APPROVE | Advisory research signs are scored and still carry weight 0. |
 | R7 SRE | APPROVE | The observation log is separate from the trade ledger. Lane A not edited. |
 | Meta-Critic | APPROVE | This is a census of vote signs. It is not an edge claim. |
+
+## COT fetch is weekly after the Friday release (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_cftc_cot_and_coverage.py -q` → **9 passed**.
+
+The current CFTC file is fetched when the cache was written before the latest Friday 15:30 America/New_York release. ICE's current-year file uses Friday 18:30 Europe/London. A prior-year history file stays cached. A successful pull is `staleness=FRESH`. If the pull fails, the older cache is served with `staleness=STALE`. Before Friday's release, a cache that already covers the previous Friday is not fetched again. Weight stays 0.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The z-score formula is unchanged. A stale file is labeled, not replaced with a fixture. |
+| R2 Data | APPROVE | 15:29 ET still belongs to the previous Friday. 15:30 ET opens the new release. |
+| R7 SRE | APPROVE | The cache stays under the uncommitted PAPER directory. Lane A not edited. |
+| Meta-Critic | APPROVE | One pull after the release is the weekly cadence. A failed pull does not invent a fresher report. |

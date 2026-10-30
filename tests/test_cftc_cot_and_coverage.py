@@ -1,4 +1,6 @@
+import json
 import math
+from datetime import datetime, timezone
 
 from architecture.markets.cftc_cot import (
     GOLD_CODE,
@@ -6,6 +8,8 @@ from architecture.markets.cftc_cot import (
     NYMEX_BRENT_CODE,
     WTI_CODE,
     cftc_cot_signal,
+    latest_friday_release,
+    load_bytes,
     rows_from_cftc_text,
     rows_from_ice_text,
     select_contract,
@@ -178,3 +182,75 @@ def test_coverage_marks_codes_and_keeps_gates():
     assert "067411" not in blob
     assert "103.85" not in blob
     assert "cot_oil_net_percentile" not in blob
+
+
+def _unix(stamp: str) -> float:
+    return datetime.fromisoformat(stamp.replace("Z", "+00:00")).timestamp()
+
+
+def _seed_cache(root, key: str, fetched: str, body: bytes = b"cached-report") -> None:
+    folder = root / "reports" / "grok" / "PAPER" / "cot_cache"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / key).write_bytes(body)
+    (folder / f"{key}.json").write_text(
+        json.dumps({"schema": 3, "fetched_at": fetched, "fetched_at_unix": _unix(fetched), "url": "u", "bytes": len(body)}),
+        encoding="utf-8",
+    )
+
+
+def test_cftc_fetch_waits_for_friday_release_and_flags_stale_cache(tmp_path):
+    from zoneinfo import ZoneInfo
+
+    release = latest_friday_release(datetime(2026, 10, 30, 19, 30, tzinfo=timezone.utc), ZoneInfo("America/New_York"), 15, 30)
+    assert release.strftime("%Y-%m-%dT%H:%M:%SZ") == "2026-10-30T19:30:00Z"
+    before = latest_friday_release(datetime(2026, 10, 30, 19, 29, tzinfo=timezone.utc), ZoneInfo("America/New_York"), 15, 30)
+    assert before.strftime("%Y-%m-%dT%H:%M:%SZ") == "2026-10-23T19:30:00Z"
+
+    def explode(_url):
+        raise AssertionError("fetch before the Friday release")
+
+    _seed_cache(tmp_path, "f_disagg.txt", "2026-10-24T20:00:00Z")
+    blob, meta = load_bytes(
+        tmp_path, "f_disagg.txt", "https://example.invalid/cot", now=_unix("2026-10-30T19:00:00Z"), clock="cftc", fetch=explode
+    )
+    assert blob == b"cached-report"
+    assert meta["staleness"] == "FRESH"
+    assert meta["cache"] == "HIT"
+
+    calls = {"n": 0}
+
+    def grab(_url):
+        calls["n"] += 1
+        return b"after-release"
+
+    blob, meta = load_bytes(
+        tmp_path, "f_disagg.txt", "https://example.invalid/cot", now=_unix("2026-10-30T20:00:00Z"), clock="cftc", fetch=grab
+    )
+    assert calls["n"] == 1
+    assert blob == b"after-release"
+    assert meta["staleness"] == "FRESH"
+    assert meta["cache"] == "REFRESHED"
+
+    _seed_cache(tmp_path, "f_disagg.txt", "2026-10-24T20:00:00Z", body=b"old")
+
+    def fail(_url):
+        return None
+
+    blob, meta = load_bytes(
+        tmp_path, "f_disagg.txt", "https://example.invalid/cot", now=_unix("2026-10-30T20:00:00Z"), clock="cftc", fetch=fail
+    )
+    assert blob == b"old"
+    assert meta["staleness"] == "STALE"
+    assert meta["cache"] == "STALE"
+
+
+def test_prior_year_file_is_not_refetched(tmp_path):
+    def explode(_url):
+        raise AssertionError("static history must stay cached")
+
+    _seed_cache(tmp_path, "fut_disagg_2025.zip", "2026-01-02T00:00:00Z", body=b"year")
+    blob, meta = load_bytes(
+        tmp_path, "fut_disagg_2025.zip", "https://example.invalid/2025", now=_unix("2026-10-30T20:00:00Z"), clock="static", fetch=explode
+    )
+    assert blob == b"year"
+    assert meta["staleness"] == "FRESH"

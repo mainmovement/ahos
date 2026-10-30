@@ -189,3 +189,7 @@ WTI is CFTC code **067651**. Gold is **088691**. Brent is the higher open intere
 ## Family vote scorecard (2026-10-30)
 
 Weekly counterfactual hit-rate per family versus the next 4h and 24h price print. Weight stays 0. File: `reports/grok/PAPER/weekly_family_vote_scorecard.json`. Gap IDs closed: **none**.
+
+## COT weekly fetch (2026-10-30)
+
+CFTC current file refreshes after Friday 15:30 America/New_York. ICE current-year file refreshes after Friday 18:30 Europe/London. Prior-year history stays cached. Evidence carries `cot_staleness` of FRESH, STALE, or ABSENT. Weight stays 0. Gap IDs closed: **none**.

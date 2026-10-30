@@ -253,3 +253,11 @@
 **Choice:** Record each signed vote and its price. Once a week, score the sign against the next 4h and 24h print, including cycles that did not open. Overlapping votes inside the horizon count once. Pending and missing prints are not hits. Composite weight stays 0. Signal weights are not written.
 
 **Reason:** The owner asked for a counterfactual hit-rate per family while the 6h window is still running. A hit-rate is not a weight.
+
+## 2026-10-30: COT fetch cadence
+
+**Question:** When should the positioning files be downloaded?
+
+**Choice:** After the Friday release, and not on every cycle. CFTC is Friday 15:30 America/New_York. ICE is Friday 18:30 Europe/London. A cache that already covers that release is reused. A failed download keeps the previous file and sets `cot_staleness` to STALE. Prior-year history files are fetched only when missing.
+
+**Reason:** The report is weekly. Pulling it every cycle does not make it newer, and a missed Friday should be visible instead of silent.

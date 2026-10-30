@@ -24,9 +24,10 @@ import json
 import math
 import urllib.request
 import zipfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from architecture.markets import signal_brain as sb
 
@@ -42,9 +43,11 @@ BRENT_CODES = frozenset({ICE_BRENT_CODE, NYMEX_BRENT_CODE})
 
 HISTORY_WEEKS = 52
 Z_DIVISOR = 2.0
-CACHE_SCHEMA = 2
-CACHE_MAX_AGE_S = 6 * 24 * 3600
-CACHE_STALE_MAX_AGE_S = 21 * 24 * 3600
+CACHE_SCHEMA = 3
+# CFTC disaggregated futures are published Friday 15:30 America/New_York.
+# ICE Europe COT is published Friday 18:30 Europe/London.
+CFTC_RELEASE = (ZoneInfo("America/New_York"), 15, 30)
+ICE_RELEASE = (ZoneInfo("Europe/London"), 18, 30)
 
 FIXED_CODES: dict[tuple[str, str], str] = {
     ("OIL", "WTI"): WTI_CODE,
@@ -221,16 +224,32 @@ def _cache_dir(root: Path) -> Path:
     return root / "reports" / "grok" / "PAPER" / "cot_cache"
 
 
-def _read_cached(root: Path, key: str, now: float, max_age: float) -> bytes | None:
+def latest_friday_release(now: datetime, tz: ZoneInfo, hour: int, minute: int) -> datetime:
+    """Most recent Friday release at or before `now`."""
+    local = now.astimezone(tz)
+    days_back = (local.weekday() - 4) % 7
+    release = (local - timedelta(days=days_back)).replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if local < release:
+        release -= timedelta(days=7)
+    return release.astimezone(timezone.utc)
+
+
+def _release_due(now_unix: float, clock: str) -> datetime | None:
+    if clock == "static":
+        return None
+    tz, hour, minute = CFTC_RELEASE if clock == "cftc" else ICE_RELEASE
+    now = datetime.fromtimestamp(now_unix, tz=timezone.utc)
+    return latest_friday_release(now, tz, hour, minute)
+
+
+def _read_cached(root: Path, key: str) -> tuple[bytes, float] | None:
     folder = _cache_dir(root)
     try:
         meta = json.loads((folder / f"{key}.json").read_text(encoding="utf-8"))
-        if meta.get("schema") != CACHE_SCHEMA:
+        if meta.get("schema") not in (2, 3):
             return None
-        age = now - float(meta["fetched_at_unix"])
-        if age < 0 or age > max_age:
-            return None
-        return (folder / key).read_bytes()
+        fetched = float(meta["fetched_at_unix"])
+        return (folder / key).read_bytes(), fetched
     except (OSError, json.JSONDecodeError, TypeError, ValueError, KeyError):
         return None
 
@@ -258,19 +277,37 @@ def _fetch(url: str) -> bytes | None:
         return None
 
 
-def load_bytes(root: Path, key: str, url: str, *, now: float | None = None) -> tuple[bytes | None, dict[str, Any]]:
+def load_bytes(
+    root: Path,
+    key: str,
+    url: str,
+    *,
+    now: float | None = None,
+    clock: str = "cftc",
+    fetch: Any = None,
+) -> tuple[bytes | None, dict[str, Any]]:
+    """Return cached bytes. Fetch only when the cache misses the latest Friday release.
+
+    A prior-year file (`clock='static'`) is fetched only when the cache is empty.
+    `staleness` is FRESH when the cache was written at or after the release that is
+    already due, STALE when an older cache is served after that release, ABSENT when
+    there is no cache.
+    """
     now = datetime.now(timezone.utc).timestamp() if now is None else now
-    fresh = _read_cached(root, key, now, CACHE_MAX_AGE_S)
-    if fresh is not None:
-        return fresh, {"cache": "HIT", "url": url}
-    raw = _fetch(url)
+    due = _release_due(now, clock)
+    due_iso = None if due is None else due.strftime("%Y-%m-%dT%H:%M:%SZ")
+    cached = _read_cached(root, key)
+    covers = cached is not None and (due is None or cached[1] >= due.timestamp())
+    if covers and cached is not None:
+        return cached[0], {"cache": "HIT", "staleness": "FRESH", "url": url, "release_due": due_iso}
+    getter = _fetch if fetch is None else fetch
+    raw = getter(url)
     if raw is not None:
         _write_cached(root, key, raw, url, now)
-        return raw, {"cache": "REFRESHED", "url": url}
-    stale = _read_cached(root, key, now, CACHE_STALE_MAX_AGE_S)
-    if stale is not None:
-        return stale, {"cache": "STALE", "url": url}
-    return None, {"cache": "ABSENT", "url": url, "reason": "FEED_UNAVAILABLE"}
+        return raw, {"cache": "REFRESHED", "staleness": "FRESH", "url": url, "release_due": due_iso}
+    if cached is not None:
+        return cached[0], {"cache": "STALE", "staleness": "STALE", "url": url, "release_due": due_iso}
+    return None, {"cache": "ABSENT", "staleness": "ABSENT", "url": url, "release_due": due_iso, "reason": "FEED_UNAVAILABLE"}
 
 
 def _history_points_cftc(blob: bytes, code: str) -> list[tuple[str, float]]:
@@ -286,31 +323,61 @@ def _history_points_ice(text: str, code: str) -> list[tuple[str, float]]:
     return [(row["as_of"], float(row["net_oi"])) for row in rows_from_ice_text(text) if row["code"] == code]
 
 
-def load_history(root: Path, code: str, source: str, as_of: str, *, now: float | None = None) -> tuple[list[float], str]:
+def _clock_for(source: str, year: int, report_year: int) -> str:
+    if year < report_year:
+        return "static"
+    return "ice" if source == "ice" else "cftc"
+
+
+def load_history(root: Path, code: str, source: str, as_of: str, *, now: float | None = None) -> tuple[list[float], str, str]:
     year = int(as_of[:4])
     points: list[tuple[str, float]] = []
+    states: list[str] = []
     if source == "ice":
         for item in (year - 1, year):
-            raw, _meta = load_bytes(root, f"COTHist{item}.csv", ICE_HIST_URL.format(year=item), now=now)
+            raw, meta = load_bytes(
+                root, f"COTHist{item}.csv", ICE_HIST_URL.format(year=item), now=now, clock=_clock_for(source, item, year)
+            )
+            states.append(str(meta.get("staleness") or "ABSENT"))
             if raw is None:
                 continue
             points.extend(_history_points_ice(raw.decode("utf-8-sig", "replace"), code))
-        return trailing_net_oi(points, as_of), ICE_HIST_URL.format(year=year)
-    for item in (year - 1, year):
-        raw, _meta = load_bytes(root, f"fut_disagg_{item}.zip", CFTC_HIST_URL.format(year=item), now=now)
-        if raw is None:
-            continue
-        points.extend(_history_points_cftc(raw, code))
-    return trailing_net_oi(points, as_of), CFTC_HIST_URL.format(year=year)
+        url = ICE_HIST_URL.format(year=year)
+    else:
+        for item in (year - 1, year):
+            raw, meta = load_bytes(
+                root,
+                f"fut_disagg_{item}.zip",
+                CFTC_HIST_URL.format(year=item),
+                now=now,
+                clock=_clock_for(source, item, year),
+            )
+            states.append(str(meta.get("staleness") or "ABSENT"))
+            if raw is None:
+                continue
+            points.extend(_history_points_cftc(raw, code))
+        url = CFTC_HIST_URL.format(year=year)
+    if "STALE" in states:
+        staleness = "STALE"
+    elif not points and "ABSENT" in states:
+        staleness = "ABSENT"
+    else:
+        staleness = "FRESH"
+    return trailing_net_oi(points, as_of), url, staleness
 
 
 def load_current_rows(root: Path, desk: str, symbol: str, *, now: float | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    raw, meta = load_bytes(root, "f_disagg.txt", CFTC_CURRENT_URL, now=now)
+    raw, meta = load_bytes(root, "f_disagg.txt", CFTC_CURRENT_URL, now=now, clock="cftc")
     rows = rows_from_cftc_text(raw.decode("latin-1", "replace")) if raw else []
+    meta = {**meta, "cot_staleness": meta.get("staleness") or "ABSENT"}
     if (desk, symbol) == ("OIL", "BRENT"):
-        year = datetime.now(timezone.utc).year
-        ice_raw, ice_meta = load_bytes(root, f"COTHist{year}.csv", ICE_HIST_URL.format(year=year), now=now)
-        meta = {**meta, "ice": ice_meta}
+        moment = datetime.fromtimestamp(now, tz=timezone.utc) if now is not None else datetime.now(timezone.utc)
+        ice_raw, ice_meta = load_bytes(
+            root, f"COTHist{moment.year}.csv", ICE_HIST_URL.format(year=moment.year), now=now, clock="ice"
+        )
+        meta = {**meta, "ice": ice_meta, "ice_staleness": ice_meta.get("staleness")}
+        if ice_meta.get("staleness") == "STALE":
+            meta["cot_staleness"] = "STALE"
         if ice_raw:
             rows.extend(rows_from_ice_text(ice_raw.decode("utf-8-sig", "replace")))
     return rows, meta
@@ -339,6 +406,7 @@ def cftc_cot_signal(
         "not_macro_overlay_fixture": True,
         "paper_only": True,
         "scale": "tanh(z/2)",
+        "cot_staleness": (meta or {}).get("cot_staleness") or (meta or {}).get("staleness") or "FRESH",
         **meta,
     }
     if chosen is None:
@@ -357,8 +425,11 @@ def cftc_cot_signal(
         }
     )
     if history is None:
-        series, hist_url = load_history(root, chosen["chosen_code"], evidence["history_source"], chosen["as_of"])
+        series, hist_url, hist_state = load_history(root, chosen["chosen_code"], evidence["history_source"], chosen["as_of"])
         evidence["history_url"] = hist_url
+        evidence["history_staleness"] = hist_state
+        if hist_state == "STALE":
+            evidence["cot_staleness"] = "STALE"
     else:
         series = trailing_net_oi(history.get(chosen["chosen_code"]) or [], chosen["as_of"])
     score, detail = tanh_z_score(float(chosen["net_oi"]), series)
