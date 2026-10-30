@@ -45,6 +45,7 @@ YAHOO_SYMBOLS: dict[str, str] = {
     "WTI": "CL=F",
     "GOLD_FUT": "GC=F",
     "SPX": "^GSPC",
+    "NDX": "^NDX",
     "DAX": "^GDAXI",
     "N225": "^N225",
     "DXY": "DX-Y.NYB", "US10Y": "^TNX",
@@ -302,7 +303,7 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
     # gold primary = COMEX futures on Yahoo; PAXG kept as cross-check
     quotes["XAU"] = yq["GOLD_FUT"]
     quotes["PAXG"] = cg["XAU"]
-    for k in ("BRENT", "WTI", "SPX", "DAX", "N225", "DXY", "US10Y", "HSI", "SPY", "QQQ", "NVDA", "EXW1.DE", "EURUSD", "USDJPY"):
+    for k in ("BRENT", "WTI", "SPX", "NDX", "DAX", "N225", "DXY", "US10Y", "HSI", "SPY", "QQQ", "NVDA", "EXW1.DE", "EURUSD", "USDJPY"):
         quotes[k] = yq[k]
     for k in FUTURES_ROOTS:
         if quotes.get(k, {}).get("price") is not None:

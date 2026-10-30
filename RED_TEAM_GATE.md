@@ -364,3 +364,16 @@ The current CFTC file is fetched when the cache was written before the latest Fr
 | R2 Data | APPROVE | 15:29 ET still belongs to the previous Friday. 15:30 ET opens the new release. |
 | R7 SRE | APPROVE | The cache stays under the uncommitted PAPER directory. Lane A not edited. |
 | Meta-Critic | APPROVE | One pull after the release is the weekly cadence. A failed pull does not invent a fresher report. |
+
+## NASDAQ-100 own book (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_ndx_witness.py -q` → **1 passed**.
+
+`NDX` is a US equities symbol. Yahoo `^NDX` is the execution price. TradingView `NASDAQ:NDX` is source B. Stooq `^ndq` is source C when A and B do not verify. Tolerance is 35 bps, the same index band as SPX. The session map is NYSE, so an unmapped symbol cannot trade the cash index overnight. QQQ stays its own ETF book. A QQQ price tagged `instrument_basis=qqq_etf` does not verify `NDX`. Gates stay 2 families and 2× fees. No new desk weight.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The index is not sized from the ETF. Gates are unchanged. |
+| R2 Data | APPROVE | One source stays UNRESOLVED. A different instrument basis is not a pair. |
+| R7 SRE | APPROVE | Lane A not edited. Cash session uses the existing NYSE calendar. |
+| Meta-Critic | APPROVE | Agreement is two index prints. It is not a rename of QQQ. |

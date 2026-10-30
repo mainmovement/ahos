@@ -193,3 +193,7 @@ Weekly counterfactual hit-rate per family versus the next 4h and 24h price print
 ## COT weekly fetch (2026-10-30)
 
 CFTC current file refreshes after Friday 15:30 America/New_York. ICE current-year file refreshes after Friday 18:30 Europe/London. Prior-year history stays cached. Evidence carries `cot_staleness` of FRESH, STALE, or ABSENT. Weight stays 0. Gap IDs closed: **none**.
+
+## NASDAQ-100 book (2026-10-30)
+
+`NDX` uses Yahoo `^NDX` plus TradingView `NASDAQ:NDX`, with Stooq `^ndq` as the third source. QQQ is not a same-price witness. Session is NYSE. Desk weight is the existing US equities cap. Gates unchanged. Gap IDs closed: **none**.

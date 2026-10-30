@@ -34,7 +34,7 @@ KRAKEN_MAP = {"XXBTZUSD": "BTC", "XETHZUSD": "ETH", "SOLUSD": "SOL", "UNIUSD": "
 # Same-contract tolerance (fraction): oil/gold <= 50 bps, FX/indices <= 35 bps (owner spec WP-1); yields are
 # compared on the yield level; crypto spot across venues 40 bps.
 TOLERANCE = {"XAU": 0.005, "WTI": 0.005, "BRENT": 0.005,
-             "SPX": 0.0035, "QQQ": 0.0035, "DAX": 0.0035, "N225": 0.0035, "HSI": 0.0035,
+             "SPX": 0.0035, "NDX": 0.0035, "QQQ": 0.0035, "DAX": 0.0035, "N225": 0.0035, "HSI": 0.0035,
              "EURUSD": 0.0035, "USDJPY": 0.0035, "DXY": 0.0035, "US10Y": 0.02}
 DEFAULT_TOL = 0.004
 FUTURES = ("BRENT", "WTI", "XAU")
@@ -106,7 +106,7 @@ def fetch_kraken(timeout: float = 8.0) -> dict[str, dict[str, Any]]:
 
 
 TV_URL = "https://scanner.tradingview.com/global/scan"
-TV_MAP = {"WTI": "NYMEX:CL1!", "BRENT": "ICEEUR:BRN1!", "XAU": "COMEX:GC1!", "SPX": "SP:SPX", "DAX": "XETR:DAX",
+TV_MAP = {"WTI": "NYMEX:CL1!", "BRENT": "ICEEUR:BRN1!", "XAU": "COMEX:GC1!", "SPX": "SP:SPX", "NDX": "NASDAQ:NDX", "DAX": "XETR:DAX",
           "N225": "TVC:NI225", "HSI": "TVC:HSI", "EURUSD": "FX:EURUSD", "USDJPY": "FX:USDJPY", "QQQ": "NASDAQ:QQQ",
           "DXY": "TVC:DXY", "US10Y": "TVC:US10Y"}
 TV_FUTURES_ROOT = {"WTI": "NYMEX:CL", "BRENT": "ICEEUR:BRN", "XAU": "COMEX:GC"}
@@ -180,7 +180,7 @@ def fetch_second_sources(timeout: float = 8.0, *, contract_months: dict[str, str
 
 # ---------------- Source C: Stooq (independent vendor) via the r.jina.ai reader mirror ----------------
 JINA_STOOQ_URL = "https://r.jina.ai/https://stooq.com/q/?s={sym}"
-STOOQ_MAP = {"BRENT": "cb.f", "WTI": "cl.f", "XAU": "gc.f", "DAX": "^dax", "N225": "^nkx",
+STOOQ_MAP = {"BRENT": "cb.f", "WTI": "cl.f", "XAU": "gc.f", "DAX": "^dax", "NDX": "^ndq", "N225": "^nkx",
              "HSI": "^hsi", "EURUSD": "eurusd", "USDJPY": "usdjpy", "QQQ": "qqq.us", "US10Y": "10usy.b"}
 WARSAW = ZoneInfo("Europe/Warsaw")
 _MON3 = {m: i + 1 for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"])}

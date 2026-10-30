@@ -261,3 +261,11 @@
 **Choice:** After the Friday release, and not on every cycle. CFTC is Friday 15:30 America/New_York. ICE is Friday 18:30 Europe/London. A cache that already covers that release is reused. A failed download keeps the previous file and sets `cot_staleness` to STALE. Prior-year history files are fetched only when missing.
 
 **Reason:** The report is weekly. Pulling it every cycle does not make it newer, and a missed Friday should be visible instead of silent.
+
+## 2026-10-30: NASDAQ-100 is its own symbol
+
+**Question:** How should NASDAQ-100 get its own paper book without treating QQQ as the index?
+
+**Choice:** Add `NDX` on the US equities desk, Yahoo `^NDX`, TradingView `NASDAQ:NDX`, and Stooq `^ndq`. An open still requires the existing two-source witness. A QQQ-scale price is not a same-instrument witness. The session is NYSE. No new desk weight. The 2-family and 2× fee gates stay as they are.
+
+**Reason:** QQQ and the index are different price levels. Relabeling the ETF would not be an index book. The owner asked for an own book only when both sources agree.

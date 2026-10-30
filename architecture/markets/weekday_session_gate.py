@@ -27,7 +27,7 @@ VENUES: dict[str, dict] = {
     "FX_OTC": {"tz": "America/New_York", "kind": "24x5", "open": "17:00", "close": "17:00", "label_fa": "فارکس (OTC)"},
 }
 SYMBOL_VENUE: dict[str, str] = {
-    "SPX": "NYSE", "QQQ": "NYSE", "DAX": "XETRA", "N225": "TSE", "HSI": "HKEX", "BRENT": "ICE_BRENT",
+    "SPX": "NYSE", "QQQ": "NYSE", "NDX": "NYSE", "DAX": "XETRA", "N225": "TSE", "HSI": "HKEX", "BRENT": "ICE_BRENT",
     "XAU": "CME_GLOBEX", "WTI": "CME_GLOBEX", "EURUSD": "FX_OTC", "USDJPY": "FX_OTC",
 }
 
