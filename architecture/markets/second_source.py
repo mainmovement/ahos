@@ -27,7 +27,7 @@ from zoneinfo import ZoneInfo
 UA = {"User-Agent": "Mozilla/5.0 (AHOS paper research)"}
 CNBC_URL = ("https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?symbols={syms}"
             "&requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json")
-CNBC_MAP = {"WTI": "@CL.1", "BRENT": "@LCO.1", "SPX": ".SPX", "DAX": ".GDAXI", "N225": ".N225",
+CNBC_MAP = {"WTI": "@CL.1", "SPX": ".SPX", "DAX": ".GDAXI", "N225": ".N225",
             "HSI": ".HSI", "EURUSD": "EUR=", "USDJPY": "JPY=", "QQQ": "QQQ", "DXY": ".DXY", "US10Y": "US10Y"}
 KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=XBTUSD,ETHUSD,SOLUSD,UNIUSD,PAXGUSD"
 KRAKEN_MAP = {"XXBTZUSD": "BTC", "XETHZUSD": "ETH", "SOLUSD": "SOL", "UNIUSD": "UNI", "PAXGUSD": "XAU"}
