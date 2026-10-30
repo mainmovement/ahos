@@ -49,7 +49,8 @@ def _integrity(db_path: str) -> str:
 
 
 def snapshot(local_db: str | None = None, discovery_db: str | None = None,
-             window_hours: float = 24.0, now: float | None = None) -> dict:
+             window_hours: float = 24.0, now: float | None = None,
+             paper_db: str | None = None, knowledge_db: str | None = None) -> dict:
     # Read-only default paths: never mkdir operational data dirs.
     local_db = local_db or get_local_db_path(create_dir=False)
     discovery_db = discovery_db or get_discovery_db_path(create_dir=False)
@@ -114,7 +115,12 @@ def snapshot(local_db: str | None = None, discovery_db: str | None = None,
             "provider_failure_events": ({" / ".join([e["kind"], e["provider_id"]]): e["n"]
                                          for e in pfe} if pfe else "NO_DATA"),
         },
-        "integrity": {"local_db": _integrity(local_db), "discovery_db": _integrity(discovery_db)},
+        "integrity": {
+            "local_db": _integrity(local_db),
+            "discovery_db": _integrity(discovery_db),
+            "paper_db": _integrity(paper_db) if paper_db else "NO_DATA",
+            "knowledge_db": _integrity(knowledge_db) if knowledge_db else "NO_DATA",
+        },
     }
 
 

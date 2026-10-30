@@ -813,6 +813,8 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 brain=eb if isinstance(eb, dict) else None,
                 composite=(eb or {}).get("composite") if isinstance(eb, dict) else None,
             )
+            from architecture.mission.close_reason_fa import close_reason_fa
+            row["close_reason_fa"] = close_reason_fa(row)
             row["research_predictions"] = (eb or {}).get("research_predictions") if isinstance(eb, dict) else None
             row["ledger_hash"] = ledger.fill(row)
             log(row)

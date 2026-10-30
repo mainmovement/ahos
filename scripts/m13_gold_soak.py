@@ -394,6 +394,34 @@ def _write_status(soak_dir: Path, status: dict[str, Any]) -> None:
     soak_dir.mkdir(parents=True, exist_ok=True)
     _enforce_witness_invariant(status)
     try:
+        from datetime import datetime, timezone
+        checked = status.get("store_integrity") if isinstance(status.get("store_integrity"), dict) else {}
+        stamp = str(checked.get("checked_at") or "")
+        fresh = False
+        if stamp:
+            try:
+                age = datetime.now(timezone.utc) - datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+                fresh = age.total_seconds() < 6 * 3600
+            except ValueError:
+                fresh = False
+        if not fresh:
+            from config.paths import (
+                get_discovery_db_path, get_knowledge_db_path,
+                get_local_db_path, get_paper_trading_db_path,
+            )
+            from architecture.persistence.store_integrity import check_known_stores
+            status["store_integrity"] = {
+                "checked_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "stores": check_known_stores({
+                    "ahos_local": Path(get_local_db_path()),
+                    "e01_discovery": Path(get_discovery_db_path()),
+                    "paper_trading": Path(get_paper_trading_db_path()),
+                    "ahos_knowledge": Path(get_knowledge_db_path()),
+                }),
+            }
+    except Exception as exc:  # noqa: BLE001 - a status write still has to land
+        status["store_integrity"] = {"error": type(exc).__name__}
+    try:
         pt_status_path = ROOT / "reports" / "grok" / "PAPER" / "paper_trader_status.json"
         if pt_status_path.is_file():
             pt_st = json.loads(pt_status_path.read_text(encoding="utf-8"))

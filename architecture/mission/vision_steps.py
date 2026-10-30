@@ -53,6 +53,13 @@ _IMPL = frozenset({
     "liquidity_whale_demand",
     "user_position_tracking",
     "identity_resolution",
+    "explainable_scoring",
+    "calibration",
+    "market_intelligence",
+    "token_discovery",
+    "knowledge_memory",
+    "security_ops",
+    "provider_architecture",
 })
 
 
@@ -71,6 +78,13 @@ def build_overlay(proof: dict) -> dict:
         "liquidity_whale_demand": proof.get("liquidity_attached") is True,
         "user_position_tracking": proof.get("paper_reads_opens") is True,
         "identity_resolution": proof.get("witnesses_agreed") is True,
+        "explainable_scoring": proof.get("close_reasons_cited") is True,
+        "calibration": proof.get("calibration_measured") is True and proof.get("calibration_applied") is False,
+        "market_intelligence": proof.get("sourced_quotes") is True,
+        "token_discovery": int(proof.get("token_veto_rows") or 0) > 0,
+        "knowledge_memory": proof.get("recall_cited") is True and proof.get("recall_unknown") is True,
+        "security_ops": proof.get("kill_drill_passed") is True and proof.get("live_book_edited") is False,
+        "provider_architecture": proof.get("provider_probe_recorded") is True,
     }
     rows = []
     for step in STEPS:
