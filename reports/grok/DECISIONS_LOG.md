@@ -237,3 +237,11 @@
 **Choice:** Existing numeric shadow and strategy-switch `predicted_score` values vote as advisory. Composite weight stays 0 unless PASS_STATS + SURVIVED_RED_TEAM. Direction-only rows stay UNAVAILABLE. OIL and GOLD whales use the public CFTC file `https://www.cftc.gov/dea/newcot/f_disagg.txt` (BRENT LAST DAY, ICE Europe WTI, COMEX gold), weight 0. FOREX, equities, and PB_TOKEN stay ABSENT_BY_DESIGN. The hardcoded COT percentiles in `macro_overlays` are not a source. The 2-family and 2× fee gates stay as they are.
 
 **Reason:** The owner asked for real scores to reach the cycle and for a free public proxy only when one exists. The CFTC file was fetched and the named rows were present on 2026-10-30. No other desk had a verified contract wired.
+
+## 2026-10-30: COT codes and a 52-week z-score
+
+**Question:** Which contract codes are the main WTI, Brent, and gold books, and how should a large net/open-interest be scored?
+
+**Choice:** Select by code. WTI is 067651. Gold is 088691. Brent is the higher open interest of ICE futures-only Brent (`ICEU:B:FutOnly`, commodity code B) and NYMEX 06765T. On 2026-10-20 that is the ICE contract. The score is tanh(z/2) versus that code's own prior 52 weeks. CFTC history is the annual futures-only zip. ICE Brent history is the ICE CSV, because ICE Brent is not in the CFTC file. Weight stays 0. A history shorter than 52 weeks does not fall back to the old 0.05 scale.
+
+**Reason:** The previous WTI row was ICE code 067411, chosen by name. The previous gold score saturated because 5% of open interest was treated as a full vote. The owner required the main codes and a trailing z-score.

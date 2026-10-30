@@ -142,8 +142,11 @@
       "composite_weight": 0,
       "source": "https://www.cftc.gov/dea/newcot/f_disagg.txt",
       "contracts": {
-        "XAU": "GOLD - COMMODITY EXCHANGE INC."
-      }
+        "XAU": {
+          "cftc_contract_market_code": "088691"
+        }
+      },
+      "score": "tanh(z/2) versus the contract's own prior 52 weeks"
     },
     {
       "desk": "GOLD",
@@ -196,9 +199,19 @@
       "composite_weight": 0,
       "source": "https://www.cftc.gov/dea/newcot/f_disagg.txt",
       "contracts": {
-        "BRENT": "BRENT LAST DAY - NEW YORK MERCANTILE EXCHANGE",
-        "WTI": "CRUDE OIL, LIGHT SWEET-WTI - ICE FUTURES EUROPE"
-      }
+        "WTI": {
+          "cftc_contract_market_code": "067651"
+        },
+        "BRENT": {
+          "rule": "highest_open_interest",
+          "codes": [
+            "ICEU:B:FutOnly",
+            "06765T"
+          ],
+          "chosen_code": "logged on the cycle"
+        }
+      },
+      "score": "tanh(z/2) versus the contract's own prior 52 weeks"
     },
     {
       "desk": "OIL",

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from architecture.markets.cftc_cot import COT_CONTRACTS, COT_URL
+from architecture.markets.cftc_cot import CFTC_CURRENT_URL, selection_record
 from architecture.markets.paper_trade_gates import (
     INDEPENDENT_VOTE_FAMILIES,
     MIN_AGREEING_FAMILIES,
@@ -56,14 +56,20 @@ def _row(desk: str, family: str, members: tuple[str, ...]) -> dict[str, Any]:
             "source": "large_trades, exchange_netflow, whale_mempool",
         }
     if family == "whales":
-        contracts = {symbol: name for (mapped_desk, symbol), name in COT_CONTRACTS.items() if mapped_desk == desk}
+        record = selection_record()
+        contracts = {}
+        if desk == "OIL":
+            contracts = {"WTI": record["WTI"], "BRENT": record["BRENT"]}
+        elif desk == "GOLD":
+            contracts = {"XAU": record["XAU"]}
         if contracts:
             return {
                 **base,
                 "status": "CFTC_COT",
                 "composite_weight": 0,
-                "source": COT_URL,
+                "source": CFTC_CURRENT_URL,
                 "contracts": contracts,
+                "score": "tanh(z/2) versus the contract's own prior 52 weeks",
             }
         return {
             **base,

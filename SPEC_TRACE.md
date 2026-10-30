@@ -181,3 +181,7 @@ Window **0.742h / 6h**, opens 0, OIL two-family blocks 2, fee-drag stops 5. News
 ## Family coverage note (2026-10-30)
 
 Research votes from existing numeric shadow and switch scores are advisory. Composite weight stays 0 unless PASS_STATS + SURVIVED_RED_TEAM. OIL and GOLD whales use the public CFTC futures-only file (`f_disagg.txt`, managed-money columns), weight 0. FOREX, equities, and PB_TOKEN whales are ABSENT_BY_DESIGN. Table: `reports/grok/PAPER/family_coverage.json`. Gates stay 2 families and 2× fees. Window at 01:35:50Z is still **INSUFFICIENT_WINDOW** (0.926h). Gap IDs closed: **none**.
+
+## COT code selection (2026-10-30)
+
+WTI is CFTC code **067651**. Gold is **088691**. Brent is the higher open interest of `ICEU:B:FutOnly` and **06765T**; the 2026-10-20 choice is `ICEU:B:FutOnly`. Score is `tanh(z/2)` on that contract's prior 52 weeks. Weight stays 0. The 0.05 scale is removed. Gap IDs closed: **none**.

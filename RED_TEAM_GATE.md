@@ -319,3 +319,21 @@ Gates unchanged: `MIN_AGREEING_FAMILIES=2`, `VOTE_SCORE_FLOOR=0.05`, `MIN_EXPECT
 | R6 University | APPROVE | Shadow hypotheses still log `composite_weight` 0. |
 | R7 SRE | APPROVE | Lane A not edited. Cache is a public file under PAPER and was not committed. |
 | Meta-Critic | APPROVE | Less than one hour is not six hours. A fixture percentile was not promoted into a whale vote. |
+
+## COT contract codes and 52-week z-score (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_cftc_cot_and_coverage.py -q` → **7 passed**.
+
+Selection is by code. WTI is **067651** (`WTI-PHYSICAL - NEW YORK MERCANTILE EXCHANGE` in the current file, open interest 1,835,144). Gold is **088691**. Brent compares futures-only ICE Brent `ICEU:B:FutOnly` (commodity code B; the CFTC contract-market code field is empty) with NYMEX **06765T**. On 2026-10-20 the open interests were 2,608,506 and 230,693, so the chosen code is `ICEU:B:FutOnly`. A larger row whose name contains BRENT, or the ICE WTI code 067411, is not eligible. Combined futures-and-options is not eligible.
+
+The fixed 0.05 scale is gone. Score is `tanh(z/2)` against the prior 52 weekly net/open-interest readings of that same code. Gold's net/open-interest is 0.259 and its z is **−0.398** (score **−0.1964**), not 0.9999. WTI score **−0.2506**. Brent score **0.1496**. Weight is 0. CFTC codes use `fut_disagg_txt_{year}.zip`. ICE Brent uses `COTHist{year}.csv` because that contract is not in the CFTC file. Fewer than 52 prior weeks stays unavailable.
+
+Gates unchanged. The 6h window is still short of COMPLETE; the figure is reported with the reload.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | A normal gold net no longer maps to 1. The current week is excluded from its own mean. Weight stays 0. |
+| R2 Data | APPROVE | Live rows matched 067651, 088691, and ICEU:B over 06765T by open interest. Name substrings are not the key. |
+| R4 Council | APPROVE | This is a positioning vote, not a promotion path. |
+| R7 SRE | APPROVE | Lane A not edited. The downloaded files stay in the uncommitted cache. |
+| Meta-Critic | APPROVE | ICE Brent is a real free file. It is not a fabricated open interest, and it is not the NYMEX look-alike. |
