@@ -597,3 +597,11 @@
 **Choice:** No. Those processes loaded their code at 18:17 and 18:20 local. In the last hour the soak logged cycles through 1452 at 2026-10-30T22:36:08Z, and the bus shows 504 messages from AG-09 and AG-33 only. The shadow tick is now on the cycle path in the files, and a manual process 9432 logged one pass. Neither running pid has logged that pass. One gold close was opened at 2026-10-30T19:21:18Z and closed at 2026-10-30T22:34:31Z. That is one fresh close, under 30. The judge on the manual pass is NO_PROMOTION. Promoted 0. Gap IDs closed: none.
 
 **Reason:** A restart would break the soak clock the last registration left closed until 2026-11-01T00:45:31Z, and a manual pid is not the running trader.
+
+## 2026-10-31: The book’s lessons stay in shadow
+
+**Question:** Should the news-trap and bad-timing skip be written into the live weights because the stored book’s mean is higher without those closes?
+
+**Choice:** No. The shadow replay drops 46 closes and the mean difference is 0.009529 dollars. That replay is the stored book, not 30 fresh closes, and the red team has not survived. `lesson_is_live` stays false, so the running trader does not zero the news weight. 141 new university cases were appended. The week’s intelligence status is TREND_NOT_UP. Soak 14260 and trader 13020 were not restarted. Gap IDs closed: none.
+
+**Reason:** A higher mean on old closes is not a license to change the live weight.

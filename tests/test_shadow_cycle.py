@@ -25,5 +25,7 @@ def test_a_manual_tick_is_not_the_running_soak(tmp_path: Path) -> None:
     assert row["floors"]["min_agreeing_families"] == MIN_AGREEING_FAMILIES == 2
     assert row["floors"]["vote_score_floor"] == VOTE_SCORE_FLOOR == 0.05
     text = running_counts_fa(tmp_path, now=datetime(2026, 10, 30, 22, 30, tzinfo=timezone.utc))
+    assert row["lesson_live"] is False
+    assert row["applied_to_live"] is False
     assert "سایهٔ زنده ۰" in text
     assert not any(ch.isascii() and ch.isalpha() for ch in text)

@@ -99,6 +99,45 @@ def strategy_rows(frame: dict[str, Any], inputs: dict[str, Any]) -> list[dict[st
     return rows
 
 
+def learn_from_book(root: Path) -> dict[str, Any]:
+    """Turn stored closes into shadow lessons. Live weights stay where they are."""
+    from architecture.markets.paper_account import load_paper_trades
+    from architecture.university.behaviour_learning import publish_learning
+    from architecture.university.learning_loop import append_university_case, university_case
+    from architecture.university.lesson_shadow import export_lesson_shadow, lesson_is_live
+
+    closes = [row for row in load_paper_trades(root) if row.get("event") in (None, "CLOSE")]
+    path = Path(root) / "reports" / "grok" / "PAPER" / "university_cases.jsonl"
+    seen: set[str] = set()
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                prior = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(prior, dict):
+                seen.add("|".join(str(prior.get(key) or "") for key in ("symbol", "closed_at", "side")))
+    added = 0
+    for row in closes:
+        case = university_case(row)
+        key = "|".join(str(case.get(name) or "") for name in ("symbol", "closed_at", "side"))
+        if not key.strip("|") or key in seen:
+            continue
+        append_university_case(root, row)
+        seen.add(key)
+        added += 1
+    learning = publish_learning(root, closes)
+    lesson = export_lesson_shadow(root, closes)
+    return {
+        "new_cases": added,
+        "intelligence_status": learning.get("intelligence_status"),
+        "lesson_dropped": lesson.get("n_dropped"),
+        "lesson_delta_usd": lesson.get("delta_expectancy_usd"),
+        "applied_to_live_weights": False,
+        "lesson_live": lesson_is_live(root),
+    }
+
+
 def shadow_tick(
     root: Path,
     *,
@@ -117,6 +156,7 @@ def shadow_tick(
     frame = {"closes": list((inputs or {}).get("closes") or [])}
     signals = strategy_rows(frame, inputs or {})
     scored = evaluate(root)
+    learned = learn_from_book(root)
     news = scored.get("news") or {}
     cool = news.get("news_cooldown_15") or {}
     judge = review()
@@ -137,6 +177,9 @@ def shadow_tick(
         "tilt_applied_to_live": False,
         "entry_share": (scored.get("entry") or {}).get("mtf_trend_dominant_share_after"),
         "lesson": "درنگ خبر",
+        "intelligence_status": learned.get("intelligence_status"),
+        "new_cases": learned.get("new_cases"),
+        "lesson_live": learned.get("lesson_live"),
         "judge": judge.get("judge"),
         "red_team": judge.get("red_team"),
         "promoted": False,

@@ -1,27 +1,27 @@
 {
  "schema": "ahos.lesson_shadow.v1",
  "paper_only": true,
- "generated_at": "2026-10-30T12:30:17Z",
+ "generated_at": "2026-10-30T23:01:03Z",
  "rules": [
   "NEWS_TRAP",
   "BAD_TIMING"
  ],
  "rule_text": "Shadow skips a close whose cause is a news trap or a timing loss. The live book is unchanged.",
- "n_live": 153,
- "n_shadow": 110,
- "n_dropped": 43,
+ "n_live": 172,
+ "n_shadow": 126,
+ "n_dropped": 46,
  "dropped_by_cause": {
-  "NEWS_TRAP": 37,
-  "BAD_TIMING": 6
+  "NEWS_TRAP": 39,
+  "BAD_TIMING": 7
  },
- "expectancy_live_usd": -0.006636,
- "expectancy_shadow_usd": 0.003487,
- "delta_expectancy_usd": 0.010123,
- "oos_expectancy_live_usd": 0.002197,
- "oos_expectancy_shadow_usd": 0.010316,
- "oos_delta_expectancy_usd": 0.008119,
- "pnl_live_usd": -1.0153,
- "pnl_shadow_usd": 0.3836,
+ "expectancy_live_usd": -0.004662,
+ "expectancy_shadow_usd": 0.004867,
+ "delta_expectancy_usd": 0.009529,
+ "oos_expectancy_live_usd": 0.00748,
+ "oos_expectancy_shadow_usd": 0.01497,
+ "oos_delta_expectancy_usd": 0.00749,
+ "pnl_live_usd": -0.8018,
+ "pnl_shadow_usd": 0.6133,
  "applied_to_live_weights": false,
  "decides": false
 }
