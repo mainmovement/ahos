@@ -1177,4 +1177,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             export_unification_audit(root)
         except Exception:
             pass
+    try:
+        from architecture.mission.unified_cycle import run_unified_cycle
+
+        run_unified_cycle(root)
+    except Exception:
+        pass
     return status
