@@ -879,15 +879,25 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if desk == "CRYPTO_FUTURES":
             from architecture.markets.crypto_futures_paper import book_notional_cap, leverage_decision
 
-            brain["futures"] = leverage_decision(root)
             open_fut = sum(p["notional_usd"] for p in positions.values() if p.get("desk") == "CRYPTO_FUTURES")
+            unreal_fut = sum((float(p.get("mark_price") or p["entry_price"]) - float(p["entry_price"])) * float(p["qty"])
+                             * (1 if p["side"] == "LONG" else -1)
+                             for p in positions.values() if p.get("desk") == "CRYPTO_FUTURES")
+            brain["futures"] = leverage_decision(
+                root, trades=[x for x in trades if x.get("desk") == "CRYPTO_FUTURES"],
+                unrealized=unreal_fut, stamp=_iso(t))
             notional = round(min(notional, book_notional_cap(equity, open_fut)), 4)
         if desk == "LISTED_FUTURES":
             from architecture.markets.listed_futures_paper import book_notional_cap as listed_cap
             from architecture.markets.listed_futures_paper import leverage_decision as listed_leverage
 
-            brain["listed_futures"] = listed_leverage(root)
             open_listed = sum(p["notional_usd"] for p in positions.values() if p.get("desk") == "LISTED_FUTURES")
+            unreal_listed = sum((float(p.get("mark_price") or p["entry_price"]) - float(p["entry_price"])) * float(p["qty"])
+                                * (1 if p["side"] == "LONG" else -1)
+                                for p in positions.values() if p.get("desk") == "LISTED_FUTURES")
+            brain["listed_futures"] = listed_leverage(
+                root, trades=[x for x in trades if x.get("desk") == "LISTED_FUTURES"],
+                unrealized=unreal_listed, stamp=_iso(t))
             notional = round(min(notional, listed_cap(equity, open_listed)), 4)
         if str(sym).startswith("DEX_"):
             from architecture.markets.token_safety_live import DYNAMIC_TOKEN_EQUITY
@@ -932,26 +942,35 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if oms.state != "ACCEPTED_PAPER":
             log({**base, "event": "NO_TRADE", "reason": f"OMS_{oms.state}:{oms.reason}", "composite": comp}); continue
         fill = price * (1 + slip * d)
-        qty = notional / fill
-        entry_fee = notional * fee
+        lev = 1.0
+        if desk == "CRYPTO_FUTURES":
+            lev = float((brain.get("futures") or {}).get("applied") or 1.0)
+        elif desk == "LISTED_FUTURES":
+            lev = float((brain.get("listed_futures") or {}).get("applied") or 1.0)
+        exposure = round(notional * lev, 4)
+        qty = exposure / fill
+        entry_fee = exposure * fee
         fut_fields: dict[str, Any] = {}
         if desk == "CRYPTO_FUTURES":
             from architecture.markets.crypto_futures_paper import liquidation_price as _liq_px
 
-            liq = _liq_px(side, fill)
+            liq = _liq_px(side, fill, leverage=lev)
             fut_fields = {
                 "liquidation_price": None if liq is None else round(liq, 8),
                 "funding_usd": 0.0,
                 "funding_ts": t,
-                "leverage": 1.0,
+                "leverage": lev,
+                "exposure_usd": exposure,
+                "initial_margin_usd": round(notional, 4),
             }
         elif desk == "LISTED_FUTURES":
             from architecture.markets.listed_futures_paper import MAINTENANCE_MARGIN_RATE, liquidation_price as _listed_liq
 
-            liq = _listed_liq(side, fill)
+            liq = _listed_liq(side, fill, leverage=lev)
             fut_fields = {
                 "liquidation_price": None if liq is None else round(liq, 8),
-                "leverage": 1.0,
+                "leverage": lev,
+                "exposure_usd": exposure,
                 "initial_margin_usd": round(notional, 4),
                 "maintenance_margin_rate": MAINTENANCE_MARGIN_RATE,
                 "contract_month": q.get("contract_month"),
@@ -976,6 +995,17 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         row["research_predictions"] = pred_log
         row["ledger_hash"] = ledger.fill(row)
         log(row)
+        if desk in ("CRYPTO_FUTURES", "LISTED_FUTURES"):
+            try:
+                from architecture.markets.leverage_ladder import mirror_shadow_open
+
+                mirror_shadow_open(
+                    root, symbol=sym, desk=desk, side=side, margin_usd=notional, price=fill,
+                    fee=fee, slip=slip, ts=t, opened_at=_iso(t), contract_month=q.get("contract_month"),
+                    funding_rate=q.get("funding_rate_8h"), votes=(vote_audit or {}).get("votes"),
+                )
+            except Exception:
+                pass
 
     unreal = 0.0
     for sym, p in positions.items():
@@ -990,6 +1020,26 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         from architecture.markets.family_vote_scorecard import export_weekly_family_scorecard
 
         export_weekly_family_scorecard(root)
+    except Exception:
+        pass
+    try:
+        from architecture.markets.leverage_ladder import mark_shadow_book, mirror_shadow_open
+
+        for sym, p in positions.items():
+            if p.get("desk") not in ("CRYPTO_FUTURES", "LISTED_FUTURES"):
+                continue
+            spec = INSTRUMENTS.get(sym)
+            if not spec:
+                continue
+            votes = ((p.get("entry_brain") or {}).get("independent_votes") or {}).get("votes")
+            mirror_shadow_open(
+                root, symbol=sym, desk=str(p.get("desk")), side=str(p.get("side")),
+                margin_usd=float(p.get("initial_margin_usd") or p.get("notional_usd") or 0),
+                price=float(p["entry_price"]), fee=float(spec[1]), slip=0.0,
+                ts=float(p.get("opened_ts") or t), opened_at=str(p.get("opened_at") or _iso(t)),
+                contract_month=p.get("contract_month"), votes=votes,
+            )
+        mark_shadow_book(root, quotes, t, live_open=set(positions))
     except Exception:
         pass
     acct = paper_account_summary(root)
@@ -1022,6 +1072,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         },
         **_lane_status_fields(positions, events, root),
     }
+    try:
+        from architecture.markets.leverage_ladder import books_report
+
+        status["leverage_books"] = books_report(root, positions, trades)
+    except Exception:
+        status["leverage_books"] = None
     _save_json(root / STATUS_REL, status)
     if any(e["event"] in ("OPEN", "CLOSE") for e in events):
         try:

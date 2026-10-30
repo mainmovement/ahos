@@ -124,19 +124,18 @@ def scorecard_span_days(root: Path) -> float | None:
     return (max(stamps) - min(stamps)).total_seconds() / 86400.0
 
 
-def leverage_decision(root: Path, requested: float = LEVERAGE_CAP) -> dict[str, Any]:
-    """1.0 is the only applied leverage. A finished scorecard week does not raise it."""
-    span = scorecard_span_days(root)
-    locked = span is None or span < SCORECARD_DAYS
-    return {
-        "requested": float(requested),
-        "applied": min(LEVERAGE_CAP, float(requested)),
-        "lock": "SCORECARD_WEEK_INCOMPLETE" if locked else "CAP_HELD_AT_1",
-        "span_days": None if span is None else round(span, 4),
-        "equity_cap": EQUITY_CAP,
-        "maintenance_margin_rate": MAINTENANCE_MARGIN_RATE,
-        "paper_only": True,
-    }
+def leverage_decision(root: Path, requested: float = 5.0, trades: list[dict[str, Any]] | None = None,
+                      unrealized: float = 0.0, stamp: str = "") -> dict[str, Any]:
+    """Live rung from the evidence ladder. A scorecard week does not raise it by itself."""
+    from architecture.markets.leverage_ladder import live_rung
+
+    decision = live_rung(root, DESK, trades or [], unrealized=unrealized, stamp=stamp)
+    decision["applied"] = min(float(decision["applied"]), float(requested))
+    decision["requested"] = float(requested)
+    decision["equity_cap"] = EQUITY_CAP
+    decision["maintenance_margin_rate"] = MAINTENANCE_MARGIN_RATE
+    decision["span_days"] = scorecard_span_days(root)
+    return decision
 
 
 def book_notional_cap(equity: float, open_notional: float) -> float:

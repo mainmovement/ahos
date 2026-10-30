@@ -333,3 +333,11 @@
 **Choice:** If the exact match is missing, accept one Yahoo contract whose price is inside the symbol tolerance and whose timestamp is within 60 seconds. Two contracts inside that band stay unknown. An unknown month still blocks a new open. The cash oil and gold resolver is unchanged.
 
 **Reason:** A one-tick difference is the same continuous contract, not a second month. Guessing between two close months would invent an expiry.
+
+## 2026-10-30: Futures leverage is a ladder, and 5x/10x stays in shadow
+
+**Question:** Can the futures books raise leverage, and can a high-leverage book run without touching the main account?
+
+**Choice:** The live crypto-swap book and the live listed-futures book start at 1x. They may step to 2x, then 3x, then 5x, one rung at a time, only when that desk's own closes at the current rung have at least 30 trades, DSR above 0.95, PBO under 0.5, and max drawdown within 15%. DSR and PBO use the existing research functions. One return path cannot satisfy them, so the live book stays at 1x until those numbers exist. A drawdown past 15% from the desk peak steps down one rung and does not step twice in the same cycle. Cash books stay unlevered. FDAX stays off the book. A shadow book opens 5x and 10x on the same signal, with the same fees, simulated funding where a rate exists, and simulated liquidation. Shadow pnl is not live equity. The two books are written side by side in `reports/grok/PAPER/leverage_books_report.json`.
+
+**Reason:** The owner asked for higher leverage and a measurement of 5x and 10x. Raising the live book without the evidence bar would skip the gate. The shadow book is the measurement.

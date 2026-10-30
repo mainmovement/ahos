@@ -460,3 +460,16 @@ Command: `pytest tests/test_listed_futures_paper.py tests/test_cftc_cot_and_cove
 | Meta-Critic | APPROVE | This book does not replace WTI, XAU, SPX, or the crypto swaps. The roll is a flatten, not an invented spread. |
 
 The first live pass left CL, ES, NQ, and NKD on `CONTRACT_MONTH_UNKNOWN` because the exact Yahoo identity missed by a tick. A follow-up accepts one Yahoo contract inside the existing tolerance and 60 seconds. Two hits stay unknown. `pytest tests/test_listed_futures_paper.py -q` → **7 passed**.
+
+## Leverage ladder and shadow book (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_leverage_ladder.py tests/test_crypto_futures_paper.py tests/test_listed_futures_paper.py -q` → **15 passed**.
+
+Live futures stay at 1x. A step to 2x, 3x, or 5x needs 30 closes on that rung, DSR above 0.95, PBO under 0.5, and drawdown within 15%. One return path leaves DSR and PBO unmeasured, so it does not step up. Drawdown past the cap steps down one rung. Shadow 5x and 10x use the same signal, fees, funding, and liquidation, and the report marks `shadow_changes_live_equity` false. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The live ceiling moves one rung, and only after the existing DSR and PBO functions pass. |
+| R2 Data | APPROVE | A single path does not invent a trial set, so PBO stays unmeasured. |
+| R4 Council | APPROVE | The shadow book does not write the live ledger. |
+| Meta-Critic | APPROVE | 5x and 10x are a measurement. They are not the live account. |

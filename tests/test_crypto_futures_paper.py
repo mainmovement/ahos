@@ -39,9 +39,9 @@ def test_futures_news_uses_the_same_crypto_terms() -> None:
 def test_leverage_stays_one_and_the_book_cap_is_ten_percent(tmp_path: Path) -> None:
     fresh = leverage_decision(tmp_path, requested=1.5)
     assert fresh["applied"] == 1.0
-    assert fresh["lock"] == "SCORECARD_WEEK_INCOMPLETE"
+    assert fresh["lock"] == "EVIDENCE_INCOMPLETE"
     obs = tmp_path / "reports" / "grok" / "PAPER" / "family_vote_observations.jsonl"
-    obs.parent.mkdir(parents=True)
+    obs.parent.mkdir(parents=True, exist_ok=True)
     obs.write_text(
         "\n".join([
             json.dumps({"ts": "2026-10-01T00:00:00Z"}),
@@ -51,7 +51,7 @@ def test_leverage_stays_one_and_the_book_cap_is_ten_percent(tmp_path: Path) -> N
     )
     held = leverage_decision(tmp_path, requested=2.0)
     assert held["applied"] == LEVERAGE_CAP == 1.0
-    assert held["lock"] == "CAP_HELD_AT_1"
+    assert held["lock"] == "EVIDENCE_INCOMPLETE"
     assert book_notional_cap(100.0, 9.5) == 0.5
     assert EQUITY_CAP == 0.10
     assert "architecture.markets.margin" not in Path("architecture/markets/crypto_futures_paper.py").read_text(encoding="utf-8")
@@ -99,7 +99,7 @@ def test_swap_open_is_capped_and_liquidation_is_paper(tmp_path: Path) -> None:
     assert opened[0]["side"] == "LONG"
     assert opened[0]["notional_usd"] <= 10.0
     assert opened[0]["brain"]["futures"]["applied"] == 1.0
-    assert opened[0]["brain"]["futures"]["lock"] == "SCORECARD_WEEK_INCOMPLETE"
+    assert opened[0]["brain"]["futures"]["lock"] == "EVIDENCE_INCOMPLETE"
     state = json.loads((tmp_path / "reports/grok/PAPER/paper_positions.json").read_text(encoding="utf-8"))
     pos = state["positions"]["BTC-SWAP"]
     assert pos["leverage"] == 1.0

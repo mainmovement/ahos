@@ -217,3 +217,7 @@ Crypto spot: Binance public REST fill when it agrees with OKX public REST. Swaps
 ## Listed futures (2026-10-30)
 
 Separate from the cash books and from `CRYPTO_FUTURES`. Symbols: CL, BZ, GC, ES, NQ, NKD. FDAX omitted: no Yahoo continuous ticker. Yahoo continuous fill, TradingView witness, Globex or ICE Brent hours, flatten five calendar days before the paper last-trade date, simulated liquidation, cap 0.10 of equity, leverage held at 1.0. Oil and gold reuse the existing CFTC file. ES, NQ, and NKD whales are absent. Gates unchanged. Gap IDs closed: **none**.
+
+## Leverage ladder (2026-10-30)
+
+Live crypto swaps and listed futures start at 1x. Steps are 2x, then 3x, then 5x, only after that desk has 30 closes at the current rung, DSR above 0.95, PBO under 0.5, and drawdown within 15%. A deeper drawdown steps down one rung. Shadow 5x and 10x replay the same signal with fees, funding, and liquidation, and do not change live equity. Cash books stay unlevered. Gates unchanged. Gap IDs closed: **none**.

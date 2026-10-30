@@ -100,9 +100,9 @@ def test_overnight_session_is_not_the_cash_index_session() -> None:
 def test_leverage_stays_one_and_liquidation_is_a_deep_move(tmp_path: Path) -> None:
     fresh = leverage_decision(tmp_path, requested=3.0)
     assert fresh["applied"] == LEVERAGE_CAP == 1.0
-    assert fresh["lock"] == "SCORECARD_WEEK_INCOMPLETE"
+    assert fresh["lock"] == "EVIDENCE_INCOMPLETE"
     obs = tmp_path / "reports" / "grok" / "PAPER" / "family_vote_observations.jsonl"
-    obs.parent.mkdir(parents=True)
+    obs.parent.mkdir(parents=True, exist_ok=True)
     obs.write_text(
         "\n".join([
             json.dumps({"ts": "2026-10-01T00:00:00Z"}),
@@ -112,7 +112,7 @@ def test_leverage_stays_one_and_liquidation_is_a_deep_move(tmp_path: Path) -> No
     )
     held = leverage_decision(tmp_path, requested=2.0)
     assert held["applied"] == 1.0
-    assert held["lock"] == "CAP_HELD_AT_1"
+    assert held["lock"] == "EVIDENCE_INCOMPLETE"
     assert book_notional_cap(100.0, 9.5) == 0.5
     assert round(liquidation_price("LONG", 100.0) or 0, 10) == 5.0
     assert round(liquidation_price("SHORT", 100.0) or 0, 10) == 195.0
