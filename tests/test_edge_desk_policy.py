@@ -19,6 +19,28 @@ def test_notional_mult_shrinks_losing_desk():
     assert notional_mult_from_desk_row({"closes": 10, "realized_pnl_usd": 0.2}) == 1.0
 
 
+def test_cent_scale_loss_uses_sample_size_not_a_two_dollar_cliff():
+    mult = notional_mult_from_desk_row({"closes": 30, "realized_pnl_usd": -0.01})
+    assert 0.15 <= mult < 0.40
+
+
+def test_closed_book_equations_stay_unpromoted():
+    from architecture.learning.walk_forward import closed_book_equations
+
+    doc = closed_book_equations([-0.02, -0.01, 0.005] * 10)
+    assert doc["promoted"] is False
+    assert doc["applied_to_live_weights"] is False
+    assert doc["mean_test"]["t"] < 0
+    assert doc["deflated_sharpe"] is not None
+
+
+def test_t_stat_shrinks_more_when_the_loss_is_tight():
+    weak = notional_mult_from_desk_row({"closes": 30, "realized_pnl_usd": -0.30, "stdev_usd": 5.0})
+    strong = notional_mult_from_desk_row({"closes": 30, "realized_pnl_usd": -0.30, "stdev_usd": 0.05})
+    assert strong < weak
+    assert weak > 0.5
+
+
 def test_effective_mult_merges_edge_with_static(tmp_path: Path):
     edge = {
         "generated_at": "2026-10-29T00:00:00Z",

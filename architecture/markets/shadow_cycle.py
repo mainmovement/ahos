@@ -128,6 +128,12 @@ def learn_from_book(root: Path) -> dict[str, Any]:
         added += 1
     learning = publish_learning(root, closes)
     lesson = export_lesson_shadow(root, closes)
+    from architecture.learning.walk_forward import closed_book_equations
+
+    equations = closed_book_equations([float(row.get("realized_pnl_usd") or 0) for row in closes])
+    eq_path = Path(root) / "reports" / "grok" / "PAPER" / "book_equations.json"
+    eq_path.parent.mkdir(parents=True, exist_ok=True)
+    eq_path.write_text(json.dumps(equations, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     return {
         "new_cases": added,
         "intelligence_status": learning.get("intelligence_status"),
@@ -135,6 +141,9 @@ def learn_from_book(root: Path) -> dict[str, Any]:
         "lesson_delta_usd": lesson.get("delta_expectancy_usd"),
         "applied_to_live_weights": False,
         "lesson_live": lesson_is_live(root),
+        "book_t": (equations.get("mean_test") or {}).get("t"),
+        "book_dsr": equations.get("deflated_sharpe"),
+        "book_pbo": equations.get("pbo"),
     }
 
 

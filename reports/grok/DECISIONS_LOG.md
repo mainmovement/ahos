@@ -613,3 +613,11 @@
 **Choice:** Yes, as a downgrade only. `desk_policy.json` now sets GOLD and PB_TOKEN notional to 0.15. The trader process 13020 already reads that file each cycle and keeps the smaller of the static haircut and this number. US and EU stay at 1.0. No signal weight was raised. The book stays an unproven edge. Soak 14260 was not restarted.
 
 **Reason:** The dollar-scaled haircut never went below the static map, so it was not binding. The floor already written in that policy is 0.15, and these two desks are still open with a negative mean.
+
+## 2026-10-31: Replace the two-dollar size cliff with a t test
+
+**Question:** Should the desk-size equation keep treating a two-dollar sum as full severity, and should the stored book’s new t statistic be promoted?
+
+**Choice:** The size equation now uses a normal approximation to the t statistic when a dispersion is present, and the sample size when it is not. A positive mean stays at 1. The stored book of 172 closes has t = −1.5012 and a one-sided tail of 0.0667. Deflated Sharpe is 0.0049 and PBO is 0.2286. Both are lookback. Promoted stays false. The live policy file was not rewritten, so GOLD and PB_TOKEN remain 0.15 and US_EQUITIES remains 1.0.
+
+**Reason:** A two-dollar cliff never described this paper book. The tail probability is not a pass of the 0.95 gate.

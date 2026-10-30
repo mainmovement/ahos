@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,16 +16,31 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _phi(x: float) -> float:
+    """Standard normal cdf. The size equation uses this tail, not a fixed dollar cliff."""
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
 def notional_mult_from_desk_row(row: dict[str, Any]) -> float:
-    """Advisory mult in [0.15, 1.0] from closed-trade desk PnL (after fees in log)."""
+    """Advisory mult in [0.15, 1.0]. A negative mean shrinks size. A positive mean stays at 1.
+
+    When ``stdev_usd`` is present the evidence is the normal approximation to the t statistic
+    t = mean / (stdev / sqrt(n)). Without it, the only evidence is the sample size. A two-dollar
+    sum is not the scale of this paper book.
+    """
     closes = int(row.get("closes") or 0)
     pnl = float(row.get("realized_pnl_usd") or 0)
-    if closes < 3:
+    if closes < 3 or pnl >= 0:
         return 1.0
-    if pnl >= 0:
-        return 1.0
-    severity = min(1.0, abs(pnl) / 2.0)
-    return round(max(0.15, 0.5 - 0.35 * severity), 4)
+    sd = row.get("stdev_usd")
+    if isinstance(sd, (int, float)) and not isinstance(sd, bool) and float(sd) > 0:
+        mean = pnl / closes
+        t = mean / (float(sd) / math.sqrt(closes))
+        p = _phi(t)
+        severity = min(1.0, max(0.0, (0.5 - p) / 0.5))
+        return round(max(0.15, 1.0 - 0.85 * severity), 4)
+    evidence = 1.0 - 1.0 / math.sqrt(closes)
+    return round(max(0.15, 1.0 - 0.85 * evidence), 4)
 
 
 def build_desk_policy_from_edge_report(edge: dict[str, Any]) -> dict[str, Any]:

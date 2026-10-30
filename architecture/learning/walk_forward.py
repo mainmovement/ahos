@@ -110,6 +110,30 @@ def sharpe(r: list[float]) -> float:
     return statistics.fmean(r) / sd if sd else 0.0
 
 
+def mean_test(r: list[float]) -> dict[str, Any]:
+    """Normal approximation to the t test of a zero mean. Not a Student-t table and not a promotion."""
+    n = len(r)
+    if n < 2:
+        return {"n": n, "mean": None, "stdev": None, "t": None, "p_mean_le_0": None, "promoted": False}
+    mean = statistics.fmean(r)
+    sd = statistics.stdev(r)
+    if sd == 0:
+        p = 0.0 if mean < 0 else 1.0 if mean > 0 else 0.5
+        t = None
+    else:
+        t = mean / (sd / math.sqrt(n))
+        p = _norm_cdf(t)
+    return {
+        "n": n,
+        "mean": round(mean, 6),
+        "stdev": round(sd, 6),
+        "t": None if t is None else round(t, 4),
+        "p_mean_le_0": round(p, 4),
+        "approximation": "normal",
+        "promoted": False,
+    }
+
+
 def _norm_cdf(x: float) -> float:
     return 0.5 * (1 + math.erf(x / math.sqrt(2)))
 
@@ -154,6 +178,37 @@ def pbo_cscv(perf: list[list[float]], s: int = 8) -> float | None:
         w = rank / (len(perf) + 1)
         lam.append(math.log(w / (1 - w)))
     return round(sum(1 for x in lam if x <= 0) / len(lam), 4)
+
+
+def closed_book_equations(pnls: list[float]) -> dict[str, Any]:
+    """t test plus the existing deflated Sharpe and CSCV on stored dollar pnl. Lookback only."""
+    test = mean_test(pnls)
+    half = max(1, len(pnls) // 2)
+    dsr = None
+    pbo = None
+    if len(pnls) >= 20:
+        trials = [pnls[:half], pnls[half:]]
+        dsr = deflated_sharpe(pnls, 2, [sharpe(trials[0]), sharpe(trials[1])])
+        blocks: list[list[float]] = []
+        for trial in trials:
+            if len(trial) < 8:
+                blocks = []
+                break
+            size = len(trial) // 8
+            blocks.append([sum(trial[i * size:(i + 1) * size]) for i in range(8)])
+        if len(blocks) == 2:
+            pbo = pbo_cscv(blocks)
+    return {
+        "schema": "ahos.book_equations.v1",
+        "paper_only": True,
+        "lookback": True,
+        "promoted": False,
+        "applied_to_live_weights": False,
+        "mean_test": test,
+        "deflated_sharpe": dsr,
+        "pbo": pbo,
+        "note": "Dollar pnl on stored closes. Not a fresh sample and not a pass.",
+    }
 
 
 BASE = {"fast": 9, "slow": 26, "thr": 0.0015, "z": 2.0}

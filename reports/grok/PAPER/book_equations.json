@@ -1,0 +1,19 @@
+{
+ "schema": "ahos.book_equations.v1",
+ "paper_only": true,
+ "lookback": true,
+ "promoted": false,
+ "applied_to_live_weights": false,
+ "mean_test": {
+  "n": 172,
+  "mean": -0.004662,
+  "stdev": 0.040725,
+  "t": -1.5012,
+  "p_mean_le_0": 0.0667,
+  "approximation": "normal",
+  "promoted": false
+ },
+ "deflated_sharpe": 0.0049,
+ "pbo": 0.2286,
+ "note": "Dollar pnl on stored closes. Not a fresh sample and not a pass."
+}
