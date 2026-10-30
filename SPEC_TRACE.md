@@ -249,3 +249,7 @@ AG-18 and AG-19 are EXISTS because `architecture/university/learning_loop.py` an
 ## Open items (2026-10-30)
 
 `reports/grok/PAPER/open_items.md` is the list. There is no file named FULL_GAP_REGISTER. Still open or only mitigated: M-GAP-003, 004, 005, 006, 007, 008, 009, 010, 011, 012. Wall-clock rows still PARTIAL: M13, M31, M36 (`NOT_MET`). Edge remains UNPROVEN_EDGE. Gap IDs closed: **none**.
+
+## Desk news (2026-10-30)
+
+`architecture/markets/desk_news.py` reads the feeds that answered from this laptop and logs `reports/grok/PAPER/desk_news.jsonl`. Shadow sign, weight 0, not an entry vote. Dropped: ECB and OPEC (certificate), Kitco RSS (404), Reuters (401), Yahoo rssindex (404), DexScreener (403), CoinGecko new coins (401), pump.fun API (403). EIA release clock is "10:30 a.m. and 1:00 p.m." with weekday and timezone unknown. Pump-token news needs another agreeing family and a passing safety veto. Gates unchanged. Gap IDs closed: **none**.

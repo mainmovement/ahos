@@ -568,3 +568,16 @@ Command: `pytest tests/test_open_items.py -q` → **1 passed**.
 | R2 Data | APPROVE | Statuses are the register's words. M-GAP-011's table and later note are both stated. |
 | R4 Council | APPROVE | Telegram, the 7-day soak, and the 72-hour receipt stay open. |
 | Meta-Critic | APPROVE | This stage is a list, not a closure. |
+
+## Desk news (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_desk_news.py tests/test_paper_trade_gates.py -q` → **17 passed**.
+
+Feeds that answered are parsed into items with source, timestamp, mapped symbols, keyword sentiment, and SimHash dedup. Two publishers on the same side produce a shadow sign at weight 0. That sign does not enter the entry gate. ECB, OPEC, Kitco RSS, Reuters, DexScreener, CoinGecko new coins, and the pump.fun API are dropped with the status this laptop received. The EIA clock is the text on the weekly page. A pump token whose news agrees still needs another agreeing family and `token_safety_veto.allowed`. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Source weight is 0. A scorecard hit rate is recorded and is not applied. |
+| R2 Data | APPROVE | Certificate failures and HTTP 401/403/404 are omitted. A missing later price is not a move. |
+| R4 Council | APPROVE | Two feeds from one publisher do not corroborate each other. Pump news cannot open alone. |
+| Meta-Critic | APPROVE | The live news score is unchanged by this log. |

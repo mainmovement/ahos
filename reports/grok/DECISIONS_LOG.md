@@ -405,3 +405,11 @@
 **Choice:** AG-18 Learning Agent and AG-19 Self-Diagnostic. Each now has a module and a test: the learning loop and the daily diagnosis. Both still forbid PROMOTE. The other empty seats stay PLANNED, PARTIAL, or MISSING. AG-01 stays MISSING. The order is a pre-registered judgment that the weight path and the loss report change the paper book before the remaining seats do. It is not a fitted score.
 
 **Reason:** Flipping a status without a module would be a label. Filling every empty seat would claim agents this mission did not build.
+
+## 2026-10-30: Desk news stays shadow, and blocked feeds stay out
+
+**Question:** Which of the requested free news feeds can be read from this laptop, and can a new source move the live news weight?
+
+**Choice:** Keep a feed only when this host got a parseable body. Fed press, BoJ, and FXStreet answered for gold and macro. OilPrice, Rigzone, and the EIA press and today-in-energy feeds answered. The EIA weekly page prints "Released at 10:30 a.m. and 1:00 p.m." and does not print a weekday or a timezone, so those two fields stay empty. CNBC, MarketWatch, Nikkei Asia, and the Yahoo headline feeds for SPX, NDX, DAX, and Nikkei answered. CoinDesk, Cointelegraph, The Block, and Decrypt answered. Binance's public listing catalog, OKX's new-listing announcements, GeckoTerminal ethereum new pools, and the public Telegram previews for Binance and OKX answered with no login. ECB and OPEC failed certificate verification and are not fetched by disabling TLS checks. Kitco's RSS is a 404. Reuters returned 401. The old Yahoo rssindex is a 404. DexScreener boosts and profiles returned 403. CoinGecko's new-coin list returned 401. The pump.fun API returned 403. Two Fed feeds are one publisher. A Binance Telegram preview is the same publisher as the Binance catalog. A shadow sign needs two publishers on the same side. Every source weight is 0. The family scorecard's 24h hit rate is copied when it exists and does not change that weight. Pump-token news does not open a trade unless another family agrees and the token safety check allowed it.
+
+**Reason:** A feed this laptop cannot read is not a source. A new headline is not a reason to change who gets opened.
