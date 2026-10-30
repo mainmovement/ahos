@@ -934,6 +934,23 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 log({**base, "event": "NO_TRADE", "reason": pump_block, "price": price, "composite": comp,
                      "independent_votes": vote_audit, "top_contributions": comb["contributions"][:5]})
                 continue
+        agreeing = [row.get("family") for row in (vote_audit.get("votes") or []) if row.get("vote") == "AGREE"]
+        try:
+            from architecture.university.mistake_memory import review_open
+
+            memory = review_open(
+                root, desk, side, [name for name in agreeing if name],
+                witness_verdict=(w.get("verdict") if isinstance(w, dict) else None),
+            )
+        except Exception:
+            memory = {"action": "NONE", "factor": 1.0, "cause": None, "matches": 0, "applied_to_live_weights": False}
+        brain["mistake_memory"] = memory
+        if memory["action"] == "VETO":
+            log({**base, "event": "NO_TRADE", "reason": f"MISTAKE_MEMORY:{memory['cause']}", "price": price,
+                 "composite": comp, "independent_votes": vote_audit, "mistake_memory": memory})
+            continue
+        if memory["action"] == "SHRINK":
+            notional *= float(memory.get("factor") or 1.0)
 
         desk_mult, desk_mult_src = effective_desk_notional_mult(root, desk)
         if desk_mult < 1.0:

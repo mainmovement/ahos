@@ -223,7 +223,16 @@ def project_sections(root: Path) -> dict[str, Any]:
             "source": "reports/grok/PAPER/paper_trader_status.json",
             "decides": False,
         },
-        "lessons": {"status": "PRESENT" if lessons_n else "ABSENT", "university_case_rows": lessons_n, "decides": False},
+        "lessons": {
+            "status": "PRESENT" if lessons_n else "ABSENT",
+            "university_case_rows": lessons_n,
+            "exam": "reports/grok/PAPER/weekly_agent_exam.json",
+            "reliability": "reports/grok/PAPER/reliability_shadow.json",
+            "calibration": "reports/grok/PAPER/calibration_weekly.json",
+            "intelligence": "reports/grok/PAPER/intelligence_metric.json",
+            "diagnosis": "reports/grok/PAPER/daily_diagnosis.json",
+            "decides": False,
+        },
         "hypotheses": {
             "status": "PRESENT" if isinstance(research, dict) else "ABSENT",
             "source": "reports/grok/PAPER/research_weekly.json",
@@ -262,6 +271,19 @@ def _observe(sender: str, receiver: str, claim: str, evidence: tuple[str, ...]) 
 
 def run_unified_cycle(root: Path, *, now: datetime | None = None) -> dict[str, Any]:
     root = Path(root)
+    try:
+        from architecture.markets.paper_account import load_paper_trades
+        from architecture.university.behaviour_learning import publish_learning
+        from architecture.university.self_diagnosis import export_daily
+
+        closes = load_paper_trades(root)
+        publish_learning(root, closes)
+        if closes:
+            day = max(str(row.get("closed_at") or "")[:10] for row in closes)
+            if day:
+                export_daily(root, closes, day)
+    except Exception:
+        pass
     sections = project_sections(root)
     writers = {
         "positions": MODULE_SENDERS["desks"],
