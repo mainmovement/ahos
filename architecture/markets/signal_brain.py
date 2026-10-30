@@ -745,6 +745,7 @@ DEFAULT_WEIGHTS = {"mtf_trend": 0.30, "candles": 0.12, "zscore_mr": 0.10, "order
                    # SHADOW signals: logged + hit-rate tracked, zero weight until promoted by walk-forward (Stage 3)
                    "exchange_netflow": 0.0, "whale_mempool": 0.0, "macro_event": 0.0, "stablecoin_impulse": 0.0,
                    "event_shock": 0.0,
+                   "cftc_cot": 0.0,  # public positioning vote only; never a composite contributor
                    "research_overlay": 0.05}  # applied only when PASS_STATS+SURVIVED score is available
 
 

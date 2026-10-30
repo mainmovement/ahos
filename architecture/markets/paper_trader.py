@@ -558,6 +558,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 fund_hist = state["brain"].setdefault("funding_history", {}).setdefault(sym, [])
                 sigs += [sb.order_flow(sym), sb.large_trades(sym), sb.funding_oi(sym, fund_hist), sb.stablecoin_flow(state["brain"]),
                          sb.exchange_netflow(sym), sb.whale_mempool(sym), sb.stablecoin_impulse(sym)]
+            elif desk in ("OIL", "GOLD"):
+                from architecture.markets.cftc_cot import cftc_cot_signal
+
+                cot = cftc_cot_signal(root, desk, sym)
+                if cot is not None:
+                    sigs.append(cot)
         from architecture.markets.research_desk_signal import append_research_signal, research_predictions_for_trade
 
         sigs = append_research_signal(root, desk, sigs)
@@ -571,6 +577,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         ov = next((s for s in sigs if s.get("name") == "research_overlay"), None)
         if not ov or not ov.get("available"):
             live_w["research_overlay"] = 0.0
+        live_w["cftc_cot"] = 0.0
         comb = sb.combine(sigs, live_w)
         comp = comb["composite"]
         mtf = next((s for s in sigs if s["name"] == "mtf_trend"), None)

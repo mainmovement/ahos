@@ -16,6 +16,7 @@ SIGNAL_CATEGORY: dict[str, str] = {
     "order_flow": "whales_flow",
     "exchange_netflow": "whales_flow",
     "whale_mempool": "whales_flow",
+    "cftc_cot": "whales_flow",
     "funding_oi": "whales_flow",
     "stablecoin": "whales_flow",
     "stablecoin_impulse": "whales_flow",

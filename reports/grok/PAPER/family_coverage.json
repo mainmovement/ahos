@@ -1,0 +1,431 @@
+{
+  "schema": "ahos.family_coverage.v1",
+  "paper_only": true,
+  "gates_unchanged": {
+    "min_agreeing_families": 2,
+    "vote_score_floor": 0.05,
+    "min_expected_profit_to_fee_ratio": 2.0
+  },
+  "rows": [
+    {
+      "desk": "CRYPTO",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "CRYPTO",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "CRYPTO",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "LIVE_FEEDS",
+      "composite_weight": "exchange_netflow and whale_mempool are 0; large_trades keeps its existing weight",
+      "source": "large_trades, exchange_netflow, whale_mempool"
+    },
+    {
+      "desk": "CRYPTO",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "CRYPTO",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "PB_TOKEN",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "PB_TOKEN",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "PB_TOKEN",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "ABSENT_BY_DESIGN",
+      "composite_weight": 0,
+      "source": null,
+      "reason": "no verified free public positioning file is wired for this desk"
+    },
+    {
+      "desk": "PB_TOKEN",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "PB_TOKEN",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "GOLD",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "GOLD",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "GOLD",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "CFTC_COT",
+      "composite_weight": 0,
+      "source": "https://www.cftc.gov/dea/newcot/f_disagg.txt",
+      "contracts": {
+        "XAU": "GOLD - COMMODITY EXCHANGE INC."
+      }
+    },
+    {
+      "desk": "GOLD",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "GOLD",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "OIL",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "OIL",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "OIL",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "CFTC_COT",
+      "composite_weight": 0,
+      "source": "https://www.cftc.gov/dea/newcot/f_disagg.txt",
+      "contracts": {
+        "BRENT": "BRENT LAST DAY - NEW YORK MERCANTILE EXCHANGE",
+        "WTI": "CRUDE OIL, LIGHT SWEET-WTI - ICE FUTURES EUROPE"
+      }
+    },
+    {
+      "desk": "OIL",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "OIL",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "US_EQUITIES",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "US_EQUITIES",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "US_EQUITIES",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "ABSENT_BY_DESIGN",
+      "composite_weight": 0,
+      "source": null,
+      "reason": "no verified free public positioning file is wired for this desk"
+    },
+    {
+      "desk": "US_EQUITIES",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "US_EQUITIES",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "ABSENT_BY_DESIGN",
+      "composite_weight": 0,
+      "source": null,
+      "reason": "no verified free public positioning file is wired for this desk"
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "EU_EQUITIES",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "ABSENT_BY_DESIGN",
+      "composite_weight": 0,
+      "source": null,
+      "reason": "no verified free public positioning file is wired for this desk"
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "ASIA_EQUITIES",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    },
+    {
+      "desk": "FOREX",
+      "family": "news",
+      "members": [
+        "news"
+      ],
+      "status": "IN_CYCLE",
+      "source": "news_signal when two sources corroborate"
+    },
+    {
+      "desk": "FOREX",
+      "family": "macro_central_bank",
+      "members": [
+        "macro",
+        "macro_event"
+      ],
+      "status": "IN_CYCLE",
+      "source": "macro_pressure and macro_event"
+    },
+    {
+      "desk": "FOREX",
+      "family": "whales",
+      "members": [
+        "large_trades",
+        "exchange_netflow",
+        "whale_mempool",
+        "cftc_cot"
+      ],
+      "status": "ABSENT_BY_DESIGN",
+      "composite_weight": 0,
+      "source": null,
+      "reason": "no verified free public positioning file is wired for this desk"
+    },
+    {
+      "desk": "FOREX",
+      "family": "candle_wicks",
+      "members": [
+        "candles"
+      ],
+      "status": "IN_CYCLE",
+      "source": "candle_patterns on closed bars"
+    },
+    {
+      "desk": "FOREX",
+      "family": "research",
+      "members": [
+        "research_overlay"
+      ],
+      "status": "ADVISORY_VOTE",
+      "composite_weight": "0 unless PASS_STATS+SURVIVED_RED_TEAM",
+      "source": "existing shadow-registry and strategy-switch predicted_score"
+    }
+  ]
+}

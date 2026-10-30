@@ -11,7 +11,7 @@ VOTE_SCORE_FLOOR = 0.05
 INDEPENDENT_VOTE_FAMILIES: dict[str, tuple[str, ...]] = {
     "news": ("news",),
     "macro_central_bank": ("macro", "macro_event"),
-    "whales": ("large_trades", "exchange_netflow", "whale_mempool"),
+    "whales": ("large_trades", "exchange_netflow", "whale_mempool", "cftc_cot"),
     "candle_wicks": ("candles",),
     "research": ("research_overlay",),
 }
