@@ -34,8 +34,9 @@ export function AhosOverview() {
 
   return (
     <div className='flex flex-col gap-4 p-4' dir='rtl'>
-      <HomeBrief snap={data} />
-      <button type='button' className='self-start text-sm underline' onClick={() => setShowTech((open) => !open)}>
+      <HomeBrief snap={data} stale={stale} />
+      <GlobeStage snap={data} />
+      <button type='button' className='mx-auto text-xs opacity-50 hover:opacity-90' onClick={() => setShowTech((open) => !open)}>
         {showTech ? 'بستن جزئیات فنی' : 'جزئیات فنی'}
       </button>
       {showTech ? (
@@ -45,7 +46,6 @@ export function AhosOverview() {
 
       <div className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]'>
         <div className='flex min-w-0 flex-col gap-4'>
-          <GlobeStage snap={data} />
           <MarketScan snap={data} />
         </div>
 
@@ -62,7 +62,7 @@ export function AhosOverview() {
         </>
       ) : null}
 
-      {stale ? (
+      {stale && showTech ? (
         <p dir='rtl' className='text-center text-[10px] text-[var(--ahos-status-stale)]'>
           دریافتِ تازه ناموفق بود — داده‌های بالا از آخرین دریافتِ موفق هستند.
         </p>
