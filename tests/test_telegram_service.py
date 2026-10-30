@@ -88,6 +88,21 @@ def test_gateway_reply_has_no_forced_footer_and_long_timeout(monkeypatch, servic
     assert res["footer_injected"] is False
 
 
+def test_status_question_uses_the_paper_file_when_the_gateway_is_down(monkeypatch, service):
+    monkeypatch.setattr(type(service), "_call_conversation_gateway", lambda self, t, c, u: None)
+    monkeypatch.setattr(
+        "telegram_ai.service.answer_question",
+        lambda root, text, **_k: {
+            "text": "شرط صادقانه: 30 fresh closes + DSR>0.95 + PBO<0.5",
+            "source": "world_state",
+            "error_class": "timeout",
+        },
+    )
+    res = service.handle_message("چقدر مونده سودده بشه؟")
+    assert res["source"] == "llm_fallback"
+    assert "30 fresh closes + DSR>0.95 + PBO<0.5" in res["text"]
+
+
 def test_bare_menu_uses_the_paper_fallback(monkeypatch, service):
     monkeypatch.setattr(
         type(service),

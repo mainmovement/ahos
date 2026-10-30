@@ -1,0 +1,226 @@
+{
+ "schema": "ahos.equity_shadow_paths.v1",
+ "paper_only": true,
+ "candidates": 24,
+ "estimated": 0,
+ "rows": [
+  {
+   "symbol": "NASDAQ:INTC",
+   "desk": "US_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "NASDAQ:SPCX",
+   "desk": "US_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "NASDAQ:AMZN",
+   "desk": "US_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "NASDAQ:NVDA",
+   "desk": "US_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "NYSE:NU",
+   "desk": "US_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "NASDAQ:SOFI",
+   "desk": "US_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "NASDAQ:CRWV",
+   "desk": "US_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "NASDAQ:RIVN",
+   "desk": "US_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "LSE:LLOY",
+   "desk": "EU_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "EURONEXT:BCP",
+   "desk": "EU_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "LSE:NWG",
+   "desk": "EU_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "LSE:GLEN",
+   "desk": "EU_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "LSE:BARC",
+   "desk": "EU_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "LSE:BT.A",
+   "desk": "EU_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "LSE:JD.",
+   "desk": "EU_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "LSE:VOD",
+   "desk": "EU_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "HKEX:6681",
+   "desk": "ASIA_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "HKEX:386",
+   "desk": "ASIA_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "HKEX:20",
+   "desk": "ASIA_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "HKEX:1398",
+   "desk": "ASIA_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "HKEX:939",
+   "desk": "ASIA_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "TSE:4564",
+   "desk": "ASIA_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "HKEX:2685",
+   "desk": "ASIA_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  },
+  {
+   "symbol": "HKEX:1810",
+   "desk": "ASIA_EQUITIES",
+   "spread_status": "UNKNOWN",
+   "spread_pct": null,
+   "spread_source": "NO_BAR",
+   "shadow_strategies_with_closes": 0,
+   "live_open": false
+  }
+ ],
+ "live_open": 0,
+ "applied_to_live": false
+}

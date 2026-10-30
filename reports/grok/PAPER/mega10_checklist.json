@@ -1,0 +1,16 @@
+{
+  "schema": "ahos.mega10_checklist.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T18:20:00Z",
+  "promoted": false,
+  "applied_to_live": false,
+  "libraries_installed": false,
+  "items": [
+    {"id": "1", "item": "telegram listener plus soak integrity", "state": "PARTIAL", "evidence": "telegram listener 15024; tests/test_mega5.py"},
+    {"id": "2", "item": "26 strategy shadow paths", "state": "PARTIAL", "evidence": "reports/grok/PAPER/strategy_leaderboard.json"},
+    {"id": "3", "item": "24 stocks into shadow with estimated spread", "state": "PARTIAL", "evidence": "reports/grok/PAPER/equity_shadow_paths.json"},
+    {"id": "4", "item": "real-book science in shadow", "state": "PARTIAL", "evidence": "reports/grok/PAPER/mega10_book_shadow.json"},
+    {"id": "5", "item": "every registered agent sends and asks", "state": "DONE", "evidence": "sender_count 43 of 43"},
+    {"id": "6", "item": "shared world-state, review, digest, checklist", "state": "PARTIAL", "evidence": "reports/grok/PAPER/mega10_checklist.json"}
+  ]
+}

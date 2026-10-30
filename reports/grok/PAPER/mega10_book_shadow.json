@@ -1,0 +1,58 @@
+{
+ "schema": "ahos.mega10_book_shadow.v1",
+ "paper_only": true,
+ "libraries_installed": false,
+ "reason": "FREE_RAM_TOO_LOW_FOR_INSTALL",
+ "closes": 162,
+ "dsr": 0.0097,
+ "pbo": 0.4286,
+ "bootstrap_5th_pct": -0.014955555555555559,
+ "meta_label_brier": null,
+ "brier_reason": "NO_ALIGNED_LABELS",
+ "net_expectancy_by_desk": {
+  "ASIA_EQUITIES": {
+   "n": 26,
+   "net_expectancy_usd": -0.000873
+  },
+  "CRYPTO": {
+   "n": 43,
+   "net_expectancy_usd": -0.012865
+  },
+  "CRYPTO_FUTURES": {
+   "n": 5,
+   "net_expectancy_usd": -0.00232
+  },
+  "EU_EQUITIES": {
+   "n": 4,
+   "net_expectancy_usd": 0.0412
+  },
+  "FOREX": {
+   "n": 18,
+   "net_expectancy_usd": -0.001722
+  },
+  "GOLD": {
+   "n": 14,
+   "net_expectancy_usd": -0.023593
+  },
+  "LISTED_FUTURES": {
+   "n": 5,
+   "net_expectancy_usd": 0.00598
+  },
+  "OIL": {
+   "n": 28,
+   "net_expectancy_usd": -0.004386
+  },
+  "PB_TOKEN": {
+   "n": 14,
+   "net_expectancy_usd": -0.010264
+  },
+  "US_EQUITIES": {
+   "n": 5,
+   "net_expectancy_usd": 0.03434
+  }
+ },
+ "units": "realized_pnl_usd",
+ "promoted": false,
+ "applied_to_live": false,
+ "peak_mb": 171.3
+}

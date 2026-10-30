@@ -382,3 +382,112 @@ def export_universe(
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
     return doc
+
+
+def fetch_intraday_bars(symbols: list[str], *, timeout: float = 6.0) -> dict[str, dict[str, Any]]:
+    """One free Yahoo chart read per symbol. A failure stays an empty bar."""
+    import urllib.error
+    import urllib.request
+
+    out: dict[str, dict[str, Any]] = {}
+    for symbol in symbols:
+        yahoo = yahoo_symbol(symbol)
+        url = (
+            "https://query1.finance.yahoo.com/v8/finance/chart/"
+            + urllib.request.quote(yahoo)
+            + "?range=1d&interval=5m"
+        )
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+            result = ((payload.get("chart") or {}).get("result") or [None])[0] or {}
+            quote = ((result.get("indicators") or {}).get("quote") or [{}])[0]
+            closes = [float(v) for v in (quote.get("close") or []) if isinstance(v, (int, float))]
+            highs = [float(v) for v in (quote.get("high") or []) if isinstance(v, (int, float))]
+            lows = [float(v) for v in (quote.get("low") or []) if isinstance(v, (int, float))]
+            out[symbol] = {
+                "high": highs[-1] if highs else None,
+                "low": lows[-1] if lows else None,
+                "close": closes[-1] if closes else None,
+                "closes": closes,
+            }
+        except (OSError, urllib.error.URLError, json.JSONDecodeError, TimeoutError, ValueError, IndexError):
+            out[symbol] = {}
+    return out
+
+
+def yahoo_symbol(scanner_symbol: str) -> str:
+    text = str(scanner_symbol or "")
+    if ":" in text:
+        text = text.split(":", 1)[1]
+    return text.replace(".", "-")
+
+
+def shadow_shortlist(root: Path, bars: dict[str, dict[str, float]]) -> dict[str, Any]:
+    """Attach bar-range spread estimates and run close-only strategies. No live open."""
+    from architecture.strategies.library import SPECS
+    from architecture.strategies.signals import shadow_round_trips, sign_on_closes
+
+    path = Path(root) / OUT_REL
+    doc = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+    candidates = doc.get("candidates") if isinstance(doc.get("candidates"), list) else []
+    rows = []
+    for cand in candidates:
+        if not isinstance(cand, dict):
+            continue
+        symbol = str(cand.get("symbol") or "")
+        bar = bars.get(symbol) or bars.get(yahoo_symbol(symbol)) or {}
+        estimate = estimate_spread_pct(bar.get("high"), bar.get("low"), bar.get("close"))
+        if cand.get("spread_status") != "KNOWN" and estimate is not None:
+            cand["spread_pct"] = estimate
+            cand["spread_status"] = "ESTIMATE"
+            cand["spread_source"] = "intraday_bar"
+        elif cand.get("spread_status") != "KNOWN":
+            cand["spread_status"] = "UNKNOWN"
+            cand["spread_source"] = "NO_BAR"
+        closes = bar.get("closes") if isinstance(bar.get("closes"), list) else []
+        fired = 0
+        for spec in SPECS:
+            signs = sign_on_closes(spec["id"], [float(v) for v in closes]) if closes else None
+            if signs is None:
+                continue
+            trips = shadow_round_trips(
+                signs, [float(v) for v in closes],
+                float(spec["cost"]["fee_per_side"]), float(spec["cost"]["slippage_per_side"]),
+            )
+            if trips:
+                fired += 1
+        cand["shadow_strategies_with_closes"] = fired
+        cand["live_open"] = False
+        rows.append({
+            "symbol": symbol,
+            "desk": cand.get("desk"),
+            "spread_status": cand.get("spread_status"),
+            "spread_pct": cand.get("spread_pct"),
+            "spread_source": cand.get("spread_source"),
+            "shadow_strategies_with_closes": fired,
+            "live_open": False,
+        })
+    if path.is_file():
+        path.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    receipt = {
+        "schema": "ahos.equity_shadow_paths.v1",
+        "paper_only": True,
+        "candidates": len(rows),
+        "estimated": sum(1 for row in rows if row["spread_status"] == "ESTIMATE"),
+        "rows": rows,
+        "live_open": 0,
+        "applied_to_live": False,
+    }
+    out = Path(root) / "reports" / "grok" / "PAPER" / "equity_shadow_paths.json"
+    out.write_text(json.dumps(receipt, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return receipt
+
+
+def estimate_spread_pct(high: float, low: float, close: float) -> float | None:
+    """Bar range as a spread stand-in. It is an estimate, not a quote."""
+    if not all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in (high, low, close)):
+        return None
+    if close <= 0 or high < low:
+        return None
+    return round((high - low) / float(close) * 100.0, 4)

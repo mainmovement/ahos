@@ -233,14 +233,53 @@ def export_mega5(
         "decides": False,
     })
     probe_doc = _write(root, "provider_probe_pointer.json", provider_receipt(probe, probe_path))
-    integrity = check_known_stores(store_paths)
+    from architecture.persistence.store_integrity import merge_store_integrity, pid_is_alive, read_soak_pid
+
+    def _json(path: Path) -> dict[str, Any] | None:
+        if not path.is_file():
+            return None
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        return doc if isinstance(doc, dict) else None
+
+    pid = read_soak_pid(root)
+    alive = pid_is_alive(pid)
+    snapshot = _json(Path(root) / "reports" / "grok" / "PAPER" / "store_integrity_snapshot.json")
+    raw_prior = _json(Path(root) / PAPER / "soak_store_integrity.json")
+    previous = None
+    if isinstance(raw_prior, dict) and isinstance(raw_prior.get("stores"), dict):
+        previous = {"store_integrity": {
+            "checked_at": raw_prior.get("generated_at"),
+            "stores": raw_prior.get("stores"),
+        }}
+    if alive:
+        prior_stores = (previous or {}).get("store_integrity", {}).get("stores") if isinstance(previous, dict) else {}
+        if not isinstance(prior_stores, dict):
+            prior_stores = {}
+        small = {
+            name: value for name, value in prior_stores.items()
+            if name not in ("ahos_local", "e01_discovery") and isinstance(value, str)
+        }
+        merged = merge_store_integrity(
+            previous, snapshot, small or {"paper_trading": "RUNNING", "ahos_knowledge": "RUNNING"},
+            now=_utc(), pid_alive=True,
+        )
+        integrity = merged["stores"]
+        reloaded = True
+    else:
+        integrity = check_known_stores(store_paths)
+        reloaded = False
     integrity_doc = _write(root, "soak_store_integrity.json", {
         "schema": "ahos.soak_store_integrity.v1",
         "paper_only": True,
         "generated_at": _utc(),
         "stores": integrity,
         "every_store_ok": all(value == "ok" for value in integrity.values()) and len(integrity) == 4,
-        "running_soak_reloaded": False,
+        "running_soak_reloaded": reloaded,
+        "soak_pid": pid,
+        "wrote_stale_interrupted": any(value == "INTERRUPTED" for value in integrity.values()),
         "live_switch": False,
         "decides": False,
     })

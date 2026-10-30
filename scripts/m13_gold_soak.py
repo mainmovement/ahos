@@ -440,6 +440,8 @@ def _write_status(soak_dir: Path, status: dict[str, Any]) -> None:
             from architecture.persistence.store_integrity import (
                 check_known_stores,
                 merge_store_integrity,
+                pid_is_alive,
+                read_soak_pid,
                 spawn_snapshot_job,
             )
             small = check_known_stores({
@@ -454,7 +456,9 @@ def _write_status(soak_dir: Path, status: dict[str, Any]) -> None:
                 except (OSError, json.JSONDecodeError):
                     snapshot = None
             now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-            status["store_integrity"] = merge_store_integrity(prior, snapshot, small, now=now)
+            status["store_integrity"] = merge_store_integrity(
+                prior, snapshot, small, now=now, pid_alive=pid_is_alive(read_soak_pid(ROOT)),
+            )
             if status["store_integrity"].get("stores", {}).get("ahos_local") == "RUNNING":
                 spawn_snapshot_job(ROOT)
     except Exception as exc:  # noqa: BLE001 - a status write still has to land

@@ -52,6 +52,75 @@ def run_all(root: Path) -> dict[str, Any]:
     return doc
 
 
+def book_shadow(root: Path) -> dict[str, Any]:
+    """Shadow numbers on the stored paper closes. They do not promote."""
+    from architecture.learning.walk_forward import deflated_sharpe, pbo_cscv, sharpe
+    from science.block_bootstrap import fifth_percentile, stationary_paths
+    from science.memory import peak_rss_mb
+
+    path = Path(root) / "reports" / "grok" / "PAPER" / "paper_trades.jsonl"
+    closes: list[dict[str, Any]] = []
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if '"CLOSE"' not in line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(row, dict) and row.get("event") == "CLOSE":
+                closes.append(row)
+    by_desk: dict[str, list[float]] = {}
+    series: list[float] = []
+    for row in closes:
+        pnl = row.get("realized_pnl_usd")
+        if not isinstance(pnl, (int, float)) or isinstance(pnl, bool):
+            continue
+        series.append(float(pnl))
+        by_desk.setdefault(str(row.get("desk") or "UNASSIGNED"), []).append(float(pnl))
+    half = max(1, len(series) // 2)
+    trials = [series[:half], series[half:]] if len(series) >= 20 else []
+    dsr = None
+    pbo = None
+    if len(series) >= 10 and len(trials) == 2:
+        dsr = deflated_sharpe(series, 2, [sharpe(trials[0]), sharpe(trials[1])])
+        blocks = []
+        for trial in trials:
+            if len(trial) < 8:
+                blocks = []
+                break
+            size = len(trial) // 8
+            blocks.append([sum(trial[i * size:(i + 1) * size]) for i in range(8)])
+        if len(blocks) == 2:
+            pbo = pbo_cscv(blocks)
+    desks = {
+        name: {"n": len(values), "net_expectancy_usd": round(sum(values) / len(values), 6)}
+        for name, values in sorted(by_desk.items())
+        if values
+    }
+    doc = {
+        "schema": "ahos.mega10_book_shadow.v1",
+        "paper_only": True,
+        "libraries_installed": False,
+        "reason": "FREE_RAM_TOO_LOW_FOR_INSTALL",
+        "closes": len(series),
+        "dsr": dsr,
+        "pbo": pbo,
+        "bootstrap_5th_pct": fifth_percentile(stationary_paths(series, draws=40, mean_block=3, seed=7)) if series else None,
+        "meta_label_brier": None,
+        "brier_reason": "NO_ALIGNED_LABELS",
+        "net_expectancy_by_desk": desks,
+        "units": "realized_pnl_usd",
+        "promoted": False,
+        "applied_to_live": False,
+        "peak_mb": peak_rss_mb(),
+    }
+    out = Path(root) / "reports" / "grok" / "PAPER" / "mega10_book_shadow.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return doc
+
+
 def publish(root: Path, doc: dict[str, Any]) -> dict[str, Any]:
     """One OBSERVE message per module. The claim cannot promote."""
     root = Path(root)

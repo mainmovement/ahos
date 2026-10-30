@@ -42,6 +42,10 @@
   {
    "id": "telegram_llm_health",
    "change": "Show a health tile for the Telegram model chain: up or down, error class only, and that a free-form question falls back to the paper file. Do not paint a profit date."
+  },
+  {
+   "id": "mega10_wire",
+   "change": "Show shadow strategy closes, the science book numbers, and the agent sender count. Do not paint a strategy or a module as promoted."
   }
  ],
  "decides": false

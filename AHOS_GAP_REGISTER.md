@@ -664,3 +664,14 @@ The 2026-08-20 classification table above is a historical snapshot. The living s
 - **M-GAP-005 stays MITIGATED.** A backup-API snapshot at 2026-10-30T15:14:10Z returned ok for `ahos_local` and `e01_discovery` (`reports/grok/PAPER/store_integrity_snapshot.json`). PID 14260 was not restarted, so that process can still write the 20-second INTERRUPTED result. The snapshot does not close the every-snapshot acceptance line.
 - Family marginal is a lookback. `pass_stats` is false. No live weight was written. The fourth regime does not promote. OP-3 is open because no reboot was performed. Gap IDs closed: none.
 - Current vision overlay stays 16 of 26. The 2026-09-12 operational column stays 0 of 26. Readiness stays 50 percent.
+
+## Addendum (2026-10-30) — AD-0128 paper digest
+
+- **M-GAP-009 stays OPEN.** The owner approved a nightly paper note to Mehrdad on the existing token at 18:42 Tehran. One message was sent at 2026-10-30T15:55:34Z. That is not a token rotation and not a general alert channel. Opportunity Telegram stays gated. The live switch stays off.
+
+
+## Addendum (2026-10-30) — MEGA 10, paper only
+
+- No gap id changes state. M-GAP-005 stays MITIGATED because PID 14260 was not restarted and can still write a 20-second INTERRUPTED result. The new merge stores RUNNING only in a process that has loaded it.
+- M-GAP-009 stays OPEN. One Persian line was added to the nightly note. That is not a general Telegram unlock.
+- Strategy shadow closes are 6 of 26. Book DSR 0.0097 is not a pass. Promoted 0. Readiness stays 50 percent. Vision overlay stays 16 of 26. Gap IDs closed: none.

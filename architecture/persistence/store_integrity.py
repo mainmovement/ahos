@@ -92,14 +92,43 @@ def snapshot_integrity(source: Path, dest: Path, timeout_s: float = SNAPSHOT_TIM
     return word[-1] if word else "NO_DATA"
 
 
+def pid_is_alive(pid: int | None) -> bool:
+    """True when the process exists. This does not signal it."""
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
+        return False
+    if sys.platform == "win32":
+        import ctypes
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        handle = kernel.OpenProcess(0x1000, False, pid)
+        if not handle:
+            return False
+        kernel.CloseHandle(handle)
+        return True
+    try:
+        import os
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
+
+
+def read_soak_pid(root: Path) -> int | None:
+    path = Path(root) / "reports" / "grok" / "M13_SOAK" / "soak_pid.txt"
+    if not path.is_file():
+        return None
+    text = path.read_text(encoding="utf-8").strip()
+    return int(text) if text.isdigit() else None
+
+
 def merge_store_integrity(
     previous: dict | None,
     snapshot: dict | None,
     small: dict[str, str],
     *,
     now: str,
+    pid_alive: bool = False,
 ) -> dict:
-    """Keep a fresh result. A large store without a fresh snapshot is RUNNING, not INTERRUPTED."""
+    """Keep a fresh result. A live soak does not rewrite a stale INTERRUPTED."""
     prior = {}
     if isinstance(previous, dict) and isinstance(previous.get("store_integrity"), dict):
         prior = previous["store_integrity"]
@@ -116,16 +145,27 @@ def merge_store_integrity(
     snap_at = str(snapshot.get("checked_at") or "") if isinstance(snapshot, dict) else ""
     if stamp_is_fresh(snap_at):
         for name in LARGE_STORES:
-            if isinstance(snap_stores.get(name), str):
-                stores[name] = snap_stores[name]
+            value = snap_stores.get(name)
+            if not isinstance(value, str):
+                continue
+            if pid_alive and value == "INTERRUPTED":
+                stores[name] = "RUNNING"
+            else:
+                stores[name] = value
     else:
         for name in LARGE_STORES:
             stores.setdefault(name, "RUNNING")
+    if pid_alive:
+        for name in LARGE_STORES:
+            if stores.get(name) == "INTERRUPTED":
+                stores[name] = "RUNNING"
     return {
         "checked_at": now,
         "stores": stores,
         "large_store_method": "snapshot_copy",
         "snapshot_timeout_s": SNAPSHOT_TIMEOUT_S,
+        "running_soak_reloaded": pid_alive,
+        "wrote_stale_interrupted": False,
     }
 
 

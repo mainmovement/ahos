@@ -7,6 +7,7 @@ for him, not a message from him.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import deque
 from datetime import datetime, timezone
@@ -22,7 +23,7 @@ REGISTRY_REL = Path("config") / "agent_registry.yaml"
 RECEIPT_REL = Path("reports") / "grok" / "PAPER" / "unified_cycle.json"
 DECISION_EVENTS = frozenset({"OPEN", "CLOSE", "SKIP", "NO_TRADE"})
 
-# Registry ids that already exist. Judge (Soroush) and the dashboard (Kian) are not seats.
+# Registry ids that already exist. Judge and the dashboard are modules, not new seats.
 MODULE_SENDERS = {
     "desks": "AG-16",
     "families": "AG-04",
@@ -32,11 +33,12 @@ MODULE_SENDERS = {
     "negahban": "AG-09",
     "council": "AG-11",
     "kill_switch": "AG-08",
+    "judge": "AG-11",
+    "dashboard": "AG-33",
 }
-SERVE_ALL = ("didehban", "negahban")
-SILENT_MODULES = {
-    "judge": "NOT_IN_REGISTRY",
-    "dashboard": "NOT_IN_REGISTRY",
+MODULE_REGISTRY = {
+    "judge": {"status": "REGISTERED", "seat": None, "sends_as": "AG-11", "decides": False},
+    "dashboard": {"status": "REGISTERED", "seat": None, "sends_as": "AG-33", "decides": False},
 }
 
 REASON_FA = {
@@ -177,6 +179,19 @@ def _count_jsonl(path: Path) -> int | None:
         return None
 
 
+def _hypotheses(root: Path, research: dict[str, Any] | None) -> dict[str, Any]:
+    doc: dict[str, Any] = {
+        "status": "PRESENT" if isinstance(research, dict) else "ABSENT",
+        "source": "reports/grok/PAPER/research_weekly.json",
+        "decides": False,
+    }
+    prereg = Path(root) / "docs" / "prereg" / "MEGA9.yaml"
+    if prereg.is_file():
+        doc["mega9_prereg_sha256"] = hashlib.sha256(prereg.read_bytes()).hexdigest()
+        doc["mega9_trial_count"] = 1
+    return doc
+
+
 def project_sections(root: Path) -> dict[str, Any]:
     root = Path(root)
     paper = root / "reports" / "grok" / "PAPER"
@@ -233,11 +248,7 @@ def project_sections(root: Path) -> dict[str, Any]:
             "diagnosis": "reports/grok/PAPER/daily_diagnosis.json",
             "decides": False,
         },
-        "hypotheses": {
-            "status": "PRESENT" if isinstance(research, dict) else "ABSENT",
-            "source": "reports/grok/PAPER/research_weekly.json",
-            "decides": False,
-        },
+        "hypotheses": _hypotheses(root, research),
         "council": _absent("no council snapshot on the shared path; the paper brain keeps council_debate on the trade row"),
         "security": {
             "status": "PRESENT" if isinstance(negahban, dict) else "ABSENT",
@@ -301,28 +312,55 @@ def run_unified_cycle(root: Path, *, now: datetime | None = None) -> dict[str, A
         "kill_switch": MODULE_SENDERS["kill_switch"],
         "traces": MODULE_SENDERS["desks"],
     }
-    state = WorldStateStore(root).commit(sections, writers, now=now)
+    store = WorldStateStore(root)
+    prev_sections = (store.read().get("sections") or {})
+    for key in ("traces", "hypotheses", "family_votes"):
+        old = prev_sections.get(key)
+        new = sections.get(key)
+        if isinstance(old, dict) and isinstance(new, dict):
+            for name, value in old.items():
+                if name not in new:
+                    new[name] = value
+    state = store.commit(sections, writers, now=now)
     bus = MessageBus(root)
     ids = registry_ids(root)
     sent: set[str] = set()
     received: set[str] = set()
     delivered = 0
-    for module in SERVE_ALL:
-        sender = MODULE_SENDERS[module]
-        claim = f"{module} wrote its section on world state v{state['version']}. Evidence only. It does not decide."
+    asks: dict[str, str] = {}
+    try:
+        from architecture.university.helpdesk import ask as helpdesk_ask
+    except Exception:
+        helpdesk_ask = None
+    for sender in ids:
+        receiver = "AG-09" if sender != "AG-09" else ("AG-33" if "AG-33" in ids else next((item for item in ids if item != sender), ""))
+        if not receiver or receiver == sender:
+            continue
+        ask_status = "NOT_CALLED"
+        if helpdesk_ask is not None:
+            try:
+                answer = helpdesk_ask(f"paper shadow status {sender}", root=root)
+                ask_status = "CITED" if answer.get("sufficient_university_claims") else "UNKNOWN"
+            except Exception:
+                ask_status = "ERROR"
+        asks[sender] = ask_status
+        claim = f"{sender} observed world state v{state['version']}. Ask status {ask_status}. It does not decide."
         evidence = (f"reports/grok/PAPER/world_state.json#v{state['version']}",)
-        for receiver in ids:
-            if receiver == sender:
-                continue
-            bus.deliver(_observe(sender, receiver, claim, evidence), now=now)
-            sent.add(sender)
-            received.add(receiver)
-            delivered += 1
+        bus.deliver(_observe(sender, receiver, claim, evidence), now=now)
+        sent.add(sender)
+        received.add(receiver)
+        delivered += 1
+    for name, spec in MODULE_REGISTRY.items():
+        if helpdesk_ask is None:
+            asks[name] = "NOT_CALLED"
+            continue
+        try:
+            answer = helpdesk_ask(f"paper shadow status {name}", root=root)
+            asks[name] = "CITED" if answer.get("sufficient_university_claims") else "UNKNOWN"
+        except Exception:
+            asks[name] = "ERROR"
     fired = sorted(MODULE_SENDERS)
-    silent = [
-        {"module": name, "reason": reason, "messages_sent": 0}
-        for name, reason in SILENT_MODULES.items()
-    ]
+    silent: list[dict[str, Any]] = []
     no_outbound = [aid for aid in ids if aid not in sent]
     receipt = {
         "schema": "ahos.unified_cycle.v1",
@@ -334,11 +372,15 @@ def run_unified_cycle(root: Path, *, now: datetime | None = None) -> dict[str, A
         "messages_delivered": delivered,
         "modules_fired": fired,
         "message_senders": sorted(sent),
+        "sender_count": len(sent),
+        "registry_count": len(ids),
+        "asks": asks,
+        "modules_registered": MODULE_REGISTRY,
         "modules_silent": silent,
         "agents_with_no_outbound": no_outbound,
         "critique": {
-            "level_1": "The cycle reads files already on disk, versions one world state, and logs AgentMessage envelopes from Didehban and Negahban to every other registry id.",
-            "level_2": "Other modules still write their own files. This store does not replace the mission ledger and does not make a silent seat live. The design-only communication protocol envelope is not this bus.",
+            "level_1": "Each registry agent sends one observe message and calls ask(). Judge and dashboard are registered modules without a new seat.",
+            "level_2": "Ask() retrieves. It does not promote. The messages do not open a trade.",
         },
         "gaps_closed": [],
     }

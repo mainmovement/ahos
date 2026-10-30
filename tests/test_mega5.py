@@ -116,3 +116,13 @@ def test_an_interrupted_large_store_is_not_kept_as_fresh():
     )
     assert ready["stores"]["ahos_local"] == "ok"
     assert ready["stores"]["e01_discovery"] == "ok"
+    reloaded = merge_store_integrity(
+        previous,
+        {"checked_at": "2099-01-01T00:00:00Z", "stores": {"ahos_local": "INTERRUPTED", "e01_discovery": "INTERRUPTED"}},
+        {"paper_trading": "ok", "ahos_knowledge": "ok"},
+        now="2099-01-01T00:00:01Z",
+        pid_alive=True,
+    )
+    assert reloaded["stores"]["ahos_local"] == "RUNNING"
+    assert reloaded["wrote_stale_interrupted"] is False
+    assert reloaded["running_soak_reloaded"] is True

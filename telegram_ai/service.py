@@ -50,7 +50,7 @@ TG_UID_HEADER = "X-AHOS-TG-Uid"
 TG_TS_HEADER = "X-AHOS-TG-Ts"
 TG_SIG_HEADER = "X-AHOS-TG-Sig"
 
-from architecture.ai.telegram_llm_fallback import answer_question, is_bare_menu
+from architecture.ai.telegram_llm_fallback import _needs_paper_status, answer_question, is_bare_menu
 from .intent import parse, ParseResult, INFO_ONLY_INTENTS, LEDGER_MUTATING_INTENTS
 from .response_contract import FOOTER_MANDATED
 
@@ -118,6 +118,20 @@ class TelegramDomainService:
                     # Owner decision: no forced footer on conversational replies.
                     "footer_injected": False,
                 }
+        if _needs_paper_status(text):
+            doc = answer_question(Path(__file__).resolve().parents[1], text)
+            return {
+                "text": doc["text"],
+                "text_html": None,
+                "intent": "llm_fallback",
+                "status": "OK",
+                "source": "llm_fallback",
+                "evidence": {
+                    "error_class": doc.get("error_class"),
+                    "answered_from": doc.get("source"),
+                },
+                "footer_injected": False,
+            }
         return {
             "text": (
                 "هسته تصمیم‌گیری در دسترس نیست. وضعیت: EMERGENCY_FALLBACK_ONLY — "

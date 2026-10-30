@@ -312,3 +312,8 @@ Pre-registration docs/prereg/MEGA9.yaml commit e8ec09, sha256 3edff5606bad6fc16
 ## Telegram LLM fallback (2026-10-30)
 
 Free-form Telegram questions that would have been a menu now read the shared paper file after Gemini flash, flash-lite, and a local small model. The 19:33 log is absent. The live class is timeout, with one HTTP 503 on the retry. No local model is running. Promoted nothing. The hour alert is not confirmed. Gap IDs closed: **none**.
+
+
+## MEGA 10 (2026-10-30)
+
+Shadow paths for the existing 26 strategies write a family vote with composite weight 0. Six strategies have a shadow close on stored exit prices. The real book lookback is DSR 0.0097 and PBO 0.4286 on 162 closes, with a negative bootstrap fifth percentile and no meta-label Brier. Named libraries were not installed. Agents sending: 43 of 43. Judge and dashboard are registered modules on existing seats. Promoted **0**. The running soak was not reloaded. Gap IDs closed: **none**.

@@ -34,6 +34,18 @@ def test_the_store_versions_and_the_bus_rejects_a_bare_dict(tmp_path):
         AgentMessage("AG-09", "AG-09", ("reports/x",), "self", 1.0, RequiredAction.OBSERVE)
 
 
+def test_a_registered_hash_is_kept_when_the_projection_replaces_the_section(tmp_path):
+    _registry(tmp_path, ["AG-09", "AG-16", "AG-33"])
+    WorldStateStore(tmp_path).commit(
+        {"hypotheses": {"mega9_prereg_sha256": "abc", "decides": False}},
+        {"hypotheses": "AG-03"},
+        now=NOW,
+    )
+    run_unified_cycle(tmp_path, now=NOW)
+    kept = WorldStateStore(tmp_path).read()["sections"]["hypotheses"]["mega9_prereg_sha256"]
+    assert kept == "abc"
+
+
 def test_one_cycle_fans_out_didehban_and_negahban_and_names_the_silent_modules(tmp_path):
     _registry(tmp_path, ["AG-09", "AG-16", "AG-33"])
     paper = tmp_path / "reports" / "grok" / "PAPER"
@@ -44,14 +56,15 @@ def test_one_cycle_fans_out_didehban_and_negahban_and_names_the_silent_modules(t
     )
     receipt = run_unified_cycle(tmp_path, now=NOW)
     assert receipt["decides"] is False
-    assert receipt["messages_delivered"] == 4
-    assert receipt["message_senders"] == ["AG-09", "AG-33"]
+    assert receipt["messages_delivered"] == 3
+    assert receipt["message_senders"] == ["AG-09", "AG-16", "AG-33"]
+    assert receipt["sender_count"] == 3
     assert receipt["gaps_closed"] == []
-    silent = {row["module"]: row["reason"] for row in receipt["modules_silent"]}
-    assert silent["judge"] == "NOT_IN_REGISTRY"
-    assert silent["dashboard"] == "NOT_IN_REGISTRY"
-    assert "AG-16" in receipt["agents_with_no_outbound"]
-    assert "AG-09" not in receipt["agents_with_no_outbound"]
+    assert receipt["modules_silent"] == []
+    assert receipt["modules_registered"]["judge"]["status"] == "REGISTERED"
+    assert receipt["modules_registered"]["dashboard"]["status"] == "REGISTERED"
+    assert receipt["agents_with_no_outbound"] == []
+    assert receipt["asks"]["AG-16"] in {"CITED", "UNKNOWN", "ERROR", "NOT_CALLED"}
     state = WorldStateStore(tmp_path).read()
     assert state["version"] == 1
     assert state["sections"]["traces"]["n"] == 1
@@ -60,7 +73,7 @@ def test_one_cycle_fans_out_didehban_and_negahban_and_names_the_silent_modules(t
     assert "حکم معامله نیست" in text
     rows = MessageBus(tmp_path).read()
     assert all(row["required_action"] == "OBSERVE" and row["decides"] is False for row in rows)
-    assert {row["sender"] for row in rows} == {"AG-09", "AG-33"}
+    assert {row["sender"] for row in rows} == {"AG-09", "AG-16", "AG-33"}
     traced = trace_decision({"event": "OPEN", "symbol": "XAU", "desk": "GOLD", "kian_explain_fa": "متن آماده"})
     assert traced["fa"] == "متن آماده" and traced["decides"] is False
     assert MIN_AGREEING_FAMILIES == 2
