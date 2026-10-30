@@ -112,19 +112,51 @@ def build_heartbeat(root: Path) -> dict[str, Any]:
     }
 
 
-def build_m36_72h_receipt(accounting: dict[str, Any], heartbeat: dict[str, Any]) -> dict[str, Any]:
+def build_m36_72h_receipt(
+    accounting: dict[str, Any],
+    heartbeat: dict[str, Any],
+    *,
+    window_started_utc: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Historical gaps stay on the receipt. A MET status is only the current window."""
     longest = float(accounting.get("longest_gap_hours") or 0)
+    clock = now or datetime.now(timezone.utc)
+    elapsed = None
+    current = "NOT_RECORDED"
+    status = "NOT_MET"
+    reason = (
+        "GAP_NOTES shows repeated process death and at least one multi-hour host gap. "
+        "No unbroken 72h window is claimed."
+    )
+    if window_started_utc:
+        elapsed = round(max(0.0, (clock - _parse_iso(window_started_utc)).total_seconds()) / 3600, 2)
+        stale = bool(heartbeat.get("stale"))
+        if elapsed >= 72 and not stale:
+            status = "MET"
+            current = "MET"
+            reason = "The current window reached 72 hours and the heartbeat was not stale."
+        elif not stale:
+            current = "IN_PROGRESS"
+            reason = "The current window is running and has not reached 72 hours."
+        else:
+            current = "STALE"
+            reason = "The current window's heartbeat is stale. 72 hours are not claimed."
     return {
         "schema": "ahos.m36_soak_72h_receipt.v1",
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": clock.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "paper_only": True,
         "target_continuous_hours": 72,
-        "status": "NOT_MET",
-        "reason": "GAP_NOTES shows repeated process death and at least one multi-hour host gap. No unbroken 72h window is claimed.",
+        "status": status,
+        "current_window_status": current,
+        "elapsed_hours": elapsed,
+        "window_started_utc": window_started_utc,
+        "reason": reason,
         "longest_recorded_gap_hours": longest,
         "relaunch_rows_parsed": accounting.get("relaunch_rows_parsed"),
         "heartbeat_stale": heartbeat.get("stale"),
         "last_cycle_utc": heartbeat.get("last_cycle_utc"),
+        "auto_restart": "G:/robat/AHOS_Launcher/start_soak.ps1",
     }
 
 
@@ -160,7 +192,13 @@ def export_soak_gap_receipts(root: Path) -> dict[str, Any]:
     heartbeat = build_heartbeat(root)
     logon = verify_logon_lightstart(root.parent / "AHOS_Launcher" / "logs")
     accounting["logon_lightstart"] = logon
-    m36 = build_m36_72h_receipt(accounting, heartbeat)
+    started = None
+    if (root / STATUS_REL).is_file():
+        try:
+            started = json.loads((root / STATUS_REL).read_text(encoding="utf-8")).get("started_hint")
+        except json.JSONDecodeError:
+            started = None
+    m36 = build_m36_72h_receipt(accounting, heartbeat, window_started_utc=started if isinstance(started, str) else None)
     m36["logon_lightstart_chain_seen"] = logon["chain_seen"]
     for rel, doc in ((OUT_REL, accounting), (HEARTBEAT_REL, heartbeat), (M36_REL, m36)):
         path = root / rel

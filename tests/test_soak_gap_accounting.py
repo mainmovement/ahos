@@ -39,3 +39,18 @@ def test_m36_receipt_does_not_claim_72h():
     doc = build_m36_72h_receipt({"longest_gap_hours": 16.05, "relaunch_rows_parsed": 27}, {"stale": False, "last_cycle_utc": "2026-10-30T00:32:29Z"})
     assert doc["status"] == "NOT_MET"
     assert doc["target_continuous_hours"] == 72
+    assert doc["current_window_status"] == "NOT_RECORDED"
+
+
+def test_a_one_hour_window_stays_in_progress():
+    from datetime import datetime, timezone
+
+    doc = build_m36_72h_receipt(
+        {"longest_gap_hours": 16.05, "relaunch_rows_parsed": 33},
+        {"stale": False, "last_cycle_utc": "2026-10-30T06:02:37Z"},
+        window_started_utc="2026-10-30T06:02:43Z",
+        now=datetime(2026, 10, 30, 7, 2, 43, tzinfo=timezone.utc),
+    )
+    assert doc["status"] == "NOT_MET"
+    assert doc["current_window_status"] == "IN_PROGRESS"
+    assert doc["elapsed_hours"] == 1.0
