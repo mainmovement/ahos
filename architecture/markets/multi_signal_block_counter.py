@@ -123,8 +123,13 @@ def build_gate_window_report(
         lambda: {
             "opens": 0,
             "blocks": 0,
+            "fee_drag": 0,
             "cycles_with_votes": 0,
             "agree_counts": {f: 0 for f in INDEPENDENT_VOTE_FAMILIES},
+            "vote_states": {
+                f: {"AGREE": 0, "DISAGREE": 0, "FLAT": 0, "UNAVAILABLE": 0, "ABSENT": 0}
+                for f in INDEPENDENT_VOTE_FAMILIES
+            },
         }
     )
     log = root / LOG_REL
@@ -140,34 +145,56 @@ def build_gate_window_report(
             if ts is None or ts < start:
                 continue
             event = row.get("event")
+            reason = row.get("reason")
             if event not in {"OPEN", "NO_TRADE"}:
                 continue
-            if event == "NO_TRADE" and row.get("reason") != "MULTI_SIGNAL_AGREEMENT":
+            if event == "NO_TRADE" and reason not in {"MULTI_SIGNAL_AGREEMENT", "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES"}:
                 continue
             desk = str(row.get("desk") or "UNKNOWN")
             cell = by_desk[desk]
             if event == "OPEN":
                 cell["opens"] += 1
+            elif reason == "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES":
+                cell["fee_drag"] += 1
             else:
                 cell["blocks"] += 1
             votes = _vote_map(row)
             if votes:
                 cell["cycles_with_votes"] += 1
+                seen = set(votes)
                 for fam, vote in votes.items():
-                    if vote == "AGREE" and fam in cell["agree_counts"]:
+                    if fam not in cell["agree_counts"]:
+                        continue
+                    if vote == "AGREE":
                         cell["agree_counts"][fam] += 1
+                    bucket = vote if vote in cell["vote_states"][fam] else "UNAVAILABLE"
+                    cell["vote_states"][fam][bucket] += 1
+                for fam in INDEPENDENT_VOTE_FAMILIES:
+                    if fam not in seen:
+                        cell["vote_states"][fam]["ABSENT"] += 1
     desks = []
     for desk in sorted(by_desk):
         cell = by_desk[desk]
         never = [fam for fam, n in cell["agree_counts"].items() if n == 0]
+        scored = [
+            fam
+            for fam, states in cell["vote_states"].items()
+            if states["AGREE"] or states["DISAGREE"] or states["FLAT"]
+        ]
         desks.append(
             {
                 "desk": desk,
                 "opens": cell["opens"],
                 "blocks": cell["blocks"],
+                "fee_drag": cell["fee_drag"],
                 "cycles_with_votes": cell["cycles_with_votes"],
+                "vote_states": cell["vote_states"],
                 "agree_counts": cell["agree_counts"],
                 "families_never_agreed_in_window": never if cell["cycles_with_votes"] else [],
+                "families_scored": scored,
+                "families_never_scored": [f for f in INDEPENDENT_VOTE_FAMILIES if f not in scored]
+                if cell["cycles_with_votes"]
+                else [],
                 "families_not_observed": list(INDEPENDENT_VOTE_FAMILIES) if cell["cycles_with_votes"] == 0 else [],
             }
         )
@@ -182,10 +209,13 @@ def build_gate_window_report(
         "window_status": "COMPLETE" if complete else "INSUFFICIENT_WINDOW",
         "opens": sum(d["opens"] for d in desks),
         "blocks": sum(d["blocks"] for d in desks),
+        "fee_drag": sum(d["fee_drag"] for d in desks),
         "by_desk": desks,
         "composite_stop_census": composite,
         "honesty": (
-            "families_never_agreed_in_window is only about rows that reached the vote gate inside this elapsed slice. "
+            "AGREE is a vote with the side. FLAT means the family was scored and the mean was under the floor. "
+            "UNAVAILABLE or ABSENT means it did not score. families_never_agreed includes FLAT. "
+            "families_never_scored does not. Fee-drag rows passed the vote gate. "
             "INSUFFICIENT_WINDOW means six hours have not passed since the gate process started."
         ),
     }

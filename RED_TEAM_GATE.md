@@ -284,3 +284,15 @@ Laptop constraint held: no `next build`, no `next dev`, no Playwright. `npm run 
 | R5 UX | APPROVE | Fake wealth, fake exam rate, and an empty hero slot are off the first paint. Browser was not opened. |
 | R7 SRE | APPROVE | No production build on this laptop. Lane A not edited. |
 | Meta-Critic | APPROVE | Static tests do not prove the rendered pages. They do prove the equity whitelist and the orb's unknown-gate rule. |
+
+## P0 gate census after the quote-clock reload (2026-10-30T01:24:45Z)
+
+Window still **`INSUFFICIENT_WINDOW`** at **0.742h**. Opens **0**. Two-family blocks **2**, both OIL/BRENT. Fee-drag stops **5** (4 CRYPTO, 1 OIL). `QUOTE_TIME_AHEAD` is absent after PID 9320.
+
+On the two OIL blocks that stored votes: news **AGREE** twice, macro and candle wicks **FLAT** twice (scored, under the 0.05 floor), research **UNAVAILABLE**, whales **ABSENT**. FLAT is not a dead feed. The 01:21Z BRENT row then cleared the vote gate (candles 0.6 and news 0.26 in the contribution list) and failed the fee gate at ratio **0.561** versus **2**. CRYPTO fee-drag rows from this slice do not carry `independent_votes`; the next cycles will, after reload. Tests: `tests/test_multi_signal_block_counter.py` **4 passed** with the quote-age case.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The fee ratio was not loosened. 0.561 is a fail. |
+| R2 Data | APPROVE | FLAT, UNAVAILABLE, and ABSENT are separate counts. |
+| Meta-Critic | APPROVE | Forty-five minutes is not six hours. Zero opens is the gate working. |

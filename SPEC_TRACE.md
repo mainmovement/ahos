@@ -173,3 +173,7 @@ Quote-clock fix is commit **`dabe63f`**: age is taken after the download.
 ## P0 Stage 7 note (2026-10-30)
 
 Presentation only, in `ahos_arena`. Static checks: orb selftest 4 passed, real-paper selftest 9 passed. No laptop `next build`. Home `/` already redirects. Hero, North Star, and University no longer invent a nominal state, a $100 balance, or a 94.1% exam rate when the read model is empty. Oil/gold images are omitted when the PNG is absent.
+
+## P0 gate census note (2026-10-30T01:24Z)
+
+Window **0.742h / 6h**, opens 0, OIL two-family blocks 2, fee-drag stops 5. News agreed on both OIL blocks. Macro and wicks were flat. Research was unavailable. Whales were absent. One later BRENT bar cleared two families and failed the 2× fee rule at ratio 0.561. Gap IDs closed: **none**.

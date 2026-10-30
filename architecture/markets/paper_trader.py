@@ -785,6 +785,8 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                     "reason": "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES",
                     "composite": comp,
                     "fee_drag_gate": fee_audit,
+                    "independent_votes": vote_audit,
+                    "signal_scores": scores,
                     "top_contributions": comb["contributions"][:5],
                 }
             )

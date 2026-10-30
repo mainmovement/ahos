@@ -1,23 +1,153 @@
 {
   "schema": "ahos.gate_window_report.v1",
-  "generated_at": "2026-10-30T00:59:44Z",
+  "generated_at": "2026-10-30T01:24:45Z",
   "paper_only": true,
   "gate_live_at": "2026-10-30T00:40:16Z",
   "required_hours": 6.0,
-  "elapsed_hours": 0.325,
+  "elapsed_hours": 0.742,
   "window_status": "INSUFFICIENT_WINDOW",
   "opens": 0,
-  "blocks": 0,
-  "by_desk": [],
+  "blocks": 2,
+  "fee_drag": 5,
+  "by_desk": [
+    {
+      "desk": "CRYPTO",
+      "opens": 0,
+      "blocks": 0,
+      "fee_drag": 4,
+      "cycles_with_votes": 0,
+      "vote_states": {
+        "news": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "macro_central_bank": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "whales": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "candle_wicks": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "research": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        }
+      },
+      "agree_counts": {
+        "news": 0,
+        "macro_central_bank": 0,
+        "whales": 0,
+        "candle_wicks": 0,
+        "research": 0
+      },
+      "families_never_agreed_in_window": [],
+      "families_scored": [],
+      "families_never_scored": [],
+      "families_not_observed": [
+        "news",
+        "macro_central_bank",
+        "whales",
+        "candle_wicks",
+        "research"
+      ]
+    },
+    {
+      "desk": "OIL",
+      "opens": 0,
+      "blocks": 2,
+      "fee_drag": 1,
+      "cycles_with_votes": 2,
+      "vote_states": {
+        "news": {
+          "AGREE": 2,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "macro_central_bank": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 2,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "whales": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 2
+        },
+        "candle_wicks": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 2,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "research": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 2,
+          "ABSENT": 0
+        }
+      },
+      "agree_counts": {
+        "news": 2,
+        "macro_central_bank": 0,
+        "whales": 0,
+        "candle_wicks": 0,
+        "research": 0
+      },
+      "families_never_agreed_in_window": [
+        "macro_central_bank",
+        "whales",
+        "candle_wicks",
+        "research"
+      ],
+      "families_scored": [
+        "news",
+        "macro_central_bank",
+        "candle_wicks"
+      ],
+      "families_never_scored": [
+        "whales",
+        "research"
+      ],
+      "families_not_observed": []
+    }
+  ],
   "composite_stop_census": {
     "entry_abs": 0.32,
-    "composite_below_entry_rows": 5,
+    "composite_below_entry_rows": 17,
     "every_desk_stopped_at_composite_below_entry": false,
     "by_desk": [
       {
         "desk": "ASIA_EQUITIES",
         "reason_counts": {
-          "MARKET_CLOSED_OR_STALE": 5
+          "MARKET_CLOSED_OR_STALE": 12
         },
         "composite_below_entry_n": 0,
         "composite_distribution": null,
@@ -33,39 +163,40 @@
       {
         "desk": "CRYPTO",
         "reason_counts": {
-          "COMPOSITE_BELOW_ENTRY": 5,
-          "QUOTE_TIME_AHEAD": 3,
-          "WITNESS_CONFLICT": 1,
-          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 2
+          "COMPOSITE_BELOW_ENTRY": 14,
+          "QUOTE_TIME_AHEAD": 6,
+          "WITNESS_CONFLICT": 2,
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 4
         },
-        "composite_below_entry_n": 5,
+        "composite_below_entry_n": 14,
         "composite_distribution": {
-          "min": -0.2412,
-          "p50": -0.2158,
-          "max": -0.0757,
+          "min": -0.3108,
+          "p50": -0.2246,
+          "max": -0.046,
           "buckets_vs_entry_0.32": {
             "below_neg_entry": 0,
-            "inside_entry_band": 5,
+            "inside_entry_band": 14,
             "above_pos_entry": 0
           }
         },
         "families_with_any_nonzero_score": [
           "news",
           "macro_central_bank",
-          "whales"
+          "whales",
+          "candle_wicks"
         ],
         "family_hit_rows": {
-          "news": 5,
-          "macro_central_bank": 5,
-          "whales": 2,
-          "candle_wicks": 0,
+          "news": 14,
+          "macro_central_bank": 14,
+          "whales": 6,
+          "candle_wicks": 5,
           "research": 0
         }
       },
       {
         "desk": "EU_EQUITIES",
         "reason_counts": {
-          "MARKET_CLOSED_OR_STALE": 5
+          "MARKET_CLOSED_OR_STALE": 12
         },
         "composite_below_entry_n": 0,
         "composite_distribution": null,
@@ -81,7 +212,7 @@
       {
         "desk": "FOREX",
         "reason_counts": {
-          "QUOTE_TIME_AHEAD": 6
+          "QUOTE_TIME_AHEAD": 9
         },
         "composite_below_entry_n": 0,
         "composite_distribution": null,
@@ -97,23 +228,38 @@
       {
         "desk": "OIL",
         "reason_counts": {
-          "SESSION_CLOSED": 5
+          "SESSION_CLOSED": 6,
+          "COMPOSITE_BELOW_ENTRY": 3,
+          "MULTI_SIGNAL_AGREEMENT": 2,
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 1
         },
-        "composite_below_entry_n": 0,
-        "composite_distribution": null,
-        "families_with_any_nonzero_score": [],
+        "composite_below_entry_n": 3,
+        "composite_distribution": {
+          "min": 0.1062,
+          "p50": 0.1063,
+          "max": 0.274,
+          "buckets_vs_entry_0.32": {
+            "below_neg_entry": 0,
+            "inside_entry_band": 3,
+            "above_pos_entry": 0
+          }
+        },
+        "families_with_any_nonzero_score": [
+          "news",
+          "candle_wicks"
+        ],
         "family_hit_rows": {
-          "news": 0,
+          "news": 3,
           "macro_central_bank": 0,
           "whales": 0,
-          "candle_wicks": 0,
+          "candle_wicks": 3,
           "research": 0
         }
       },
       {
         "desk": "PB_TOKEN",
         "reason_counts": {
-          "QUOTE_TIME_AHEAD": 5
+          "QUOTE_TIME_AHEAD": 8
         },
         "composite_below_entry_n": 0,
         "composite_distribution": null,
@@ -129,7 +275,7 @@
       {
         "desk": "US_EQUITIES",
         "reason_counts": {
-          "MARKET_CLOSED_OR_STALE": 10
+          "MARKET_CLOSED_OR_STALE": 24
         },
         "composite_below_entry_n": 0,
         "composite_distribution": null,
@@ -145,5 +291,5 @@
     ],
     "signal_rule": "A family produced a signal when any of its member scores had absolute value above zero on a COMPOSITE_BELOW_ENTRY row. Zero is silence."
   },
-  "honesty": "families_never_agreed_in_window is only about rows that reached the vote gate inside this elapsed slice. INSUFFICIENT_WINDOW means six hours have not passed since the gate process started."
+  "honesty": "AGREE is a vote with the side. FLAT means the family was scored and the mean was under the floor. UNAVAILABLE or ABSENT means it did not score. families_never_agreed includes FLAT. families_never_scored does not. Fee-drag rows passed the vote gate. INSUFFICIENT_WINDOW means six hours have not passed since the gate process started."
 }

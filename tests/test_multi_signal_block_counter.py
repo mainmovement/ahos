@@ -71,3 +71,51 @@ def test_six_hour_window_is_not_claimed_early(tmp_path: Path):
     crypto = doc["by_desk"][0]
     assert "macro_central_bank" in crypto["families_never_agreed_in_window"]
     assert "news" not in crypto["families_never_agreed_in_window"]
+    assert "news" in crypto["families_scored"]
+    assert crypto["fee_drag"] == 0
+
+
+def test_flat_is_scored_and_unavailable_is_not(tmp_path: Path):
+    log = tmp_path / "reports" / "grok" / "PAPER" / "paper_trades.jsonl"
+    log.parent.mkdir(parents=True)
+    log.write_text(
+        json.dumps(
+            {
+                "event": "NO_TRADE",
+                "reason": "MULTI_SIGNAL_AGREEMENT",
+                "ts": "2026-10-30T01:10:00Z",
+                "desk": "OIL",
+                "independent_votes": {
+                    "votes": [
+                        {"family": "news", "vote": "AGREE"},
+                        {"family": "macro_central_bank", "vote": "FLAT"},
+                        {"family": "candle_wicks", "vote": "UNAVAILABLE"},
+                    ]
+                },
+            }
+        )
+        + "\n"
+        + json.dumps(
+            {
+                "event": "NO_TRADE",
+                "reason": "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES",
+                "ts": "2026-10-30T01:20:00Z",
+                "desk": "OIL",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    doc = build_gate_window_report(
+        tmp_path,
+        since="2026-10-30T00:40:16Z",
+        now=datetime(2026, 10, 30, 2, tzinfo=timezone.utc),
+    )
+    oil = doc["by_desk"][0]
+    assert oil["blocks"] == 1
+    assert oil["fee_drag"] == 1
+    assert doc["fee_drag"] == 1
+    assert "macro_central_bank" in oil["families_scored"]
+    assert "candle_wicks" in oil["families_never_scored"]
+    assert "whales" in oil["families_never_scored"]
+    assert oil["vote_states"]["whales"]["ABSENT"] == 1
