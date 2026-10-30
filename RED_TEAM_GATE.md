@@ -581,3 +581,14 @@ Feeds that answered are parsed into items with source, timestamp, mapped symbols
 | R2 Data | APPROVE | Certificate failures and HTTP 401/403/404 are omitted. A missing later price is not a move. |
 | R4 Council | APPROVE | Two feeds from one publisher do not corroborate each other. Pump news cannot open alone. |
 | Meta-Critic | APPROVE | The live news score is unchanged by this log. |
+
+## Tech scout (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_tech_scout.py -q` → **4 passed**. Live run `AHOS_tech_scout_weekly` at 2026-10-30T05:12:27Z wrote 27 ledger rows, all `ARCHIVE`. Eleven failed the license gate, eleven were stale, and five passed the static review and were archived as `NO_OOS_NUMBER`. `applied_to_live_weights` is false. Nothing was executed. SSRN, Papers with Code, and Stanford HAI were dropped because they did not return a parseable feed. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Promotion still requires DSR, PBO, and SURVIVED_RED_TEAM. This run had no out-of-sample number. |
+| R2 Data | APPROVE | A missing license, a stale push, and an oversized model are archived. Papers are not treated as installable code. |
+| R4 Council | APPROVE | The review records executed false, no dependencies added, and no candidate network call. |
+| Meta-Critic | APPROVE | The task command stays on G:\robat\ahos. The live weight is untouched. |

@@ -253,3 +253,7 @@ AG-18 and AG-19 are EXISTS because `architecture/university/learning_loop.py` an
 ## Desk news (2026-10-30)
 
 `architecture/markets/desk_news.py` reads the feeds that answered from this laptop and logs `reports/grok/PAPER/desk_news.jsonl`. Shadow sign, weight 0, not an entry vote. Dropped: ECB and OPEC (certificate), Kitco RSS (404), Reuters (401), Yahoo rssindex (404), DexScreener (403), CoinGecko new coins (401), pump.fun API (403). EIA release clock is "10:30 a.m. and 1:00 p.m." with weekday and timezone unknown. Pump-token news needs another agreeing family and a passing safety veto. Gates unchanged. Gap IDs closed: **none**.
+
+## Tech scout (2026-10-30)
+
+`architecture/university/tech_scout.py` writes `reports/grok/RESEARCH/tech_scout_ledger.jsonl`. Weekly task `AHOS_tech_scout_weekly` is Sunday 06:10 and runs `scripts/scheduled/run_tech_scout_weekly.py` with the repo Python on G:. First run: 27 rows, all ARCHIVE (11 LICENSE, 11 STALE, 5 NO_OOS_NUMBER). No upstream code was executed. No live weight was written. Dropped sources: SSRN HTTP 403, Papers with Code HTML, Stanford HAI HTML. Gates unchanged. Gap IDs closed: **none**.

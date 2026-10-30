@@ -1,0 +1,14 @@
+{
+  "schema": "ahos.scheduled_run_receipt.v1",
+  "task_name": "AHOS_tech_scout_weekly",
+  "finished_at": "2026-10-30T05:12:27Z",
+  "status": "OK",
+  "result": {
+    "paper_only": true,
+    "rows": 27,
+    "decisions": {
+      "ARCHIVE": 27
+    },
+    "applied_to_live_weights": false
+  }
+}
