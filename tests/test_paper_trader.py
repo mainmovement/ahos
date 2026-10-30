@@ -136,6 +136,32 @@ def test_a_quote_ahead_of_the_cycle_clock_does_not_open_or_close(tmp_path):
     assert not any(r.get("reason") == "MARKET_CLOSED_OR_STALE" for r in cash)
 
 
+def test_quote_stamped_during_the_download_is_not_ahead(tmp_path):
+    """Yahoo stamps regularMarketTime while the cycle clock is still the pre-fetch instant."""
+    from datetime import datetime, timezone
+    monday = datetime(2026, 10, 26, 15, 0, tzinfo=timezone.utc).timestamp()
+    ticks = iter((monday, monday + 30))
+
+    def fetch():
+        return {"quotes": {"EURUSD": {
+            "price": 1.08, "source": "yahoo_finance:EURUSD=X",
+            "market_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(monday + 10)),
+            "ohlcv_5m": _bars(100, 0.5),
+        }}}
+
+    pt.run_cycle(
+        tmp_path,
+        fetch=fetch,
+        fetch_b=lambda: {"EURUSD": {"price": 1.0801, "source": "B"}},
+        signals_fn=_sig(0.0),
+        now=lambda: next(ticks),
+        use_ledger=False,
+    )
+    rows = [r for r in _rows(tmp_path) if r.get("symbol") == "EURUSD"]
+    assert rows
+    assert not any(r.get("reason") == "QUOTE_TIME_AHEAD" for r in rows)
+
+
 def test_unusable_quote_times_cannot_open_and_a_1199_second_quote_can(tmp_path):
     from datetime import datetime, timezone
     monday = datetime(2026, 10, 26, 15, 0, tzinfo=timezone.utc).timestamp()

@@ -500,6 +500,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     dex = dex_feed(root, state["positions"]) if dex_feed else {}
     for sym, (dq, dw) in dex.items():
         quotes[sym], wit[sym] = dq, dw
+    # Age is measured when the quotes are in hand. `t` is frozen before the download, and
+    # Yahoo's regularMarketTime is stamped during that download, so a few seconds of lead
+    # against `t` is fetch latency, not a future price.
+    quote_asof = now()
     instruments = {**INSTRUMENTS, **{s: ("PB_TOKEN", DEX_FEE, DEX_SLIP) for s in dex}}
     weights = load_weights(root)
     try:  # Stage 3: research -> trader only through the versioned, reversible promotion switch
@@ -526,12 +530,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         price = q.get("price")
         w = wit[sym]
         base = {"ts": _iso(t), "symbol": sym, "desk": desk, "paper_only": True, "source": logged_source(q.get("source")),
-                "market_time": q.get("market_time"), "witness": logged_witness(w)}
+                "market_time": q.get("market_time"), "quote_asof": _iso(quote_asof), "witness": logged_witness(w)}
         mt = _parse(q.get("market_time"))
         pos = positions.get(sym)
         if not isinstance(price, (int, float)) or price <= 0:
             log({**base, "event": "SKIP", "reason": "PRICE_UNAVAILABLE"}); continue
-        age = None if mt is None else t - mt
+        age = None if mt is None else quote_asof - mt
         if age is None or age > MAX_TRADE_AGE_S or age < 0:
             from architecture.markets.weekday_session_gate import symbol_session
             gate = symbol_session(sym, datetime.fromtimestamp(t, tz=timezone.utc))
