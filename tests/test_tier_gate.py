@@ -86,30 +86,33 @@ def test_code_cannot_promote_even_when_everything_passes():
 # ------------------------------------------------- the 3-vs-4 unmeasurability --
 
 
-def test_regime_coverage_is_unmeasurable_as_specified_and_blocks_readiness():
-    """The exit gate wants >=3 of 4 regimes; the code defines 3.
-
-    This is structural, not incidental: MarketRegimeClassifier(n_regimes=4)
-    would relabel the extra state to NEUTRAL_CHOP via the REGIME_LABELS.get
-    fallback at regimes.py:92, so a fourth regime has no name in code and is
-    not invented here.
-    """
+def test_regime_coverage_is_three_of_three_and_fails_without_counts():
+    """No fourth regime was named in the design docs. Missing counts fail closed."""
     r = evaluate_tier_gate(market="gold", trades=_trades(250))
     by_id = {c.criterion: c for c in r.criteria}
-    assert by_id["regime_coverage"].passed is None
-    assert "UNMEASURABLE" in by_id["regime_coverage"].detail
-    assert "regime_coverage" in r.unmeasurable
+    assert by_id["regime_coverage"].passed is False
+    assert by_id["regime_coverage"].required.startswith(">=3 of 3 regimes")
+    assert "regime_coverage" not in r.unmeasurable
     assert r.ready_for_owner_review is False
-    assert any("M-REGIME-4" in q for q in r.open_questions)
+    assert not any("M-REGIME-4" in q for q in r.open_questions)
+
+
+def test_three_defined_regimes_with_thirty_trades_each_pass():
+    r = evaluate_tier_gate(
+        market="gold", trades=_trades(10),
+        regime_counts={"BULL_TREND": 30, "BEAR_VOLATILE": 30, "NEUTRAL_CHOP": 30},
+    )
+    by_id = {c.criterion: c for c in r.criteria}
+    assert by_id["regime_coverage"].passed is True
 
 
 def test_the_regime_criterion_counts_only_defined_labels():
     r = evaluate_tier_gate(
         market="gold", trades=_trades(10),
-        regime_counts={"BULL_TREND": 40, "BEAR_VOLATILE": 35, "NEUTRAL_CHOP": 30,
+        regime_counts={"BULL_TREND": 40, "BEAR_VOLATILE": 35, "NEUTRAL_CHOP": 29,
                        "INVENTED_FIFTH": 999})
     by_id = {c.criterion: c for c in r.criteria}
-    assert by_id["regime_coverage"].passed is None   # still unmeasurable
+    assert by_id["regime_coverage"].passed is False
 
 
 # --------------------------------------------------------- fail-closed gaps --
@@ -141,7 +144,7 @@ def test_a_measured_backtest_reference_makes_the_multiple_evaluable():
     by_id = {c.criterion: c for c in r.criteria}
     c = by_id["drawdown_vs_backtest_multiple"]
     assert c.passed is True       # 4% paper vs 5% backtest = 0.8x <= 1.5x
-    assert "regime_coverage" in r.unmeasurable   # still blocked by the 3-vs-4
+    assert by_id["regime_coverage"].passed is False
 
 
 # ------------------------------------------------------------ the metrics ---
@@ -240,8 +243,8 @@ def test_readiness_requires_every_measurable_criterion_to_pass_and_none_blocked(
         backtest_max_drawdown_pct=5.0,
         walk_forward_evidence=True,
     )
-    assert r.measurable_and_passed == r.measurable_total
-    # ...and yet still not ready, because the 3-vs-4 regime clause is unmeasurable.
+    assert r.measurable_and_passed < r.measurable_total
+    assert "regime_coverage" not in r.unmeasurable
     assert r.ready_for_owner_review is False
     assert r.promoted is False
 
@@ -266,7 +269,8 @@ def test_the_written_report_never_styles_a_gap_as_progress(tmp_path):
     assert "T0" in text and "Promoted by this evaluation: **False**" in text
     assert "UNMEASURABLE" in text
     assert "Not ready for owner review" in text
-    assert "M-REGIME-4" in text
+    assert ">=3 of 3 regimes" in text
+    assert "M-REGIME-4" not in text
     assert "**Ready for owner review.**" not in text
 
 

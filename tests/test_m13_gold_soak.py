@@ -180,8 +180,8 @@ def test_report_only_also_evaluates_the_tier_gate(populated_ledger, soak_dir):
     # The ladder law: code measures, the owner promotes.
     assert "Promoted by this evaluation: **False**" in text
     assert "Not ready for owner review" in text
-    # The structural unmeasurability stays visible instead of being papered over.
-    assert "M-REGIME-4" in text
+    assert ">=3 of 3 regimes" in text
+    assert "M-REGIME-4" not in text
 
 
 def test_the_gate_counts_the_same_trades_the_judge_settled(populated_ledger, soak_dir):

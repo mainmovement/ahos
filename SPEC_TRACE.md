@@ -164,4 +164,12 @@ Hold surface only. News vote still requires two sources; credibility is logged a
 
 ## P0 Stage 6 note (2026-10-30)
 
-`M-REGIME-4` stays **UNMEASURABLE**. Owner question: `reports/grok/M13/M-REGIME-4_OWNER_QUESTION.md`. Three regime labels kept. Quote-clock fix is commit **`dabe63f`**: age is taken after the download. Gap IDs closed: **none**.
+Quote-clock fix is commit **`dabe63f`**: age is taken after the download.
+
+## P0 M-REGIME-4 resolved (2026-10-30)
+
+**RESOLVED_BY_SOLTAN.** No fourth regime name in the design docs. Gate is **3 of 3**, `>=30` trades each. Labels unchanged. Gap IDs closed: **M-REGIME-4** only. Promotion is still not granted.
+
+## P0 Stage 7 note (2026-10-30)
+
+Presentation only, in `ahos_arena`. Static checks: orb selftest 4 passed, real-paper selftest 9 passed. No laptop `next build`. Home `/` already redirects. Hero, North Star, and University no longer invent a nominal state, a $100 balance, or a 94.1% exam rate when the read model is empty. Oil/gold images are omitted when the PNG is absent.

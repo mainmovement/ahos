@@ -260,3 +260,27 @@ Regime gate: not changed. Three labels remain `BULL_TREND`, `BEAR_VOLATILE`, `NE
 | R6 University | N/A | |
 | R7 SRE | APPROVE | Lane A not edited. The running trader must be reloaded before the new age check is live. |
 | Meta-Critic | APPROVE | Seconds of download latency were mislabeled as a future quote. The missing regime is still missing. |
+
+## P0 M-REGIME-4 resolved by Soltan (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Search of `G:\robat\ahos_assets`, `G:\robat\ahos\docs`, and `SPEC_TRACE.md` found no named fourth regime. Citations that only restate the question: `AHOS_FEATURE_CHECKLIST.md:83`, `AHOS_COMPLETION_MAP.md:68`, `GOLD_SOAK_EXIT_CRITERIA.md:30`. The 7-state replay detector is not that label. Exit gate is now **3 of 3**, each **>=30** trades. `tests/test_tier_gate.py`, `tests/test_m13_gold_soak.py`, `tests/test_gate_inputs.py`: **38 passed**. Promotion is still not a code act. A track with no regime counts fails the criterion.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Denominator matches the three labels in `architecture/intel/regimes.py`. |
+| R2 Data | APPROVE | An unnamed count does not pass. `INVENTED_FIFTH` is ignored. |
+| R4 Council | APPROVE | Recorded as RESOLVED_BY_SOLTAN. No fourth label was added. |
+| Meta-Critic | APPROVE | The documents did not define a fourth regime. The gate now measures the set it can name. |
+
+## P0 Stage 7 — presentation (2026-10-30, static checks only, NO next build)
+
+Laptop constraint held: no `next build`, no `next dev`, no Playwright. `npm run test:orb` 4 passed. `npm run test:real-paper` 9 passed.
+
+`/` already redirects to `/arena` (the old server `useLayout` crash). The arena hero now renders the static placeholder, including the two-source witness line, instead of a client orb whose loading state was empty. North Star no longer prints `NOMINAL_PAPER_AUTONOMOUS` or `$100` when the read model is null. The university card no longer states a 94.1% pass rate; it shows the read-model exam average or an explicit absence. Agent activity and the mock university counts sit behind a closed "technical details" control. Oil/gold equity images are requested only when `equity_*.png` exists on disk. The four replay files are present under `G:\robat\ahos_replay\out\`.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R3 News | N/A | |
+| R5 UX | APPROVE | Fake wealth, fake exam rate, and an empty hero slot are off the first paint. Browser was not opened. |
+| R7 SRE | APPROVE | No production build on this laptop. Lane A not edited. |
+| Meta-Critic | APPROVE | Static tests do not prove the rendered pages. They do prove the equity whitelist and the orb's unknown-gate rule. |

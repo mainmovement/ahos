@@ -221,3 +221,11 @@
 **Choice:** No choice. The question is in `reports/grok/M13/M-REGIME-4_OWNER_QUESTION.md`. A fourth label was not invented and the gate text was not rewritten.
 
 **Reason:** Stage 6 is a human gate. `n_regimes=4` would fall back to `NEUTRAL_CHOP`, which is not a new regime. Data depth of the three existing labels stays as it is. Status remains UNMEASURABLE.
+
+## 2026-10-30: M-REGIME-4 resolved by Soltan
+
+**Question:** Do the design docs name a fourth regime?
+
+**Choice:** RESOLVED_BY_SOLTAN. No fourth name was found in `G:\robat\ahos_assets`, `G:\robat\ahos\docs`, or `SPEC_TRACE.md`. The exit gate is now 3 of 3 defined regimes, each with at least 30 trades. Labels remain BULL_TREND, BEAR_VOLATILE, NEUTRAL_CHOP.
+
+**Reason:** The assets only repeat the open question (`AHOS_FEATURE_CHECKLIST.md:83`, `AHOS_COMPLETION_MAP.md:68`, `GOLD_SOAK_EXIT_CRITERIA.md:30`). A 7-state replay detector is not that fourth label. Missing counts fail the criterion. Promotion stays an owner act.

@@ -16,15 +16,14 @@ the code cannot compute is reported as such; it is never passed by default and
 never silently dropped, because either would let a promotion claim form on
 evidence that does not exist.
 
-The one structural unmeasurability found while writing this: the exit gate
-requires **>=3 of 4 regimes with >=30 trades each**, and
-``architecture/intel/regimes.py`` defines exactly **three** regimes
-(``REGIME_LABELS`` = BULL_TREND / BEAR_VOLATILE / NEUTRAL_CHOP). A four-regime
-denominator does not exist in the code, so the criterion cannot be evaluated as
-written. It is reported as UNMEASURABLE with the evidence, and listed for the
-owner as M-REGIME-4. Papering over it -- counting three-regime coverage as
-four-regime coverage, or inventing a fourth label here -- would be exactly the
-kind of gate-loosening that makes a number move.
+M-REGIME-4 was resolved by Soltan on 2026-10-30. A search of
+``G:\\robat\\ahos_assets``, ``G:\\robat\\ahos\\docs``, and ``SPEC_TRACE.md``
+found no named fourth regime. The assets only repeat the open question
+(``AHOS_FEATURE_CHECKLIST.md:83``, ``AHOS_COMPLETION_MAP.md:68``,
+``GOLD_SOAK_EXIT_CRITERIA.md:30``). The exit gate is therefore **3 of the 3
+defined regimes, each with >=30 trades**. The labels stay
+BULL_TREND, BEAR_VOLATILE, and NEUTRAL_CHOP. A missing count is a failed
+measurement, not a pass.
 """
 
 from __future__ import annotations
@@ -35,13 +34,9 @@ from pathlib import Path
 
 from ..intel.regimes import MarketRegimeClassifier
 
-#: The regime vocabulary the code actually has. ``MarketRegimeClassifier``
-#: accepts an ``n_regimes`` constructor argument, so a caller *can* ask for 4,
-#: but ``REGIME_LABELS`` only maps three ids and the classifier's own label
-#: lookup falls back to ``NEUTRAL_CHOP`` for any id it does not know
-#: (``regimes.py:92``). A fourth regime therefore has no name in code -- asking
-#: for one silently relabels to the third. This is why the exit gate's
-#: ">=3 of 4 regimes" clause is UNMEASURABLE rather than merely unsatisfied.
+#: The regime vocabulary the code actually has. Soltan's search found no fourth
+#: name, so the gate denominator is this set. ``n_regimes=4`` still falls back
+#: to ``NEUTRAL_CHOP`` and is not a fourth regime.
 REGIME_LABELS: dict[int, str] = dict(MarketRegimeClassifier.REGIME_LABELS)
 
 # The ten exit-gate criteria, keyed by the ids used in the report. Thresholds
@@ -49,7 +44,7 @@ REGIME_LABELS: dict[int, str] = dict(MarketRegimeClassifier.REGIME_LABELS)
 CRITERIA = {
     "data_depth_months": 6,
     "trade_count": 200,
-    "regime_coverage": {"min_regimes": 3, "of_total": 4, "per_regime": 30},
+    "regime_coverage": {"min_regimes": 3, "of_total": 3, "per_regime": 30},
     "cost_model": "net of fees and funding with 2x slippage",
     "max_drawdown_pct": 15.0,
     "drawdown_vs_backtest_multiple": 1.5,
@@ -161,28 +156,17 @@ def evaluate_tier_gate(
         n >= CRITERIA["trade_count"],
         f"{n} recorded trades"))
 
-    # --- regime coverage (the 3-vs-4 unmeasurability) ----------------------
+    # --- regime coverage: 3 of the 3 defined labels, >=30 trades each --------
     spec = CRITERIA["regime_coverage"]
     defined = len(REGIME_LABELS)
     if defined < spec["of_total"]:
-        # The gate names a 4-regime denominator the code does not have.
         results.append(CriterionResult(
             "regime_coverage",
             f">={spec['min_regimes']} of {spec['of_total']} regimes, "
             f">={spec['per_regime']} trades each",
             f"{defined} regimes defined", None,
-            f"UNMEASURABLE as specified: architecture/intel/regimes.py defines "
-            f"{defined} regimes ({', '.join(REGIME_LABELS.values())}) but the "
-            f"exit gate requires >=3 of {spec['of_total']}. A fourth regime "
-            f"has no label in code -- MarketRegimeClassifier(n_regimes=4) "
-            f"would relabel the extra state to NEUTRAL_CHOP via the "
-            f"REGIME_LABELS.get fallback at regimes.py:92 -- so it is not "
-            f"invented here."))
-        questions.append(
-            "M-REGIME-4: the exit gate's >=3-of-4 regime coverage cannot be "
-            "evaluated because only 3 regimes are defined "
-            "(architecture/intel/regimes.py). Owner act: either name the "
-            "fourth regime the gate intends, or amend the gate to 3.")
+            "UNMEASURABLE: the resolved 3-of-3 gate has fewer labels in "
+            "architecture/intel/regimes.py than the denominator."))
     else:
         counts = regime_counts or {}
         with_enough = sum(1 for label in REGIME_LABELS.values()
