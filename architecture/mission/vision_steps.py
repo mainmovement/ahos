@@ -48,6 +48,11 @@ _IMPL = frozenset({
     "news_intelligence",
     "paper_trading",
     "system_status",
+    "ai_conversational",
+    "onchain_intelligence",
+    "liquidity_whale_demand",
+    "user_position_tracking",
+    "identity_resolution",
 })
 
 
@@ -61,6 +66,11 @@ def build_overlay(proof: dict) -> dict:
         "news_intelligence": proof.get("news_weight_zero") is True and proof.get("news_blocks_entry") is True,
         "paper_trading": proof.get("paper_book") is True and proof.get("pause_armed") is True,
         "system_status": proof.get("soak_clock_kept") is True,
+        "ai_conversational": proof.get("kian_cited") is True,
+        "onchain_intelligence": proof.get("whale_score") is True,
+        "liquidity_whale_demand": proof.get("liquidity_attached") is True,
+        "user_position_tracking": proof.get("paper_reads_opens") is True,
+        "identity_resolution": proof.get("witnesses_agreed") is True,
     }
     rows = []
     for step in STEPS:

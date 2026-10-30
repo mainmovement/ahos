@@ -566,9 +566,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         live_weights, switch_version = dict(weights["weights"]), 0
     ledger = _Ledger(root, use_ledger)
     trades = load_paper_trades(root)
-    from architecture.markets.desk_expectancy_pause import paused_desk_names
+    from architecture.markets.desk_expectancy_pause import early_warning_factors, paused_desk_names
+    from architecture.university.lesson_shadow import lesson_is_live
 
     paused_desks = paused_desk_names(trades)
+    early_half = early_warning_factors(trades)
+    if lesson_is_live(root):
+        live_weights["news"] = 0.0
     equity = float(paper_account_summary(root)["current_equity_usd"])
     halted, halt_reason = ledger.halted()
     killed, kill_reason = kill_switch(trades, equity, t)
@@ -608,6 +612,8 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             pass
 
     def log(row: dict[str, Any]) -> None:
+        if row.get("desk") in early_half and "early_warning" not in row:
+            row = {**row, "early_warning": early_half[row["desk"]]}
         _append(root, LEDGER_REL, row)
         events.append(row)
 
@@ -624,6 +630,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 "quote_asof": _iso(quote_asof), "witness": logged_witness(w)}
         mt = _parse(q.get("market_time"))
         pos = positions.get(sym)
+        if desk in paused_desks:
+            known_price = price if isinstance(price, (int, float)) and not isinstance(price, bool) and price > 0 else None
+            log({**base, "event": "NO_TRADE", "reason": "DESK_EXPECTANCY_PAUSE", "price": known_price,
+                 "desk_pause": {"shadow": True, "applied_to_live_weights": False, "keeps_open_position": bool(pos)}})
+            if not pos:
+                continue
         if not isinstance(price, (int, float)) or price <= 0:
             log({**base, "event": "SKIP", "reason": "PRICE_UNAVAILABLE"}); continue
         age = None if mt is None else quote_asof - mt
@@ -711,6 +723,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                  "weights_used": {str(k): round(float(v), 4) for k, v in live_weights.items()
                                   if isinstance(v, (int, float)) and not isinstance(v, bool)}}
         scores = {s["name"]: round(float(s["score"]), 4) for s in sigs if s.get("available")}
+        if pos:
+            from architecture.markets.position_liquidity import attach_liquidity
+
+            attach_liquidity(pos, sigs, q)
         try:
             from architecture.markets.family_vote_scorecard import record_family_votes
 
@@ -954,17 +970,15 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             continue
         if memory["action"] == "SHRINK":
             notional *= float(memory.get("factor") or 1.0)
-        if desk in paused_desks:
-            log({**base, "event": "NO_TRADE", "reason": "DESK_EXPECTANCY_PAUSE", "price": price,
-                 "composite": comp, "independent_votes": vote_audit,
-                 "desk_pause": {"shadow": True, "applied_to_live_weights": False}})
-            continue
 
         desk_mult, desk_mult_src = effective_desk_notional_mult(root, desk)
         if desk_mult < 1.0:
             brain["desk_notional_mult"] = desk_mult
             brain["desk_notional_mult_source"] = desk_mult_src
             notional = round(notional * desk_mult, 4)
+        if desk in early_half:
+            notional = round(notional * 0.5, 4)
+            brain["early_warning_size"] = 0.5
         cluster = CLUSTER_OF_DESK.get(desk, "other")
         cluster_open = sum(p["notional_usd"] for p in positions.values() if CLUSTER_OF_DESK.get(p.get("desk", ""), "") == cluster)
         cluster_rem = max(0.0, CLUSTER_CAPS.get(cluster, 0.35) * equity - cluster_open)

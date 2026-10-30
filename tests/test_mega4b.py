@@ -86,9 +86,101 @@ def test_vision_overlay_counts_only_rows_with_proof():
         "paper_book": True,
         "pause_armed": True,
         "soak_clock_kept": True,
+        "kian_cited": True,
+        "whale_score": True,
+        "liquidity_attached": True,
+        "paper_reads_opens": True,
+        "witnesses_agreed": True,
     })
-    assert full["current_impl"] == 5
-    assert full["current_impl_pct"] == 19.2
+    assert full["current_impl"] == 10
+    assert full["current_impl_pct"] == 38.5
+
+
+def test_the_lesson_stays_shadow_until_thirty_newer_closes_and_a_red_team():
+    from architecture.university.lesson_shadow import decide_promotion, export_promotion, lesson_is_live
+
+    base = [_close("GOLD", 0.2, "TAKE_PROFIT", i, news=0.0) for i in range(1, 8)]
+    held = decide_promotion(base, baseline_closed_at="2026-10-07T00:00:00Z", red_team="SURVIVED_RED_TEAM")
+    assert held["decision"] == "KEEP_SHADOW"
+    assert "AWAITING_30_FURTHER_CLOSES" in held["reasons"]
+    assert held["applied_to_live_weights"] is False
+    newer = [_close("GOLD", 0.2, "TAKE_PROFIT", i, news=0.0) for i in range(1, 41)]
+    no_team = decide_promotion(newer, baseline_closed_at="2026-09-01T00:00:00Z", red_team=None)
+    assert no_team["decision"] == "KEEP_SHADOW"
+    assert "RED_TEAM_ABSENT" in no_team["reasons"]
+    losses = [_close("GOLD", -0.2, "STOP", i, news=0.0) for i in range(1, 41)]
+    negative = decide_promotion(losses, baseline_closed_at="2026-09-01T00:00:00Z", red_team="SURVIVED_RED_TEAM")
+    assert negative["promote_to_live_weights"] is False
+    promoted = decide_promotion(newer, baseline_closed_at="2026-09-01T00:00:00Z", red_team="SURVIVED_RED_TEAM")
+    assert promoted["decision"] == "PROMOTED"
+    assert promoted["oos_further_expectancy_usd"] > 0
+    repo = Path(__file__).resolve().parents[1]
+    assert lesson_is_live(repo) is False
+    scratch = repo / "reports" / "_scratch_lesson_promo_test"
+    # The live book is not this directory. The write below is removed.
+    scratch.mkdir(parents=True, exist_ok=True)
+    try:
+        seed = scratch / "reports" / "grok" / "PAPER" / "lesson_promotion.json"
+        seed.parent.mkdir(parents=True, exist_ok=True)
+        seed.write_text('{"baseline_closed_at": "2026-09-01T00:00:00Z"}\n', encoding="utf-8")
+        written = export_promotion(scratch, newer, red_team="SURVIVED_RED_TEAM")
+        assert written["applied_to_live_weights"] is True
+        assert lesson_is_live(scratch) is True
+        export_promotion(scratch, newer, red_team=None)
+        assert lesson_is_live(scratch) is False
+    finally:
+        import shutil
+        shutil.rmtree(scratch, ignore_errors=True)
+
+
+def test_half_size_needs_ten_closes_and_a_loss_worse_than_two_fees():
+    mild = [{"desk": "PB_TOKEN", "realized_pnl_usd": -0.01, "fees_usd": 0.011} for _ in range(14)]
+    sharp = [{"desk": "GOLD", "realized_pnl_usd": -0.03, "fees_usd": 0.008} for _ in range(14)]
+    doc = assess(mild + sharp)
+    by_desk = {row["desk"]: row for row in doc["desks"]}
+    assert by_desk["PB_TOKEN"]["size_factor"] == 1.0
+    assert by_desk["GOLD"]["size_factor"] == 0.5
+    assert "GOLD" in doc["early_warning_desks"]
+    assert "PB_TOKEN" not in doc["early_warning_desks"]
+
+
+def test_the_data_walk_skips_large_directories_and_stops_on_the_clock(tmp_path):
+    from architecture.persistence.bounded_walk import find_files
+
+    data = tmp_path / "data"
+    nested = data / "mission_ledger"
+    skipped = data / "node_modules" / "pkg"
+    nested.mkdir(parents=True)
+    skipped.mkdir(parents=True)
+    (nested / "book.sqlite").write_bytes(b"ok")
+    (skipped / "hidden.sqlite").write_bytes(b"no")
+    found = find_files(data, (".sqlite",), max_depth=3, timeout_s=5.0)
+    assert any(name.endswith("book.sqlite") for name in found["files"])
+    assert not any("node_modules" in name for name in found["files"])
+    stopped = find_files(data, (".sqlite",), timeout_s=0.0)
+    assert stopped["timed_out"] is True
+
+
+def test_kian_cites_a_close_or_returns_unknown():
+    from architecture.mission.vision_live import agreed_witness, kian_answer
+
+    closes = [_close("OIL", -1.0, "STOP", 3)]
+    cited = kian_answer(closes, "why OIL close")
+    assert cited["status"] == "CITED"
+    assert "OIL" in cited["citations"][0]
+    unknown = kian_answer(closes, "zebra quilt mosaic")
+    assert unknown["status"] == "UNKNOWN"
+    assert unknown["answer"] == "UNKNOWN"
+    missing = agreed_witness({"symbol": "BTC", "source": "a", "witness": {"verdict": "CONFLICT", "source_b": "b"}})
+    assert missing is None
+    agreed = agreed_witness({
+        "symbol": "NKD",
+        "source": "tradingview:CME:NKD1!",
+        "ts": "2026-10-30T12:13:46Z",
+        "witness": {"verdict": "VERIFIED", "source_b": "yahoo_finance:NKD=F", "gap": 0.00056},
+    })
+    assert agreed["identity_id"].startswith("witness:NKD:")
+    assert agreed["source_a"] != agreed["source_b"]
 
 
 def test_the_drills_trip_a_fake_loss_and_refuse_a_broken_ledger():
