@@ -341,3 +341,11 @@
 **Choice:** The live crypto-swap book and the live listed-futures book start at 1x. They may step to 2x, then 3x, then 5x, one rung at a time, only when that desk's own closes at the current rung have at least 30 trades, DSR above 0.95, PBO under 0.5, and max drawdown within 15%. DSR and PBO use the existing research functions. One return path cannot satisfy them, so the live book stays at 1x until those numbers exist. A drawdown past 15% from the desk peak steps down one rung and does not step twice in the same cycle. Cash books stay unlevered. FDAX stays off the book. A shadow book opens 5x and 10x on the same signal, with the same fees, simulated funding where a rate exists, and simulated liquidation. Shadow pnl is not live equity. The two books are written side by side in `reports/grok/PAPER/leverage_books_report.json`.
 
 **Reason:** The owner asked for higher leverage and a measurement of 5x and 10x. Raising the live book without the evidence bar would skip the gate. The shadow book is the measurement.
+
+## 2026-10-30: Shadow listed legs roll on the same date as the live book
+
+**Question:** Should the 5x and 10x shadow book sit through a listed-contract expiry?
+
+**Choice:** A listed shadow leg flattens with `CONTRACT_ROLL` on the same paper last-trade window as the live book. Crypto swaps have no expiry, so they keep funding, fees, and liquidation only. The close does not change live equity.
+
+**Reason:** A shadow that holds through expiry would measure a contract the live book is not allowed to hold.

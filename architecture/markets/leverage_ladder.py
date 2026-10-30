@@ -3,7 +3,8 @@
 The live book starts at 1x. It may step to 2x, then 3x, then 5x only when that
 desk's own closes clear the evidence bar. A drawdown past the cap steps down
 one rung. The shadow book replays the same open at 5x and 10x and does not
-change live equity. Missing DSR or PBO is not a pass.
+change live equity. Listed legs flatten on the same contract-roll date
+as the live book. Missing DSR or PBO is not a pass.
 """
 from __future__ import annotations
 
@@ -285,6 +286,17 @@ def mark_shadow_book(root: Path, quotes: dict[str, Any], ts: float, *,
         side = str(leg.get("side"))
         slip = float(leg.get("slip") if leg.get("slip") is not None else slip_of.get(sym) or 0.0)
         fee = float(leg.get("fee") if leg.get("fee") is not None else fee_of.get(sym) or 0.0)
+        if leg.get("desk") == "LISTED_FUTURES":
+            from architecture.markets.listed_futures_paper import roll_due
+
+            month = q.get("contract_month") or leg.get("contract_month")
+            asof = datetime.fromtimestamp(ts, tz=timezone.utc).date()
+            if roll_due(sym, month, asof):
+                _close_leg(leg, float(price), ts, "CONTRACT_ROLL", slip, fee)
+                _append(Path(root) / SHADOW_LOG_REL, {"ts": leg.get("closed_at"), "event": "SHADOW_CLOSE", "symbol": sym,
+                        "leverage": leg.get("leverage"), "reason": "CONTRACT_ROLL", "realized_pnl_usd": leg.get("realized_pnl_usd"),
+                        "changes_live_equity": False})
+                continue
         if simulated_liquidation(side, float(price), leg.get("liquidation_price")):
             _close_leg(leg, float(price), ts, "SIMULATED_LIQUIDATION", slip, fee)
             _append(Path(root) / SHADOW_LOG_REL, {"ts": leg.get("closed_at"), "event": "SHADOW_CLOSE", "symbol": sym,

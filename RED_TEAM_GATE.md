@@ -473,3 +473,5 @@ Live futures stay at 1x. A step to 2x, 3x, or 5x needs 30 closes on that rung, D
 | R2 Data | APPROVE | A single path does not invent a trial set, so PBO stays unmeasured. |
 | R4 Council | APPROVE | The shadow book does not write the live ledger. |
 | Meta-Critic | APPROVE | 5x and 10x are a measurement. They are not the live account. |
+
+Shadow listed legs now flatten with `CONTRACT_ROLL` inside the same five-day window as the live book. A crypto swap shadow leg does not roll. `pytest tests/test_leverage_ladder.py -q` → **5 passed**. The shadow close still does not write the live ledger.

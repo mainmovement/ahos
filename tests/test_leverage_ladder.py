@@ -73,3 +73,31 @@ def test_shadow_liquidates_without_touching_live_equity(tmp_path: Path) -> None:
     assert row["shadow"]["10.0"]["close_reason"] == "SIMULATED_LIQUIDATION"
     assert doc["shadow_changes_live_equity"] is False
     assert doc["desks"]["LISTED_FUTURES"]["live_leverage"] == 1.0
+
+
+def test_shadow_listed_leg_rolls_and_a_swap_does_not(tmp_path: Path) -> None:
+    from datetime import datetime, timezone
+
+    mirror_shadow_open(
+        tmp_path, symbol="CL", desk="LISTED_FUTURES", side="LONG", margin_usd=10.0, price=80.0,
+        fee=0.0005, slip=0.0, ts=1_000.0, opened_at="2026-10-29T00:00:00Z", contract_month="2026-12",
+    )
+    mirror_shadow_open(
+        tmp_path, symbol="BTC-SWAP", desk="CRYPTO_FUTURES", side="LONG", margin_usd=10.0, price=100.0,
+        fee=0.0005, slip=0.0, ts=1_000.0, opened_at="2026-10-29T00:00:00Z", funding_rate=0.0001,
+    )
+    roll_ts = datetime(2026, 11, 16, 18, 0, tzinfo=timezone.utc).timestamp()
+    mark_shadow_book(
+        tmp_path,
+        {"CL": {"price": 80.0, "contract_month": "2026-12"}, "BTC-SWAP": {"price": 100.0, "funding_rate_8h": 0.0001}},
+        roll_ts,
+        live_open={"CL", "BTC-SWAP"},
+    )
+    doc = books_report(tmp_path, {}, [])
+    cl = next(r for r in doc["rows"] if r["symbol"] == "CL")
+    swap = next(r for r in doc["rows"] if r["symbol"] == "BTC-SWAP")
+    assert cl["shadow"]["5.0"]["close_reason"] == "CONTRACT_ROLL"
+    assert cl["shadow"]["10.0"]["close_reason"] == "CONTRACT_ROLL"
+    assert swap["shadow"]["5.0"]["open"] is True
+    assert swap["shadow"]["5.0"]["funding_usd"] not in (None, 0)
+    assert doc["shadow_changes_live_equity"] is False
