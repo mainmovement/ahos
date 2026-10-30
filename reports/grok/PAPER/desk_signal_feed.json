@@ -1,0 +1,291 @@
+{
+  "schema": "ahos.desk_signal_feed.v1",
+  "generated_at": "2026-10-30T00:33:58Z",
+  "paper_only": true,
+  "strategy_switch_version": 0,
+  "strategy_switch_active_count": 0,
+  "desks": [
+    {
+      "paper_desk": "ASIA_EQUITIES",
+      "pipeline_desk": "ASIA_EQUITIES_DESK",
+      "research_overlay_score": 0.0,
+      "research_overlay_available": false,
+      "research_overlay_composite_weight": 0.0,
+      "batch_pass_stats_keys": [],
+      "shadow_forward_hypotheses": [
+        "H22"
+      ],
+      "shadow_forward_predictions": [
+        {
+          "hypothesis_id": "H22",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "GDELT DOC ~3 months, RSS not archived",
+          "paper_only": true
+        }
+      ],
+      "shadow_outcome_scorecard": [],
+      "weighted_sources": [],
+      "notional_mult": 0.35,
+      "notional_mult_source": "edge_merged",
+      "paper_only": true
+    },
+    {
+      "paper_desk": "CRYPTO",
+      "pipeline_desk": "CRYPTO_UNIVERSE_DESK",
+      "research_overlay_score": 0.0,
+      "research_overlay_available": false,
+      "research_overlay_composite_weight": 0.0,
+      "batch_pass_stats_keys": [],
+      "shadow_forward_hypotheses": [
+        "H15",
+        "H21",
+        "H22"
+      ],
+      "shadow_forward_predictions": [
+        {
+          "hypothesis_id": "H15",
+          "verdict": "SHADOW_FORWARD_TEST",
+          "predicted_direction": "LONG",
+          "predicted_score": 0.269,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": null,
+          "paper_only": true
+        },
+        {
+          "hypothesis_id": "H21",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "OKX funding history ~3 months (free)",
+          "paper_only": true
+        },
+        {
+          "hypothesis_id": "H22",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "GDELT DOC ~3 months, RSS not archived",
+          "paper_only": true
+        }
+      ],
+      "shadow_outcome_scorecard": [],
+      "weighted_sources": [],
+      "notional_mult": 0.25,
+      "notional_mult_source": "edge_merged",
+      "paper_only": true
+    },
+    {
+      "paper_desk": "EU_EQUITIES",
+      "pipeline_desk": "EU_EQUITIES_DESK",
+      "research_overlay_score": 0.0,
+      "research_overlay_available": false,
+      "research_overlay_composite_weight": 0.0,
+      "batch_pass_stats_keys": [],
+      "shadow_forward_hypotheses": [
+        "H22"
+      ],
+      "shadow_forward_predictions": [
+        {
+          "hypothesis_id": "H22",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "GDELT DOC ~3 months, RSS not archived",
+          "paper_only": true
+        }
+      ],
+      "shadow_outcome_scorecard": [],
+      "weighted_sources": [],
+      "notional_mult": 1.0,
+      "notional_mult_source": "edge_merged",
+      "paper_only": true
+    },
+    {
+      "paper_desk": "FOREX",
+      "pipeline_desk": "FOREX_DESK",
+      "research_overlay_score": 0.0,
+      "research_overlay_available": false,
+      "research_overlay_composite_weight": 0.0,
+      "batch_pass_stats_keys": [],
+      "shadow_forward_hypotheses": [
+        "H22"
+      ],
+      "shadow_forward_predictions": [
+        {
+          "hypothesis_id": "H22",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "GDELT DOC ~3 months, RSS not archived",
+          "paper_only": true
+        }
+      ],
+      "shadow_outcome_scorecard": [],
+      "weighted_sources": [],
+      "notional_mult": 0.35,
+      "notional_mult_source": "edge_merged",
+      "paper_only": true
+    },
+    {
+      "paper_desk": "GOLD",
+      "pipeline_desk": "GOLD_DESK",
+      "research_overlay_score": 0.0,
+      "research_overlay_available": false,
+      "research_overlay_composite_weight": 0.0,
+      "batch_pass_stats_keys": [],
+      "shadow_forward_hypotheses": [
+        "H22"
+      ],
+      "shadow_forward_predictions": [
+        {
+          "hypothesis_id": "H22",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "GDELT DOC ~3 months, RSS not archived",
+          "paper_only": true
+        }
+      ],
+      "shadow_outcome_scorecard": [],
+      "weighted_sources": [],
+      "notional_mult": 0.25,
+      "notional_mult_source": "edge_merged",
+      "paper_only": true
+    },
+    {
+      "paper_desk": "OIL",
+      "pipeline_desk": "OIL_DESK",
+      "research_overlay_score": 0.0,
+      "research_overlay_available": false,
+      "research_overlay_composite_weight": 0.0,
+      "batch_pass_stats_keys": [],
+      "shadow_forward_hypotheses": [
+        "H22"
+      ],
+      "shadow_forward_predictions": [
+        {
+          "hypothesis_id": "H22",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "GDELT DOC ~3 months, RSS not archived",
+          "paper_only": true
+        }
+      ],
+      "shadow_outcome_scorecard": [],
+      "weighted_sources": [],
+      "notional_mult": 0.3,
+      "notional_mult_source": "edge_merged",
+      "paper_only": true
+    },
+    {
+      "paper_desk": "PB_TOKEN",
+      "pipeline_desk": "CRYPTO_UNIVERSE_DESK",
+      "research_overlay_score": 0.0,
+      "research_overlay_available": false,
+      "research_overlay_composite_weight": 0.0,
+      "batch_pass_stats_keys": [],
+      "shadow_forward_hypotheses": [
+        "H15",
+        "H21",
+        "H22"
+      ],
+      "shadow_forward_predictions": [
+        {
+          "hypothesis_id": "H15",
+          "verdict": "SHADOW_FORWARD_TEST",
+          "predicted_direction": "LONG",
+          "predicted_score": 0.269,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": null,
+          "paper_only": true
+        },
+        {
+          "hypothesis_id": "H21",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "OKX funding history ~3 months (free)",
+          "paper_only": true
+        },
+        {
+          "hypothesis_id": "H22",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "GDELT DOC ~3 months, RSS not archived",
+          "paper_only": true
+        }
+      ],
+      "shadow_outcome_scorecard": [],
+      "weighted_sources": [],
+      "notional_mult": 0.35,
+      "notional_mult_source": "edge_merged",
+      "paper_only": true
+    },
+    {
+      "paper_desk": "US_EQUITIES",
+      "pipeline_desk": "US_EQUITIES_DESK",
+      "research_overlay_score": 0.0,
+      "research_overlay_available": false,
+      "research_overlay_composite_weight": 0.0,
+      "batch_pass_stats_keys": [],
+      "shadow_forward_hypotheses": [
+        "H22"
+      ],
+      "shadow_forward_predictions": [
+        {
+          "hypothesis_id": "H22",
+          "verdict": "FORWARD_TEST",
+          "predicted_direction": "UNKNOWN",
+          "predicted_score": null,
+          "composite_weight": 0.0,
+          "outcome_scoring": "deferred_vs_realized_trade",
+          "evidence": "reports/grok/M28/batch4_research.json @ 2026-10-24T01:17:23Z",
+          "note": "GDELT DOC ~3 months, RSS not archived",
+          "paper_only": true
+        }
+      ],
+      "shadow_outcome_scorecard": [],
+      "weighted_sources": [],
+      "notional_mult": 1.0,
+      "notional_mult_source": "edge_merged",
+      "paper_only": true
+    }
+  ],
+  "research_hypothesis_scorecard_path": "reports/grok/PAPER/research_hypothesis_scorecard.json",
+  "honesty_note": "research_overlay composite weight applies only to PASS_STATS + SURVIVED_RED_TEAM. SHADOW/FORWARD rows are logged on trades with weight 0."
+}

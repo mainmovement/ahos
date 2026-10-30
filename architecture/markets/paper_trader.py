@@ -706,7 +706,29 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         event_size = min(1.0, float(((shock or {}).get("evidence") or {}).get("size_mult") or 1.0))
         brain["event_size_mult"] = event_size
         notional = min(equity * RISK_PER_TRADE / stop_pct * regime["size_mult"], desk_cap * regime["size_mult"]) * event_size
-        from architecture.markets.paper_trade_gates import MIN_EXPECTED_PROFIT_TO_FEE_RATIO, effective_desk_notional_mult, fee_drag_gate
+        from architecture.markets.paper_trade_gates import (
+            effective_desk_notional_mult,
+            fee_drag_gate,
+            independent_vote_gate,
+        )
+
+        vote_ok, vote_audit = independent_vote_gate(sigs, side)
+        brain["independent_votes"] = vote_audit
+        if not vote_ok:
+            log(
+                {
+                    **base,
+                    "event": "NO_TRADE",
+                    "reason": "MULTI_SIGNAL_AGREEMENT",
+                    "price": price,
+                    "composite": comp,
+                    "independent_votes": vote_audit,
+                    "top_contributions": comb["contributions"][:5],
+                    "regime": regime["regime"],
+                    "signal_scores": scores,
+                }
+            )
+            continue
 
         desk_mult, desk_mult_src = effective_desk_notional_mult(root, desk)
         if desk_mult < 1.0:

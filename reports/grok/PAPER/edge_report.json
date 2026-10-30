@@ -1,11 +1,11 @@
 {
   "schema": "ahos.edge_report.v1",
-  "generated_at": "2026-10-29T19:56:42Z",
+  "generated_at": "2026-10-30T00:33:58Z",
   "paper_only": true,
   "edge_status": "UNPROVEN_EDGE",
   "promotion_gate": {
-    "n_closed": 122,
-    "expectancy_ci95_lower": -0.0172,
+    "n_closed": 130,
+    "expectancy_ci95_lower": -0.0169,
     "dsr": 0.0,
     "dsr_threshold": 0.95,
     "pbo_live_book": null,
@@ -16,42 +16,42 @@
     "eligible": false
   },
   "performance": {
-    "n": 122,
-    "hit_rate": 0.328,
-    "expectancy_usd": -0.01,
+    "n": 130,
+    "hit_rate": 0.346,
+    "expectancy_usd": -0.0085,
     "expectancy_ci95": [
-      -0.0172,
-      -0.0033
+      -0.0169,
+      -0.001
     ],
-    "profit_factor": 0.529,
-    "sharpe_per_trade": -0.227,
-    "sortino_per_trade": -0.293,
+    "profit_factor": 0.585,
+    "sharpe_per_trade": -0.19,
+    "sortino_per_trade": -0.255,
     "max_drawdown_pct": 1.88,
     "promotion_gate": "NOT_ELIGIBLE (needs >= 30 closed trades, CI lower bound > 0, DSR > 0.95)"
   },
-  "per_trade_sharpe": -0.2265,
+  "per_trade_sharpe": -0.1898,
   "deflated_sharpe": 0.0,
   "n_trials_counted_in_dsr": 99,
   "trial_sharpes_used": 62,
   "fee_drag": {
-    "close_fees_usd": 0.861363,
-    "open_fee_usd": 0.457176,
-    "net_pnl_usd": -1.2244,
-    "implied_gross_usd": -0.363037
+    "close_fees_usd": 0.906888,
+    "open_fee_usd": 0.467963,
+    "net_pnl_usd": -1.1026,
+    "implied_gross_usd": -0.195712
   },
   "desks": [
     {
       "desk": "ASIA_EQUITIES",
-      "closes": 21,
-      "realized_pnl_usd": -0.0334,
-      "rounded_usd": -0.03,
+      "closes": 22,
+      "realized_pnl_usd": -0.0466,
+      "rounded_usd": -0.05,
       "assigned": true
     },
     {
       "desk": "CRYPTO",
-      "closes": 37,
-      "realized_pnl_usd": -0.6759,
-      "rounded_usd": -0.68,
+      "closes": 40,
+      "realized_pnl_usd": -0.5409,
+      "rounded_usd": -0.54,
       "assigned": true
     },
     {
@@ -63,23 +63,23 @@
     },
     {
       "desk": "FOREX",
-      "closes": 15,
-      "realized_pnl_usd": -0.0361,
-      "rounded_usd": -0.04,
+      "closes": 16,
+      "realized_pnl_usd": -0.0344,
+      "rounded_usd": -0.03,
       "assigned": true
     },
     {
       "desk": "GOLD",
-      "closes": 11,
-      "realized_pnl_usd": -0.3506,
-      "rounded_usd": -0.35,
+      "closes": 12,
+      "realized_pnl_usd": -0.3717,
+      "rounded_usd": -0.37,
       "assigned": true
     },
     {
       "desk": "OIL",
-      "closes": 19,
-      "realized_pnl_usd": -0.2584,
-      "rounded_usd": -0.26,
+      "closes": 21,
+      "realized_pnl_usd": -0.239,
+      "rounded_usd": -0.24,
       "assigned": true
     },
     {
@@ -100,37 +100,37 @@
   "desks_recommend_shrink": [
     {
       "desk": "ASIA_EQUITIES",
-      "closes": 21,
-      "realized_pnl_usd": -0.0334,
-      "rounded_usd": -0.03,
+      "closes": 22,
+      "realized_pnl_usd": -0.0466,
+      "rounded_usd": -0.05,
       "assigned": true
     },
     {
       "desk": "CRYPTO",
-      "closes": 37,
-      "realized_pnl_usd": -0.6759,
-      "rounded_usd": -0.68,
+      "closes": 40,
+      "realized_pnl_usd": -0.5409,
+      "rounded_usd": -0.54,
       "assigned": true
     },
     {
       "desk": "FOREX",
-      "closes": 15,
-      "realized_pnl_usd": -0.0361,
-      "rounded_usd": -0.04,
+      "closes": 16,
+      "realized_pnl_usd": -0.0344,
+      "rounded_usd": -0.03,
       "assigned": true
     },
     {
       "desk": "GOLD",
-      "closes": 11,
-      "realized_pnl_usd": -0.3506,
-      "rounded_usd": -0.35,
+      "closes": 12,
+      "realized_pnl_usd": -0.3717,
+      "rounded_usd": -0.37,
       "assigned": true
     },
     {
       "desk": "OIL",
-      "closes": 19,
-      "realized_pnl_usd": -0.2584,
-      "rounded_usd": -0.26,
+      "closes": 21,
+      "realized_pnl_usd": -0.239,
+      "rounded_usd": -0.24,
       "assigned": true
     },
     {
@@ -172,9 +172,9 @@
     },
     {
       "signal": "mtf_trend",
-      "closes": 113,
-      "realized_pnl_usd": -1.1503,
-      "win_rate": 0.327
+      "closes": 121,
+      "realized_pnl_usd": -1.0285,
+      "win_rate": 0.347
     },
     {
       "signal": "news",
@@ -196,16 +196,242 @@
     }
   ],
   "dominant_signal_missing_rows": 0,
+  "signal_desk_regime_attribution": [
+    {
+      "signal": "candles",
+      "desk": "CRYPTO",
+      "regime": "HIGH",
+      "closes": 2,
+      "realized_pnl_usd": -0.0445,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "candles",
+      "desk": "OIL",
+      "regime": "LOW",
+      "closes": 2,
+      "realized_pnl_usd": 0.0412,
+      "win_rate": 1.0
+    },
+    {
+      "signal": "candles",
+      "desk": "PB_TOKEN",
+      "regime": "NORMAL",
+      "closes": 1,
+      "realized_pnl_usd": -0.0326,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "large_trades",
+      "desk": "CRYPTO",
+      "regime": "UNKNOWN",
+      "closes": 1,
+      "realized_pnl_usd": -0.0147,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "ASIA_EQUITIES",
+      "regime": "HIGH",
+      "closes": 10,
+      "realized_pnl_usd": -0.0693,
+      "win_rate": 0.2
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "ASIA_EQUITIES",
+      "regime": "NORMAL",
+      "closes": 12,
+      "realized_pnl_usd": 0.0227,
+      "win_rate": 0.417
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "CRYPTO",
+      "regime": "HIGH",
+      "closes": 14,
+      "realized_pnl_usd": -0.236,
+      "win_rate": 0.357
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "CRYPTO",
+      "regime": "LOW",
+      "closes": 4,
+      "realized_pnl_usd": -0.0433,
+      "win_rate": 0.25
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "CRYPTO",
+      "regime": "NORMAL",
+      "closes": 17,
+      "realized_pnl_usd": -0.1732,
+      "win_rate": 0.353
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "EU_EQUITIES",
+      "regime": "HIGH",
+      "closes": 1,
+      "realized_pnl_usd": 0.02,
+      "win_rate": 1.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "EU_EQUITIES",
+      "regime": "NORMAL",
+      "closes": 2,
+      "realized_pnl_usd": 0.1151,
+      "win_rate": 1.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "FOREX",
+      "regime": "HIGH",
+      "closes": 3,
+      "realized_pnl_usd": -0.0057,
+      "win_rate": 0.333
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "FOREX",
+      "regime": "LOW",
+      "closes": 1,
+      "realized_pnl_usd": -0.0054,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "FOREX",
+      "regime": "NORMAL",
+      "closes": 12,
+      "realized_pnl_usd": -0.0233,
+      "win_rate": 0.25
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "GOLD",
+      "regime": "HIGH",
+      "closes": 5,
+      "realized_pnl_usd": -0.1061,
+      "win_rate": 0.4
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "GOLD",
+      "regime": "LOW",
+      "closes": 1,
+      "realized_pnl_usd": 0.0359,
+      "win_rate": 1.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "GOLD",
+      "regime": "NORMAL",
+      "closes": 6,
+      "realized_pnl_usd": -0.3015,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "OIL",
+      "regime": "HIGH",
+      "closes": 8,
+      "realized_pnl_usd": -0.2963,
+      "win_rate": 0.25
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "OIL",
+      "regime": "LOW",
+      "closes": 1,
+      "realized_pnl_usd": 0.0185,
+      "win_rate": 1.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "OIL",
+      "regime": "NORMAL",
+      "closes": 9,
+      "realized_pnl_usd": -0.0081,
+      "win_rate": 0.444
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "PB_TOKEN",
+      "regime": "HIGH",
+      "closes": 3,
+      "realized_pnl_usd": -0.104,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "PB_TOKEN",
+      "regime": "LOW",
+      "closes": 1,
+      "realized_pnl_usd": -0.0474,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "PB_TOKEN",
+      "regime": "NORMAL",
+      "closes": 8,
+      "realized_pnl_usd": 0.0841,
+      "win_rate": 0.5
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "US_EQUITIES",
+      "regime": "HIGH",
+      "closes": 2,
+      "realized_pnl_usd": 0.0985,
+      "win_rate": 1.0
+    },
+    {
+      "signal": "mtf_trend",
+      "desk": "US_EQUITIES",
+      "regime": "NORMAL",
+      "closes": 1,
+      "realized_pnl_usd": -0.0037,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "news",
+      "desk": "CRYPTO",
+      "regime": "UNKNOWN",
+      "closes": 1,
+      "realized_pnl_usd": -0.0063,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "order_flow",
+      "desk": "CRYPTO",
+      "regime": "UNKNOWN",
+      "closes": 1,
+      "realized_pnl_usd": -0.0229,
+      "win_rate": 0.0
+    },
+    {
+      "signal": "zscore_mr",
+      "desk": "OIL",
+      "regime": "HIGH",
+      "closes": 1,
+      "realized_pnl_usd": 0.0057,
+      "win_rate": 1.0
+    }
+  ],
   "signal_dissent": {
     "paper_only": true,
     "skill_claimed": false,
     "signals_removed": false,
-    "close_rows": 122,
+    "close_rows": 130,
     "missing_rows": 0,
-    "contribution_agree": 359,
-    "contribution_oppose": 181,
-    "contribution_zero": 452,
-    "closes_with_opposition": 97,
+    "contribution_agree": 379,
+    "contribution_oppose": 195,
+    "contribution_zero": 484,
+    "closes_with_opposition": 104,
     "opposition_weight_share_min": 0.0,
     "opposition_weight_share_max": 0.4856,
     "zero_weight_share_min": 0.0,
@@ -215,96 +441,106 @@
       "stablecoin_impulse",
       "whale_mempool"
     ],
-    "always_opposes": [],
+    "always_opposes": [
+      "research_overlay"
+    ],
     "never_agrees": [
       "macro_event",
+      "research_overlay",
       "stablecoin_impulse",
       "whale_mempool"
     ],
     "signals": [
       {
         "signal": "candles",
-        "present": 119,
-        "agree": 58,
+        "present": 127,
+        "agree": 61,
         "oppose": 7,
-        "zero": 54
+        "zero": 59
       },
       {
         "signal": "event_shock",
-        "present": 118,
-        "agree": 10,
+        "present": 126,
+        "agree": 14,
         "oppose": 5,
-        "zero": 103
+        "zero": 107
       },
       {
         "signal": "exchange_netflow",
-        "present": 17,
+        "present": 18,
         "agree": 8,
-        "oppose": 9,
+        "oppose": 10,
         "zero": 0
       },
       {
         "signal": "funding_oi",
-        "present": 35,
+        "present": 37,
         "agree": 11,
-        "oppose": 20,
-        "zero": 4
+        "oppose": 21,
+        "zero": 5
       },
       {
         "signal": "large_trades",
-        "present": 36,
-        "agree": 18,
+        "present": 38,
+        "agree": 19,
         "oppose": 4,
-        "zero": 14
+        "zero": 15
       },
       {
         "signal": "macro",
-        "present": 86,
+        "present": 91,
         "agree": 42,
-        "oppose": 44,
+        "oppose": 49,
         "zero": 0
       },
       {
         "signal": "macro_event",
-        "present": 119,
+        "present": 127,
         "agree": 0,
         "oppose": 0,
-        "zero": 119
+        "zero": 127
       },
       {
         "signal": "mtf_trend",
-        "present": 119,
-        "agree": 117,
+        "present": 127,
+        "agree": 125,
         "oppose": 2,
         "zero": 0
       },
       {
         "signal": "news",
-        "present": 122,
-        "agree": 66,
-        "oppose": 22,
-        "zero": 34
+        "present": 130,
+        "agree": 69,
+        "oppose": 25,
+        "zero": 36
       },
       {
         "signal": "order_flow",
-        "present": 34,
-        "agree": 21,
-        "oppose": 13,
+        "present": 36,
+        "agree": 22,
+        "oppose": 14,
+        "zero": 0
+      },
+      {
+        "signal": "research_overlay",
+        "present": 2,
+        "agree": 0,
+        "oppose": 2,
         "zero": 0
       },
       {
         "signal": "stablecoin",
-        "present": 32,
+        "present": 33,
         "agree": 3,
         "oppose": 10,
-        "zero": 19
+        "zero": 20
       },
       {
         "signal": "stablecoin_impulse",
-        "present": 34,
+        "present": 37,
         "agree": 0,
         "oppose": 0,
-        "zero": 34
+        "zero": 37
       },
       {
         "signal": "whale_mempool",
@@ -315,35 +551,35 @@
       },
       {
         "signal": "zscore_mr",
-        "present": 119,
+        "present": 127,
         "agree": 5,
-        "oppose": 45,
-        "zero": 69
+        "oppose": 46,
+        "zero": 76
       }
     ],
     "status": "DISSENT_RECORDED"
   },
   "exit_reasons": {
     "paper_only": true,
-    "close_rows": 122,
+    "close_rows": 130,
     "partial_rows": 6,
     "reason_counts": {
-      "WITNESS_CONFLICT_EXIT": 25,
-      "TAKE_PROFIT": 4,
-      "SIGNAL_REVERSAL": 66,
+      "WITNESS_CONFLICT_EXIT": 29,
+      "TAKE_PROFIT": 5,
+      "SIGNAL_REVERSAL": 67,
       "STOP_LOSS": 4,
       "PARTIAL_TAKE_PROFIT": 6,
       "MAX_HOLD": 8,
-      "TIME_STOP": 9
+      "TIME_STOP": 11
     },
     "pnl_by_reason_usd": {
-      "WITNESS_CONFLICT_EXIT": -0.1199,
-      "TAKE_PROFIT": 0.419,
-      "SIGNAL_REVERSAL": -1.8375,
+      "WITNESS_CONFLICT_EXIT": -0.0862,
+      "TAKE_PROFIT": 0.5397,
+      "SIGNAL_REVERSAL": -1.8586,
       "STOP_LOSS": -0.2478,
       "PARTIAL_TAKE_PROFIT": 0.2884,
       "MAX_HOLD": 0.2873,
-      "TIME_STOP": -0.0139
+      "TIME_STOP": -0.0254
     },
     "daemon_restarted": false,
     "absence_note": "A reason that is not in this log was not observed. It is not evidence that the rule is absent from code the running process has not loaded."
@@ -352,8 +588,8 @@
     {
       "symbol": "BRENT",
       "desk": "OIL",
-      "closes": 8,
-      "realized_pnl_usd": -0.2298,
+      "closes": 10,
+      "realized_pnl_usd": -0.2104,
       "reasons": [
         {
           "reason": "PARTIAL_TAKE_PROFIT",
@@ -377,16 +613,16 @@
         },
         {
           "reason": "WITNESS_CONFLICT_EXIT",
-          "n": 1,
-          "realized_pnl_usd": -0.0757
+          "n": 3,
+          "realized_pnl_usd": -0.0563
         }
       ]
     },
     {
       "symbol": "BTC",
       "desk": "CRYPTO",
-      "closes": 12,
-      "realized_pnl_usd": -0.3035,
+      "closes": 13,
+      "realized_pnl_usd": -0.2931,
       "reasons": [
         {
           "reason": "SIGNAL_REVERSAL",
@@ -400,8 +636,8 @@
         },
         {
           "reason": "WITNESS_CONFLICT_EXIT",
-          "n": 1,
-          "realized_pnl_usd": -0.0388
+          "n": 2,
+          "realized_pnl_usd": -0.0284
         }
       ]
     },
@@ -508,8 +744,8 @@
     {
       "symbol": "N225",
       "desk": "ASIA_EQUITIES",
-      "closes": 14,
-      "realized_pnl_usd": 0.0431,
+      "closes": 15,
+      "realized_pnl_usd": 0.0299,
       "reasons": [
         {
           "reason": "MAX_HOLD",
@@ -525,6 +761,11 @@
           "reason": "SIGNAL_REVERSAL",
           "n": 2,
           "realized_pnl_usd": -0.026
+        },
+        {
+          "reason": "TIME_STOP",
+          "n": 1,
+          "realized_pnl_usd": -0.0132
         },
         {
           "reason": "WITNESS_CONFLICT_EXIT",
@@ -549,13 +790,18 @@
     {
       "symbol": "SOL",
       "desk": "CRYPTO",
-      "closes": 13,
-      "realized_pnl_usd": -0.2461,
+      "closes": 15,
+      "realized_pnl_usd": -0.1215,
       "reasons": [
         {
           "reason": "SIGNAL_REVERSAL",
           "n": 8,
           "realized_pnl_usd": -0.234
+        },
+        {
+          "reason": "TAKE_PROFIT",
+          "n": 1,
+          "realized_pnl_usd": 0.1207
         },
         {
           "reason": "TIME_STOP",
@@ -564,8 +810,8 @@
         },
         {
           "reason": "WITNESS_CONFLICT_EXIT",
-          "n": 4,
-          "realized_pnl_usd": 0.0117
+          "n": 5,
+          "realized_pnl_usd": 0.0156
         }
       ]
     },
@@ -618,8 +864,8 @@
     {
       "symbol": "USDJPY",
       "desk": "FOREX",
-      "closes": 4,
-      "realized_pnl_usd": 0.0074,
+      "closes": 5,
+      "realized_pnl_usd": 0.0091,
       "reasons": [
         {
           "reason": "MAX_HOLD",
@@ -630,6 +876,11 @@
           "reason": "SIGNAL_REVERSAL",
           "n": 3,
           "realized_pnl_usd": -0.0207
+        },
+        {
+          "reason": "TIME_STOP",
+          "n": 1,
+          "realized_pnl_usd": 0.0017
         }
       ]
     },
@@ -664,8 +915,8 @@
     {
       "symbol": "XAU",
       "desk": "GOLD",
-      "closes": 11,
-      "realized_pnl_usd": -0.3506,
+      "closes": 12,
+      "realized_pnl_usd": -0.3717,
       "reasons": [
         {
           "reason": "MAX_HOLD",
@@ -674,8 +925,8 @@
         },
         {
           "reason": "SIGNAL_REVERSAL",
-          "n": 8,
-          "realized_pnl_usd": -0.4065
+          "n": 9,
+          "realized_pnl_usd": -0.4276
         },
         {
           "reason": "TIME_STOP",

@@ -137,3 +137,7 @@ Weighted coverage (REAL=1, PARTIAL=0.5): **98%**
 ## P0 Stage 0 note (2026-10-30)
 
 The table above is a **document-to-code trace**, not a claim that owner vision is complete. Owner P0 register: **56 gaps**, about **35–45%** of the vision working. Stage 0 baseline is commit **`49f4534`** (continuation, counterfactual shadow scoring, Windows `AHOS_*` tasks, knowledge-sync code). Gap IDs closed this stage: **none**. Next stages (edge attribution, soak heartbeat, university help-desk, org lifecycle, Didehban/Negahban scanners, M-REGIME-4 owner question, UI) wait for "continue". Wall-clock PARTIAL rows remain **M13, M31, M36**.
+
+## P0 Stage 1 note (2026-10-30)
+
+Live book census after re-export: **130** closes, dominant `mtf_trend` **121**, promotion **`eligible=False`**, `edge_status=UNPROVEN_EDGE`. New opens require two independent family votes (news, macro/central bank, whales, candle wicks, research) and expected profit ≥ 2× fees. SHRINK desks are a paper size cap. Gap IDs closed: **none** (measurement and a fail-closed entry rule; edge remains unproven).

@@ -3,6 +3,7 @@ from architecture.markets.paper_trade_gates import (
     DESK_NOTIONAL_MULT,
     excess_composite_strength,
     fee_drag_gate,
+    independent_vote_gate,
     round_trip_fees_usd,
 )
 from architecture.markets import paper_trader as pt
@@ -32,3 +33,33 @@ def test_losing_desks_have_shrink_mult():
 
 def test_entry_threshold_is_032():
     assert pt.ENTRY == 0.32
+
+
+def _sig(name: str, score: float | None, available: bool = True) -> dict:
+    return {"name": name, "score": score, "available": available}
+
+
+def test_mtf_only_cycle_does_not_invent_votes():
+    ok, audit = independent_vote_gate([_sig("mtf_trend", 0.8)], "LONG")
+    assert ok is True
+    assert audit["applicable"] is False
+
+
+def test_two_families_must_agree():
+    sigs = [
+        _sig("mtf_trend", 0.9),
+        _sig("news", 0.4),
+        _sig("macro", -0.3),
+        _sig("candles", 0.0),
+        _sig("research_overlay", None, available=False),
+    ]
+    ok, audit = independent_vote_gate(sigs, "LONG")
+    assert ok is False
+    assert audit["agreeing_families"] == 1
+
+
+def test_news_and_wicks_agree_passes():
+    sigs = [_sig("news", 0.2), _sig("candles", 0.3), _sig("macro", -0.4)]
+    ok, audit = independent_vote_gate(sigs, "LONG")
+    assert ok is True
+    assert audit["agreeing_families"] == 2

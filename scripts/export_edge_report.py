@@ -46,6 +46,41 @@ def _load_dsr_context(root: Path) -> tuple[int, list[float]]:
     return n_trials, sharpes
 
 
+def _signal_desk_regime_attribution(closes: list[dict]) -> list[dict]:
+    """Partition closes by dominant signal × desk × regime (one cell per close)."""
+    cells: dict[tuple[str, str, str], dict] = defaultdict(lambda: {"closes": 0, "pnl_usd": 0.0, "wins": 0})
+    for row in closes:
+        pnl = float(row.get("realized_pnl_usd") or 0)
+        brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+        contribs = [c for c in (brain.get("contributions") or []) if isinstance(c, dict)]
+        if not contribs:
+            signal = "MISSING"
+        else:
+            best = max(contribs, key=lambda c: abs(float(c.get("weight") or 0) * float(c.get("score") or 0)))
+            signal = str(best.get("signal") or "MISSING")
+        regime = brain.get("regime") if isinstance(brain.get("regime"), dict) else {}
+        key = (signal, str(row.get("desk") or "UNKNOWN"), str(regime.get("regime") or "UNKNOWN"))
+        cell = cells[key]
+        cell["closes"] += 1
+        cell["pnl_usd"] += pnl
+        if pnl > 0:
+            cell["wins"] += 1
+    out = []
+    for (signal, desk, regime_name), cell in sorted(cells.items()):
+        n = cell["closes"]
+        out.append(
+            {
+                "signal": signal,
+                "desk": desk,
+                "regime": regime_name,
+                "closes": n,
+                "realized_pnl_usd": round(cell["pnl_usd"], 4),
+                "win_rate": round(cell["wins"] / n, 3) if n else None,
+            }
+        )
+    return out
+
+
 def _dominant_signal_pnl(closes: list[dict]) -> list[dict]:
     by_signal: dict[str, dict] = defaultdict(lambda: {"closes": 0, "pnl_usd": 0.0, "wins": 0})
     missing = 0
@@ -87,6 +122,7 @@ def build_edge_report(root: Path) -> dict:
     dissent = measure_signal_dissent(root)
     exits = measure_exit_reason_census(root)
     sig_pnl, sig_missing = _dominant_signal_pnl(closes)
+    cross = _signal_desk_regime_attribution(closes)
 
     returns = [float(r.get("realized_pnl_usd") or 0) / INITIAL_CAPITAL_USD for r in closes]
     n_trials, trial_sharpes = _load_dsr_context(root)
@@ -149,6 +185,7 @@ def build_edge_report(root: Path) -> dict:
         "desks_recommend_keep": keep,
         "dominant_signal_attribution": sig_pnl,
         "dominant_signal_missing_rows": sig_missing,
+        "signal_desk_regime_attribution": cross,
         "signal_dissent": dissent,
         "exit_reasons": exits,
         "symbols": symbol_book.get("symbols"),
@@ -209,6 +246,13 @@ def _md(report: dict) -> str:
         )
     if report.get("dominant_signal_missing_rows"):
         lines.append(f"\nRows without entry_brain contributions: **{report['dominant_signal_missing_rows']}**")
+    lines.extend(["", "## Signal × desk × regime (dominant signal at entry)", ""])
+    lines.append("| Signal | Desk | Regime | Closes | Win rate | Realized USD |")
+    lines.append("|--------|------|--------|--------|----------|--------------|")
+    for row in report.get("signal_desk_regime_attribution") or []:
+        lines.append(
+            f"| {row.get('signal')} | {row.get('desk')} | {row.get('regime')} | {row.get('closes')} | {row.get('win_rate')} | {row.get('realized_pnl_usd')} |"
+        )
     lines.extend(
         [
             "",
@@ -216,7 +260,9 @@ def _md(report: dict) -> str:
             "",
             f"- DSR uses cumulative **`n_trials_counted_in_dsr`** from strategy-lab batches and OOS Sharpes stored in M28 research JSON — not a fresh search on these {p['n_closed']} closes.",
             "- Do **not** treat positive closed-trade count or descriptive Sharpe as edge.",
-            "- Desks marked **SHRINK** lost after fees with ≥3 closes; disable or cap size in paper only after owner review (no live path).",
+            "- Desks marked **SHRINK** are a paper-only size cap (`effective_desk_notional_mult` merges static haircut with EDGE policy). Shadow-block of opens stays opt-in and off.",
+            "- `signal_desk_regime_attribution` partitions each close by its dominant entry signal, desk, and regime. It is a census, not a new fitted weight.",
+            "- New opens require two pre-registered independent families (news, macro, whales, candle wicks, research) to agree, plus expected profit ≥ 2× round-trip fees. `mtf_trend` alone does not pass.",
             "",
         ]
     )

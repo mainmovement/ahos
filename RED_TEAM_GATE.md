@@ -143,3 +143,20 @@ Command: `G:\robat\ahos\.venv\Scripts\python.exe -m pytest tests/test_research_p
 | R6 University | APPROVE (mechanism) | Weekly M57 scorecard path and M65 lesson merge exist. Live shadow hypotheses still `0` until CLOSEs carry `research_predictions`. |
 | R7 SRE / Security | APPROVE | Negahban receipt counts `verdict==CLEAN`. CVE audit targets `.venv` Python (`setuptools 84.2.1`). Four `AHOS_*` tasks registered on `G:`. Lane A not edited. HOLD.flag untouched. |
 | Meta-Critic | APPROVE | Doc-trace coverage in SPEC_TRACE (119/122 REAL) is not owner-vision completeness (~35–45%, 56-gap register). Empty product commit avoided. Stages 1–7 remain blocked until the owner says continue. |
+
+## P0 Stage 1 — edge truth (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `G:\robat\ahos\.venv\Scripts\python.exe -m pytest tests/test_paper_trade_gates.py tests/test_edge_report.py tests/test_edge_desk_policy.py tests/test_trade_signal_provenance.py tests/test_paper_trader.py -q --tb=line` → **34 passed** in 9.84s.
+
+Live export: `scripts/export_edge_report.py` → `edge_status=UNPROVEN_EDGE closes=130 dsr=0.0 eligible=False`. Dominant signal census: `mtf_trend` **121**, `candles` 5, and one close each for `large_trades`, `news`, `order_flow`, `zscore_mr`. SHRINK size caps: ASIA_EQUITIES, CRYPTO, FOREX, GOLD, OIL, PB_TOKEN. Cross table: **28** signal×desk×regime cells.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE (0 promoted) | `independent_vote_gate` needs 2 of {news, macro, whales, candle wicks, research}. `mtf_trend` is excluded. Floors are constants (`VOTE_SCORE_FLOOR=0.05`, `MIN_AGREEING_FAMILIES=2`), not fit on the 130 closes. `fee_drag_gate` still requires expected profit ≥ 2× round-trip fees. Promotion `eligible=False` (DSR 0.0, live PBO null). |
+| R2 Data | APPROVE | Attribution is a partition of logged `entry_brain` contributions. No history rewrite. Stub cycles that omit the five families do not get fabricated votes. |
+| R3 News | APPROVE as a vote, not a headline | `news` is one family. Unavailable news does not count as agreement. |
+| R4 Council | APPROVE | No new recommendation authority. Council debate still runs only after both gates pass. |
+| R5 UX | N/A | No laptop Next build. |
+| R6 University | APPROVE | `research_overlay` can vote by score sign. Composite weight for shadow research stays 0. |
+| R7 SRE | APPROVE | Desk SHRINK is a paper notional multiplier via `effective_desk_notional_mult`. Shadow-block of opens stays off unless `AHOS_PAPER_DESK_SHADOW_BLOCK`. Lane A untouched. |
+| Meta-Critic | APPROVE | 121/130 closes still show `mtf_trend` dominance. That census is the past book. The new gate changes future opens only. It does not claim the past book had multi-signal edge. |

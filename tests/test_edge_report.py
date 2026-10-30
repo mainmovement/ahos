@@ -36,6 +36,10 @@ def test_edge_report_builds_from_live_log(tmp_path: Path, monkeypatch):
     assert report["promotion_gate"]["n_closed"] == 35
     assert report["edge_status"] == "UNPROVEN_EDGE"
     assert report["promotion_gate"]["eligible"] is False
+    cells = report["signal_desk_regime_attribution"]
+    assert cells[0]["signal"] == "mtf_trend"
+    assert cells[0]["desk"] == "CRYPTO"
+    assert cells[0]["closes"] == 35
 
 
 def test_build_edge_report_writes_desk_artifacts(tmp_path: Path, monkeypatch):

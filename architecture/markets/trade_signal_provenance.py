@@ -10,7 +10,7 @@ SIGNAL_CATEGORY: dict[str, str] = {
     "macro_event": "macro_central_bank",
     "event_shock": "macro_central_bank",
     "candles": "candles_wicks",
-    "mtf_trend": "candles_wicks",
+    "mtf_trend": "mtf_trend",
     "zscore_mr": "candles_wicks",
     "large_trades": "whales_flow",
     "order_flow": "whales_flow",
@@ -26,7 +26,8 @@ SIGNAL_CATEGORY: dict[str, str] = {
 CATEGORY_FA: dict[str, str] = {
     "news": "اخبار (RSS دو منبع)",
     "macro_central_bank": "ماکرو / بانک مرکزی / DXY-بازده",
-    "candles_wicks": "کندل و سایه / روند چند-TF",
+    "candles_wicks": "کندل و سایه",
+    "mtf_trend": "روند چندبازه (به‌تنهایی رأی مستقل نیست)",
     "whales_flow": "جریان نهنگ / عمق / funding",
     "research": "پژوهش / فرضیه strategy-lab",
     "research_risk": "رژیم نوسان (سایز، نه جهت)",
