@@ -458,3 +458,5 @@ Command: `pytest tests/test_listed_futures_paper.py tests/test_cftc_cot_and_cove
 | R2 Data | APPROVE | FDAX is omitted. The fill is Yahoo. TradingView is the witness. |
 | R4 Council | APPROVE | News and research stay on the underlying cash desk. Index futures do not get a fabricated whale score. |
 | Meta-Critic | APPROVE | This book does not replace WTI, XAU, SPX, or the crypto swaps. The roll is a flatten, not an invented spread. |
+
+The first live pass left CL, ES, NQ, and NKD on `CONTRACT_MONTH_UNKNOWN` because the exact Yahoo identity missed by a tick. A follow-up accepts one Yahoo contract inside the existing tolerance and 60 seconds. Two hits stay unknown. `pytest tests/test_listed_futures_paper.py -q` → **7 passed**.

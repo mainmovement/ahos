@@ -37,6 +37,24 @@ def _quote(ts: float, price: float, month: str | None) -> dict:
     return q
 
 
+def test_near_month_needs_one_yahoo_contract() -> None:
+    from architecture.markets.listed_futures_paper import near_contract_month
+
+    cont = {"price": 7675.0, "_regular_market_time": 1_700_000_000.0}
+
+    def fetch(code: str):
+        px = 7675.5 if code.startswith("ESZ") else 7600.0
+        return {"chart": {"result": [{"meta": {"regularMarketPrice": px, "regularMarketTime": 1_700_000_000.0}}]}}
+
+    hit = near_contract_month("ES", cont, fetch=fetch, now_ts=1_700_000_000.0, tol=0.0035)
+    assert hit is not None and hit["contract_month"].endswith("-12")
+
+    def both(code: str):
+        return {"chart": {"result": [{"meta": {"regularMarketPrice": 7675.2, "regularMarketTime": 1_700_000_000.0}}]}}
+
+    assert near_contract_month("ES", cont, fetch=both, now_ts=1_700_000_000.0, tol=0.0035) is None
+
+
 def test_calendar_roll_and_omitted_fdax() -> None:
     assert last_trade_date("CL", 2026, 12) == date(2026, 11, 20)
     assert last_trade_date("BZ", 2026, 12) == date(2026, 10, 30)

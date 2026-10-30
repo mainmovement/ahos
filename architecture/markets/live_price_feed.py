@@ -331,6 +331,23 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
     for listed, cash in (("CL", "WTI"), ("BZ", "BRENT"), ("GC", "XAU")):
         src = quotes.get(cash)
         quotes[listed] = dict(src) if isinstance(src, dict) else unavailable_quote("yahoo_finance")
+    from architecture.markets.listed_futures_paper import SPECS, near_contract_month
+    from architecture.markets.second_source import TOLERANCE
+
+    for sym in SPECS:
+        q = quotes.get(sym)
+        if not isinstance(q, dict) or q.get("contract_month") or q.get("price") is None:
+            continue
+        res = near_contract_month(
+            sym, q, fetch=lambda s: _fetch_json(
+                f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(s, safe='')}?range=1d&interval=1d"
+            ),
+            now_ts=_now_ts(), tol=TOLERANCE.get(sym, 0.005),
+        )
+        if res:
+            q["contract_month"] = res["contract_month"]
+            q["contract_symbol"] = res["contract_symbol"]
+            q["contract_month_method"] = res["method"]
 
     macro: dict[str, Any] = {"fear_greed": None, "fear_greed_label": None, "total_mcap_usd": None,
                              "mcap_change_24h_pct": None, "btc_dominance_pct": None,

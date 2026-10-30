@@ -325,3 +325,11 @@
 **Choice:** A `LISTED_FUTURES` book holds CL, BZ, GC, ES, NQ, and NKD. The total book is capped at 0.10 of equity. Leverage stays 1.0 until a week of family scorecard, and a finished week still does not raise it. Long and short are allowed. Yahoo continuous is the fill. TradingView is the second witness. CL, BZ, and GC reuse the cash book's Yahoo print and its witness. ES, NQ, and NKD have their own Yahoo contracts and TradingView roots. FDAX is omitted because Yahoo has no free continuous FDAX or FDXS ticker. The session is the futures session: CME Globex overnight for CL, GC, ES, NQ, and NKD, and the existing ICE Brent hours for BZ. Cash SPX and NDX stay on the NYSE session. A position flattens five calendar days before the paper last-trade date. There is no invented calendar-spread fill. Oil and gold use the existing CFTC file. ES, NQ, and NKD whales stay absent. News, macro, and research use the underlying cash desk. Maintenance margin is a pre-registered 0.05. The high-leverage education engine is not wired.
 
 **Reason:** The cash books and the 1x crypto swaps stay in place. A second futures book needs its own cap so it does not spend the oil, gold, or equity cash budgets, and it does not spend the crypto swap cap. FDAX without a Yahoo execution print would be a one-source fill.
+
+## 2026-10-30: Listed month comes from one nearby Yahoo contract
+
+**Question:** The exact Yahoo self-identity left CL, ES, NQ, and NKD without a contract month, so the book refused every open.
+
+**Choice:** If the exact match is missing, accept one Yahoo contract whose price is inside the symbol tolerance and whose timestamp is within 60 seconds. Two contracts inside that band stay unknown. An unknown month still blocks a new open. The cash oil and gold resolver is unchanged.
+
+**Reason:** A one-tick difference is the same continuous contract, not a second month. Guessing between two close months would invent an expiry.

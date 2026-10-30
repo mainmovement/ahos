@@ -203,6 +203,57 @@ def last_trade_date(symbol: str, year: int, month: int) -> date | None:
     return None
 
 
+def _candidate_months(now_ts: float, n: int = 6) -> list[tuple[int, int]]:
+    d = datetime.fromtimestamp(now_ts, tz=timezone.utc)
+    out: list[tuple[int, int]] = []
+    year, month = d.year, d.month
+    for _ in range(n):
+        out.append((year, month))
+        month += 1
+        if month > 12:
+            year, month = year + 1, 1
+    return out
+
+
+def near_contract_month(symbol: str, continuous: dict[str, Any], *, fetch: Any,
+                        now_ts: float, tol: float) -> dict[str, Any] | None:
+    """Pick the Yahoo contract that matches the continuous print.
+
+    The match is Yahoo against itself. A unique contract inside ``tol`` and 60
+    seconds is the month. Two matches, or none, stay unknown so the book does
+    not invent an expiry.
+    """
+    spec = SPECS.get(symbol)
+    price = continuous.get("price")
+    mt = continuous.get("_regular_market_time")
+    if spec is None or not isinstance(price, (int, float)) or price <= 0 or not isinstance(mt, (int, float)):
+        return None
+    root, venue = spec["root"]
+    months = "FGHJKMNQUVXZ"
+    hits: list[dict[str, Any]] = []
+    for year, month in _candidate_months(now_ts):
+        code = f"{root}{months[month - 1]}{year % 100:02d}.{venue}"
+        try:
+            data = fetch(code)
+            meta = data["chart"]["result"][0]["meta"]
+            px = float(meta.get("regularMarketPrice"))
+            ts = float(meta.get("regularMarketTime"))
+        except (TypeError, ValueError, KeyError, IndexError):
+            continue
+        if px <= 0 or abs(ts - float(mt)) > 60:
+            continue
+        if abs(px - float(price)) / float(price) <= tol:
+            hits.append({
+                "contract_month": f"{year:04d}-{month:02d}",
+                "contract_symbol": code,
+                "price": px,
+                "method": "yahoo_self_near(price within tolerance + regularMarketTime)",
+            })
+    if len(hits) != 1:
+        return None
+    return hits[0]
+
+
 def parse_contract_month(contract_month: Any) -> tuple[int, int] | None:
     if not isinstance(contract_month, str) or len(contract_month) != 7 or contract_month[4] != "-":
         return None
