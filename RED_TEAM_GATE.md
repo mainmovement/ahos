@@ -194,3 +194,20 @@ Command: `G:\robat\ahos\.venv\Scripts\python.exe -m pytest tests/test_university
 | R6 University | APPROVE with limit | L0–L4 dry-run observes files. L2–L4 `granted=false`. Weekly scorecard remains empty until shadow predictions exist on closes. Curriculum constants in organ evolution stay labeled static. |
 | R7 SRE | APPROVE | Four `AHOS_*` tasks still queryable. Lane A not edited. Cognitive ceiling constant unchanged. |
 | Meta-Critic | APPROVE | 251 claims and 85 loss cases are a ledger of what happened. They are not a certificate and not an edge. |
+
+## P0 Stage 4 — organisation (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `G:\robat\ahos\.venv\Scripts\python.exe -m pytest tests/test_org_lifecycle.py -q --tb=short` → **5 passed**.
+
+`scripts/export_org_lifecycle.py`: **43** registry agents, **9 filled**, **34 unfilled** (21 PLANNED, 12 PARTIAL, 1 MISSING = AG-01). Lifecycle counts: DESIGNED 1, LIVE_OBSERVED 15, ARTIFACT_PRESENT 27. Filled means registry `EXISTS` and `operability.implemented` and the wired artifact file is present. A `live: true` flag on a PARTIAL seat does not fill it. Filled ids: AG-02, AG-03, AG-07, AG-08, AG-09, AG-15, AG-16, AG-17, AG-21.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | N/A | No weight or promotion change. |
+| R2 Data | APPROVE | Seat census is read from `config/agent_registry.yaml` plus file existence. PLANNED is not upgraded because a JSON snapshot exists. |
+| R3 News | N/A | |
+| R4 Council | APPROVE | `AgentMessage.required_action` is only OBSERVE, ADVISE, ABSTAIN, REQUEST_EVIDENCE. PROMOTE raises. `decides=false`. Sender and receiver must be distinct `AG-*` ids. Evidence and claim are mandatory. Confidence is in [0, 1]. |
+| R5 UX | N/A | No laptop build. |
+| R6 University | N/A | |
+| R7 SRE | APPROVE | `transition_agent_lifecycle` rejects ABSENT → LIVE_OBSERVED. No path to live trading. Lane A not edited. |
+| Meta-Critic | APPROVE | 15 LIVE_OBSERVED rows are a file-and-flag observation. Only 9 seats meet the fill rule. The other 34 are unfilled on purpose in this receipt. |

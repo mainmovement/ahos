@@ -150,6 +150,102 @@ class TaskState(StrEnum):
     REJECTED = "REJECTED"
 
 
+class AgentLifecycleState(StrEnum):
+    ABSENT = "ABSENT"
+    DESIGNED = "DESIGNED"
+    ARTIFACT_PRESENT = "ARTIFACT_PRESENT"
+    LIVE_OBSERVED = "LIVE_OBSERVED"
+    BLOCKED = "BLOCKED"
+
+
+AGENT_LIFECYCLE_TRANSITIONS: dict[AgentLifecycleState, frozenset[AgentLifecycleState]] = {
+    AgentLifecycleState.ABSENT: frozenset({AgentLifecycleState.DESIGNED}),
+    AgentLifecycleState.DESIGNED: frozenset({AgentLifecycleState.ARTIFACT_PRESENT, AgentLifecycleState.ABSENT}),
+    AgentLifecycleState.ARTIFACT_PRESENT: frozenset(
+        {AgentLifecycleState.LIVE_OBSERVED, AgentLifecycleState.BLOCKED, AgentLifecycleState.DESIGNED}
+    ),
+    AgentLifecycleState.LIVE_OBSERVED: frozenset(
+        {AgentLifecycleState.BLOCKED, AgentLifecycleState.ARTIFACT_PRESENT}
+    ),
+    AgentLifecycleState.BLOCKED: frozenset(
+        {AgentLifecycleState.ARTIFACT_PRESENT, AgentLifecycleState.LIVE_OBSERVED, AgentLifecycleState.DESIGNED}
+    ),
+}
+
+
+def transition_agent_lifecycle(current: AgentLifecycleState, nxt: AgentLifecycleState) -> AgentLifecycleState:
+    """Legal move only. There is no transition into a promotion or live-trading state."""
+    allowed = AGENT_LIFECYCLE_TRANSITIONS[current]
+    if nxt not in allowed:
+        raise ValueError(f"illegal agent lifecycle transition {current.value} -> {nxt.value}")
+    return nxt
+
+
+class RequiredAction(StrEnum):
+    OBSERVE = "OBSERVE"
+    ADVISE = "ADVISE"
+    ABSTAIN = "ABSTAIN"
+    REQUEST_EVIDENCE = "REQUEST_EVIDENCE"
+
+
+@dataclass(frozen=True)
+class AgentMessage:
+    """Inter-agent envelope. It cannot decide, promote, or trade."""
+
+    sender: str
+    receiver: str
+    evidence: tuple[str, ...]
+    claim: str
+    confidence: float
+    required_action: RequiredAction
+
+    def __post_init__(self) -> None:
+        if not self.sender.startswith("AG-") or not self.receiver.startswith("AG-"):
+            raise ValueError("sender and receiver must be registry agent ids")
+        if self.sender == self.receiver:
+            raise ValueError("an agent cannot message itself as a second authority")
+        if not self.evidence or any(not str(e).strip() for e in self.evidence):
+            raise ValueError("evidence refs are required")
+        if not str(self.claim).strip():
+            raise ValueError("claim is required")
+        if not isinstance(self.confidence, (int, float)) or isinstance(self.confidence, bool):
+            raise ValueError("confidence must be a number")
+        if not 0.0 <= float(self.confidence) <= 1.0:
+            raise ValueError("confidence must be in [0, 1]")
+        if not isinstance(self.required_action, RequiredAction):
+            raise ValueError("required_action is not in the closed advisory set")
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "schema": "ahos.agent_message.v1",
+            "sender": self.sender,
+            "receiver": self.receiver,
+            "evidence": list(self.evidence),
+            "claim": self.claim,
+            "confidence": float(self.confidence),
+            "required_action": self.required_action.value,
+            "decides": False,
+            "paper_only": True,
+        }
+
+
+def parse_agent_message(payload: dict[str, Any]) -> AgentMessage:
+    action = payload.get("required_action")
+    try:
+        required = RequiredAction(str(action))
+    except ValueError as exc:
+        raise ValueError("required_action must be OBSERVE, ADVISE, ABSTAIN, or REQUEST_EVIDENCE") from exc
+    evidence = payload.get("evidence") or ()
+    return AgentMessage(
+        sender=str(payload.get("sender") or ""),
+        receiver=str(payload.get("receiver") or ""),
+        evidence=tuple(str(x) for x in evidence),
+        claim=str(payload.get("claim") or ""),
+        confidence=float(payload.get("confidence")),
+        required_action=required,
+    )
+
+
 TASK_TRANSITIONS: dict[TaskState, frozenset[TaskState]] = {
     TaskState.PROPOSED: frozenset(
         {TaskState.AUTHORIZED, TaskState.REJECTED, TaskState.CANCELLED}

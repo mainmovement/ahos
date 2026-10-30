@@ -149,3 +149,7 @@ Soak relaunch census: **33** stamped rows in `GAP_NOTES.md` (30 under 1h, 3 host
 ## P0 Stage 3 note (2026-10-30)
 
 University dry-run: knowledge store **251** claims (46 new winning CLOSE claims with provenance; prior lesson sync kept). **85** losing closes are `UNVERIFIED` eval cases via `mistakes.record_losing_close` (also hooked on every future losing CLOSE). Agent help desk `architecture/university/helpdesk.py::ask` is advisory. L0–L4 receipt does not raise the ceiling past `L1_ANALYZE`. Weekly shadow scorecard still **0** outcomes. Windows tasks remain registered. Gap IDs closed: **none**.
+
+## P0 Stage 4 note (2026-10-30)
+
+`reports/grok/M12/org_lifecycle_snapshot.json`: **9/43** seats filled (AG-02, AG-03, AG-07, AG-08, AG-09, AG-15, AG-16, AG-17, AG-21). Unfilled: **21 PLANNED, 12 PARTIAL, AG-01 MISSING**. `AgentMessage` required actions are OBSERVE, ADVISE, ABSTAIN, REQUEST_EVIDENCE. Lifecycle has no ABSENT→LIVE jump. Gap IDs closed: **none**.

@@ -1,0 +1,728 @@
+{
+  "schema": "ahos.org_lifecycle.v1",
+  "generated_at": "2026-10-30T00:49:45Z",
+  "paper_only": true,
+  "registry_agents": 43,
+  "filled_seats": 9,
+  "unfilled_seats": [
+    {
+      "agent_id": "AG-01",
+      "name": "Master Orchestrator",
+      "registry_status": "MISSING",
+      "lifecycle_state": "DESIGNED",
+      "why_unfilled": "registry status MISSING"
+    },
+    {
+      "agent_id": "AG-04",
+      "name": "Market Intelligence",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-05",
+      "name": "Trend Intelligence",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-06",
+      "name": "On-Chain Intelligence",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-10",
+      "name": "Narrative Intelligence",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-11",
+      "name": "Multi-Mind Council",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-12",
+      "name": "AI Model Router",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-13",
+      "name": "Consensus/Disagreement Engine",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-14",
+      "name": "Red Team",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-18",
+      "name": "Learning Agent",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-19",
+      "name": "Self-Diagnostic",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-20",
+      "name": "Controlled Self-Evolution",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-22",
+      "name": "Observability/Health",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-23",
+      "name": "Governance/Policy",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "operability.implemented is false"
+    },
+    {
+      "agent_id": "AG-24",
+      "name": "Cost/Resource Manager",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "why_unfilled": "registry status PARTIAL"
+    },
+    {
+      "agent_id": "AG-25",
+      "name": "Open-Source Capability Intelligence",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-26",
+      "name": "Kourosh (CIO / Portfolio Manager)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-27",
+      "name": "Bahram (Macro, Rates & FX)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-28",
+      "name": "Zarrin (Gold & Oil Division Lead)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-29",
+      "name": "Sara (US Equities)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-30",
+      "name": "Leila (European Equities)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-31",
+      "name": "Mahsa (Asian Equities)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-32",
+      "name": "Farhad (Futures & Derivatives)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-33",
+      "name": "Negar (News Intelligence Division Lead)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-34",
+      "name": "Bijan (Chart Intelligence)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-35",
+      "name": "Shida (GitHub Intelligence)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-36",
+      "name": "Siavash (AGI/ACI Architecture Team Lead)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-37",
+      "name": "Babak (Treasury & Allocation)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-38",
+      "name": "Dariush (Execution & Broker)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-39",
+      "name": "Maryam (Compliance & Sanctions)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-40",
+      "name": "Homan (Failure Analysis & Post-trade Learning)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-41",
+      "name": "Farzaneh (Dean of AHOS University)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-42",
+      "name": "Zhaleh (Accounting / Financial Ledger)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    },
+    {
+      "agent_id": "AG-43",
+      "name": "Ayda (Agent Supervision / Guardian Lead)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "why_unfilled": "registry status PLANNED"
+    }
+  ],
+  "lifecycle_counts": {
+    "DESIGNED": 1,
+    "LIVE_OBSERVED": 15,
+    "ARTIFACT_PRESENT": 27
+  },
+  "agents": [
+    {
+      "agent_id": "AG-01",
+      "name": "Master Orchestrator",
+      "registry_status": "MISSING",
+      "lifecycle_state": "DESIGNED",
+      "artifact": "reports/grok/M36/world_orchestration_snapshot.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-02",
+      "name": "Data Intelligence",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M19/live_market_prices.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-03",
+      "name": "Research Agent",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M28/batch5_research.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-04",
+      "name": "Market Intelligence",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M19/multi_market_snapshot.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-05",
+      "name": "Trend Intelligence",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M24/rotation_snapshot.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-06",
+      "name": "On-Chain Intelligence",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M33/live_token_safety_snapshot.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-07",
+      "name": "Liquidity/Exitability",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M13/edge_margin_sim_snapshot.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-08",
+      "name": "Risk Agent",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M34/unification_audit.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-09",
+      "name": "Security/Scam Defense",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M64/whitehat_security_audit.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-10",
+      "name": "Narrative Intelligence",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M18/news_corroboration_snapshot.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-11",
+      "name": "Multi-Mind Council",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M60/aci_agi_si_brain_snapshot.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-12",
+      "name": "AI Model Router",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M35/telegram_kian_closure.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-13",
+      "name": "Consensus/Disagreement Engine",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M19/event_impact_matrix.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-14",
+      "name": "Red Team",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M56/red_team_audit.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-15",
+      "name": "Decision Engine",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M28/shadow_forward_scorecard.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-16",
+      "name": "Paper-Trading Agent",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/PAPER/paper_trader_status.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-17",
+      "name": "Memory Agent",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M30/memory_consolidation_snapshot.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-18",
+      "name": "Learning Agent",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M49/lessons_snapshot.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-19",
+      "name": "Self-Diagnostic",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M46/self_debug_receipt.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-20",
+      "name": "Controlled Self-Evolution",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M58/aci_agi_si_loop_status.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-21",
+      "name": "Evidence/Provenance",
+      "registry_status": "EXISTS",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M30/pit_10k_benchmark.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": true
+    },
+    {
+      "agent_id": "AG-22",
+      "name": "Observability/Health",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/CONTINUATION/tracks_receipt.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-23",
+      "name": "Governance/Policy",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M60/owner_live_switch_readiness.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-24",
+      "name": "Cost/Resource Manager",
+      "registry_status": "PARTIAL",
+      "lifecycle_state": "LIVE_OBSERVED",
+      "artifact": "reports/grok/M_D11/perf_tier_receipt.json",
+      "artifact_present": true,
+      "implemented": true,
+      "live_flag": true,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-25",
+      "name": "Open-Source Capability Intelligence",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M52/skill_vet_s12_receipt.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-26",
+      "name": "Kourosh (CIO / Portfolio Manager)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M28/map_elites_grid.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-27",
+      "name": "Bahram (Macro, Rates & FX)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M19/macro_calendar.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-28",
+      "name": "Zarrin (Gold & Oil Division Lead)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M13_SOAK/soak_status.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-29",
+      "name": "Sara (US Equities)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/PAPER/session_readiness_drill.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-30",
+      "name": "Leila (European Equities)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/PAPER/session_readiness_drill.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-31",
+      "name": "Mahsa (Asian Equities)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/PAPER/session_readiness_drill.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-32",
+      "name": "Farhad (Futures & Derivatives)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M13_OIL/oil_status.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-33",
+      "name": "Negar (News Intelligence Division Lead)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M18/newsroom_snapshot.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-34",
+      "name": "Bijan (Chart Intelligence)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M60_F/signal_fusion_snapshot.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-35",
+      "name": "Shida (GitHub Intelligence)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M16/github_rd_crawl.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-36",
+      "name": "Siavash (AGI/ACI Architecture Team Lead)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M57/science_to_desk_snapshot.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-37",
+      "name": "Babak (Treasury & Allocation)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M43/pilot_100usd_gateway_snapshot.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-38",
+      "name": "Dariush (Execution & Broker)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/PAPER/session_readiness_drill.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-39",
+      "name": "Maryam (Compliance & Sanctions)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M45/sandbox_isolation_snapshot.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-40",
+      "name": "Homan (Failure Analysis & Post-trade Learning)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M29/crisis_replay_receipt.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-41",
+      "name": "Farzaneh (Dean of AHOS University)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M28/batch6_research.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-42",
+      "name": "Zhaleh (Accounting / Financial Ledger)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/M32/cross_desk_reconcile.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    },
+    {
+      "agent_id": "AG-43",
+      "name": "Ayda (Agent Supervision / Guardian Lead)",
+      "registry_status": "PLANNED",
+      "lifecycle_state": "ARTIFACT_PRESENT",
+      "artifact": "reports/grok/PAPER/paper_trade_audit.json",
+      "artifact_present": true,
+      "implemented": false,
+      "live_flag": false,
+      "seat_filled": false
+    }
+  ],
+  "honesty": "A seat is filled only when the registry says EXISTS, operability.implemented is true, and the wired artifact file is on disk. PLANNED and MISSING stay unfilled even if a later snapshot exists. Lifecycle states are observations, not promotions."
+}
