@@ -334,8 +334,20 @@ def _candidate_from_row(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def evaluator_for(idea: str):
+    """Our implementations only. Upstream code is not imported."""
+    text = (idea or "").lower()
+    if "kl-dro" in text or "distributionally robust" in text:
+        from architecture.university.kl_dro_shadow import evaluate as kl_evaluate
+        return kl_evaluate
+    if "world2vec" in text or "world model" in text:
+        from architecture.university.latent_dynamics_shadow import evaluate as latent_evaluate
+        return latent_evaluate
+    return None
+
+
 def has_own_implementation(idea: str) -> bool:
-    return "kl-dro" in (idea or "").lower()
+    return evaluator_for(idea) is not None
 
 
 def reopen_static_passes(ledger_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -380,11 +392,10 @@ def advance_shadows(
     limit: int = 2,
 ) -> list[dict[str, Any]]:
     """Score the top shadow ideas that have our own implementation. The rest stay queued."""
-    from architecture.university.kl_dro_shadow import evaluate
-
     extra: list[dict[str, Any]] = []
     for row in shadow_queue(discovered, limit=limit):
-        if not has_own_implementation(str(row.get("idea") or "")):
+        evaluate = evaluator_for(str(row.get("idea") or ""))
+        if evaluate is None:
             extra.append({
                 "source": row.get("source"),
                 "idea": row.get("idea"),

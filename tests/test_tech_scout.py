@@ -130,8 +130,11 @@ def test_the_queue_scores_only_the_idea_we_implemented():
     assert extra[0]["evidence"]["sample_n"]["CRYPTO"] == 40
     assert extra[0]["evidence"]["predicted_score"]["FOREX"] is None
     assert extra[0]["evidence"]["sample_n"]["FOREX"] == 0
-    assert extra[1]["decision"] == "SHADOW_CANDIDATE"
-    assert extra[1]["evidence"]["reason"] == "NO_OWN_IMPLEMENTATION"
+    assert extra[1]["step"] == "decide"
+    assert extra[1]["decision"] == "ARCHIVE"
+    assert extra[1]["evidence"]["reason"] == "FAILED_OOS"
+    assert extra[1]["evidence"]["upstream_executed"] is False
+    assert extra[1]["evidence"]["applied_to_live_weights"] is False
     reopened = reopen_static_passes([{
         "source": "arxiv",
         "idea": papers[3]["idea"],
