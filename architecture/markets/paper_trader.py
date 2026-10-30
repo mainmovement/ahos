@@ -500,6 +500,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     if fetch is None:
         from architecture.markets.live_price_feed import fetch_live_market_prices as fetch
     t = now()
+    if fetch is None and signals_fn is None and fetch_b is None:
+        try:
+            from architecture.markets.token_safety_live import refresh_safety_snapshot_if_due
+
+            refresh_safety_snapshot_if_due(root)
+        except Exception:
+            pass
     quotes = (fetch() or {}).get("quotes") or {}
     wit = gather_witness(quotes, fetch_b=fetch_b, fetch_c=fetch_c)
     state = _load(root / STATE_REL, {})
@@ -629,7 +636,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 partial = True
             elif reason is None and _chandelier_hit(pos, price):
                 reason = "CHANDELIER_STOP"
-            elif reason is None and comp * d <= -ENTRY:
+            elif reason is None and str(sym).startswith("DEX_"):
+                from architecture.markets.token_safety_live import dex_risk_exit
+
+                dex_reason = dex_risk_exit(sym, pos, q, held_s)
+                if dex_reason:
+                    reason = dex_reason
+            if reason is None and comp * d <= -ENTRY:
                 reason = "SIGNAL_REVERSAL"
             elif reason is None and held_s > MAX_HOLD_S * TIME_STOP_HOLD_FRAC and abs(move) < TIME_STOP_MOVE_FRAC * pos["stop_pct"]:
                 reason = "TIME_STOP"
@@ -732,6 +745,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             brain["token_safety_veto"] = {k: tv.get(k) for k in ("verdict", "allowed", "sources_verified", "reasons")}
             if not tv.get("allowed"):
                 why = f"TOKEN_SAFETY_VETO:{','.join(tv.get('reasons') or ['fail_closed'])}"
+        if why is None and str(sym).startswith("DEX_"):
+            from architecture.markets.token_safety_live import dynamic_token_block
+
+            why = dynamic_token_block(sym, positions)
         if why:
             news_ev = (newsig or {}).get("evidence") if isinstance(newsig, dict) else None
             log({**base, "event": "NO_TRADE", "reason": why, "price": price, "composite": comp,
@@ -807,6 +824,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             brain["futures"] = leverage_decision(root)
             open_fut = sum(p["notional_usd"] for p in positions.values() if p.get("desk") == "CRYPTO_FUTURES")
             notional = round(min(notional, book_notional_cap(equity, open_fut)), 4)
+        if str(sym).startswith("DEX_"):
+            from architecture.markets.token_safety_live import DYNAMIC_TOKEN_EQUITY
+
+            notional = round(min(notional, DYNAMIC_TOKEN_EQUITY * equity), 4)
         adv_chk = sb.adv_cap_check(notional, q, ohlcv)
         brain["adv_cap"] = adv_chk
         if not adv_chk["allowed"]:
@@ -859,6 +880,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 "funding_ts": t,
                 "leverage": 1.0,
             }
+        if str(sym).startswith("DEX_"):
+            fut_fields["entry_liquidity_usd"] = q.get("liquidity_usd")
+            fut_fields["entry_dev_balance"] = q.get("dev_balance")
         positions[sym] = {"side": side, "entry_price": round(fill, 6), "qty": qty, "notional_usd": notional,
                           "entry_fee_usd": round(entry_fee, 6), "opened_at": _iso(t), "opened_ts": t, "desk": desk,
                           "stop_pct": round(stop_pct, 5), "entry_brain": brain, "mark_price": price,

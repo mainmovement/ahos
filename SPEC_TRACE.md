@@ -201,3 +201,7 @@ CFTC current file refreshes after Friday 15:30 America/New_York. ICE current-yea
 ## Crypto futures paper desk (2026-10-30)
 
 OKX public swap mark, Binance mark as the second witness, long and short, funding as paper cashflow, simulated liquidation, cap 0.10 of equity, leverage held at 1.0. Spot symbols stay on the crypto desk. Gates unchanged. Gap IDs closed: **none**.
+
+## Dynamic token safety (2026-10-30)
+
+Safety snapshot refreshes at 5 hours via GoPlus and honeypot.is. Strict path vetoes unless LP is locked or burned for at least half. One dynamic name, 0.02 of equity. Exits add a 6-hour hold, a liquidity drop below half the entry print, and a 10% dev-wallet drop. Missing dev balance is not a sale. Gates unchanged. Gap IDs closed: **none**.

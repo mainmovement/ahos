@@ -391,3 +391,17 @@ The swap symbols are `BTC-SWAP`, `ETH-SWAP`, and `SOL-SWAP`. The execution price
 | R4 Council | APPROVE | The same composite and vote gate decide the side. Funding is cashflow, not an upgrade. |
 | R7 SRE | APPROVE | No wallet, no live order, Lane A not edited. The spot book is a different symbol. |
 | Meta-Critic | APPROVE | This is a paper swap. It does not adopt the unused 2.0 margin cap. |
+
+## Dynamic token safety (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_token_pump_dump.py tests/test_stage6_deepening.py tests/test_stage4_closures.py tests/test_paper_trader.py -q` with the stage 6 and stage 4 files narrowed to the veto tests → **23 passed** on the combined token and paper-trader run, and **4 passed** on the stage 6 veto/funnel selection.
+
+A snapshot younger than 5 hours is not fetched again. At 5 hours the GoPlus and honeypot.is snapshot is rebuilt. If that rebuild raises, the previous file stays and the 6-hour loader still returns nothing once the file is older than 6 hours. Strict discovery requires locked or burned LP of at least 0.50. An empty `lp_holders` list is `VETOED_FAIL_CLOSED`. The non-strict UNI path is unchanged. Dynamic names are one `DEX_` position, cap 0.02 of equity. A second name is `ONE_DYNAMIC_TOKEN`. Liquidity under half the entry print exits `LIQUIDITY_DROP`. A dev balance down 10% exits `DEV_WALLET_SELL`. No dev balance does not invent a sale. Hold past 6 hours exits `MAX_HOLD`. The shared hard stop and chandelier still apply and were not loosened. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | 0.02, one name, 6h, half liquidity, and 10% dev sell are pre-registered. They do not change the fee gate. |
+| R2 Data | APPROVE | Missing LP rows fail closed. A failed refresh does not replace the snapshot with an empty pass. |
+| R4 Council | APPROVE | UNI is not put under the dynamic cap. A shock exit does not upgrade a score. |
+| R7 SRE | APPROVE | No wallet and no on-chain transaction. Lane A not edited. |
+| Meta-Critic | APPROVE | A fresh snapshot means the veto sources were read. It does not mean the token is a buy. |

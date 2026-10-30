@@ -108,7 +108,8 @@ POOL1, POOL2 = "0x00000000000000000000000000000000000000p1", "0x0000000000000000
 def _gp(**over):
     row = {"is_honeypot": "0", "buy_tax": "0", "sell_tax": "0", "is_open_source": "1", "is_mintable": "0",
            "holders": [{"address": POOL1, "percent": "0.40", "is_locked": 0, "is_contract": 1},
-                       {"address": "0xbb", "percent": "0.05", "is_locked": 0, "is_contract": 0}]}
+                       {"address": "0xbb", "percent": "0.05", "is_locked": 0, "is_contract": 0}],
+           "lp_holders": [{"address": "0x000000000000000000000000000000000000dead", "percent": "0.80", "is_locked": "1"}]}
     row.update({k: "0" for k in ("is_proxy", "hidden_owner", "can_take_back_ownership", "owner_change_balance",
                                  "selfdestruct", "cannot_sell_all", "transfer_pausable", "slippage_modifiable",
                                  "personal_slippage_modifiable", "cannot_buy")})

@@ -72,6 +72,13 @@ MIN_POOL_AGE_DAYS = 7.0
 MAX_FDV_TO_LIQUIDITY = 1000.0
 MAX_SINGLE_HOLDER_PCT = 0.30
 MAX_TOP10_HOLDER_PCT = 0.70
+# Pre-registered. Not fit to a book. Missing LP data fails closed on the strict path.
+LP_LOCK_MIN_SHARE = 0.50
+SNAPSHOT_REFRESH_AGE_H = 5.0
+DYNAMIC_TOKEN_EQUITY = 0.02
+DEX_MAX_HOLD_S = 6 * 3600
+LIQUIDITY_DROP_FRAC = 0.50
+DEV_SELL_FRAC = 0.10
 POOL_PRICE_TOL = 0.01
 SNAPSHOT_REL = Path("reports") / "grok" / "M33" / "live_token_safety_snapshot.json"
 BURN_ADDRESSES = {"0x000000000000000000000000000000000000dead", "0x0000000000000000000000000000000000000000"}
@@ -167,6 +174,49 @@ def _holder_concentration(holders: Any, exclude: set[str]) -> dict[str, Any] | N
             "top1_is_contract": rows[0][2] if rows else None, "excluded": "burn, locked, known LP pools"}
 
 
+def _share(v: Any) -> float | None:
+    x = _f(v)
+    if x is None:
+        return None
+    return x / 100.0 if x > 1 else x
+
+
+def lp_lock_or_burn(lp_holders: Any) -> dict[str, Any]:
+    """Locked or burned LP must cover the pre-registered share. Missing rows are not a pass."""
+    if not isinstance(lp_holders, list) or not lp_holders:
+        return {"share": None, "ok": False}
+    share = 0.0
+    seen = False
+    for h in lp_holders:
+        if not isinstance(h, dict):
+            continue
+        pct = _share(h.get("percent"))
+        if pct is None:
+            continue
+        seen = True
+        addr = str(h.get("address") or "").lower()
+        if str(h.get("is_locked")) == "1" or addr in BURN_ADDRESSES:
+            share += pct
+    if not seen:
+        return {"share": None, "ok": False}
+    return {"share": round(share, 4), "ok": share >= LP_LOCK_MIN_SHARE}
+
+
+def _owner_balance(tok: dict[str, Any]) -> float | None:
+    """Token units of the owner. A burn or renounced owner is not a sell we can see."""
+    owner = str(tok.get("owner_address") or "").lower()
+    if not owner or owner in BURN_ADDRESSES:
+        return None
+    for h in tok.get("holders") or []:
+        if not isinstance(h, dict):
+            continue
+        if str(h.get("address") or "").lower() != owner:
+            continue
+        bal = _f(h.get("balance"))
+        return bal if bal is not None else _share(h.get("percent"))
+    return None
+
+
 def fetch_goplus(address: str, chain_id: str = "1", getter: Callable[[str], Any] = _http_json,
                  lp_pools: set[str] | None = None) -> dict[str, Any] | None:
     addr = address.lower()
@@ -188,6 +238,9 @@ def fetch_goplus(address: str, chain_id: str = "1", getter: Callable[[str], Any]
         "cannot_sell_all": _flag(tok.get("cannot_sell_all")),
         "holder_count": int(_f(tok.get("holder_count")) or 0),
         "holder_concentration": _holder_concentration(tok.get("holders"), {p.lower() for p in (lp_pools or set())}),
+        "lp_lock": lp_lock_or_burn(tok.get("lp_holders")),
+        "owner_address": str(tok.get("owner_address") or "").lower() or None,
+        "dev_balance": _owner_balance(tok),
     }
 
 
@@ -316,6 +369,12 @@ def veto_check(
                 missing.append("goplus:missing_holders")
         elif conc["top1_pct"] > MAX_SINGLE_HOLDER_PCT or conc["top10_pct"] > MAX_TOP10_HOLDER_PCT:
             breach.append(f"goplus:holder_concentration(top1={conc['top1_pct']},top10={conc['top10_pct']})")
+        if strict:
+            lock = gp.get("lp_lock") or {}
+            if lock.get("share") is None:
+                missing.append("goplus:lp_lock_or_burn_missing")
+            elif not lock.get("ok"):
+                breach.append(f"goplus:lp_not_locked_or_burned({lock.get('share')})")
 
     if hp is not None:
         if not hp["simulation_success"]:
@@ -582,6 +641,9 @@ def export_token_safety_snapshot(root: Path | None = None, *, getter: Callable[[
         "funnel_rules": {"min_pool_age_days": MIN_POOL_AGE_DAYS, "min_volume_24h_usd": MIN_VOLUME_24H_USD,
                          "min_liquidity_usd": MIN_LIQUIDITY_USD, "max_tax": MAX_TAX,
                          "max_single_holder_pct": MAX_SINGLE_HOLDER_PCT, "max_top10_holder_pct": MAX_TOP10_HOLDER_PCT,
+                         "lp_lock_min_share": LP_LOCK_MIN_SHARE, "dynamic_token_equity": DYNAMIC_TOKEN_EQUITY,
+                         "dex_max_hold_s": DEX_MAX_HOLD_S, "liquidity_drop_frac": LIQUIDITY_DROP_FRAC,
+                         "dev_sell_frac": DEV_SELL_FRAC,
                          "max_fdv_to_liquidity": MAX_FDV_TO_LIQUIDITY, "pool_price_tol": POOL_PRICE_TOL},
         "discovery_source": funnel.get("discovery_source"),
         "discovery": {k: v for k, v in funnel.items() if k != "vetted"},
@@ -603,7 +665,58 @@ def export_token_safety_snapshot(root: Path | None = None, *, getter: Callable[[
 
 
 # ---------------- PB_TOKEN desk feed ----------------
-def load_eligible_paper_tokens(root: Path, *, max_age_h: float = 6.0, max_n: int = 2) -> list[dict[str, Any]]:
+def snapshot_age_hours(root: Path, now: datetime | None = None) -> float | None:
+    try:
+        snap = json.loads((Path(root) / SNAPSHOT_REL).read_text(encoding="utf-8"))
+        gen = datetime.strptime(snap["generated_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except Exception:
+        return None
+    now = now or datetime.now(timezone.utc)
+    return (now - gen).total_seconds() / 3600.0
+
+
+def refresh_safety_snapshot_if_due(root: Path, *, getter: Callable[[str], Any] = _http_json,
+                                   max_age_h: float = SNAPSHOT_REFRESH_AGE_H,
+                                   now: datetime | None = None) -> dict[str, Any]:
+    """Refresh before the 6h fail-closed. A failed refresh leaves the old file in place."""
+    age = snapshot_age_hours(root, now)
+    if age is not None and age < max_age_h:
+        return {"refreshed": False, "age_h": age}
+    try:
+        export_token_safety_snapshot(root, getter=getter)
+    except Exception:
+        return {"refreshed": False, "age_h": age, "error": "REFRESH_FAILED"}
+    return {"refreshed": True, "age_h": age}
+
+
+def dynamic_token_block(sym: str, positions: dict[str, Any]) -> str | None:
+    if not str(sym).startswith("DEX_"):
+        return None
+    if any(str(s).startswith("DEX_") and s != sym for s in positions):
+        return "ONE_DYNAMIC_TOKEN"
+    return None
+
+
+def dex_risk_exit(sym: str, pos: dict[str, Any], quote: dict[str, Any], held_s: float) -> str | None:
+    """Pump-dump exits for dynamic names. Hard stop and chandelier stay on the shared path."""
+    if not str(sym).startswith("DEX_"):
+        return None
+    entry_liq = pos.get("entry_liquidity_usd")
+    liq = quote.get("liquidity_usd")
+    if isinstance(liq, (int, float)) and isinstance(entry_liq, (int, float)) and entry_liq > 0:
+        if liq < LIQUIDITY_DROP_FRAC * float(entry_liq):
+            return "LIQUIDITY_DROP"
+    entry_dev = pos.get("entry_dev_balance")
+    dev = quote.get("dev_balance")
+    if isinstance(dev, (int, float)) and isinstance(entry_dev, (int, float)) and entry_dev > 0:
+        if dev <= float(entry_dev) * (1.0 - DEV_SELL_FRAC):
+            return "DEV_WALLET_SELL"
+    if held_s > DEX_MAX_HOLD_S:
+        return "MAX_HOLD"
+    return None
+
+
+def load_eligible_paper_tokens(root: Path, *, max_age_h: float = 6.0, max_n: int = 1) -> list[dict[str, Any]]:
     """Dynamic tokens the paper trader may consider: only from a fresh snapshot (stale -> none, fail closed)."""
     try:
         snap = json.loads((Path(root) / SNAPSHOT_REL).read_text(encoding="utf-8"))
@@ -631,9 +744,15 @@ def dex_paper_quote(token: dict[str, Any], getter: Callable[[str], Any] = _http_
                 {"verdict": "UNRESOLVED", "source_a": src, "price_a": None, "source_b": None, "price_b": None, "gap": None})
     last = rows[-1]
     mt = datetime.fromtimestamp(int(last[0]), timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        gp = fetch_goplus(addr, getter=getter)
+    except Exception:
+        gp = None
     quote = {"price": float(last[4]), "source": src, "market_time": mt, "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
              "ohlcv_5m": [[float(r[1]), float(r[2]), float(r[3]), float(r[4]), float(r[5])] for r in rows],
-             "ohlcv_5m_ts": [int(r[0]) for r in rows], "token_address": addr, "dex_pool": pool, "freshness": "LIVE"}
+             "ohlcv_5m_ts": [int(r[0]) for r in rows], "token_address": addr, "dex_pool": pool, "freshness": "LIVE",
+             "liquidity_usd": (dx or {}).get("liquidity_usd"),
+             "dev_balance": None if not gp else gp.get("dev_balance")}
     others = sorted((p for p in (dx or {}).get("pools") or [] if p.get("pool") and p["pool"] != pool
                      and p.get("price_usd") and p["liquidity_usd"] >= 50_000), key=lambda p: -p["liquidity_usd"])
     if not others:
