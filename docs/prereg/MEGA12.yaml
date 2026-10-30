@@ -1,0 +1,66 @@
+schema: ahos.mega12_prereg.v1
+paper_only: true
+shadow_only: true
+registered_for: news cooldown, gold exits, capital tilt, and entry quality
+promotion:
+  dsr_min: 0.95
+  pbo_max: 0.5
+  min_fresh_closes: 30
+  after_fees: true
+  red_team: required
+  state_until_then: shadow
+change_rule: >
+  Any edit to this file is a new trial. trial_count must increase by one
+  in the same edit. A file whose bytes no longer match the registered hash
+  cannot be scored. Closes already stored are a lookback tag, not the sample.
+trial_count: 1
+n_variants: 9
+fresh_rule: >
+  A close is in the score only when opened_at and closed_at are both
+  strictly after the commit that added this file. A tag on older rows
+  is a lookback and is excluded from loss-avoided, the gold pick, the
+  tilt, and the dependency share.
+high_impact_events:
+  - FOMC_STATEMENT
+  - EIA_WPSR
+  - ECB_GOV_COUNCIL
+  - BOE_MPC_DECISION
+  - BOJ_MPM_DECISION
+  - OPEC_MINISTERIAL
+rules:
+  news_cooldown:
+    hypothesis: An entry opened inside the window after high-impact news is a chase unless two independent families other than news already agree.
+    windows_min: [15, 30, 60]
+    exception: two_non_news_families_agree
+    metric: loss_avoided_usd_and_trades_skipped
+    live_change: false
+  fade_first_spike:
+    hypothesis: The first entry inside 15 minutes of high-impact news is skipped in shadow. An opposite fill is not invented when no post-event path is stored.
+    window_min: 15
+    metric: trades_skipped
+    opposite_pnl: unevaluable_without_path
+    live_change: false
+  gold_exits:
+    hypothesis: On fresh GOLD closes, an ATR trail, a time stop, and a half exit at one ATR are compared on fee-net pnl. The pick is the highest fresh mean. A missing path stays unevaluable.
+    atr_arm_mult: 1
+    atr_giveback_mult: 1
+    time_stop_s: 21600
+    partial_at_r: 1
+    partial_fraction: 0.5
+    one_r: atr_pct
+    metric: fresh_mean_pnl_after_fees
+    live_change: false
+  capital_tilt:
+    hypothesis: Shadow desk weights follow fresh net expectancy. A desk with no fresh sample gets no new weight. Live desk multipliers and the live floors stay as they are.
+    floors_unchanged:
+      min_agreeing_families: 2
+      vote_score_floor: 0.05
+      min_expected_profit_to_fee_ratio: 2.0
+    metric: fresh_net_expectancy
+    applied_to_live: false
+  entry_quality:
+    hypothesis: A shadow keep requires mtf_trend to agree and one independent family other than news to agree. The dependency share is measured on the fresh keeps.
+    metric: mtf_trend_dominant_share_after
+    live_change: false
+data_window: none_at_registration
+applied_to_live: false
