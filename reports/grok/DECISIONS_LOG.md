@@ -229,3 +229,11 @@
 **Choice:** RESOLVED_BY_SOLTAN. No fourth name was found in `G:\robat\ahos_assets`, `G:\robat\ahos\docs`, or `SPEC_TRACE.md`. The exit gate is now 3 of 3 defined regimes, each with at least 30 trades. Labels remain BULL_TREND, BEAR_VOLATILE, NEUTRAL_CHOP.
 
 **Reason:** The assets only repeat the open question (`AHOS_FEATURE_CHECKLIST.md:83`, `AHOS_COMPLETION_MAP.md:68`, `GOLD_SOAK_EXIT_CRITERIA.md:30`). A 7-state replay detector is not that fourth label. Missing counts fail the criterion. Promotion stays an owner act.
+
+## 2026-10-30: Research advisory votes and oil whale proxy
+
+**Question:** How should the research family vote when the overlay score is empty, and what whale proxy may OIL use?
+
+**Choice:** Existing numeric shadow and strategy-switch `predicted_score` values vote as advisory. Composite weight stays 0 unless PASS_STATS + SURVIVED_RED_TEAM. Direction-only rows stay UNAVAILABLE. OIL and GOLD whales use the public CFTC file `https://www.cftc.gov/dea/newcot/f_disagg.txt` (BRENT LAST DAY, ICE Europe WTI, COMEX gold), weight 0. FOREX, equities, and PB_TOKEN stay ABSENT_BY_DESIGN. The hardcoded COT percentiles in `macro_overlays` are not a source. The 2-family and 2× fee gates stay as they are.
+
+**Reason:** The owner asked for real scores to reach the cycle and for a free public proxy only when one exists. The CFTC file was fetched and the named rows were present on 2026-10-30. No other desk had a verified contract wired.

@@ -296,3 +296,26 @@ On the two OIL blocks that stored votes: news **AGREE** twice, macro and candle 
 | R1 Quant | APPROVE | The fee ratio was not loosened. 0.561 is a fail. |
 | R2 Data | APPROVE | FLAT, UNAVAILABLE, and ABSENT are separate counts. |
 | Meta-Critic | APPROVE | Forty-five minutes is not six hours. Zero opens is the gate working. |
+
+## Family coverage — advisory research and public COT (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_research_desk_signal.py tests/test_paper_trade_gates.py tests/test_cftc_cot_and_coverage.py -q` → **17 passed**.
+
+Research: shadow and strategy-switch rows that already carry a numeric `predicted_score` now vote. The vote is marked `advisory` with `composite_weight` 0. A PASS_STATS + SURVIVED_RED_TEAM overlay still uses its own score and the existing 0.05 weight. A direction-only row stays UNAVAILABLE. `test_shadow_registry_does_not_move_composite` still holds.
+
+Whales: `https://www.cftc.gov/dea/newcot/f_disagg.txt` was fetched (447,393 bytes, report date 2026-10-20). Managed-money long/short are columns 13 and 14, open interest is column 7. Wired contracts: BRENT LAST DAY (NYMEX) for BRENT, ICE Europe WTI for WTI, COMEX gold for XAU. Score is `tanh(net / open_interest / 0.05)`, composite weight 0. `macro_overlays` fixture percentiles are not read. FOREX, US/EU/ASIA equities, and PB_TOKEN are `ABSENT_BY_DESIGN`. CRYPTO keeps its existing trade, netflow, and mempool feeds.
+
+Gates unchanged: `MIN_AGREEING_FAMILIES=2`, `VOTE_SCORE_FLOOR=0.05`, `MIN_EXPECTED_PROFIT_TO_FEE_RATIO=2.0`.
+
+6h window at `2026-10-30T01:35:50Z`: **`INSUFFICIENT_WINDOW`**, elapsed **0.926h** of 6h. Opens 2 (1 CRYPTO, 1 OIL), two-family blocks 2, fee-drag stops 5. Not COMPLETE. The new votes are not in that export; they start on the next paper-trader reload.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Advisory scores do not enter `combine` while unavailable. COT weight is 0. The 2-family and 2× fee constants are unchanged. |
+| R2 Data | APPROVE | COT columns were checked on the live file. A missing row stays unavailable. Unmapped desks get no signal. |
+| R3 News | N/A | |
+| R4 Council | APPROVE | Advisory is not promotion. PASS_STATS + SURVIVED remains the only research path with composite weight. |
+| R5 UX | N/A | No laptop build. |
+| R6 University | APPROVE | Shadow hypotheses still log `composite_weight` 0. |
+| R7 SRE | APPROVE | Lane A not edited. Cache is a public file under PAPER and was not committed. |
+| Meta-Critic | APPROVE | Less than one hour is not six hours. A fixture percentile was not promoted into a whale vote. |

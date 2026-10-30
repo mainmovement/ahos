@@ -177,3 +177,7 @@ Presentation only, in `ahos_arena`. Static checks: orb selftest 4 passed, real-p
 ## P0 gate census note (2026-10-30T01:24Z)
 
 Window **0.742h / 6h**, opens 0, OIL two-family blocks 2, fee-drag stops 5. News agreed on both OIL blocks. Macro and wicks were flat. Research was unavailable. Whales were absent. One later BRENT bar cleared two families and failed the 2× fee rule at ratio 0.561. Gap IDs closed: **none**.
+
+## Family coverage note (2026-10-30)
+
+Research votes from existing numeric shadow and switch scores are advisory. Composite weight stays 0 unless PASS_STATS + SURVIVED_RED_TEAM. OIL and GOLD whales use the public CFTC futures-only file (`f_disagg.txt`, managed-money columns), weight 0. FOREX, equities, and PB_TOKEN whales are ABSENT_BY_DESIGN. Table: `reports/grok/PAPER/family_coverage.json`. Gates stay 2 families and 2× fees. Window at 01:35:50Z is still **INSUFFICIENT_WINDOW** (0.926h). Gap IDs closed: **none**.
