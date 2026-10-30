@@ -10,7 +10,7 @@ def _row(pnl, cause_kind, symbol="BTC"):
         "fees_usd": 0.01,
         "reason": "STOP",
         "closed_at": "2026-10-30T12:00:00Z",
-        "entry_brain": {"signals": [{"name": "news", "score": 0.4, "available": True, "evidence": {}}]},
+        "entry_brain": {"signals": [{"name": "candles", "score": 0.4, "available": True, "evidence": {}}]},
     }
     if cause_kind == "FEE_DRAG":
         row["realized_pnl_usd"] = -0.2
@@ -35,6 +35,8 @@ def test_the_day_names_the_most_common_loss_and_tests_the_fix_in_shadow():
     closes[-1]["closed_at"] = "2026-10-29T12:00:00Z"
     report = shadow_test(closes, "2026-10-30")
     assert report["primary_cause"] == "WRONG_FAMILY"
+    assert [row["cause"] for row in report["top_causes"][:2]] == ["WRONG_FAMILY", "FEE_DRAG"]
+    assert all(row["applied_to_live"] is False for row in report["top_causes"] if row["fix_status"] == "SHADOW")
     assert report["fix_status"] == "SHADOW"
     assert report["applied_to_live"] is False
     assert report["loss_count"] == 3
