@@ -663,3 +663,18 @@ Command: `pytest tests/test_owner_readiness.py tests/test_seat_priority.py tests
 | R6 Learning | APPROVE | AG-40 is the mistake-memory seat. It still cannot PROMOTE. |
 | R7 SRE/Security | APPROVE | Soak PID 7988 is IN_PROGRESS at 0.18 hours, status NOT_MET. The path file refuses a profile directory on C:. HOLD stays on. |
 | Meta-Critic | APPROVE | Level 2: calling the trace 97 percent done would hide the owner audit. That number is not the vision percent. |
+
+## MEGA 4b (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_mega4b.py tests/test_owner_readiness.py tests/test_soak_gap_accounting.py -q` → **14 passed**. Lane A integrity OK. Gap IDs closed: **M-GAP-007 only**. The live switch is false. Gates stay 2 families and 2× fees. News weight stays 0.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Shadow expectancy delta after fees is +0.010222 USD on 150 closes and +0.007992 on the last 40 percent. The live weight is unchanged. No desk with 20 closes has a positive mean. |
+| R2 Data | APPROVE | The pause uses realized pnl after fees. Desks under 20 closes stay open. The 2026-09-12 audit stays 0 of 26. The current overlay is 5 of 26. |
+| R3 News | APPROVE | 36 news-trap closes are dropped only in the shadow. The 12:01Z news row has weight 0 and does not count toward the entry gate. |
+| R4 Intelligence (Kian) | APPROVE | Readiness is 50 percent. The Persian page still says profit months, DSR/PBO, and the tiny start are missing. |
+| R5 Visual/UX | APPROVE | Port 3200 answered. The served arena has no جزئیات فنی control. `/evidence` is NOT_STARTED. Screenshots are on G:\robat\reports. |
+| R6 Learning | APPROVE | The shadow rule does not veto a live open. Mistake memory is unchanged. |
+| R7 SRE/Security | APPROVE | WAL is on with one integrity ok. The kill-switch drill did not edit the live book. The soak window stayed 2026-10-29T00:45:31Z across the reload to PID 11388. GeckoTerminal SUCCESS is one provider, not every provider. |
+| Meta-Critic | APPROVE | Level 2: 19.2 percent is 5 proved rows, not a claim that the owner vision is a fifth done in the September audit. M-GAP-005 is MITIGATED, not closed. |

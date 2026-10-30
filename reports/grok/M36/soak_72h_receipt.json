@@ -1,17 +1,18 @@
 {
   "schema": "ahos.m36_soak_72h_receipt.v1",
-  "generated_at": "2026-10-30T06:13:32Z",
+  "generated_at": "2026-10-30T11:51:17Z",
   "paper_only": true,
   "target_continuous_hours": 72,
   "status": "NOT_MET",
   "current_window_status": "IN_PROGRESS",
-  "elapsed_hours": 0.18,
-  "window_started_utc": "2026-10-30T06:02:43Z",
+  "elapsed_hours": 35.1,
+  "window_started_utc": "2026-10-29T00:45:31Z",
   "reason": "The current window is running and has not reached 72 hours.",
   "longest_recorded_gap_hours": 16.05,
   "relaunch_rows_parsed": 33,
   "heartbeat_stale": false,
-  "last_cycle_utc": "2026-10-30T06:02:37Z",
+  "last_cycle_utc": "2026-10-30T11:47:40Z",
   "auto_restart": "G:/robat/AHOS_Launcher/start_soak.ps1",
+  "window_clock_source": "runlog_contiguous",
   "logon_lightstart_chain_seen": true
 }

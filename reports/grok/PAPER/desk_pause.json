@@ -1,0 +1,100 @@
+{
+ "schema": "ahos.desk_pause.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T11:51:17Z",
+ "min_closes": 20,
+ "desks": [
+  {
+   "desk": "ASIA_EQUITIES",
+   "closes": 26,
+   "net_pnl_usd": -0.0227,
+   "expectancy_usd": -0.000873,
+   "paused": true,
+   "shadow": true
+  },
+  {
+   "desk": "CRYPTO",
+   "closes": 43,
+   "net_pnl_usd": -0.5532,
+   "expectancy_usd": -0.012865,
+   "paused": true,
+   "shadow": true
+  },
+  {
+   "desk": "CRYPTO_FUTURES",
+   "closes": 1,
+   "net_pnl_usd": -0.0549,
+   "expectancy_usd": -0.0549,
+   "paused": false,
+   "shadow": false
+  },
+  {
+   "desk": "EU_EQUITIES",
+   "closes": 4,
+   "net_pnl_usd": 0.1648,
+   "expectancy_usd": 0.0412,
+   "paused": false,
+   "shadow": false
+  },
+  {
+   "desk": "FOREX",
+   "closes": 18,
+   "net_pnl_usd": -0.031,
+   "expectancy_usd": -0.001722,
+   "paused": false,
+   "shadow": false
+  },
+  {
+   "desk": "GOLD",
+   "closes": 13,
+   "net_pnl_usd": -0.3451,
+   "expectancy_usd": -0.026546,
+   "paused": false,
+   "shadow": false
+  },
+  {
+   "desk": "LISTED_FUTURES",
+   "closes": 1,
+   "net_pnl_usd": 0.0002,
+   "expectancy_usd": 0.0002,
+   "paused": false,
+   "shadow": false
+  },
+  {
+   "desk": "OIL",
+   "closes": 27,
+   "net_pnl_usd": -0.1398,
+   "expectancy_usd": -0.005178,
+   "paused": true,
+   "shadow": true
+  },
+  {
+   "desk": "PB_TOKEN",
+   "closes": 14,
+   "net_pnl_usd": -0.1437,
+   "expectancy_usd": -0.010264,
+   "paused": false,
+   "shadow": false
+  },
+  {
+   "desk": "US_EQUITIES",
+   "closes": 3,
+   "net_pnl_usd": 0.0948,
+   "expectancy_usd": 0.0316,
+   "paused": false,
+   "shadow": false
+  }
+ ],
+ "paused_desks": [
+  "ASIA_EQUITIES",
+  "CRYPTO",
+  "OIL"
+ ],
+ "carrying_desks": [
+  "EU_EQUITIES",
+  "LISTED_FUTURES",
+  "US_EQUITIES"
+ ],
+ "applied_to_live_weights": false,
+ "decides": false
+}

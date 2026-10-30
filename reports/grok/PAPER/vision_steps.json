@@ -1,0 +1,169 @@
+{
+ "schema": "ahos.vision_steps.v1",
+ "paper_only": true,
+ "audit_date": "2026-09-12",
+ "audit_operational_impl": 0,
+ "audit_rows": 26,
+ "current_impl": 5,
+ "current_impl_pct": 19.2,
+ "live_switch": false,
+ "rows": [
+  {
+   "id": "core_intelligence",
+   "step": "Show one Python canonical decision on the page the running server actually serves.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "token_discovery",
+   "step": "Log one new token from a free source that then faces the safety veto.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "opportunity_intelligence",
+   "step": "Replace the TypeScript rank on the served page with the Python decision label.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "evidence_system",
+   "step": "Replay stored closes into causes. The served /evidence route is a separate gap.",
+   "current_impl": true,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "identity_resolution",
+   "step": "Store one symbol whose two witnesses agree and keep that id.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "security_scam",
+   "step": "Keep a logged safety veto that blocks the open.",
+   "current_impl": true,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "market_intelligence",
+   "step": "Point the served market page at a quote that has source, time, and latency.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "news_intelligence",
+   "step": "Keep a same-day news row at weight 0 that does not open a trade.",
+   "current_impl": true,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "onchain_intelligence",
+   "step": "Record one whale score that is not ABSENT on a desk still allowed to open.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "liquidity_whale_demand",
+   "step": "Attach a liquidity figure to one open paper position.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "explainable_scoring",
+   "step": "Attach a Persian sentence that cites the logged reason on the next close.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "calibration",
+   "step": "Leave the shadow recalibration unapplied until DSR and PBO pass.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "paper_trading",
+   "step": "Keep the paper book running and pause a desk only after 20 losing closes.",
+   "current_impl": true,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "user_position_tracking",
+   "step": "Make the running /paper page read the open-name receipt.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "telegram",
+   "step": "Wait for an owner token. Do not invent one.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "alerts_loud",
+   "step": "Require Python alerts_allowed and overlay PASS before any automatic alert.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "web_dashboard",
+   "step": "Rebuild the already-running server so the home view and جزئیات فنی are the served page.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "ai_conversational",
+   "step": "One Kian answer that cites a stored close, or UNKNOWN.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "persian_first",
+   "step": "Serve equity, open names, and today's lesson in Persian from the paper receipt.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "system_status",
+   "step": "Keep the soak window clock on the run log, not on the last status write.",
+   "current_impl": true,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "provider_architecture",
+   "step": "Record a provider probe as SUCCESS or the real failure.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "knowledge_memory",
+   "step": "Answer from a stored close, or return UNKNOWN.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "security_ops",
+   "step": "Re-run the kill-switch drill without editing the live book.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "reliability",
+   "step": "Leave the current soak running until 72 hours, then toward 168.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "windows_local_first",
+   "step": "Keep paths and the sleep script on G:. The installer gate is still open.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  },
+  {
+   "id": "launch_deployment",
+   "step": "Leave the live switch off.",
+   "current_impl": false,
+   "audit_2026_09_12_impl": false
+  }
+ ],
+ "decides": false
+}

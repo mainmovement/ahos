@@ -1,0 +1,67 @@
+{
+  "schema": "ahos.backup_restore.v1",
+  "timestamp_utc": "2026-10-30T12:09:33Z",
+  "git": {
+    "commit_sha": "830b928dc9e70a1a4ca45b623696160dfdb091e1",
+    "branch": "ahos",
+    "working_tree_clean": false
+  },
+  "command": "python scripts/sqlite_backup_restore.py drill",
+  "workdir": "reports\\_scratch\\backup_restore_drill",
+  "include_ahos_stores": false,
+  "ahos_probe_rows_inserted": {},
+  "store_count": 1,
+  "passed": 1,
+  "failed": 0,
+  "stores": [
+    {
+      "source": {
+        "role": "source",
+        "path": "reports\\_scratch\\backup_restore_drill\\source\\synthetic_drill.sqlite",
+        "exists": true,
+        "bytes": 16384,
+        "sha256": "518ff82b81a06b58ca8c3a22b2eaa8be84a9c3488a79b81c29cadb871c71b8b5",
+        "integrity_check": "ok",
+        "row_counts": {
+          "drill_events": 3,
+          "drill_meta": 2
+        },
+        "row_total": 5
+      },
+      "backup": {
+        "role": "backup",
+        "path": "reports\\_scratch\\backup_restore_drill\\backup\\synthetic_drill.sqlite",
+        "exists": true,
+        "bytes": 16384,
+        "sha256": "1309caf8e0b6f9f326122d3533b044279cdc0f530ae7ecc388b40c2473c70ba4",
+        "integrity_check": "ok",
+        "row_counts": {
+          "drill_events": 3,
+          "drill_meta": 2
+        },
+        "row_total": 5
+      },
+      "restored": {
+        "role": "restored",
+        "path": "reports\\_scratch\\backup_restore_drill\\restored\\synthetic_drill.sqlite",
+        "exists": true,
+        "bytes": 16384,
+        "sha256": "1309caf8e0b6f9f326122d3533b044279cdc0f530ae7ecc388b40c2473c70ba4",
+        "integrity_check": "ok",
+        "row_counts": {
+          "drill_events": 3,
+          "drill_meta": 2
+        },
+        "row_total": 5
+      },
+      "failures": [],
+      "verdict": "PASS"
+    }
+  ],
+  "verdict": "PASS",
+  "unproven": [
+    "7 consecutive nightly backups on a persistent host (original Month-1 acceptance remainder)",
+    "restore onto a fresh host / different machine",
+    "cron/systemd timer actually firing in production"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+ "schema": "ahos.operator_drills.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T11:51:17Z",
+ "kill_switch": {
+  "name": "kill_switch",
+  "synthetic_tripped": true,
+  "synthetic_reason": "DAILY_LOSS -4.00 < -3%",
+  "live_book_tripped": false,
+  "live_reason": null,
+  "passed": true,
+  "live_book_edited": false
+ },
+ "judge": {
+  "name": "judge",
+  "verdict": "BROKEN_CHAIN",
+  "passed": true,
+  "promoted": false,
+  "live_switch": false
+ },
+ "live_switch": false,
+ "decides": false
+}

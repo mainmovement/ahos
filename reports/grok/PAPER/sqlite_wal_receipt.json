@@ -1,0 +1,16 @@
+{
+ "schema": "ahos.sqlite_wal.v1",
+ "paper_only": true,
+ "applied": [
+  "ahos_local.sqlite",
+  "e01_discovery.sqlite",
+  "paper_trading.sqlite",
+  "ahos_knowledge.sqlite"
+ ],
+ "journal_mode": "wal",
+ "integrity": "ok",
+ "gap": "M-GAP-005",
+ "status": "MITIGATED",
+ "closed": false,
+ "reason": "One integrity check at the switch. The soak has not yet shown integrity on every later snapshot."
+}
