@@ -3,13 +3,16 @@ from datetime import datetime, timezone
 from architecture.university.tech_scout import (
     ALLOWED_LICENSES,
     DROPPED,
+    advance_shadows,
     decide,
     negahban_review,
     parse_github_search,
     parse_github_trending,
     parse_hf_model,
     rank,
+    reopen_static_passes,
     run_week,
+    shadow_queue,
     weight_bytes,
 )
 from architecture.markets.paper_trade_gates import MIN_AGREEING_FAMILIES, MIN_EXPECTED_PROFIT_TO_FEE_RATIO
@@ -67,16 +70,18 @@ def test_license_size_and_staleness_archive_before_the_top_five():
     assert "mit" in ALLOWED_LICENSES and "gpl-3.0" not in ALLOWED_LICENSES
 
 
-def test_a_passing_static_review_stays_archived_without_an_out_of_sample_number():
+def test_a_passing_static_review_stays_a_shadow_candidate_until_we_score_it():
     candidate = parse_github_search({"items": [_repo("good/risk", "BSD-3-Clause")]}, domain="risk")[0]
     review = negahban_review(candidate)
     assert review["verdict"] == "PASS_STATIC"
     assert review["executed"] is False and review["sandboxed_run"] is False
     week = run_week([candidate], now=NOW)
-    assert week[0]["decision"] == "ARCHIVE"
-    assert week[0]["evidence"]["reason"] == "NO_OOS_NUMBER"
+    assert week[0]["decision"] == "SHADOW_CANDIDATE"
+    assert week[0]["evidence"]["reason"] == "AWAITING_OWN_SCORE"
     assert week[0]["evidence"]["applied_to_live_weights"] is False
     assert week[0]["evidence"]["predicted_score"] is None
+    short = decide(candidate, review, [0.01, 0.02], [[0.01], [0.02]], None)
+    assert short["decision"] == "ARCHIVE" and short["evidence"]["reason"] == "INSUFFICIENT_REPLAY"
 
 
 def test_promote_requires_the_stats_gate_and_the_red_team():
@@ -89,6 +94,52 @@ def test_promote_requires_the_stats_gate_and_the_red_team():
     assert promoted["evidence"]["applied_to_live_weights"] is False
     assert MIN_AGREEING_FAMILIES == 2
     assert MIN_EXPECTED_PROFIT_TO_FEE_RATIO == 2.0
+
+
+def _shadow(idea: str, impact: int = 4) -> dict:
+    return {
+        "source": "arxiv",
+        "idea": idea,
+        "decision": "SHADOW_CANDIDATE",
+        "evidence": {"impact": impact, "domain": "data", "kind": "paper", "license": "NOT_CODE", "reason": "AWAITING_OWN_SCORE"},
+    }
+
+
+def test_the_queue_scores_only_the_idea_we_implemented():
+    papers = [
+        _shadow("Propose-Filter-Release: Scaling Noise to Typical Sensitivity via Private Filtering"),
+        _shadow("Rethinking Neural Thickets Without Weight Perturbations"),
+        _shadow("Read, Allocate, Route: Role-Coupled Tokenization for Pixel-Space Generative Transformers"),
+        _shadow("Adaptive Scenario Generation for KL-DRO Around a Learned Density Model"),
+        _shadow("world2vec: Mechanistic world models through latent dynamics learning"),
+    ]
+    queued = shadow_queue(papers, limit=2)
+    assert queued[0]["idea"].startswith("Adaptive Scenario")
+    assert queued[1]["idea"].startswith("world2vec")
+    closes = [
+        {"desk": "CRYPTO", "notional_usd": 10.0, "realized_pnl_usd": 0.1, "closed_at": f"2026-10-{i:02d}T00:00:00Z"}
+        for i in range(1, 41)
+    ]
+    extra = advance_shadows(papers, closes, red_team=None)
+    assert extra[0]["step"] == "decide"
+    assert extra[0]["decision"] == "ARCHIVE"
+    assert extra[0]["evidence"]["reason"] == "FAILED_OOS"
+    assert extra[0]["evidence"]["applied_to_live_weights"] is False
+    assert extra[0]["evidence"]["upstream_executed"] is False
+    assert isinstance(extra[0]["evidence"]["predicted_score"]["CRYPTO"], float)
+    assert extra[0]["evidence"]["sample_n"]["CRYPTO"] == 40
+    assert extra[0]["evidence"]["predicted_score"]["FOREX"] is None
+    assert extra[0]["evidence"]["sample_n"]["FOREX"] == 0
+    assert extra[1]["decision"] == "SHADOW_CANDIDATE"
+    assert extra[1]["evidence"]["reason"] == "NO_OWN_IMPLEMENTATION"
+    reopened = reopen_static_passes([{
+        "source": "arxiv",
+        "idea": papers[3]["idea"],
+        "decision": "ARCHIVE",
+        "evidence": {"reason": "NO_OOS_NUMBER", "domain": "data", "review": {"verdict": "PASS_STATIC", "executed": False}},
+    }])
+    assert reopened[0]["decision"] == "SHADOW_CANDIDATE"
+    assert reopened[0]["evidence"]["supersedes"] == "NO_OOS_NUMBER"
 
 
 def test_the_weekly_task_stays_on_g():

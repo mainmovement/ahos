@@ -3,9 +3,10 @@
 Code and models pass the license gate only for MIT, Apache-2.0, or BSD.
 A model whose float32 weight estimate exceeds 4 GiB is archived. Papers and
 lab notes are not code and are not installed. Nothing here clones a
-repository, downloads weights, or executes upstream code. A shadow idea is
-promoted only when DSR and PBO pass and the red team survived. Otherwise the
-ledger archives it with a reason. The live weight is never written.
+repository, downloads weights, or executes upstream code. A static pass with
+no score yet is SHADOW_CANDIDATE. Our own implementation produces the number
+from paper closes. Promotion still requires DSR, PBO, and a red team that
+survived. The live weight is never written.
 """
 from __future__ import annotations
 
@@ -252,21 +253,37 @@ def negahban_review(candidate: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def ahos_fit(idea: str) -> int:
+    """Rank key among ideas that already passed the gates. Not a profit forecast."""
+    text = (idea or "").lower()
+    if "kl-dro" in text or "distributionally robust" in text:
+        return 5
+    if "world2vec" in text or "world model" in text:
+        return 3
+    if "private filter" in text or "differential privacy" in text:
+        return 2
+    return 1
+
+
 def decide(
     candidate: dict[str, Any],
     review: dict[str, Any],
     oos_returns: list[float] | None = None,
     trial_returns: list[list[float]] | None = None,
     red_team: str | None = None,
+    predicted_score: Any = None,
 ) -> dict[str, Any]:
+    """A missing score keeps the idea as a shadow candidate. A measured miss is archived."""
     if review.get("verdict") != "PASS_STATIC":
         decision, reason = "ARCHIVE", str(review.get("reason") or "REVIEW_FAILED")
+    elif oos_returns is None:
+        decision, reason = "SHADOW_CANDIDATE", "AWAITING_OWN_SCORE"
     else:
-        gate_doc = stats_gate(list(oos_returns or []), list(trial_returns or []))
+        gate_doc = stats_gate(list(oos_returns), list(trial_returns or []))
         if gate_doc["gate"] == "PASS_STATS" and red_team == "SURVIVED_RED_TEAM":
             decision, reason = "PROMOTE_ELIGIBLE", "PASS_STATS_AND_SURVIVED_RED_TEAM"
         elif gate_doc["dsr"] is None or gate_doc["pbo"] is None:
-            decision, reason = "ARCHIVE", "NO_OOS_NUMBER"
+            decision, reason = "ARCHIVE", "INSUFFICIENT_REPLAY"
         elif gate_doc["gate"] != "PASS_STATS":
             decision, reason = "ARCHIVE", "FAILED_OOS"
         else:
@@ -276,18 +293,134 @@ def decide(
         "source": candidate.get("source"),
         "idea": candidate.get("idea"),
         "decision": decision,
+        "paper_only": True,
         "evidence": {
             "reason": reason,
             "domain": candidate.get("domain"),
             "kind": candidate.get("kind"),
             "license": candidate.get("license"),
             "url": candidate.get("url"),
-            "hypothesis": "shadow metadata; no live weight; no upstream execution",
-            "predicted_score": None,
+            "impact": candidate.get("impact") if candidate.get("impact") is not None else IMPACT.get(str(candidate.get("domain")), 0),
+            "hypothesis": "awaiting our own shadow score; no live weight; no upstream execution",
+            "predicted_score": predicted_score,
             "applied_to_live_weights": False,
             "review": review,
         },
     }
+
+
+def shadow_queue(rows: list[dict[str, Any]], limit: int = 2) -> list[dict[str, Any]]:
+    """The top shadow candidates by gate impact, then by the fixed AHOS fit key."""
+    waiting = [row for row in rows if row.get("decision") == "SHADOW_CANDIDATE"]
+
+    def _key(row: dict[str, Any]) -> tuple:
+        evidence = row.get("evidence") if isinstance(row.get("evidence"), dict) else {}
+        return (int(evidence.get("impact") or 0), ahos_fit(str(row.get("idea") or "")), str(evidence.get("updated") or ""))
+
+    waiting.sort(key=_key, reverse=True)
+    return waiting[:limit]
+
+
+def _candidate_from_row(row: dict[str, Any]) -> dict[str, Any]:
+    evidence = row.get("evidence") if isinstance(row.get("evidence"), dict) else {}
+    return {
+        "source": row.get("source"),
+        "idea": row.get("idea"),
+        "domain": evidence.get("domain"),
+        "kind": evidence.get("kind"),
+        "license": evidence.get("license"),
+        "url": evidence.get("url"),
+        "impact": evidence.get("impact"),
+    }
+
+
+def has_own_implementation(idea: str) -> bool:
+    return "kl-dro" in (idea or "").lower()
+
+
+def reopen_static_passes(ledger_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Append-only. A static pass archived only for a missing score becomes a shadow candidate."""
+    opened: list[dict[str, Any]] = []
+    for row in ledger_rows:
+        evidence = row.get("evidence") if isinstance(row.get("evidence"), dict) else {}
+        review = evidence.get("review") if isinstance(evidence.get("review"), dict) else {}
+        if row.get("decision") != "ARCHIVE" or evidence.get("reason") != "NO_OOS_NUMBER":
+            continue
+        if review.get("verdict") != "PASS_STATIC":
+            continue
+        opened.append({
+            "source": row.get("source"),
+            "idea": row.get("idea"),
+            "decision": "SHADOW_CANDIDATE",
+            "step": "reclassify",
+            "paper_only": True,
+            "evidence": {
+                "reason": "AWAITING_OWN_SCORE",
+                "domain": evidence.get("domain"),
+                "kind": evidence.get("kind"),
+                "license": evidence.get("license") or "NOT_CODE",
+                "url": evidence.get("url"),
+                "impact": evidence.get("impact") if evidence.get("impact") is not None else IMPACT.get(str(evidence.get("domain")), 0),
+                "hypothesis": "awaiting our own shadow score; no live weight; no upstream execution",
+                "predicted_score": None,
+                "applied_to_live_weights": False,
+                "executed": False,
+                "supersedes": "NO_OOS_NUMBER",
+                "review": review,
+            },
+        })
+    return opened
+
+
+def advance_shadows(
+    discovered: list[dict[str, Any]],
+    closes: list[dict[str, Any]],
+    *,
+    red_team: str | None = None,
+    limit: int = 2,
+) -> list[dict[str, Any]]:
+    """Score the top shadow ideas that have our own implementation. The rest stay queued."""
+    from architecture.university.kl_dro_shadow import evaluate
+
+    extra: list[dict[str, Any]] = []
+    for row in shadow_queue(discovered, limit=limit):
+        if not has_own_implementation(str(row.get("idea") or "")):
+            extra.append({
+                "source": row.get("source"),
+                "idea": row.get("idea"),
+                "decision": "SHADOW_CANDIDATE",
+                "step": "queue",
+                "paper_only": True,
+                "evidence": {
+                    "reason": "NO_OWN_IMPLEMENTATION",
+                    "applied_to_live_weights": False,
+                    "predicted_score": None,
+                    "executed": False,
+                    "upstream_executed": False,
+                },
+            })
+            continue
+        measured = evaluate(closes)
+        decided = decide(
+            _candidate_from_row(row),
+            {"verdict": "PASS_STATIC", "reason": "METADATA_ONLY", "executed": False, "deps_added": [], "network_from_candidate": False, "pinned_upstream": False, "sandboxed_run": False},
+            measured["oos_returns"],
+            measured["trial_returns"],
+            red_team,
+            predicted_score=measured["predicted_score"],
+        )
+        decided["step"] = "decide"
+        decided["evidence"]["hypothesis"] = measured["hypothesis"]
+        decided["evidence"]["counterfactual"] = measured["counterfactual"]
+        decided["evidence"]["rho"] = measured["rho"]
+        decided["evidence"]["n_steps"] = measured["n_steps"]
+        decided["evidence"]["n_oos"] = measured["n_oos"]
+        decided["evidence"]["sample_n"] = measured["sample_n"]
+        decided["evidence"]["own_backtest"] = True
+        decided["evidence"]["upstream_executed"] = False
+        decided["evidence"]["steps"] = ["implement", "backtest", "counterfactual", "decide"]
+        extra.append(decided)
+    return extra
 
 
 def run_week(candidates: list[dict[str, Any]], *, now: datetime | None = None) -> list[dict[str, Any]]:
@@ -385,7 +518,14 @@ def collect_candidates(getter) -> list[dict[str, Any]]:
     return rows
 
 
-def run_live(root: Path, getter=None, now: datetime | None = None) -> list[dict[str, Any]]:
-    rows = run_week(collect_candidates(getter or _live_get), now=now)
+def run_live(root: Path, getter=None, now: datetime | None = None, closes: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """Discover, then score the top shadow ideas that already have our own implementation."""
+    from architecture.markets.paper_account import load_paper_trades
+
+    discovered = run_week(collect_candidates(getter or _live_get), now=now)
+    for row in discovered:
+        row["step"] = "discover"
+    book = closes if closes is not None else load_paper_trades(Path(root))
+    rows = discovered + advance_shadows(discovered, book)
     append_ledger(root, rows)
     return rows
