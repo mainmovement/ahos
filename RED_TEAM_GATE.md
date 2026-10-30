@@ -633,3 +633,18 @@ Command: `pytest tests/test_behaviour_learning.py tests/test_learning_loop.py te
 | R6 Learning | APPROVE | Agent accuracies on 87 losses: AG-33 0.3908, AG-18 0.3908, AG-08 and AG-09 0.1609, AG-04 0.1494, AG-19 0.069. They see only their own fields. |
 | R7 SRE/Security | APPROVE | Three matching losses shrink or veto. One loss does not. The live weight file is not the target. |
 | Meta-Critic | APPROVE | Level 2: an out-of-sample Brier improvement on OIL and ASIA is recorded and not applied. The loop did not make the week better. |
+
+## Research institute (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_research_reasoning.py tests/test_tech_scout.py tests/test_kl_dro_shadow.py -q` → **11 passed**. Hardware tier **T8**, RAM **7.93** GB. No weights downloaded. Gap IDs closed: **none**. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | KL-DRO DSR 0.0317 PBO 0.1429. Latent DSR 0.376 PBO 0.9143. Family search DSR 0.0005 PBO 0.4. All ARCHIVE FAILED_OOS. |
+| R2 Data | APPROVE | Both paths use the same 143 closes, 88 steps, 36 out-of-sample returns. A desk with no close stays null. |
+| R3 News | APPROVE | The in-sample pair news+research is the search winner and still fails the out-of-sample gate. News weight stays 0. |
+| R4 Intelligence (Kian) | APPROVE | Gemini status READY and ungrounded. The advisory weight is 0. An uncited question returns UNKNOWN. |
+| R5 Visual/UX | APPROVE | No dashboard build. Receipts are JSON on G:. |
+| R6 Learning | APPROVE | Sixty-one regime cells and zero proposed size changes. Live desk multipliers are untouched. |
+| R7 SRE/Security | APPROVE | Self-repair applied is false because the red team is absent. The Gemini key is not in the receipt. No upstream code ran. |
+| Meta-Critic | APPROVE | Level 2: a hit rate above 0.60 on both shadows is recorded and is not a promotion. |

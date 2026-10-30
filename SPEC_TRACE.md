@@ -269,3 +269,7 @@ A static pass is `SHADOW_CANDIDATE`. `architecture/university/kl_dro_shadow.py` 
 ## Learning behaviour (2026-10-30)
 
 Closes become university cases. Causes add `BAD_DATA` and `NEWS_TRAP`. Weekly exam, decayed reliability, calibration, the day's top causes, and the week-over-week metric are files under `reports/grok/PAPER/`. Live trader PID 11156 at 2026-10-30T05:51:22Z: intelligence `TREND_NOT_UP` (Brier 0.2306 to 0.2493), W44 win rate 0.4259, profit factor 0.6635, expectancy -0.0054. Weights not applied. Gap IDs closed: **none**.
+
+## Research institute (2026-10-30)
+
+Two candidates were scored on the closed paper book. KL-DRO: DSR 0.0317, PBO 0.1429, hit rate 0.6023, `ARCHIVE` `FAILED_OOS`. Latent world model (our exponential average, not an upstream download): DSR 0.376, PBO 0.9143, hit rate 0.6477, `ARCHIVE` `FAILED_OOS`. Both used 88 steps and 36 out-of-sample returns. The ten family pairs fail the same gate (winner news+research, DSR 0.0005, PBO 0.4). Regime cells: 61, proposed size changes: 0. Gemini status READY, advisory weight 0, sentence ungrounded. Self-repair was not applied. Hardware tier T8 at 7.93 GB. Gap IDs closed: **none**. M13, M31, and M36 stay PARTIAL.

@@ -1,0 +1,55 @@
+{
+ "schema": "ahos.strategy_search.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T05:56:50Z",
+ "decision": "ARCHIVE",
+ "reason": "FAILED_OOS",
+ "winner_in_sample": "news+research",
+ "n_trials": 10,
+ "dsr": 0.0005,
+ "pbo": 0.4,
+ "combos": [
+  {
+   "name": "news+research",
+   "oos_sum": 0.0
+  },
+  {
+   "name": "macro_central_bank+research",
+   "oos_sum": 0.0
+  },
+  {
+   "name": "whales+research",
+   "oos_sum": 0.0
+  },
+  {
+   "name": "candle_wicks+research",
+   "oos_sum": 0.0
+  },
+  {
+   "name": "macro_central_bank+whales",
+   "oos_sum": 0.0
+  },
+  {
+   "name": "whales+candle_wicks",
+   "oos_sum": -0.044396
+  },
+  {
+   "name": "news+whales",
+   "oos_sum": -0.015019
+  },
+  {
+   "name": "macro_central_bank+candle_wicks",
+   "oos_sum": -0.00373
+  },
+  {
+   "name": "news+candle_wicks",
+   "oos_sum": 0.079721
+  },
+  {
+   "name": "news+macro_central_bank",
+   "oos_sum": -0.011362
+  }
+ ],
+ "applied_to_live_weights": false,
+ "decides": false
+}

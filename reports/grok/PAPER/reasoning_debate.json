@@ -1,0 +1,57 @@
+{
+ "schema": "ahos.reasoning_debate.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T05:56:50Z",
+ "hardware": {
+  "tier": null,
+  "ram_gb": null,
+  "source": "unknown"
+ },
+ "local_status": "LOCAL_RULE",
+ "gemini_status": "NOT_CALLED",
+ "arguments": [
+  {
+   "role": "bull",
+   "text": "Bull: agreeing families are candle_wicks."
+  },
+  {
+   "role": "bear",
+   "text": "Bear: a missing family is not a reason to invent agreement."
+  },
+  {
+   "role": "risk",
+   "text": "Risk: the vote weight stays 0 until DSR, PBO, and the red team pass."
+  }
+ ],
+ "judge": {
+  "arguments": [
+   {
+    "role": "bull",
+    "cited": 1,
+    "uncited": 0,
+    "grounded": true
+   },
+   {
+    "role": "bear",
+    "cited": 1,
+    "uncited": 0,
+    "grounded": true
+   },
+   {
+    "role": "risk",
+    "cited": 1,
+    "uncited": 0,
+    "grounded": true
+   }
+  ],
+  "grounded": 3,
+  "n": 3,
+  "decides": false
+ },
+ "advisory_vote": {
+  "sign": "ADVISORY_ONLY",
+  "weight": 0.0,
+  "decides": false
+ },
+ "applied_to_live_weights": false
+}

@@ -1,0 +1,55 @@
+{
+ "schema": "ahos.reasoning_debate.v1",
+ "generated_at": "2026-10-30T05:57:13Z",
+ "hardware": {
+  "tier": "T8",
+  "ram_gb": 7.93,
+  "source": "windows_memory_status"
+ },
+ "local_status": "LOCAL_RULE",
+ "gemini_status": "READY",
+ "judge": {
+  "arguments": [
+   {
+    "role": "bull",
+    "cited": 1,
+    "uncited": 0,
+    "grounded": true
+   },
+   {
+    "role": "bear",
+    "cited": 1,
+    "uncited": 0,
+    "grounded": true
+   },
+   {
+    "role": "risk",
+    "cited": 1,
+    "uncited": 0,
+    "grounded": true
+   },
+   {
+    "role": "gemini",
+    "cited": 0,
+    "uncited": 0,
+    "grounded": false
+   }
+  ],
+  "grounded": 3,
+  "n": 4,
+  "decides": false
+ },
+ "advisory_vote": {
+  "sign": "ADVISORY_ONLY",
+  "weight": 0.0,
+  "decides": false
+ },
+ "applied_to_live_weights": false,
+ "argument_roles": [
+  "bull",
+  "bear",
+  "risk",
+  "gemini"
+ ],
+ "gemini_text_prefix": "The evidence list demonstrates that macroeconomic indicators, earnings reports, and historical market correlations provide varying levels of support for both bullish and bearish market scenarios."
+}

@@ -1,0 +1,19 @@
+{
+ "schema": "ahos.knowledge_answers.v1",
+ "sample": {
+  "schema": "ahos.knowledge_answer.v1",
+  "paper_only": true,
+  "question": "why news trap",
+  "answer": "OIL NEWS_TRAP STOP_LOSS",
+  "citations": [
+   "paper_close:OIL:2026-10-27T14:38:55Z",
+   "paper_close:OIL:2026-10-28T01:53:21Z",
+   "paper_close:OIL:2026-10-28T02:04:39Z",
+   "paper_close:ASIA_EQUITIES:2026-10-29T02:06:10Z",
+   "paper_close:ASIA_EQUITIES:2026-10-29T02:37:26Z"
+  ],
+  "status": "CITED",
+  "decides": false
+ },
+ "decides": false
+}

@@ -1,0 +1,619 @@
+{
+ "schema": "ahos.regime_weights.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T05:56:50Z",
+ "rows": [
+  {
+   "desk": "ASIA_EQUITIES",
+   "regime": "HIGH",
+   "family": "candle_wicks",
+   "n": 9,
+   "hit_rate": 0.6667,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "ASIA_EQUITIES",
+   "regime": "HIGH",
+   "family": "macro_central_bank",
+   "n": 13,
+   "hit_rate": 0.4615,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "ASIA_EQUITIES",
+   "regime": "HIGH",
+   "family": "news",
+   "n": 11,
+   "hit_rate": 0.3636,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "ASIA_EQUITIES",
+   "regime": "NORMAL",
+   "family": "candle_wicks",
+   "n": 5,
+   "hit_rate": 0.6,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "ASIA_EQUITIES",
+   "regime": "NORMAL",
+   "family": "macro_central_bank",
+   "n": 9,
+   "hit_rate": 0.5556,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "ASIA_EQUITIES",
+   "regime": "NORMAL",
+   "family": "news",
+   "n": 6,
+   "hit_rate": 0.3333,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "HIGH",
+   "family": "candle_wicks",
+   "n": 9,
+   "hit_rate": 0.3333,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "HIGH",
+   "family": "macro_central_bank",
+   "n": 16,
+   "hit_rate": 0.4375,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "HIGH",
+   "family": "news",
+   "n": 18,
+   "hit_rate": 0.3333,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "HIGH",
+   "family": "research",
+   "n": 2,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "HIGH",
+   "family": "whales",
+   "n": 13,
+   "hit_rate": 0.3846,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "LOW",
+   "family": "candle_wicks",
+   "n": 2,
+   "hit_rate": 0.5,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "LOW",
+   "family": "macro_central_bank",
+   "n": 4,
+   "hit_rate": 0.75,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "LOW",
+   "family": "news",
+   "n": 4,
+   "hit_rate": 0.25,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "LOW",
+   "family": "whales",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "NORMAL",
+   "family": "candle_wicks",
+   "n": 12,
+   "hit_rate": 0.4167,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "NORMAL",
+   "family": "macro_central_bank",
+   "n": 14,
+   "hit_rate": 0.4286,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "NORMAL",
+   "family": "news",
+   "n": 16,
+   "hit_rate": 0.625,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "NORMAL",
+   "family": "research",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "NORMAL",
+   "family": "whales",
+   "n": 12,
+   "hit_rate": 0.25,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "UNKNOWN",
+   "family": "macro_central_bank",
+   "n": 3,
+   "hit_rate": 0.3333,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "UNKNOWN",
+   "family": "news",
+   "n": 3,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "CRYPTO",
+   "regime": "UNKNOWN",
+   "family": "whales",
+   "n": 3,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "EU_EQUITIES",
+   "regime": "HIGH",
+   "family": "candle_wicks",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "EU_EQUITIES",
+   "regime": "HIGH",
+   "family": "macro_central_bank",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "EU_EQUITIES",
+   "regime": "NORMAL",
+   "family": "candle_wicks",
+   "n": 2,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "EU_EQUITIES",
+   "regime": "NORMAL",
+   "family": "macro_central_bank",
+   "n": 2,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "FOREX",
+   "regime": "HIGH",
+   "family": "candle_wicks",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "FOREX",
+   "regime": "NORMAL",
+   "family": "candle_wicks",
+   "n": 7,
+   "hit_rate": 0.1429,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "GOLD",
+   "regime": "HIGH",
+   "family": "candle_wicks",
+   "n": 3,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "GOLD",
+   "regime": "HIGH",
+   "family": "macro_central_bank",
+   "n": 5,
+   "hit_rate": 0.4,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "GOLD",
+   "regime": "HIGH",
+   "family": "news",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "GOLD",
+   "regime": "LOW",
+   "family": "macro_central_bank",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "GOLD",
+   "regime": "LOW",
+   "family": "news",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "GOLD",
+   "regime": "NORMAL",
+   "family": "candle_wicks",
+   "n": 3,
+   "hit_rate": 0.3333,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "GOLD",
+   "regime": "NORMAL",
+   "family": "macro_central_bank",
+   "n": 7,
+   "hit_rate": 0.5714,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "GOLD",
+   "regime": "NORMAL",
+   "family": "news",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "LISTED_FUTURES",
+   "regime": "NORMAL",
+   "family": "candle_wicks",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "LISTED_FUTURES",
+   "regime": "NORMAL",
+   "family": "macro_central_bank",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "LISTED_FUTURES",
+   "regime": "NORMAL",
+   "family": "whales",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "OIL",
+   "regime": "HIGH",
+   "family": "candle_wicks",
+   "n": 5,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "OIL",
+   "regime": "HIGH",
+   "family": "news",
+   "n": 10,
+   "hit_rate": 0.1,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "OIL",
+   "regime": "HIGH",
+   "family": "whales",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "OIL",
+   "regime": "LOW",
+   "family": "candle_wicks",
+   "n": 3,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "OIL",
+   "regime": "LOW",
+   "family": "news",
+   "n": 3,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "OIL",
+   "regime": "NORMAL",
+   "family": "candle_wicks",
+   "n": 7,
+   "hit_rate": 0.8571,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "OIL",
+   "regime": "NORMAL",
+   "family": "news",
+   "n": 12,
+   "hit_rate": 0.6667,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "HIGH",
+   "family": "candle_wicks",
+   "n": 2,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "HIGH",
+   "family": "macro_central_bank",
+   "n": 3,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "HIGH",
+   "family": "news",
+   "n": 3,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "LOW",
+   "family": "candle_wicks",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "LOW",
+   "family": "macro_central_bank",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "LOW",
+   "family": "news",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "NORMAL",
+   "family": "candle_wicks",
+   "n": 5,
+   "hit_rate": 0.2,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "NORMAL",
+   "family": "macro_central_bank",
+   "n": 8,
+   "hit_rate": 0.25,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "PB_TOKEN",
+   "regime": "NORMAL",
+   "family": "news",
+   "n": 7,
+   "hit_rate": 0.7143,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "US_EQUITIES",
+   "regime": "HIGH",
+   "family": "candle_wicks",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "US_EQUITIES",
+   "regime": "HIGH",
+   "family": "macro_central_bank",
+   "n": 2,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "US_EQUITIES",
+   "regime": "HIGH",
+   "family": "news",
+   "n": 2,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "US_EQUITIES",
+   "regime": "NORMAL",
+   "family": "macro_central_bank",
+   "n": 1,
+   "hit_rate": 1.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  },
+  {
+   "desk": "US_EQUITIES",
+   "regime": "NORMAL",
+   "family": "news",
+   "n": 1,
+   "hit_rate": 0.0,
+   "proposed_size_mult": null,
+   "status": "SHADOW",
+   "applied_to_live_weights": false
+  }
+ ],
+ "live_desk_sizes_changed": false,
+ "decides": false
+}

@@ -1,0 +1,13 @@
+{
+ "schema": "ahos.self_repair.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T05:56:50Z",
+ "notes": [
+  "no stale path in the checked pair"
+ ],
+ "tests_passed": true,
+ "red_team": null,
+ "applied": false,
+ "reason": "RED_TEAM_OR_TESTS_MISSING",
+ "applied_to_live_weights": false
+}
