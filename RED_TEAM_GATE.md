@@ -419,3 +419,16 @@ The 02:35Z cycle did not refresh. `fetch` was bound to the live quote function b
 |---|---|---|
 | R2 Data | APPROVE | The live path calls refresh before quotes. A young snapshot is not fetched again. |
 | Meta-Critic | APPROVE | Zero dynamic names is the veto result. It is not an empty pass. |
+
+## Free native prices (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_native_quotes.py tests/test_paper_trader.py tests/test_crypto_futures_paper.py tests/test_ndx_witness.py -q` → **27 passed**.
+
+Crypto spot uses Binance and OKX public REST. No key. When the two prices agree, the fill is Binance and the witness is OKX. When they disagree, the fill stays on Yahoo or CoinGecko and the quote records `CONFLICT`. Swap execution stays the OKX public mark, with latency on the quote. Alpaca IEX is used for QQQ, SPY, and NVDA only when a key is present and the print agrees with Yahoo. SPX and NDX stay on Yahoo. The note is `IEX_DOES_NOT_PRINT_INDEX` when a key exists, and `ABSENT_NO_KEY` when it does not. OANDA practice is the same rule for EURUSD, USDJPY, XAU, WTI, and BRENT. No Alpaca key and no OANDA token are configured, so those desks keep Yahoo. EU and Asia stay on Yahoo plus the existing second witness. A sample token is redacted and is not copied onto a quote. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Agreement is a pre-existing tolerance. A wider gap does not become the fill. |
+| R2 Data | APPROVE | Missing keys stay on Yahoo. An index is not replaced by an ETF print. |
+| R7 SRE | APPROVE | The request header is not a quote field. Lane A not edited. No paid URL. |
+| Meta-Critic | APPROVE | REST is the public book. A missing key is recorded. It is not a silent Yahoo rename. |

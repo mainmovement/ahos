@@ -463,6 +463,9 @@ def gather_witness(quotes: dict[str, Any], *, fetch_b: Callable[[], dict[str, An
                 second.update(fetch_swap_witnesses())
             except Exception:
                 pass
+        from architecture.markets.native_quotes import overlay_native_witnesses
+
+        overlay_native_witnesses(second, quotes, syms)
     pre = {s: witness(s, quotes.get(s), second.get(s)) for s in syms}
     if fetch_c is not None:
         third = fetch_c(third_source_needed(pre))
@@ -548,6 +551,8 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         price = q.get("price")
         w = wit[sym]
         base = {"ts": _iso(t), "symbol": sym, "desk": desk, "paper_only": True, "source": logged_source(q.get("source")),
+                "source_role": q.get("source_role"), "quote_latency_ms": q.get("latency_ms"),
+                "native_verdict": q.get("native_verdict"), "native_note": q.get("native_note"),
                 "market_time": q.get("market_time"), "quote_asof": _iso(quote_asof), "witness": logged_witness(w)}
         mt = _parse(q.get("market_time"))
         pos = positions.get(sym)

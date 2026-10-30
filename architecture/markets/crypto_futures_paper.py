@@ -7,6 +7,7 @@ Leverage stays 1.0. There is no wallet and no live order.
 from __future__ import annotations
 
 import json
+import time
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -203,7 +204,9 @@ def fetch_swap_quotes(getter: Callable[[str], Any] | None = None) -> dict[str, d
     out: dict[str, dict[str, Any]] = {}
     for sym, inst in SWAP_INST.items():
         try:
+            started = time.perf_counter()
             px, ts = parse_okx_mark(get(OKX_MARK.format(inst=inst)))
+            latency_ms = int((time.perf_counter() - started) * 1000)
             if px is None:
                 continue
             rate = parse_okx_funding(get(OKX_FUNDING.format(inst=inst)))
@@ -213,6 +216,9 @@ def fetch_swap_quotes(getter: Callable[[str], Any] | None = None) -> dict[str, d
         out[sym] = {
             "price": px,
             "source": f"okx:{inst}",
+            "source_role": "native",
+            "transport": "rest",
+            "latency_ms": latency_ms,
             "market_time": ts or now,
             "fetched_at": now,
             "funding_rate_8h": rate,

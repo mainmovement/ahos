@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import math
+import time
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -130,12 +131,18 @@ def classify_freshness(quote: dict[str, Any], now_ts: float | None = None) -> di
 def fetch_yahoo_quote(yahoo_sym: str, *, timeout: float = 6.0) -> dict[str, Any]:
     url = YAHOO_CHART_URL.format(sym=urllib.parse.quote(yahoo_sym, safe=""))
     src = f"yahoo_finance:{yahoo_sym}"
+    started = time.perf_counter()
     data = _fetch_json(url, timeout=timeout)
+    latency_ms = int((time.perf_counter() - started) * 1000)
     try:
         res = data["chart"]["result"][0]  # type: ignore[index]
         meta = res["meta"]
     except Exception:
-        return unavailable_quote(src)
+        missed = unavailable_quote(src)
+        missed["latency_ms"] = latency_ms
+        missed["source_role"] = "yahoo"
+        missed["transport"] = "rest"
+        return missed
     price = _num(meta.get("regularMarketPrice"))
     if price is None:
         return unavailable_quote(src)
@@ -163,6 +170,9 @@ def fetch_yahoo_quote(yahoo_sym: str, *, timeout: float = 6.0) -> dict[str, Any]
         "change_24h": round((price - prev) / prev * 100.0, 2) if prev else None,
         "previous_close": prev,
         "source": src,
+        "source_role": "yahoo",
+        "latency_ms": latency_ms,
+        "transport": "rest",
         "fetched_at": _iso(now),
         "market_time": _iso(float(mt)) if isinstance(mt, (int, float)) else None,
         "freshness": "LIVE",
@@ -348,6 +358,12 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
             "age_seconds": q.get("age_seconds"),
         })
 
+    try:
+        from architecture.markets.native_quotes import apply_live_native_quotes
+
+        apply_live_native_quotes(quotes)
+    except Exception:
+        pass
     try:
         from architecture.markets.crypto_futures_paper import merge_swap_quotes
 

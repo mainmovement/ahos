@@ -301,3 +301,11 @@
 **Choice:** Decide that this is a live cycle before the quote function is bound. The refresh then runs first. A snapshot younger than 5 hours is still not fetched again.
 
 **Reason:** The 02:35Z cycle left the 24 October snapshot in place. The safety refresh has to run on the real loop, not only when called by hand.
+
+## 2026-10-30: Free native prices, Yahoo stays the fallback
+
+**Question:** Which free price should the paper book fill on, and what happens when Alpaca or OANDA is not configured?
+
+**Choice:** Crypto spot fills on Binance public REST when that print agrees with OKX public REST. OKX is the witness. A disagreement leaves the fill on Yahoo or CoinGecko. Swap marks stay on OKX public REST, with Binance as the witness. QQQ, SPY, and NVDA use Alpaca's free IEX feed only when a key is already present and the IEX print agrees with Yahoo. SPX and NDX stay on Yahoo, because IEX does not print those indexes. Forex, gold, and oil use the OANDA practice host only when a practice token is present and it agrees with Yahoo. EU and Asia stay on Yahoo plus the existing second witness. Each quote records source, role, and latency. No paid feed. The cycle transport is REST.
+
+**Reason:** The environment and the operator env file have no Alpaca key and no OANDA token, so those desks stay on Yahoo and the quote says `ABSENT_NO_KEY`. A websocket client is not pinned. Public REST is the same keyless book.
