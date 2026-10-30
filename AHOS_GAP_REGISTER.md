@@ -675,3 +675,11 @@ The 2026-08-20 classification table above is a historical snapshot. The living s
 - No gap id changes state. M-GAP-005 stays MITIGATED because PID 14260 was not restarted and can still write a 20-second INTERRUPTED result. The new merge stores RUNNING only in a process that has loaded it.
 - M-GAP-009 stays OPEN. One Persian line was added to the nightly note. That is not a general Telegram unlock.
 - Strategy shadow closes are 6 of 26. Book DSR 0.0097 is not a pass. Promoted 0. Readiness stays 50 percent. Vision overlay stays 16 of 26. Gap IDs closed: none.
+
+
+## Addendum (2026-10-30) — MEGA 11, paper only
+
+- No gap id changes state. The fresh desk-focus sample is empty. Lookback shadow closes are 7 of 26 and are not a pass.
+- M-GAP-005 stays MITIGATED. PID 14260 was not restarted. The restart stays closed until 2026-11-01T00:45:31Z.
+- M-GAP-009 stays OPEN. One more Persian line in the nightly note is not a general Telegram unlock.
+- Readiness stays 50 percent. Vision overlay stays 16 of 26. Gap IDs closed: none.

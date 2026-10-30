@@ -798,3 +798,15 @@ Libraries were not installed. Free RAM was 1272 MB of 8116 MB. Book DSR 0.0097 a
 | R2 Data | APPROVE the missing-input label | Twenty strategies have no bar inputs. No price was invented. Yahoo returned no bar for the 24 names. |
 | R7 SRE/Security | APPROVE the refusal to install | Free RAM 1272 MB. Soak and trader were left running. HOLD and Lane A were not edited. |
 | Meta-Critic | APPROVE | Level 2: the fixture review still catches look-ahead and a zero-cost fill. That catch is NOT_SURVIVED. Judge NO_PROMOTION. Negahban ABSTAIN. |
+
+
+## MEGA 11 desk focus (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Pre-registration commit 7714a44 is before the score. Hash e4cd3a4ecfa2281013324dfa3d289eb35aecfdf6f6b2f5a39f67cc846ca1873e. Fresh closes after 2026-10-30T18:43:59Z: 0. Lookback shadow closes: 7 of 26. Session-range estimates: 24. Stooq intraday was a JavaScript wall. Soak was not restarted. Free RAM 1366 MB. Promoted 0.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | REJECT promotion | The fresh sample is empty. A lookback mean is not the registered test. |
+| R2 Data | APPROVE the missing bars | Twelve strategies have no cited input. The session range is labeled as a session range. |
+| R7 SRE/Security | APPROVE the wait | The soak script exits before 2026-11-01T00:45:31Z. Libraries stay uninstalled under 2048 MB free. |
+| Meta-Critic | APPROVE | Level 2: the fixture review still catches look-ahead and a zero-cost fill. That catch is NOT_SURVIVED. Judge NO_PROMOTION. Negahban ABSTAIN. |

@@ -1,6 +1,7 @@
 """Pre-register, then write the board. A missing path is not a DSR."""
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,11 +15,15 @@ from architecture.markets.paper_trade_gates import (
 )
 from architecture.strategies.library import SPECS
 from architecture.strategies.meta_brain import thompson_weights
-from architecture.strategies.signals import apply_cost, shadow_round_trips, sign_on_closes
+from architecture.strategies.signals import apply_cost, shadow_round_trips, shadow_round_trips_timed, sign_on_frame
 from architecture.strategies.wisdom import review_book
 
 REGISTRY_REL = Path("reports") / "grok" / "PAPER" / "strategy_library_registry.json"
 OUT_REL = Path("reports") / "grok" / "PAPER" / "strategy_leaderboard.json"
+FOCUS_REL = Path("reports") / "grok" / "PAPER" / "mega11_desk_focus.json"
+PREREG_REL = Path("docs") / "prereg" / "MEGA11.yaml"
+PREREG_SHA256 = "e4cd3a4ecfa2281013324dfa3d289eb35aecfdf6f6b2f5a39f67cc846ca1873e"
+FRESH_AFTER = "2026-10-30T18:43:59Z"
 
 
 def _utc() -> str:
@@ -144,9 +149,46 @@ def _price(row: dict[str, Any]) -> float | None:
     return None
 
 
-def _series_by_desk(rows: list[dict[str, Any]]) -> dict[str, dict[str, list[float]]]:
-    """Close prices already on the paper file, grouped by desk and stored regime."""
-    grouped: dict[str, dict[str, list[float]]] = {}
+def _day(stamp: str) -> int | None:
+    text = str(stamp or "")
+    if len(text) < 10 or text[8:10].isdigit() is False:
+        return None
+    return int(text[8:10])
+
+
+def _fomc_days(root: Path) -> list[str]:
+    path = Path(root) / "reports" / "grok" / "M19" / "macro_calendar.json"
+    if not path.is_file():
+        return []
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    days = []
+    for event in doc.get("events") or []:
+        if isinstance(event, dict) and event.get("event") == "FOMC_STATEMENT":
+            stamp = str(event.get("at_utc") or "")
+            if len(stamp) >= 10:
+                days.append(stamp[:10])
+    return sorted(set(days))
+
+
+def _days_until(stamp: str, fomc_days: list[str]) -> int | None:
+    day = str(stamp or "")[:10]
+    if len(day) < 10:
+        return None
+    later = [item for item in fomc_days if item > day]
+    if not later:
+        return None
+    from datetime import date
+    left = date.fromisoformat(day)
+    right = date.fromisoformat(later[0])
+    return (right - left).days
+
+
+def _book_frames(rows: list[dict[str, Any]], fomc_days: list[str]) -> list[dict[str, Any]]:
+    """One frame per desk and stored regime. Prices stay inside that bucket."""
+    grouped: dict[tuple[str, str], dict[str, Any]] = {}
     ordered = sorted(rows, key=lambda row: str(row.get("closed_at") or row.get("ts") or ""))
     for row in ordered:
         price = _price(row)
@@ -154,13 +196,36 @@ def _series_by_desk(rows: list[dict[str, Any]]) -> dict[str, dict[str, list[floa
             continue
         desk = str(row.get("desk") or "UNASSIGNED")
         regime = str(row.get("regime") or "UNLABELED")
-        grouped.setdefault(desk, {}).setdefault(regime, []).append(price)
-    return grouped
+        stamp = str(row.get("closed_at") or row.get("ts") or "")
+        frame = grouped.setdefault((desk, regime), {
+            "desk": desk, "regime": regime, "closes": [], "times": [], "days": [],
+            "days_until_fomc": [], "by_symbol": {},
+        })
+        frame["closes"].append(price)
+        frame["times"].append(stamp)
+        frame["days"].append(_day(stamp) or 0)
+        until = _days_until(stamp, fomc_days)
+        frame["days_until_fomc"].append(until if until is not None else 99)
+        symbol = str(row.get("symbol") or "")
+        if symbol:
+            frame["by_symbol"].setdefault(symbol, []).append(price)
+    frames = []
+    for frame in grouped.values():
+        names = sorted(frame["by_symbol"], key=lambda name: len(frame["by_symbol"][name]), reverse=True)
+        if len(names) >= 2:
+            frame["left"] = frame["by_symbol"][names[0]]
+            frame["right"] = frame["by_symbol"][names[1]]
+            frame["panel"] = {name: frame["by_symbol"][name] for name in names}
+        frames.append(frame)
+    return frames
 
 
-def _row_for(spec: dict[str, Any], desk: str, regime: str, prices: list[float]) -> dict[str, Any]:
+def _row_for(spec: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
     cost = spec["cost"]
-    signs = sign_on_closes(spec["id"], prices)
+    desk = str(frame.get("desk") or "UNASSIGNED")
+    regime = str(frame.get("regime") or "UNLABELED")
+    prices = list(frame.get("closes") or [])
+    signs = sign_on_frame(spec["id"], frame)
     base = {
         "id": spec["id"],
         "family": spec["family"],
@@ -186,7 +251,13 @@ def _row_for(spec: dict[str, Any], desk: str, regime: str, prices: list[float]) 
     if signs is None:
         base.update(closes=0, expectancy_after_fees=None, dsr=None, pbo=None, reason="MISSING_INPUTS")
         return base
-    trips = shadow_round_trips(signs, prices, float(cost["fee_per_side"]), float(cost["slippage_per_side"]))
+    fee = float(cost["fee_per_side"])
+    slip = float(cost["slippage_per_side"])
+    trips = shadow_round_trips(signs, prices, fee, slip)
+    timed = shadow_round_trips_timed(signs, prices, list(frame.get("times") or []), fee, slip)
+    fresh_nets = [float(trip["net"]) for trip in timed if str(trip.get("exit_at") or "") > FRESH_AFTER]
+    base["fresh_closes"] = len(fresh_nets)
+    base["fresh_mean"] = round(sum(fresh_nets) / len(fresh_nets), 6) if fresh_nets else None
     if not trips:
         base.update(closes=0, expectancy_after_fees=None, dsr=None, pbo=None, reason="NO_SHADOW_ROUND_TRIP")
         return base
@@ -207,24 +278,112 @@ def _row_for(spec: dict[str, Any], desk: str, regime: str, prices: list[float]) 
     return base
 
 
+def _bar_frames(root: Path) -> list[dict[str, Any]]:
+    path = Path(root) / "reports" / "grok" / "PAPER" / "equity_intraday_bars.json"
+    if not path.is_file():
+        return []
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    frames = []
+    by_desk: dict[str, dict[str, list[float]]] = {}
+    for symbol, bars in (doc.get("bars") or {}).items():
+        if not isinstance(bars, dict):
+            continue
+        closes = [float(value) for value in (bars.get("closes") or []) if isinstance(value, (int, float))]
+        if len(closes) < 5:
+            continue
+        times = [str(value) for value in (bars.get("times") or [])]
+        desk = str(bars.get("desk") or "UNASSIGNED")
+        frame = {
+            "desk": desk,
+            "regime": "UNLABELED",
+            "closes": closes,
+            "times": times if len(times) == len(closes) else [],
+            "days": [_day(stamp) or 0 for stamp in times] if len(times) == len(closes) else [],
+            "opens": [float(value) for value in (bars.get("opens") or []) if isinstance(value, (int, float))],
+            "highs": [float(value) for value in (bars.get("highs") or []) if isinstance(value, (int, float))],
+            "lows": [float(value) for value in (bars.get("lows") or []) if isinstance(value, (int, float))],
+        }
+        if len(frame["opens"]) != len(closes):
+            frame["opens"] = []
+        if len(frame["highs"]) != len(closes) or len(frame["lows"]) != len(closes):
+            frame["highs"] = []
+            frame["lows"] = []
+        frames.append(frame)
+        by_desk.setdefault(desk, {})[str(symbol)] = closes
+    for desk, panel in by_desk.items():
+        if len(panel) < 2:
+            continue
+        ordered = sorted(panel, key=lambda name: len(panel[name]), reverse=True)
+        frames.append({
+            "desk": desk,
+            "regime": "UNLABELED",
+            "closes": panel[ordered[0]],
+            "times": [],
+            "days": [],
+            "panel": panel,
+            "left": panel[ordered[0]],
+            "right": panel[ordered[1]],
+        })
+    return frames
+
+
+def _desk_focus(root: Path, rows: list[dict[str, Any]]) -> dict[str, Any]:
+    path = Path(root) / PREREG_REL
+    digest = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else ""
+    fresh = [row for row in rows if int(row.get("fresh_closes") or 0) > 0]
+    us_eu = [row["fresh_mean"] for row in fresh if row.get("desk") in {"US_EQUITIES", "EU_EQUITIES"} and row.get("fresh_mean") is not None]
+    neg = [row["fresh_mean"] for row in fresh if row.get("desk") in {"GOLD", "CRYPTO"} and row.get("fresh_mean") is not None]
+    rank = sorted(fresh, key=lambda row: (-int(row["fresh_closes"]), str(row["id"]), str(row["desk"])))
+    doc = {
+        "schema": "ahos.mega11_desk_focus.v1",
+        "paper_only": True,
+        "prereg_sha256": digest,
+        "hash_ok": digest == PREREG_SHA256,
+        "fresh_after": FRESH_AFTER,
+        "fresh_closes": sum(int(row.get("fresh_closes") or 0) for row in rows),
+        "rank": [
+            {"id": row["id"], "desk": row["desk"], "regime": row["regime"], "fresh_closes": row["fresh_closes"], "fresh_mean": row["fresh_mean"]}
+            for row in rank[:20]
+        ],
+        "us_eu_mean": round(sum(us_eu) / len(us_eu), 6) if us_eu else None,
+        "gold_crypto_mean": round(sum(neg) / len(neg), 6) if neg else None,
+        "hypothesis_status": "WAITING_FOR_FRESH" if not fresh else "BELOW_MINIMUM",
+        "promoted": False,
+        "lookback_excluded": True,
+        "applied_to_live": False,
+    }
+    if digest != PREREG_SHA256:
+        doc["hypothesis_status"] = "HASH_MISMATCH"
+        doc["rank"] = []
+        doc["us_eu_mean"] = None
+        doc["gold_crypto_mean"] = None
+    out = Path(root) / FOCUS_REL
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return doc
+
+
 def export_leaderboard(root: Path) -> dict[str, Any]:
     root = Path(root)
     registry = write_registry(root)
-    series = _series_by_desk(_closes(root))
+    frames = _book_frames(_closes(root), _fomc_days(root))
+    frames.extend(_bar_frames(root))
     rows = []
     outcomes: dict[str, tuple[int, int]] = {}
-    if not series:
+    if not frames:
         for spec in SPECS:
-            rows.append(_row_for(spec, "UNASSIGNED", "UNLABELED", []))
+            rows.append(_row_for(spec, {"desk": "UNASSIGNED", "regime": "UNLABELED", "closes": []}))
     else:
         for spec in SPECS:
             wins = losses = 0
-            for desk, regimes in series.items():
-                for regime, prices in regimes.items():
-                    row = _row_for(spec, desk, regime, prices)
-                    wins += int(row.get("wins") or 0)
-                    losses += int(row.get("losses") or 0)
-                    rows.append(row)
+            for frame in frames:
+                row = _row_for(spec, frame)
+                wins += int(row.get("wins") or 0)
+                losses += int(row.get("losses") or 0)
+                rows.append(row)
             outcomes[spec["id"]] = (wins, losses)
     vote_path = root / "reports" / "grok" / "PAPER" / "strategy_shadow_votes.jsonl"
     vote_path.parent.mkdir(parents=True, exist_ok=True)
@@ -250,6 +409,8 @@ def export_leaderboard(root: Path) -> dict[str, Any]:
         "live_promoted": 0,
         "pass_stats": False,
         "applied_to_live": False,
+        "strategies_with_closes": len({row["id"] for row in rows if int(row.get("closes") or 0) > 0}),
+        "desk_focus": _desk_focus(root, rows),
     }
     out = root / OUT_REL
     out.parent.mkdir(parents=True, exist_ok=True)

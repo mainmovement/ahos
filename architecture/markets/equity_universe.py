@@ -416,6 +416,137 @@ def fetch_intraday_bars(symbols: list[str], *, timeout: float = 6.0) -> dict[str
     return out
 
 
+_STOOQ_SUFFIX = {"NASDAQ": "us", "NYSE": "us", "LSE": "uk", "HKEX": "hk", "TSE": "jp", "EURONEXT": "pt"}
+
+
+def stooq_symbol(scanner_symbol: str) -> str | None:
+    text = str(scanner_symbol or "")
+    exchange, _, raw = text.partition(":")
+    suffix = _STOOQ_SUFFIX.get(exchange)
+    if not raw or suffix is None:
+        return None
+    if suffix == "hk" and raw.isdigit():
+        raw = raw.zfill(4)
+    return raw.replace(".", "").lower() + "." + suffix
+
+
+def _stooq_csv(symbol: str, interval: str, timeout: float) -> list[dict[str, float]]:
+    import urllib.request
+    url = "https://stooq.com/q/d/l/?s=" + urllib.request.quote(symbol) + "&i=" + interval
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (AHOS paper research)"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            text = resp.read().decode("utf-8", "replace")
+    except (OSError, TimeoutError, ValueError):
+        return []
+    lines = [line for line in text.splitlines() if line.strip()]
+    if len(lines) < 2 or "Open" not in lines[0] or "Close" not in lines[0]:
+        return []
+    header = [part.strip().lower() for part in lines[0].split(",")]
+    rows = []
+    for line in lines[1:]:
+        parts = [part.strip() for part in line.split(",")]
+        if len(parts) < len(header):
+            continue
+        item = dict(zip(header, parts))
+        try:
+            rows.append({
+                "open": float(item["open"]),
+                "high": float(item["high"]),
+                "low": float(item["low"]),
+                "close": float(item["close"]),
+                "time": (item.get("date") or "") + "T" + (item.get("time") or "00:00:00"),
+            })
+        except (KeyError, ValueError):
+            continue
+    return rows
+
+
+def fetch_stooq_intraday(symbols: list[str], *, timeout: float = 8.0) -> dict[str, dict[str, Any]]:
+    """5-minute bars, then 1-minute. A daily file is not relabeled as intraday."""
+    out: dict[str, dict[str, Any]] = {}
+    for symbol in symbols:
+        stooq = stooq_symbol(symbol)
+        bars: list[dict[str, float]] = []
+        source = "NO_BAR"
+        if stooq:
+            bars = _stooq_csv(stooq, "5", timeout)
+            source = "stooq_5m" if bars else "NO_BAR"
+            if not bars:
+                bars = _stooq_csv(stooq, "1", timeout)
+                source = "stooq_1m" if bars else "NO_BAR"
+        if not bars:
+            out[symbol] = {}
+            continue
+        out[symbol] = {
+            "high": bars[-1]["high"],
+            "low": bars[-1]["low"],
+            "close": bars[-1]["close"],
+            "closes": [row["close"] for row in bars],
+            "opens": [row["open"] for row in bars],
+            "highs": [row["high"] for row in bars],
+            "lows": [row["low"] for row in bars],
+            "times": [row["time"] for row in bars],
+            "source": source,
+        }
+    return out
+
+
+def fetch_tradingview_session_ranges(symbols: list[str], *, timeout: float = 12.0) -> dict[str, dict[str, Any]]:
+    """Last session high and low. This is not a 1-minute or 5-minute series."""
+    import urllib.request
+    out: dict[str, dict[str, Any]] = {}
+    if not symbols:
+        return out
+    payload = json.dumps({"symbols": {"tickers": symbols}, "columns": ["high", "low", "close"]}).encode("utf-8")
+    req = urllib.request.Request(
+        "https://scanner.tradingview.com/global/scan",
+        data=payload,
+        headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (AHOS paper research)"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            doc = json.loads(resp.read().decode("utf-8"))
+    except (OSError, TimeoutError, json.JSONDecodeError, ValueError):
+        return out
+    for row in doc.get("data") or []:
+        if not isinstance(row, dict):
+            continue
+        cols = row.get("d") or []
+        if len(cols) < 3 or not all(isinstance(value, (int, float)) for value in cols[:3]):
+            continue
+        high, low, close = float(cols[0]), float(cols[1]), float(cols[2])
+        if close <= 0:
+            continue
+        out[str(row.get("s") or "")] = {
+            "high": high,
+            "low": low,
+            "close": close,
+            "closes": [close],
+            "source": "tradingview_session_range",
+        }
+    return out
+
+
+def write_intraday_bars(root: Path, bars: dict[str, dict[str, Any]], desks: dict[str, str]) -> None:
+    payload = {"schema": "ahos.equity_intraday_bars.v1", "paper_only": True, "bars": {}}
+    for symbol, bar in bars.items():
+        if not bar.get("closes"):
+            continue
+        payload["bars"][symbol] = {
+            "desk": desks.get(symbol),
+            "source": bar.get("source"),
+            "opens": bar.get("opens") or [],
+            "highs": bar.get("highs") or [],
+            "lows": bar.get("lows") or [],
+            "closes": bar.get("closes") or [],
+            "times": bar.get("times") or [],
+        }
+    path = Path(root) / "reports" / "grok" / "PAPER" / "equity_intraday_bars.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def yahoo_symbol(scanner_symbol: str) -> str:
     text = str(scanner_symbol or "")
     if ":" in text:
@@ -426,7 +557,7 @@ def yahoo_symbol(scanner_symbol: str) -> str:
 def shadow_shortlist(root: Path, bars: dict[str, dict[str, float]]) -> dict[str, Any]:
     """Attach bar-range spread estimates and run close-only strategies. No live open."""
     from architecture.strategies.library import SPECS
-    from architecture.strategies.signals import shadow_round_trips, sign_on_closes
+    from architecture.strategies.signals import shadow_round_trips, sign_on_frame
 
     path = Path(root) / OUT_REL
     doc = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
@@ -441,14 +572,21 @@ def shadow_shortlist(root: Path, bars: dict[str, dict[str, float]]) -> dict[str,
         if cand.get("spread_status") != "KNOWN" and estimate is not None:
             cand["spread_pct"] = estimate
             cand["spread_status"] = "ESTIMATE"
-            cand["spread_source"] = "intraday_bar"
+            cand["spread_source"] = str(bar.get("source") or "intraday_bar")
         elif cand.get("spread_status") != "KNOWN":
             cand["spread_status"] = "UNKNOWN"
             cand["spread_source"] = "NO_BAR"
         closes = bar.get("closes") if isinstance(bar.get("closes"), list) else []
         fired = 0
         for spec in SPECS:
-            signs = sign_on_closes(spec["id"], [float(v) for v in closes]) if closes else None
+            frame = {
+                "closes": [float(v) for v in closes],
+                "opens": [float(v) for v in (bar.get("opens") or [])],
+                "highs": [float(v) for v in (bar.get("highs") or [])],
+                "lows": [float(v) for v in (bar.get("lows") or [])],
+                "days": [],
+            }
+            signs = sign_on_frame(spec["id"], frame) if closes else None
             if signs is None:
                 continue
             trips = shadow_round_trips(

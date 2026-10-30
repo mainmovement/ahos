@@ -1,0 +1,16 @@
+{
+  "schema": "ahos.mega11_checklist.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T18:50:00Z",
+  "prereg_commit": "7714a448e5d0c9408c703094d0a8519c0db180c1",
+  "prereg_sha256": "e4cd3a4ecfa2281013324dfa3d289eb35aecfdf6f6b2f5a39f67cc846ca1873e",
+  "promoted": false,
+  "applied_to_live": false,
+  "items": [
+    {"id": "1", "item": "remaining strategy shadow paths", "state": "PARTIAL", "evidence": "7 of 26 with shadow closes"},
+    {"id": "2", "item": "spread estimate for 24 stocks", "state": "PARTIAL", "evidence": "reports/grok/PAPER/equity_shadow_paths.json"},
+    {"id": "3", "item": "fresh desk-focus rank", "state": "PARTIAL", "evidence": "reports/grok/PAPER/mega11_desk_focus.json"},
+    {"id": "4", "item": "nightly Persian leader line", "state": "DONE", "evidence": "architecture/mission/mehrdad_digest.py"},
+    {"id": "5", "item": "soak restart and science libraries after 72h", "state": "OPEN", "evidence": "scripts/mega11_after_soak.py"}
+  ]
+}

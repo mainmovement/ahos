@@ -118,6 +118,49 @@ def _greeting(moment: datetime) -> str:
     return "شب بخیر"
 
 
+_FA_STRATEGY = {
+    "ts_momentum": "مومنتوم زمانی",
+    "donchian_turtle": "شکست کانال",
+    "dual_ma": "دو میانگین",
+    "short_term_reversal": "بازگشت کوتاه",
+    "rsi2_connors": "قدرت دو روزه",
+    "bollinger_fade": "محو باند",
+    "vol_breakout": "شکست نوسان",
+    "cs_momentum": "مومنتوم مقطعی",
+    "pairs_zscore": "جفت‌بازگشت",
+    "turn_of_month": "چرخش ماه",
+    "vol_target": "هدف نوسان",
+    "low_vol": "نوسان پایین",
+    "pre_fomc": "پیش از نشست",
+    "wick_sweep": "جاروب سایه",
+    "overnight_intraday": "بازده شب",
+    "news_shock": "شوک خبر",
+    "pump_token": "نام توکن",
+}
+
+
+def _shadow_leaders(root: Path) -> str:
+    """One Persian line. Latin strategy ids never enter the note."""
+    path = Path(root) / "reports" / "grok" / "PAPER" / "strategy_leaderboard.json"
+    totals: dict[str, int] = {}
+    if path.is_file():
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            doc = {}
+        for row in doc.get("rows") or []:
+            if not isinstance(row, dict):
+                continue
+            name = _FA_STRATEGY.get(str(row.get("id") or ""))
+            if not name:
+                continue
+            totals[name] = totals.get(name, 0) + int(row.get("closes") or 0)
+    leaders = [name for name, count in sorted(totals.items(), key=lambda item: (-item[1], item[0])) if count > 0][:3]
+    if not leaders:
+        return "در سایه هنوز راهبردی با معاملهٔ بسته‌شده پیشتاز نیست."
+    return "پیشتازهای سایه: " + "، ".join(leaders) + ". هیچ‌کدام زنده نشده‌اند."
+
+
 def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
     """Plain Persian. No codes, no order, no claim of a proven edge."""
     root = Path(root)
@@ -181,6 +224,7 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
         "یک لایهٔ علمی روی سایه مانده و به معاملهٔ زنده نرسیده است.",
         "اگر مدل پاسخ‌گو قطع باشد، وضعیت از پرونده خوانده می‌شود و معامله‌ای باز نمی‌شود.",
         "مسیرهای سایه به پرونده وصل شدند و هیچ‌کدام به معاملهٔ زنده نرسید.",
+        _shadow_leaders(root),
         "",
         f"مشکل: {problem}",
     ])

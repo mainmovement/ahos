@@ -286,6 +286,176 @@ def apply_cost(gross: float, fee_per_side: float, slippage_per_side: float) -> f
     return gross - 2.0 * (fee_per_side + slippage_per_side)
 
 
+def commodity_calendar_sign() -> None:
+    """No gold or oil month path was loaded with the citation. No month sign is invented."""
+    return None
+
+
+def _vol_target_signs(closes: list[float], target: float = 0.01, length: int = 20) -> list[int]:
+    signs = []
+    for t in range(len(closes)):
+        if t < length or closes[t - 1] == 0:
+            signs.append(0)
+            continue
+        returns = []
+        for i in range(t - length + 1, t + 1):
+            if i == 0 or closes[i - 1] == 0:
+                continue
+            returns.append(closes[i] / closes[i - 1] - 1.0)
+        if len(returns) < 2:
+            signs.append(0)
+            continue
+        mean = sum(returns) / len(returns)
+        var = sum((value - mean) ** 2 for value in returns) / len(returns)
+        size = vol_target(math.sqrt(var), target, 1.0)
+        signs.append(1 if size is not None and size >= 1.0 else 0)
+    return signs
+
+
+def _overnight_signs(opens: list[float], closes: list[float]) -> list[int] | None:
+    if not opens or len(opens) != len(closes):
+        return None
+    signs = []
+    prev = None
+    for open_, close in zip(opens, closes):
+        if prev is None:
+            signs.append(0)
+        else:
+            parts = overnight_vs_intraday(prev, open_, close)
+            move = parts["overnight"]
+            signs.append(0 if move is None or move == 0 else (1 if move > 0 else -1))
+        prev = close
+    return signs
+
+
+def sign_on_frame(strategy_id: str, frame: dict) -> list[int] | None:
+    """Call the cited rule. None means the input that rule needs is not on the frame."""
+    closes = [float(value) for value in (frame.get("closes") or [])]
+    if strategy_id in {
+        "ts_momentum", "dual_ma", "short_term_reversal", "rsi2_connors",
+        "bollinger_fade", "vol_breakout", "donchian_turtle",
+    }:
+        return sign_on_closes(strategy_id, closes) if closes else None
+    if strategy_id == "turn_of_month":
+        days = frame.get("days") or []
+        if len(days) != len(closes) or not days:
+            return None
+        return [turn_of_month(int(day)) for day in days]
+    if strategy_id == "vol_target":
+        return _vol_target_signs(closes) if len(closes) > 20 else None
+    if strategy_id == "pre_fomc":
+        until = frame.get("days_until_fomc") or []
+        if len(until) != len(closes) or not until:
+            return None
+        return [pre_fomc(int(day), 1) for day in until]
+    if strategy_id == "pairs_zscore":
+        left = frame.get("left") or []
+        right = frame.get("right") or []
+        if len(left) < 2 or len(right) < 2:
+            return None
+        width = min(len(left), len(right))
+        return pairs_zscore(left[-width:], right[-width:])
+    if strategy_id == "cs_momentum":
+        panel = frame.get("panel") or {}
+        if len(panel) < 2:
+            return None
+        width = min(len(series) for series in panel.values())
+        if width < 2:
+            return None
+        signs = []
+        trimmed = {name: list(series)[-width:] for name, series in panel.items()}
+        for end in range(1, width + 1):
+            latest = cs_momentum({name: series[:end] for name, series in trimmed.items()})
+            net = sum(latest.values()) if latest else 0
+            signs.append(0 if net == 0 else (1 if net > 0 else -1))
+        return signs
+    if strategy_id == "low_vol":
+        panel = frame.get("panel") or {}
+        if len(panel) < 2:
+            return None
+        width = min(len(series) for series in panel.values())
+        if width < 2:
+            return None
+        trimmed = {name: list(series)[-width:] for name, series in panel.items()}
+        signs = []
+        for end in range(1, width + 1):
+            vols = {}
+            for name, series in trimmed.items():
+                window = series[max(0, end - 20):end]
+                if len(window) < 5 or window[0] == 0:
+                    continue
+                ret = window[-1] / window[0] - 1.0
+                vols[name] = abs(ret)
+            ranks = low_vol_ranks(vols) if len(vols) >= 2 else {}
+            net = sum(ranks.values()) if ranks else 0
+            signs.append(0 if net == 0 else (1 if net > 0 else -1))
+        return signs
+    if strategy_id == "wick_sweep":
+        opens, highs, lows = frame.get("opens") or [], frame.get("highs") or [], frame.get("lows") or []
+        if not opens or len(opens) != len(closes) or len(highs) != len(closes) or len(lows) != len(closes):
+            return None
+        return [wick_sweep(open_, high, low, close) for open_, high, low, close in zip(opens, highs, lows, closes)]
+    if strategy_id == "overnight_intraday":
+        return _overnight_signs(frame.get("opens") or [], closes)
+    if strategy_id == "news_shock":
+        scores = frame.get("news_scores")
+        if not isinstance(scores, list) or len(scores) != len(closes) or not closes:
+            return None
+        return [news_shock(score if isinstance(score, (int, float)) else None) for score in scores]
+    if strategy_id == "macro_surprise":
+        actuals, consensus = frame.get("actuals") or [], frame.get("consensus") or []
+        if len(actuals) != len(closes) or len(consensus) != len(closes) or not closes:
+            return None
+        return [macro_surprise(actual, guess) for actual, guess in zip(actuals, consensus)]
+    if strategy_id == "pead":
+        surprises, ages = frame.get("surprises") or [], frame.get("days_since") or []
+        if len(surprises) != len(closes) or len(ages) != len(closes) or not closes:
+            return None
+        return [pead(float(surprise), int(age)) for surprise, age in zip(surprises, ages)]
+    if strategy_id == "funding_carry":
+        rates = frame.get("funding_rates") or []
+        if len(rates) != len(closes) or not closes:
+            return None
+        return [funding_carry(float(rate)) for rate in rates]
+    if strategy_id == "futures_carry":
+        front, back = frame.get("front") or [], frame.get("back") or []
+        if len(front) != len(closes) or len(back) != len(closes) or not closes:
+            return None
+        return [futures_carry(float(near), float(far)) for near, far in zip(front, back)]
+    if strategy_id == "cot_extreme":
+        scores = frame.get("cot_z") or []
+        if len(scores) != len(closes) or not closes:
+            return None
+        return [cot_extreme(float(score)) for score in scores]
+    if strategy_id == "liquidations":
+        longs, shorts = frame.get("long_liquidations") or [], frame.get("short_liquidations") or []
+        if len(longs) != len(closes) or len(shorts) != len(closes) or not closes:
+            return None
+        return [liquidation_fade(float(long), float(short)) for long, short in zip(longs, shorts)]
+    if strategy_id == "funding_oi_squeeze":
+        rates = frame.get("funding_z") or []
+        if len(rates) != len(closes) or not closes:
+            return None
+        return [cot_extreme(float(rate), 2.0) for rate in rates]
+    if strategy_id == "pump_token":
+        if not closes:
+            return None
+        families = frame.get("agreeing_families")
+        count = int(families) if isinstance(families, (int, float)) and not isinstance(families, bool) else 0
+        allowed = pump_token_allowed(
+            safety_pass=bool(frame.get("safety_pass")),
+            agreeing_families=count,
+            time_stop_set=bool(frame.get("time_stop_set")),
+        )
+        return [1 if allowed else 0] * len(closes)
+    if strategy_id == "commodity_calendar":
+        commodity_calendar_sign()
+        return None
+    if strategy_id == "fama_french":
+        return None
+    return None
+
+
 def sign_on_closes(strategy_id: str, closes: list[float]) -> list[int] | None:
     """The cited rule on a close series. None means this rule needs inputs we do not have."""
     if strategy_id == "ts_momentum":
@@ -321,6 +491,31 @@ def shadow_round_trips(signs: list[int], prices: list[float], fee: float, slip: 
             if prices[entry] > 0 and t != entry:
                 gross = side * (prices[t] / prices[entry] - 1.0)
                 trips.append(apply_cost(gross, fee, slip))
+            entry = t if sign != 0 else None
+            side = sign
+    return trips
+
+
+def shadow_round_trips_timed(
+    signs: list[int], prices: list[float], times: list[str], fee: float, slip: float,
+) -> list[dict]:
+    """Same close rule, with the exit bar's time kept so a later stamp can exclude it."""
+    nets = shadow_round_trips(signs, prices, fee, slip)
+    # Re-walk to attach times. The net list and the exit indexes stay in the same order.
+    trips = []
+    entry: int | None = None
+    side = 0
+    cursor = 0
+    for t, sign in enumerate(signs):
+        if entry is None:
+            if sign != 0:
+                entry = t
+                side = sign
+            continue
+        if sign != side:
+            if prices[entry] > 0 and t != entry and cursor < len(nets):
+                trips.append({"net": nets[cursor], "exit_at": times[t] if t < len(times) else ""})
+                cursor += 1
             entry = t if sign != 0 else None
             side = sign
     return trips

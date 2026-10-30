@@ -1,7 +1,7 @@
 {
   "schema": "ahos.strategy_leaderboard.v1",
   "paper_only": true,
-  "generated_at": "2026-10-30T18:06:26Z",
+  "generated_at": "2026-10-30T18:55:44Z",
   "registered_at": "2026-10-30T16:34:09Z",
   "rows": [
     {
@@ -33,6 +33,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 17,
       "expectancy_after_fees": -113.822694,
       "dsr": null,
@@ -70,6 +72,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": -0.042749,
       "dsr": null,
@@ -107,6 +111,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 3,
       "expectancy_after_fees": -0.077012,
       "dsr": null,
@@ -144,12 +150,14 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 8,
-      "expectancy_after_fees": -0.162899,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 9,
+      "expectancy_after_fees": 0.423087,
       "dsr": null,
       "pbo": 1.0,
       "reason": "SHADOW_LOOKBACK",
-      "wins": 1,
+      "wins": 2,
       "losses": 7
     },
     {
@@ -181,6 +189,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 2,
       "expectancy_after_fees": -0.002553,
       "dsr": null,
@@ -218,6 +228,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -253,6 +265,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -288,6 +302,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -323,6 +339,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -358,6 +376,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -394,6 +414,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": -1.00155,
       "dsr": null,
@@ -432,6 +454,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -468,6 +492,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -504,6 +530,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -540,6 +568,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -576,6 +606,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -612,6 +644,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -648,6 +682,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -684,6 +720,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -720,6 +758,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -756,6 +796,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 2,
       "expectancy_after_fees": -1.001571,
       "dsr": null,
@@ -794,6 +836,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -830,6 +874,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -866,6 +912,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -902,6 +950,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -938,6 +988,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -974,6 +1026,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -1010,6 +1064,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -1046,6 +1102,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -1082,6 +1140,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -1117,11 +1177,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "cs_momentum",
@@ -1152,11 +1214,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "cs_momentum",
@@ -1187,11 +1251,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "cs_momentum",
@@ -1222,11 +1288,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "cs_momentum",
@@ -1257,11 +1325,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "cs_momentum",
@@ -1467,6 +1537,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 28,
       "expectancy_after_fees": 137.050662,
       "dsr": 0.9924,
@@ -1504,6 +1576,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 5,
       "expectancy_after_fees": -0.0279,
       "dsr": null,
@@ -1541,6 +1615,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 16,
       "expectancy_after_fees": 0.023827,
       "dsr": null,
@@ -1578,13 +1654,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 15,
-      "expectancy_after_fees": 0.598958,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 16,
+      "expectancy_after_fees": 0.512797,
       "dsr": null,
       "pbo": 1.0,
       "reason": "SHADOW_LOOKBACK",
       "wins": 14,
-      "losses": 1
+      "losses": 2
     },
     {
       "id": "short_term_reversal",
@@ -1615,6 +1693,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 10,
       "expectancy_after_fees": 34.993062,
       "dsr": null,
@@ -1652,6 +1732,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 5,
       "expectancy_after_fees": 0.002437,
       "dsr": null,
@@ -1689,6 +1771,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": -0.014006,
       "dsr": null,
@@ -1726,6 +1810,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": 0.011529,
       "dsr": null,
@@ -1763,13 +1849,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 2,
-      "expectancy_after_fees": 0.54221,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 3,
+      "expectancy_after_fees": -0.097206,
       "dsr": null,
       "pbo": null,
       "reason": "SHADOW_LOOKBACK",
       "wins": 2,
-      "losses": 0
+      "losses": 1
     },
     {
       "id": "short_term_reversal",
@@ -1800,12 +1888,14 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 3,
-      "expectancy_after_fees": 11.782939,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 5,
+      "expectancy_after_fees": 11.787126,
       "dsr": null,
       "pbo": null,
       "reason": "SHADOW_LOOKBACK",
-      "wins": 3,
+      "wins": 5,
       "losses": 0
     },
     {
@@ -1838,6 +1928,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 3,
       "expectancy_after_fees": 0.995959,
       "dsr": null,
@@ -1876,6 +1968,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": 0.411987,
       "dsr": null,
@@ -1914,6 +2008,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": 0.080046,
       "dsr": null,
@@ -1952,6 +2048,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 3,
       "expectancy_after_fees": 0.895373,
       "dsr": null,
@@ -1990,6 +2088,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 2,
       "expectancy_after_fees": 0.990105,
       "dsr": null,
@@ -2028,6 +2128,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 2,
       "expectancy_after_fees": 0.003399,
       "dsr": null,
@@ -2066,6 +2168,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": 0.000624,
       "dsr": null,
@@ -2104,6 +2208,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2140,6 +2246,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": 0.54221,
       "dsr": null,
@@ -2178,6 +2286,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 1,
       "expectancy_after_fees": 0.995966,
       "dsr": null,
@@ -2215,6 +2325,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2250,6 +2362,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2285,6 +2399,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2320,6 +2436,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2355,6 +2473,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2390,6 +2510,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2425,6 +2547,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2460,6 +2584,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2495,6 +2621,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2530,6 +2658,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -2565,11 +2695,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pairs_zscore",
@@ -2600,11 +2732,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pairs_zscore",
@@ -2635,11 +2769,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pairs_zscore",
@@ -2670,11 +2806,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pairs_zscore",
@@ -2705,11 +2843,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pairs_zscore",
@@ -2845,11 +2985,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pairs_zscore",
@@ -2880,11 +3022,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "futures_carry",
@@ -3616,11 +3760,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3652,11 +3798,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3688,11 +3836,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3724,11 +3874,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3760,11 +3912,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3796,11 +3950,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3832,11 +3988,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3868,11 +4026,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3904,11 +4064,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "turn_of_month",
@@ -3940,11 +4102,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "overnight_intraday",
@@ -4665,11 +4829,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 0,
-      "expectancy_after_fees": null,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 1,
+      "expectancy_after_fees": -1.00154,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "SHADOW_LOOKBACK",
+      "wins": 0,
+      "losses": 1
     },
     {
       "id": "pre_fomc",
@@ -4700,11 +4868,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 0,
-      "expectancy_after_fees": null,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 1,
+      "expectancy_after_fees": -0.047826,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "SHADOW_LOOKBACK",
+      "wins": 0,
+      "losses": 1
     },
     {
       "id": "pre_fomc",
@@ -4735,11 +4907,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 0,
-      "expectancy_after_fees": null,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 1,
+      "expectancy_after_fees": 0.004374,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "SHADOW_LOOKBACK",
+      "wins": 1,
+      "losses": 0
     },
     {
       "id": "pre_fomc",
@@ -4770,11 +4946,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pre_fomc",
@@ -4805,11 +4983,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 0,
-      "expectancy_after_fees": null,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 1,
+      "expectancy_after_fees": -0.004952,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "SHADOW_LOOKBACK",
+      "wins": 0,
+      "losses": 1
     },
     {
       "id": "pre_fomc",
@@ -4840,11 +5022,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 0,
-      "expectancy_after_fees": null,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 1,
+      "expectancy_after_fees": 0.000807,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "SHADOW_LOOKBACK",
+      "wins": 1,
+      "losses": 0
     },
     {
       "id": "pre_fomc",
@@ -4875,11 +5061,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 0,
-      "expectancy_after_fees": null,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 1,
+      "expectancy_after_fees": 0.006259,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "SHADOW_LOOKBACK",
+      "wins": 1,
+      "losses": 0
     },
     {
       "id": "pre_fomc",
@@ -4910,11 +5100,15 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
-      "closes": 0,
-      "expectancy_after_fees": null,
+      "fresh_closes": 0,
+      "fresh_mean": null,
+      "closes": 1,
+      "expectancy_after_fees": 9.713694,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "SHADOW_LOOKBACK",
+      "wins": 1,
+      "losses": 0
     },
     {
       "id": "pre_fomc",
@@ -4945,11 +5139,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pre_fomc",
@@ -4980,11 +5176,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pead",
@@ -6056,6 +6254,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 13,
       "expectancy_after_fees": -136.221703,
       "dsr": null,
@@ -6094,6 +6294,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -6130,6 +6332,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 5,
       "expectancy_after_fees": -0.007633,
       "dsr": null,
@@ -6168,6 +6372,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 4,
       "expectancy_after_fees": -0.895203,
       "dsr": null,
@@ -6206,6 +6412,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 2,
       "expectancy_after_fees": -139.986875,
       "dsr": null,
@@ -6244,6 +6452,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -6280,6 +6490,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -6316,6 +6528,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -6352,6 +6566,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -6388,6 +6604,8 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
@@ -6425,11 +6643,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "vol_target",
@@ -6499,11 +6719,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "vol_target",
@@ -6536,11 +6758,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "vol_target",
@@ -6793,11 +7017,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "low_vol",
@@ -6828,11 +7054,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "low_vol",
@@ -6863,11 +7091,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "low_vol",
@@ -6898,11 +7128,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "low_vol",
@@ -6933,11 +7165,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "low_vol",
@@ -8522,11 +8756,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8556,11 +8792,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8590,11 +8828,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8624,11 +8864,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8658,11 +8900,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8692,11 +8936,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8726,11 +8972,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8760,11 +9008,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8794,11 +9044,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "pump_token",
@@ -8828,11 +9080,13 @@
         "counts_toward_entry_gate": false,
         "shadow": true
       },
+      "fresh_closes": 0,
+      "fresh_mean": null,
       "closes": 0,
       "expectancy_after_fees": null,
       "dsr": null,
       "pbo": null,
-      "reason": "MISSING_INPUTS"
+      "reason": "NO_SHADOW_ROUND_TRIP"
     },
     {
       "id": "fama_french",
@@ -9239,32 +9493,32 @@
     "mode": "SHADOW_LOOKBACK",
     "reason": "Shadow round trips updated the prior. They are not fresh closes.",
     "weights": {
-      "ts_momentum": 0.005097,
-      "donchian_turtle": 0.028292,
-      "dual_ma": 0.044464,
-      "cs_momentum": 0.01203,
-      "short_term_reversal": 0.067678,
-      "rsi2_connors": 0.079912,
-      "bollinger_fade": 0.056285,
-      "pairs_zscore": 0.020777,
-      "futures_carry": 0.0733,
-      "funding_carry": 0.037771,
-      "turn_of_month": 0.030306,
-      "overnight_intraday": 0.042065,
-      "commodity_calendar": 0.013778,
-      "pre_fomc": 0.048886,
-      "pead": 0.048613,
-      "news_shock": 0.015064,
-      "macro_surprise": 0.066442,
-      "vol_breakout": 0.01588,
-      "vol_target": 0.00653,
-      "low_vol": 0.015429,
-      "cot_extreme": 0.07338,
-      "liquidations": 0.077321,
-      "funding_oi_squeeze": 0.035452,
-      "wick_sweep": 0.023761,
-      "pump_token": 0.019711,
-      "fama_french": 0.041776
+      "ts_momentum": 0.006856,
+      "donchian_turtle": 0.027803,
+      "dual_ma": 0.043696,
+      "cs_momentum": 0.011822,
+      "short_term_reversal": 0.065586,
+      "rsi2_connors": 0.078531,
+      "bollinger_fade": 0.055313,
+      "pairs_zscore": 0.020418,
+      "futures_carry": 0.072033,
+      "funding_carry": 0.037118,
+      "turn_of_month": 0.029782,
+      "overnight_intraday": 0.041338,
+      "commodity_calendar": 0.01354,
+      "pre_fomc": 0.040161,
+      "pead": 0.014803,
+      "news_shock": 0.065294,
+      "macro_surprise": 0.043012,
+      "vol_breakout": 0.03093,
+      "vol_target": 0.015162,
+      "low_vol": 0.072112,
+      "cot_extreme": 0.075985,
+      "liquidations": 0.034839,
+      "funding_oi_squeeze": 0.023351,
+      "wick_sweep": 0.019371,
+      "pump_token": 0.041054,
+      "fama_french": 0.020088
     },
     "kelly_cap": 0.25,
     "kelly": null,
@@ -9293,5 +9547,21 @@
   },
   "live_promoted": 0,
   "pass_stats": false,
-  "applied_to_live": false
+  "applied_to_live": false,
+  "strategies_with_closes": 7,
+  "desk_focus": {
+    "schema": "ahos.mega11_desk_focus.v1",
+    "paper_only": true,
+    "prereg_sha256": "e4cd3a4ecfa2281013324dfa3d289eb35aecfdf6f6b2f5a39f67cc846ca1873e",
+    "hash_ok": true,
+    "fresh_after": "2026-10-30T18:43:59Z",
+    "fresh_closes": 0,
+    "rank": [],
+    "us_eu_mean": null,
+    "gold_crypto_mean": null,
+    "hypothesis_status": "WAITING_FOR_FRESH",
+    "promoted": false,
+    "lookback_excluded": true,
+    "applied_to_live": false
+  }
 }

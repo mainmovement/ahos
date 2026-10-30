@@ -1,0 +1,15 @@
+{
+ "schema": "ahos.mega11_desk_focus.v1",
+ "paper_only": true,
+ "prereg_sha256": "e4cd3a4ecfa2281013324dfa3d289eb35aecfdf6f6b2f5a39f67cc846ca1873e",
+ "hash_ok": true,
+ "fresh_after": "2026-10-30T18:43:59Z",
+ "fresh_closes": 0,
+ "rank": [],
+ "us_eu_mean": null,
+ "gold_crypto_mean": null,
+ "hypothesis_status": "WAITING_FOR_FRESH",
+ "promoted": false,
+ "lookback_excluded": true,
+ "applied_to_live": false
+}

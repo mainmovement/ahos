@@ -46,6 +46,10 @@
   {
    "id": "mega10_wire",
    "change": "Show shadow strategy closes, the science book numbers, and the agent sender count. Do not paint a strategy or a module as promoted."
+  },
+  {
+   "id": "mega11_desk_focus",
+   "change": "Show the fresh strategy-desk-regime rank as waiting until closes exist after the MEGA11 stamp. Show session-range spreads as estimates. Do not paint a leader as promoted."
   }
  ],
  "decides": false

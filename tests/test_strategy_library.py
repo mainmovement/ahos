@@ -63,6 +63,34 @@ def test_the_gate_rejects_a_lookback_even_when_the_numbers_look_strong() -> None
     assert gate(dsr=0.90, pbo=0.1, oos_n=40, after_fees=True, fresh=True, red_team_survived=True) is False
 
 
+def test_turn_of_month_uses_the_calendar_day_and_old_closes_stay_out_of_the_fresh_rank(tmp_path: Path) -> None:
+    from architecture.strategies.signals import sign_on_frame
+    signs = sign_on_frame("turn_of_month", {"closes": [10, 11, 12, 13], "days": [2, 10, 15, 30]})
+    assert signs == [1, 0, 0, 1]
+    assert sign_on_frame("commodity_calendar", {"closes": [1, 2, 3]}) is None
+    assert sign_on_frame("pump_token", {"closes": [1.0, 2.0], "safety_pass": False}) == [0, 0]
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    prereg = tmp_path / "docs" / "prereg"
+    prereg.mkdir(parents=True)
+    origin = Path(__file__).resolve().parents[1] / "docs" / "prereg" / "MEGA11.yaml"
+    (prereg / "MEGA11.yaml").write_bytes(origin.read_bytes())
+    (paper / "paper_trades.jsonl").write_text(
+        '{"event":"CLOSE","desk":"US_EQUITIES","regime":"NEUTRAL_CHOP","exit_price":10,"closed_at":"2026-10-02T00:00:00Z"}\n'
+        '{"event":"CLOSE","desk":"US_EQUITIES","regime":"NEUTRAL_CHOP","exit_price":11,"closed_at":"2026-10-10T00:00:00Z"}\n'
+        '{"event":"CLOSE","desk":"US_EQUITIES","regime":"NEUTRAL_CHOP","exit_price":12,"closed_at":"2026-10-30T00:00:00Z"}\n',
+        encoding="utf-8",
+    )
+    doc = export_leaderboard(tmp_path)
+    month = [row for row in doc["rows"] if row["id"] == "turn_of_month" and row["closes"] > 0]
+    assert month
+    assert month[0]["reason"] == "SHADOW_LOOKBACK"
+    assert month[0]["fresh_closes"] == 0
+    assert doc["desk_focus"]["hypothesis_status"] == "WAITING_FOR_FRESH"
+    assert doc["desk_focus"]["promoted"] is False
+    assert doc["live_promoted"] == 0
+
+
 def test_a_price_series_makes_a_shadow_close_and_does_not_promote(tmp_path: Path) -> None:
     paper = tmp_path / "reports" / "grok" / "PAPER"
     paper.mkdir(parents=True)
