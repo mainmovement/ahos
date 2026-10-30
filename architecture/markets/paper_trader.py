@@ -475,7 +475,9 @@ def gather_witness(quotes: dict[str, Any], *, fetch_b: Callable[[], dict[str, An
         from architecture.markets.native_quotes import overlay_native_witnesses
 
         overlay_native_witnesses(second, quotes, syms)
-    pre = {s: witness(s, quotes.get(s), second.get(s)) for s in syms}
+    from architecture.markets.quote_router import independent_witness
+
+    pre = {s: witness(s, quotes.get(s), independent_witness(quotes.get(s), second.get(s))) for s in syms}
     if fetch_c is not None:
         third = fetch_c(third_source_needed(pre))
     elif fetch_b is None:
@@ -485,7 +487,7 @@ def gather_witness(quotes: dict[str, Any], *, fetch_b: Callable[[], dict[str, An
         overlay_cash_witnesses(third)
     else:
         third = {}
-    return {s: (witness(s, quotes.get(s), second.get(s), third.get(s)) if s in third else pre[s]) for s in syms}
+    return {s: (witness(s, quotes.get(s), independent_witness(quotes.get(s), second.get(s)), third.get(s)) if s in third else pre[s]) for s in syms}
 
 
 DEX_FEE, DEX_SLIP = 0.0030, 0.0020   # AMM pool fee + conservative slippage per side
@@ -565,7 +567,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         base = {"ts": _iso(t), "symbol": sym, "desk": desk, "paper_only": True, "source": logged_source(q.get("source")),
                 "source_role": q.get("source_role"), "quote_latency_ms": q.get("latency_ms"),
                 "native_verdict": q.get("native_verdict"), "native_note": q.get("native_note"),
-                "market_time": q.get("market_time"), "quote_asof": _iso(quote_asof), "witness": logged_witness(w)}
+                "market_time": q.get("market_time"), "source_timestamp": q.get("source_timestamp") or q.get("market_time"),
+                "delay_flag": q.get("delay_flag"), "witness_deviation_pct": q.get("witness_deviation_pct"),
+                "quote_asof": _iso(quote_asof), "witness": logged_witness(w)}
         mt = _parse(q.get("market_time"))
         pos = positions.get(sym)
         if not isinstance(price, (int, float)) or price <= 0:
@@ -580,6 +584,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             log({**base, "event": "SKIP", "reason": "QUOTE_TIME_AHEAD" if ahead else "MARKET_CLOSED_OR_STALE",
                  "price": price, "freshness": "UNKNOWN" if age is None or ahead else "STALE",
                  "session_state": session_state})
+            continue
+        if q.get("divergence_skip"):
+            log({**base, "event": "SKIP", "reason": "DIVERGENCE", "price": price})
             continue
         if w["verdict"] != "VERIFIED" and not pos:
             log({**base, "event": "SKIP", "reason": f"WITNESS_{w['verdict']}", "price": price}); continue

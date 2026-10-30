@@ -349,3 +349,11 @@
 **Choice:** A listed shadow leg flattens with `CONTRACT_ROLL` on the same paper last-trade window as the live book. Crypto swaps have no expiry, so they keep funding, fees, and liquidation only. The close does not change live equity.
 
 **Reason:** A shadow that holds through expiry would measure a contract the live book is not allowed to hold.
+
+## 2026-10-30: Keyless public quotes, Yahoo stays the fallback
+
+**Question:** Which no-signup quote feeds answer from this laptop, and when should a symbol be skipped?
+
+**Choice:** CNBC, TradingView, Hyperliquid, Frankfurter, and `api.gold-api.com` answered. The apex `gold-api.com/price/XAU` returned an HTML 404, so that host is not used. CNBC is the primary for SPX, NDX, SPY, QQQ, and NVDA only. Brent is not requested from CNBC. TradingView is one batch per cycle and is the primary for EURUSD, USDJPY, XAU, NI225, HSI, DAX, ES, NQ, NKD, CL, and BZ. The delay flag is the feed's own update mode: FX, gold, NI225, and HSI printed `streaming`, not a 15-minute stamp. DAX and FDAX printed 900 seconds. ES, NQ, NKD, CL, and BZ printed 600 seconds. FDAX is stored and omitted from the book. Hyperliquid xyz mids are a witness. SPX is judged against ES and NDX against NQ when that future printed; otherwise the perp is judged against the primary. Gold-api and Frankfurter are witnesses. Frankfurter is a prior-day rate. A witness gap above 0.5% skips that symbol for the cycle, including an open position, so the rejected print is not used as an exit. The next cycle that agrees can exit. If the primary does not answer, the Yahoo price remains and the role is `yahoo_fallback`. Each fetch waits 8 seconds, retries once, and opens a 15-minute breaker after three failed calls. No keys.
+
+**Reason:** The laptop probe returned prices from those five feeds. A Brent CNBC print had already disagreed with the oil book. A perp-to-cash gap can exceed 0.5% while the same perp agrees with the listed future. The 0.5% bar is unchanged. Yahoo is still the fill when a new feed is silent.

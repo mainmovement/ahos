@@ -221,3 +221,7 @@ Separate from the cash books and from `CRYPTO_FUTURES`. Symbols: CL, BZ, GC, ES,
 ## Leverage ladder (2026-10-30)
 
 Live crypto swaps and listed futures start at 1x. Steps are 2x, then 3x, then 5x, only after that desk has 30 closes at the current rung, DSR above 0.95, PBO under 0.5, and drawdown within 15%. A deeper drawdown steps down one rung. Shadow 5x and 10x replay the same signal with fees, funding, liquidation, and, for listed contracts, the same roll flatten. Shadow pnl does not change live equity. Cash books stay unlevered. Gates unchanged. Gap IDs closed: **none**.
+
+## Keyless public quotes (2026-10-30)
+
+CNBC is the primary for SPX, NDX, SPY, QQQ, and NVDA. TradingView is one batch and is the primary for EURUSD, USDJPY, XAU, NI225, HSI, DAX, ES, NQ, NKD, CL, and BZ. Delay follows the feed: streaming stays streaming; DAX and FDAX are 900 seconds; the listed futures are 600 seconds. FDAX is not in the book. Hyperliquid xyz mids, `api.gold-api.com`, and Frankfurter are witnesses. SPX is compared with ES and NDX with NQ when that future printed. A witness gap above 0.5% skips the symbol for the cycle, including an open position. Yahoo remains the fallback. Brent is not read from CNBC. The apex gold host that returned HTML is not used. No keys. Gates unchanged. Gap IDs closed: **none**.

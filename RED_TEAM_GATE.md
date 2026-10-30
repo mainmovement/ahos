@@ -475,3 +475,16 @@ Live futures stay at 1x. A step to 2x, 3x, or 5x needs 30 closes on that rung, D
 | Meta-Critic | APPROVE | 5x and 10x are a measurement. They are not the live account. |
 
 Shadow listed legs now flatten with `CONTRACT_ROLL` inside the same five-day window as the live book. A crypto swap shadow leg does not roll. `pytest tests/test_leverage_ladder.py -q` → **5 passed**. The shadow close still does not write the live ledger.
+
+## Keyless public quotes (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_quote_router.py tests/test_cnbc_quotes.py tests/test_tradingview_batch.py tests/test_hyperliquid_mids.py tests/test_gold_api_quote.py tests/test_frankfurter_fx.py tests/test_paper_trader.py tests/test_listed_futures_paper.py tests/test_crypto_futures_paper.py -q` → **45 passed**.
+
+CNBC is primary only for SPX, NDX, SPY, QQQ, and NVDA. Brent is not on that request. TradingView is one batch and is primary for the FX, gold, Asia, DAX, and listed roots that answered. FDAX is not a book. Hyperliquid, gold-api, and Frankfurter are witnesses. A gap above 0.5%, perp-adjusted for SPX against ES and NDX against NQ, skips the symbol for that cycle and does not mark an open position. A failed primary leaves the Yahoo price. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The 0.5% skip does not replace the two-family gate or the fee multiple. |
+| R2 Data | APPROVE | A silent primary keeps Yahoo. A same-vendor print cannot verify itself. |
+| R4 Council | APPROVE | No key, no live order, and Brent is not taken from CNBC. |
+| Meta-Critic | APPROVE | FDAX stays off the book. The rejected print is not an exit. |

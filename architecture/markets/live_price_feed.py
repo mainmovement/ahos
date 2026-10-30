@@ -398,6 +398,12 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
         merge_swap_quotes(quotes)
     except Exception:
         pass
+    try:
+        from architecture.markets.quote_router import route_public_quotes
+
+        route_public_quotes(quotes)
+    except Exception:
+        pass
     live_n = sum(1 for q in quotes.values() if q.get("freshness") == "LIVE")
     return {
         "schema": "ahos.live_market_prices.v2",

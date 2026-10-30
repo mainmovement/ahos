@@ -4,7 +4,7 @@ Source A is the execution feed (Yahoo / CoinGecko, see live_price_feed). Witness
   * B: TradingView public scanner -> oil, gold futures, indices, FX, QQQ, DXY, US10Y (often 10-min delayed).
        Futures are requested for the SAME contract month that source A is on (explicit ``ICEEUR:BRNF2027``),
        because vendors roll their "1!" continuous series on different days.
-  * B fallback: CNBC public quote service (403 from Iran) and Kraken public ticker (BTC, ETH, SOL, UNI, PAXG).
+  * B fallback: CNBC public quote service and Kraken public ticker (BTC, ETH, SOL, UNI, PAXG).
   * C: Stooq (independent vendor) through the r.jina.ai reader mirror; fetched lazily, only for symbols where
        A-B did not verify plus oil (roll-basis diagnostics).
 
