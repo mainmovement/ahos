@@ -1,0 +1,107 @@
+{
+ "schema": "ahos.mega12_shadow.v1",
+ "paper_only": true,
+ "prereg_sha256": "82e5e1b676cc30476a648ce9f43a655a51b38aa5170bd4c48116d6ae0020ff32",
+ "hash_ok": true,
+ "fresh_after": "2026-10-30T19:10:04Z",
+ "fresh_closes": 0,
+ "n_variants": 9,
+ "news": {
+  "news_cooldown_15": {
+   "trades_skipped": 0,
+   "loss_avoided_usd": null,
+   "winners_forgone_usd": null,
+   "net_delta_usd": null,
+   "applied_to_live": false,
+   "window_min": 15,
+   "unevaluable": 0
+  },
+  "news_cooldown_30": {
+   "trades_skipped": 0,
+   "loss_avoided_usd": null,
+   "winners_forgone_usd": null,
+   "net_delta_usd": null,
+   "applied_to_live": false,
+   "window_min": 30,
+   "unevaluable": 0
+  },
+  "news_cooldown_60": {
+   "trades_skipped": 0,
+   "loss_avoided_usd": null,
+   "winners_forgone_usd": null,
+   "net_delta_usd": null,
+   "applied_to_live": false,
+   "window_min": 60,
+   "unevaluable": 0
+  },
+  "fade_first_spike_15": {
+   "trades_skipped": 0,
+   "loss_avoided_usd": null,
+   "winners_forgone_usd": null,
+   "net_delta_usd": null,
+   "applied_to_live": false,
+   "window_min": 15,
+   "unevaluable": 0
+  }
+ },
+ "gold": {
+  "rules": [
+   {
+    "rule": "gold_atr_trail",
+    "fresh_evaluable": 0,
+    "shadow_mean_usd": null,
+    "live_mean_usd": null,
+    "applied_to_live": false
+   },
+   {
+    "rule": "gold_time_stop",
+    "fresh_evaluable": 0,
+    "shadow_mean_usd": null,
+    "live_mean_usd": null,
+    "applied_to_live": false
+   },
+   {
+    "rule": "gold_partial_1r",
+    "fresh_evaluable": 0,
+    "shadow_mean_usd": null,
+    "live_mean_usd": null,
+    "applied_to_live": false
+   }
+  ],
+  "pick": null,
+  "applied_to_live": false
+ },
+ "entry": {
+  "fresh_kept": 0,
+  "fresh_dropped": 0,
+  "unevaluable": 0,
+  "mtf_trend_dominant_share_after": null,
+  "applied_to_live": false
+ },
+ "tilt": {
+  "fresh_means_usd": {},
+  "shadow_weights": {},
+  "negative_desks_get_zero": [],
+  "floors_unchanged": {
+   "min_agreeing_families": 2,
+   "vote_score_floor": 0.05,
+   "min_expected_profit_to_fee_ratio": 2.0
+  },
+  "applied_to_live": false
+ },
+ "lookback_news_cooldown_60": {
+  "trades_skipped": 7,
+  "loss_avoided_usd": 0.0303,
+  "winners_forgone_usd": 0.0839,
+  "net_delta_usd": -0.0536,
+  "applied_to_live": false,
+  "window_min": 60,
+  "unevaluable": 0
+ },
+ "helping": null,
+ "promoted": false,
+ "applied_to_live": false,
+ "pass_stats": false,
+ "red_team": "NOT_SURVIVED",
+ "hypothesis_status": "WAITING_FOR_FRESH"
+}

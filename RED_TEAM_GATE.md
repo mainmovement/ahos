@@ -810,3 +810,15 @@ Pre-registration commit 7714a44 is before the score. Hash e4cd3a4ecfa2281013324d
 | R2 Data | APPROVE the missing bars | Twelve strategies have no cited input. The session range is labeled as a session range. |
 | R7 SRE/Security | APPROVE the wait | The soak script exits before 2026-11-01T00:45:31Z. Libraries stay uninstalled under 2048 MB free. |
 | Meta-Critic | APPROVE | Level 2: the fixture review still catches look-ahead and a zero-cost fill. That catch is NOT_SURVIVED. Judge NO_PROMOTION. Negahban ABSTAIN. |
+
+
+## MEGA 12 shadow fixes (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Pre-registration commit b9535cb is before the score. Hash 82e5e1b676cc30476a648ce9f43a655a51b38aa5170bd4c48116d6ae0020ff32. Fresh closes after 2026-10-30T19:10:04Z: 0. Lookback news tag: 7 stored entries, 0.0303 dollars, excluded from the score. Gold path fields are absent, so no exit was picked. Promoted 0.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | REJECT promotion | The fresh sample is empty. The 7-entry tag is a lookback. |
+| R2 Data | APPROVE the unevaluable gold path | ATR, time, and partial need a stored path or mid price. None was invented. |
+| R7 SRE/Security | APPROVE | Live floors stay 2, 0.05, and 2. No live weight was written. HOLD and Lane A were not edited. |
+| Meta-Critic | APPROVE | Level 2: the fixture review still catches look-ahead and a zero-cost fill. That catch is NOT_SURVIVED. Judge NO_PROMOTION. Negahban ABSTAIN. |

@@ -322,3 +322,8 @@ Shadow paths for the existing 26 strategies write a family vote with composite w
 ## MEGA 11 (2026-10-30)
 
 Pre-registration docs/prereg/MEGA11.yaml commit 7714a44, sha256 e4cd3a4ecfa2281013324dfa3d289eb35aecfdf6f6b2f5a39f67cc846ca1873e. The desk-focus rank uses only shadow closes after 2026-10-30T18:43:59Z. That count is 0. Lookback shadow closes are 7 of 26. The nightly note names the shadow leaders in Persian. The soak restart is open until 2026-11-01T00:45:31Z. Promoted **0**. Gap IDs closed: **none**.
+
+
+## MEGA 12 (2026-10-30)
+
+Pre-registration docs/prereg/MEGA12.yaml commit b9535cb, sha256 82e5e1b676cc30476a648ce9f43a655a51b38aa5170bd4c48116d6ae0020ff32. News cooldown, fade, gold exits, capital tilt, and the entry rule score only closes opened and closed after 2026-10-30T19:10:04Z. That count is 0. The nightly note uses one Persian sentence for the shadow work. Promoted **0**. Gap IDs closed: **none**.

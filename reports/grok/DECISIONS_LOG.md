@@ -581,3 +581,11 @@
 **Choice:** No. `docs/prereg/MEGA11.yaml` was committed as `7714a44` before the new score. Its sha256 is `e4cd3a4ecfa2281013324dfa3d289eb35aecfdf6f6b2f5a39f67cc846ca1873e`. A shadow close counts for that rank only when its bar time is after 2026-10-30T18:43:59Z. The rescore found 0 such closes. The rank is empty. Seven of 26 strategies have a lookback shadow close. Fourteen rules ran on a real frame. Twelve still have no cited input on disk, and no input was invented. Stooq's 1-minute and 5-minute files returned a JavaScript wall. TradingView returned a session high and low for all 24 names, logged as an estimate, not as a 5-minute bar. The soak restart script prints WAIT before 2026-11-01T00:45:31Z. Free RAM is 1366 MB of 8116 MB, below the 2048 MB line, so the libraries stay uninstalled. Promoted 0. The red team did not survive. Gap IDs closed: none.
 
 **Reason:** A lookback mean is the motive for the test, and a clock that has not reached 72 hours is not a restart.
+
+## 2026-10-30: MEGA12 is registered before the fix is scored
+
+**Question:** Should the stored book's news-chase losses, or its gold exits, be used to pick a live cooldown, a live stop, or a live desk weight?
+
+**Choice:** No. `docs/prereg/MEGA12.yaml` was committed as `b9535cb` before the score. Its sha256 is `82e5e1b676cc30476a648ce9f43a655a51b38aa5170bd4c48116d6ae0020ff32`. A close counts only when it was opened and closed after 2026-10-30T19:10:04Z. That fresh count is 0, so loss avoided, the gold pick, the tilt weights, and the dependency share are empty. A lookback tag found 7 stored entries inside 60 minutes of a high-impact event and 0.0303 dollars of losses on those skips. That tag is not the test. Gold rows have no stored path for an ATR trail, a time-stop price, or a one-R partial, so those variants are unevaluable. Live floors stay 2 families, 0.05, and 2× fees. Promoted 0. The red team did not survive. Gap IDs closed: none.
+
+**Reason:** A tag on an old close is not a fresh sample, and a missing gold path is not a stop.

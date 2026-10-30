@@ -1,0 +1,18 @@
+{
+  "schema": "ahos.mega12_checklist.v1",
+  "paper_only": true,
+  "generated_at": "2026-10-30T19:15:00Z",
+  "prereg_commit": "b9535cb00eb8e13309119788c299ccab484d851f",
+  "prereg_sha256": "82e5e1b676cc30476a648ce9f43a655a51b38aa5170bd4c48116d6ae0020ff32",
+  "fresh_after": "2026-10-30T19:10:04Z",
+  "fresh_closes": 0,
+  "promoted": false,
+  "applied_to_live": false,
+  "items": [
+    {"id": "1", "item": "news cooldown and fade", "state": "PARTIAL", "evidence": "reports/grok/PAPER/mega12_shadow.json"},
+    {"id": "2", "item": "gold exit variants", "state": "PARTIAL", "evidence": "reports/grok/PAPER/mega12_shadow.json"},
+    {"id": "3", "item": "capital tilt", "state": "PARTIAL", "evidence": "reports/grok/PAPER/mega12_shadow.json"},
+    {"id": "4", "item": "entry quality", "state": "PARTIAL", "evidence": "reports/grok/PAPER/mega12_shadow.json"},
+    {"id": "5", "item": "one Persian digest sentence", "state": "DONE", "evidence": "architecture/mission/mehrdad_digest.py"}
+  ]
+}

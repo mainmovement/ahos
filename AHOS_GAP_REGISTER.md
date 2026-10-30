@@ -683,3 +683,11 @@ The 2026-08-20 classification table above is a historical snapshot. The living s
 - M-GAP-005 stays MITIGATED. PID 14260 was not restarted. The restart stays closed until 2026-11-01T00:45:31Z.
 - M-GAP-009 stays OPEN. One more Persian line in the nightly note is not a general Telegram unlock.
 - Readiness stays 50 percent. Vision overlay stays 16 of 26. Gap IDs closed: none.
+
+
+## Addendum (2026-10-30) — MEGA 12, paper only
+
+- No gap id changes state. Fresh closes after the MEGA12 stamp: 0. A lookback news tag is not a pass.
+- Live floors stay 2 families, 0.05, and 2× fees. No desk weight was written.
+- M-GAP-009 stays OPEN. The shorter nightly sentence is not a general Telegram unlock.
+- Readiness stays 50 percent. Vision overlay stays 16 of 26. Gap IDs closed: none.

@@ -139,6 +139,35 @@ _FA_STRATEGY = {
 }
 
 
+_FA_FIX = {
+    "news_cooldown_15": "درنگ خبر",
+    "news_cooldown_30": "درنگ خبر",
+    "news_cooldown_60": "درنگ خبر",
+    "fade_first_spike_15": "محو جهش",
+    "gold_atr_trail": "دنباله‌رو نوسان",
+    "gold_time_stop": "توقف زمانی",
+    "gold_partial_1r": "برداشت جزئی",
+    "capital_tilt": "چرخش سرمایه",
+    "entry_mtf_plus_family": "کیفیت ورود",
+}
+
+
+def _helping(root: Path) -> str:
+    """Which shadow fix is ahead on fresh closes. No Latin identifiers."""
+    path = Path(root) / "reports" / "grok" / "PAPER" / "mega12_shadow.json"
+    if not path.is_file():
+        return "در آزمون تازه هنوز هیچ اصلاحی از بقیه جلو نیست."
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return "در آزمون تازه هنوز هیچ اصلاحی از بقیه جلو نیست."
+    name = _FA_FIX.get(str(doc.get("helping") or ""))
+    fresh = doc.get("fresh_closes")
+    if not name or not isinstance(fresh, int) or fresh <= 0:
+        return "در آزمون تازه هنوز هیچ اصلاحی از بقیه جلو نیست."
+    return f"در آزمون تازه، {_fa_int(fresh)} معاملهٔ تازه بررسی شد و جلوتر از بقیه {name} است و هنوز زنده نشده است."
+
+
 def _shadow_leaders(root: Path) -> str:
     """One Persian line. Latin strategy ids never enter the note."""
     path = Path(root) / "reports" / "grok" / "PAPER" / "strategy_leaderboard.json"
@@ -221,10 +250,9 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
         "",
         f"آمادگی پول واقعی {pct_text} درصد است و کلید زنده خاموش است.",
         soak_line,
-        "یک لایهٔ علمی روی سایه مانده و به معاملهٔ زنده نرسیده است.",
+        "چند روش تازه در حال آزمایش‌اند و هنوز به معاملهٔ واقعی نرسیده‌اند.",
+        _helping(root),
         "اگر مدل پاسخ‌گو قطع باشد، وضعیت از پرونده خوانده می‌شود و معامله‌ای باز نمی‌شود.",
-        "مسیرهای سایه به پرونده وصل شدند و هیچ‌کدام به معاملهٔ زنده نرسید.",
-        _shadow_leaders(root),
         "",
         f"مشکل: {problem}",
     ])

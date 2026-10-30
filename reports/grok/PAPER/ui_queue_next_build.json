@@ -50,6 +50,10 @@
   {
    "id": "mega11_desk_focus",
    "change": "Show the fresh strategy-desk-regime rank as waiting until closes exist after the MEGA11 stamp. Show session-range spreads as estimates. Do not paint a leader as promoted."
+  },
+  {
+   "id": "mega12_fixes",
+   "change": "Show news cooldown, gold exits, capital tilt, and the entry rule as shadow. Do not paint a fix as helping until a fresh close exists."
   }
  ],
  "decides": false

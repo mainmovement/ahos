@@ -185,7 +185,7 @@ def _hypotheses(root: Path, research: dict[str, Any] | None) -> dict[str, Any]:
         "source": "reports/grok/PAPER/research_weekly.json",
         "decides": False,
     }
-    for name in ("MEGA9", "MEGA11"):
+    for name in ("MEGA9", "MEGA11", "MEGA12"):
         prereg = Path(root) / "docs" / "prereg" / f"{name}.yaml"
         if prereg.is_file():
             doc[f"{name.lower()}_prereg_sha256"] = hashlib.sha256(prereg.read_bytes()).hexdigest()
