@@ -1,0 +1,15 @@
+{
+  "schema": "ahos.didehban_desk_receipt.v1",
+  "generated_at": "2026-10-30T00:27:22Z",
+  "paper_only": true,
+  "organ": "Didehban OSINT (M18 / news_desk)",
+  "newsroom_generated_at": "2026-10-30T00:26:58Z",
+  "corroborated_clusters": 102,
+  "feeds_used": 90,
+  "registry_candidates": 246,
+  "registry_verified_any": 174,
+  "registry_generated_at": "2026-10-30T00:26:58Z",
+  "corroboration_snapshot_at": "2026-10-24T10:10:39Z",
+  "two_source_rule": "CORROBORATED requires >=2 independent domains",
+  "authority": "evidence_for_council_and_macro_only"
+}

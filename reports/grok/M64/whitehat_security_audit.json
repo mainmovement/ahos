@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T01:44:49Z",
+  "generated_at": "2026-10-30T00:27:27Z",
   "paper_only": true,
   "execution_mode": "PAPER_ONLY",
   "overall_verdict": "CLEAN",
@@ -26,13 +26,14 @@
     {
       "check": "secret_hygiene_scan",
       "verdict": "CLEAN",
-      "files_scanned": 1119,
+      "files_scanned": 1150,
       "findings": 0,
       "finding_paths": []
     },
     {
       "check": "cve_supply_chain_audit",
       "verdict": "CLEAN",
+      "python_exe_audited": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
       "python_runtime_packages": {
         "certifi": "2026.10.23",
         "urllib3": "2.8.0",
@@ -70,9 +71,9 @@
       "verdict": "CLEAN",
       "entries": {
         "schema": "ahos.mission_ledger.v1",
-        "path": "G:\\robat\\_tmp\\tmpatghng23\\ledger_copy.jsonl",
-        "entries": 1236,
-        "head_hash": "662c1ad898a31ea9f509f543a1ff52d024c18a7a2f8c076e75d9eea5770502f6",
+        "path": "C:\\Users\\Sniper\\AppData\\Local\\Temp\\tmpmzev21ng\\ledger_copy.jsonl",
+        "entries": 1697,
+        "head_hash": "4333e8fd35d13f6e3cafbeae89e763a50b46bb56dccd6f8aeebf35f3ee151858",
         "torn_tail": false,
         "verdict": "CHAIN_INTACT"
       }

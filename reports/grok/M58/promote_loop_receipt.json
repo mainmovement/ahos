@@ -1,0 +1,20 @@
+{
+  "schema": "ahos.m58_promote_loop_receipt.v1",
+  "generated_at": "2026-10-30T00:27:20Z",
+  "paper_only": true,
+  "auto_promote_enabled": false,
+  "strategy_switch_version": 0,
+  "active_promotions": {},
+  "promotion_eligible_candidates": [],
+  "aci_agi_si_loop_status": "OPEN_AT_PROMOTE",
+  "promote_fn": "architecture.learning.strategy_switch.promote (human/agent explicit only)",
+  "gates_required": [
+    "PASS_STATS",
+    "SURVIVED_RED_TEAM",
+    "oos_trades>=30"
+  ],
+  "next_human_actions": [
+    "Review promotion_eligible vs live UNPROVEN_EDGE book",
+    "Never promote from shadow hit_rate alone"
+  ]
+}

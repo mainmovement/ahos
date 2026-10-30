@@ -1,0 +1,11 @@
+{
+  "schema": "ahos.scheduled_run_receipt.v1",
+  "task_name": "AHOS_pipeline_6h",
+  "finished_at": "2026-10-30T00:25:58Z",
+  "status": "OK",
+  "result": {
+    "science_to_desk_sources": 12,
+    "m58_auto_promote_enabled": false,
+    "m60_status": "SHADOW_PAPER_ACTIVE"
+  }
+}

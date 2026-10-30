@@ -22,7 +22,7 @@
       {
         "source_id": "arxiv",
         "title_en": "arXiv",
-        "status": "LIVE (45 papers, 2026-10-24T01:16:52Z)",
+        "status": "LIVE (40 papers, 2026-10-30T00:25:57Z)",
         "paper_only": true
       },
       {
@@ -291,22 +291,22 @@
       {
         "desk": "GOLD_DESK",
         "curriculum_modules": 4,
-        "real_trade_lessons": 0,
-        "syllabus_fa": "درس‌های GOLD_DESK: فرضیه‌های آزموده‌شده (H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
+        "real_trade_lessons": 12,
+        "syllabus_fa": "درس‌های GOLD_DESK: فرضیه‌های آزموده‌شده (H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 12 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
         "desk": "OIL_DESK",
         "curriculum_modules": 5,
-        "real_trade_lessons": 0,
-        "syllabus_fa": "درس‌های OIL_DESK: فرضیه‌های آزموده‌شده (H17 REJECTED، H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
+        "real_trade_lessons": 21,
+        "syllabus_fa": "درس‌های OIL_DESK: فرضیه‌های آزموده‌شده (H17 REJECTED، H18 REJECTED، H19 REJECTED، H20 REJECTED، H22 FORWARD_TEST) و 21 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
         "desk": "CRYPTO_UNIVERSE_DESK",
         "curriculum_modules": 7,
-        "real_trade_lessons": 0,
-        "syllabus_fa": "درس‌های CRYPTO_UNIVERSE_DESK: فرضیه‌های آزموده‌شده (H14 REJECTED، H15 SHADOW_FORWARD_TEST، H18 REJECTED، H19 REJECTED، H20 REJECTED، H21 FORWARD_TEST، H22 FORWARD_TEST) و 0 درس از معاملات کاغذی بسته‌شده.",
+        "real_trade_lessons": 40,
+        "syllabus_fa": "درس‌های CRYPTO_UNIVERSE_DESK: فرضیه‌های آزموده‌شده (H14 REJECTED، H15 SHADOW_FORWARD_TEST، H18 REJECTED، H19 REJECTED، H20 REJECTED، H21 FORWARD_TEST، H22 FORWARD_TEST) و 40 درس از معاملات کاغذی بسته‌شده.",
         "paper_only": true
       },
       {
@@ -347,6 +347,7 @@
         "university_curriculum_module_fa": "واحد درسی B-101: تصمیم‌گیری فراشناختی، کالیبراسیون بریر و درخت پادواقعی برای مغز مرکزی",
         "held_out_exam_score_pct": 94,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -357,6 +358,7 @@
         "university_curriculum_module_fa": "واحد درسی P-102: مدیریت حافظهٔ O(1)، جلوگیری از رشد نمایی فایل‌ها و زمان‌بندی سبک پردازش‌ها",
         "held_out_exam_score_pct": 96,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -367,6 +369,7 @@
         "university_curriculum_module_fa": "واحد درسی R-103: راستی‌آزمایی دومنبعی خبر، حذف شایعات تک‌منبعی و خنثی‌سازی پرامپت‌اینجکشن",
         "held_out_exam_score_pct": 92,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -377,6 +380,7 @@
         "university_curriculum_module_fa": "واحد درسی S-104: ممیزی کلاه‌سفید، قفل رمزنگاری M70.6، بهداشت کلیدها و ایزولاسیون پورت 127.0.0.1",
         "held_out_exam_score_pct": 98,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -387,6 +391,7 @@
         "university_curriculum_module_fa": "واحد درسی D-105: عیب‌یابی خودکار مبتنی بر درخت نحو (AST) و تولید تست رگرسیون تک‌فایلی",
         "held_out_exam_score_pct": 91,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -397,6 +402,7 @@
         "university_curriculum_module_fa": "واحد درسی I-106: روش‌شناسی علمی، تفکیک دادهٔ آموزش از آزمون و رد فرضیه‌های بیش‌برازش‌شده",
         "held_out_exam_score_pct": 95,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -407,6 +413,7 @@
         "university_curriculum_module_fa": "واحد درسی U-107: طراحی آزمون‌های استاندارد بدون نشت و آموزش سادهٔ مفاهیم پیچیده به زبان فارسی (M65)",
         "held_out_exam_score_pct": 93,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -417,6 +424,7 @@
         "university_curriculum_module_fa": "واحد درسی M-108: شاهد دومنبعی در ۷ بازار، شکارچی ۲۴مرحله‌ای توکن و مدیریت ریسک ضدورشکستگی",
         "held_out_exam_score_pct": 94,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       }
     ]
@@ -435,7 +443,7 @@
     ],
     "trading_only": false,
     "average_university_exam_score_pct": 94.1,
-    "summary_fa": "پژوهشکده و دانشگاه AHOS اکنون هر 8 اندام حیاتی سیستم (مغز ACI/AGI/SI، کالبد و سرعت ۸ گیگ، خبرنگاران دیده‌بان، کلاه‌سفیدهای نگهبان، موتور خوددیباگ‌کن، پژوهشکده، دانشگاه و ۷ میز بازار) را تحت پوشش تحقیق، آزمایش سندباکس و آموزش مستمر قرار داده‌اند (میانگین نمرهٔ آزمون: 94.1%).",
+    "summary_fa": "پژوهشکده و دانشگاه AHOS اکنون هر 8 اندام حیاتی سیستم (مغز ACI/AGI/SI، کالبد و سرعت ۸ گیگ، خبرنگاران دیده‌بان، کلاه‌سفیدهای نگهبان، موتور خوددیباگ‌کن، پژوهشکده، دانشگاه و ۷ میز بازار) را تحت پوشش تحقیق، آزمایش سندباکس و آموزش مستمر قرار داده‌اند (میانگین نمرهٔ آزمون: 94.1%؛ عدد ثابت برنامهٔ درسی، اندازه‌گیری‌نشده).",
     "organ_discovery_routes": [
       {
         "organ_id": "CORE_BRAIN_ACI_AGI_SI",
@@ -445,6 +453,7 @@
         "university_curriculum_module_fa": "واحد درسی B-101: تصمیم‌گیری فراشناختی، کالیبراسیون بریر و درخت پادواقعی برای مغز مرکزی",
         "held_out_exam_score_pct": 94,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -455,6 +464,7 @@
         "university_curriculum_module_fa": "واحد درسی P-102: مدیریت حافظهٔ O(1)، جلوگیری از رشد نمایی فایل‌ها و زمان‌بندی سبک پردازش‌ها",
         "held_out_exam_score_pct": 96,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -465,6 +475,7 @@
         "university_curriculum_module_fa": "واحد درسی R-103: راستی‌آزمایی دومنبعی خبر، حذف شایعات تک‌منبعی و خنثی‌سازی پرامپت‌اینجکشن",
         "held_out_exam_score_pct": 92,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -475,6 +486,7 @@
         "university_curriculum_module_fa": "واحد درسی S-104: ممیزی کلاه‌سفید، قفل رمزنگاری M70.6، بهداشت کلیدها و ایزولاسیون پورت 127.0.0.1",
         "held_out_exam_score_pct": 98,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -485,6 +497,7 @@
         "university_curriculum_module_fa": "واحد درسی D-105: عیب‌یابی خودکار مبتنی بر درخت نحو (AST) و تولید تست رگرسیون تک‌فایلی",
         "held_out_exam_score_pct": 91,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -495,6 +508,7 @@
         "university_curriculum_module_fa": "واحد درسی I-106: روش‌شناسی علمی، تفکیک دادهٔ آموزش از آزمون و رد فرضیه‌های بیش‌برازش‌شده",
         "held_out_exam_score_pct": 95,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -505,6 +519,7 @@
         "university_curriculum_module_fa": "واحد درسی U-107: طراحی آزمون‌های استاندارد بدون نشت و آموزش سادهٔ مفاهیم پیچیده به زبان فارسی (M65)",
         "held_out_exam_score_pct": 93,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       },
       {
@@ -515,6 +530,7 @@
         "university_curriculum_module_fa": "واحد درسی M-108: شاهد دومنبعی در ۷ بازار، شکارچی ۲۴مرحله‌ای توکن و مدیریت ریسک ضدورشکستگی",
         "held_out_exam_score_pct": 94,
         "route_status": "ADMITTED_SANDBOX",
+        "evidence_status": "STATIC_UNVERIFIED_CLAIM (hardcoded in whole_ahos_organ_evolution.py; no artifact backs the score)",
         "paper_only": true
       }
     ],
@@ -528,5 +544,18 @@
       "FOREX_DESK"
     ]
   },
-  "desks_trained": 7
+  "desks_trained": 7,
+  "desk_signal_feed": {
+    "path": "reports/grok/PAPER/desk_signal_feed.json",
+    "schema": "ahos.desk_signal_feed.v1",
+    "generated_at": "2026-10-30T00:25:58Z",
+    "desks_count": 8
+  },
+  "research_hypothesis_scorecard": {
+    "path": "reports/grok/PAPER/research_hypothesis_scorecard.json",
+    "schema": "ahos.research_hypothesis_scorecard.v2",
+    "generated_at": "2026-10-30T00:25:58Z",
+    "outcomes_total": 0,
+    "hypotheses_tracked": 0
+  }
 }

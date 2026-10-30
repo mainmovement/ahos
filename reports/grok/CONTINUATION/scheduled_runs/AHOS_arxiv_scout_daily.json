@@ -1,0 +1,1146 @@
+{
+  "schema": "ahos.scheduled_run_receipt.v1",
+  "task_name": "AHOS_arxiv_scout_daily",
+  "finished_at": "2026-10-30T00:25:57Z",
+  "status": "OK",
+  "result": {
+    "schema": "ahos.arxiv_scout.v1",
+    "generated_at": "2026-10-30T00:25:57Z",
+    "source": "https://export.arxiv.org/api/query",
+    "queries": {
+      "H14": "all:bitcoin AND all:exchange AND (all:inflow OR all:inflows OR all:\"on-chain\")",
+      "H15": "all:stablecoin AND all:bitcoin AND all:price",
+      "H16": "all:FOMC AND (all:drift OR all:announcement) AND all:returns",
+      "H17": "all:oil AND all:inventory AND (all:EIA OR all:announcement OR all:news)",
+      "H18": "all:\"time series momentum\"",
+      "H19": "all:\"probability calibration\" AND all:trading",
+      "H20": "all:\"hierarchical risk parity\"",
+      "H21": "all:\"funding rate\" AND all:perpetual",
+      "H22": "all:\"news sentiment\" AND all:returns",
+      "RECENT_QFIN_TR": "cat:q-fin.TR",
+      "RECENT_QFIN_PM": "cat:q-fin.PM"
+    },
+    "papers_by_hypothesis": {
+      "H14": [
+        {
+          "arxiv_id": "2201.09790v1",
+          "url": "https://arxiv.org/abs/2201.09790v1",
+          "title": "Linear Laws of Markov Chains with an Application for Anomaly Detection in Bitcoin Prices",
+          "authors": [
+            "Marcell T. Kurbucz",
+            "Péter Pósfay",
+            "Antal Jakovác"
+          ],
+          "published": "2022-01-24",
+          "categories": [
+            "q-fin.ST",
+            "cs.LG"
+          ],
+          "abstract_snippet": "The goals of this paper are twofold: (1) to present a new method that is able to find linear laws governing the time evolution of Markov chains and (2) to apply this method for anomaly detection in Bitcoin prices. To accomplish these goals, first, the linear laws of Markov chains are derived by using the time embedding of their (categorical) autocorrelation function. Then, a binary series is generated from the first "
+        },
+        {
+          "arxiv_id": "2411.06327v2",
+          "url": "https://arxiv.org/abs/2411.06327v2",
+          "title": "Return and Volatility Forecasting Using On-Chain Flows in Cryptocurrency Markets",
+          "authors": [
+            "Yeguang Chi",
+            " Qionghua",
+            " Chu",
+            "Wenyan Hao"
+          ],
+          "published": "2024-11-10",
+          "categories": [
+            "econ.EM"
+          ],
+          "abstract_snippet": "We empirically examine the intraday return- and volatility-forecasting power of on-chain flow data for Bitcoin(BTC), Ethereum(ETH), and Tether(USDT). We find ETH net inflows to strongly predict ETH returns and volatility in the 2017-2023 period. Our intraday frequencies are 1-6 hours. We find that differing significantly from forecasting patterns for BTC, ETH net inflows negatively predict ETH returns and volatility."
+        },
+        {
+          "arxiv_id": "2308.00013v1",
+          "url": "https://arxiv.org/abs/2308.00013v1",
+          "title": "Bitcoin Gold, Litecoin Silver:An Introduction to Cryptocurrency's Valuation and Trading Strategy",
+          "authors": [
+            "Haoyang Yu",
+            "Yutong Sun",
+            "Yulin Liu",
+            "Luyao Zhang"
+          ],
+          "published": "2023-07-30",
+          "categories": [
+            "cs.CE",
+            "cs.CR",
+            "econ.GN",
+            "q-fin.CP",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "Historically, gold and silver have played distinct roles in traditional monetary systems. While gold has primarily been revered as a superior store of value, prompting individuals to hoard it, silver has commonly been used as a medium of exchange. As the financial world evolves, the emergence of cryptocurrencies has introduced a new paradigm of value and exchange. However, the store-of-value characteristic of these d"
+        },
+        {
+          "arxiv_id": "2211.08281v1",
+          "url": "https://arxiv.org/abs/2211.08281v1",
+          "title": "Forecasting Bitcoin volatility spikes from whale transactions and CryptoQuant data using Synthesizer Transformer models",
+          "authors": [
+            "Dorien Herremans",
+            "Kah Wee Low"
+          ],
+          "published": "2022-10-06",
+          "categories": [
+            "q-fin.TR",
+            "cs.AI",
+            "cs.LG",
+            "q-fin.CP",
+            "q-fin.PM"
+          ],
+          "abstract_snippet": "The cryptocurrency market is highly volatile compared to traditional financial markets. Hence, forecasting its volatility is crucial for risk management. In this paper, we investigate CryptoQuant data (e.g. on-chain analytics, exchange and miner data) and whale-alert tweets, and explore their relationship to Bitcoin's next-day volatility, with a focus on extreme volatility spikes. We propose a deep learning Synthesiz"
+        },
+        {
+          "arxiv_id": "2107.12041v5",
+          "url": "https://arxiv.org/abs/2107.12041v5",
+          "title": "Inverse and Quanto Inverse Options in a Black-Scholes World",
+          "authors": [
+            "Carol Alexander",
+            "Ding Chen",
+            "Arben Imeraj"
+          ],
+          "published": "2021-07-26",
+          "categories": [
+            "q-fin.PR",
+            "q-fin.MF",
+            "q-fin.PM",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "Over 90% of exchange trading on crypto options has always been on the Deribit platform. This centralised crypto exchange only lists inverse products because they do not accept fiat currency. Currently, fiat-based traders can only make deposits in bitcoin, although they can withdraw both bitcoin and ether to their on-chain wallets. Likewise, other major crypto options platforms only list crypto--stablecoin trading pai"
+        }
+      ],
+      "H15": [
+        {
+          "arxiv_id": "2501.05232v1",
+          "url": "https://arxiv.org/abs/2501.05232v1",
+          "title": "The Intraday Bitcoin Response to Tether Minting and Burning Events: Asymmetry, Investor Sentiment, And \"Whale Alerts\" On Twitter",
+          "authors": [
+            "Aman Saggu"
+          ],
+          "published": "2025-01-09",
+          "categories": [
+            "q-fin.GN",
+            "cs.SI",
+            "q-fin.PR",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "Tether Limited has the sole authority to create (mint) and destroy (burn) Tether stablecoins (USDT). This paper investigates Bitcoin's response to USDT supply change events between 2014 and 2021 and identifies an interesting asymmetry between Bitcoin's responses to USDT minting and burning events. Bitcoin responds positively to USDT minting events over 5- to 30-minute event windows, but this response begins declining"
+        },
+        {
+          "arxiv_id": "2107.12041v5",
+          "url": "https://arxiv.org/abs/2107.12041v5",
+          "title": "Inverse and Quanto Inverse Options in a Black-Scholes World",
+          "authors": [
+            "Carol Alexander",
+            "Ding Chen",
+            "Arben Imeraj"
+          ],
+          "published": "2021-07-26",
+          "categories": [
+            "q-fin.PR",
+            "q-fin.MF",
+            "q-fin.PM",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "Over 90% of exchange trading on crypto options has always been on the Deribit platform. This centralised crypto exchange only lists inverse products because they do not accept fiat currency. Currently, fiat-based traders can only make deposits in bitcoin, although they can withdraw both bitcoin and ether to their on-chain wallets. Likewise, other major crypto options platforms only list crypto--stablecoin trading pai"
+        },
+        {
+          "arxiv_id": "2210.12881v1",
+          "url": "https://arxiv.org/abs/2210.12881v1",
+          "title": "A Control Theoretic Approach to Infrastructure-Centric Blockchain Tokenomics",
+          "authors": [
+            "Oguzhan Akcin",
+            "Robert P. Streit",
+            "Benjamin Oommen",
+            "Sriram Vishwanath",
+            "Sandeep Chinchali"
+          ],
+          "published": "2022-10-23",
+          "categories": [
+            "cs.DC",
+            "cs.CR",
+            "cs.CY",
+            "econ.GN",
+            "eess.SY"
+          ],
+          "abstract_snippet": "There are a multitude of Blockchain-based physical infrastructure systems, operating on a crypto-currency enabled token economy, where infrastructure suppliers are rewarded with tokens for enabling, validating, managing and/or securing the system. However, today's token economies are largely designed without infrastructure systems in mind, and often operate with a fixed token supply (e.g., Bitcoin). This paper argues"
+        }
+      ],
+      "H16": [
+        {
+          "arxiv_id": "2606.08141v1",
+          "url": "https://arxiv.org/abs/2606.08141v1",
+          "title": "A Structural Matrix Autoregressive Model for the Joint Dynamics of Volume, Volatility, and Returns",
+          "authors": [
+            "Andrea Bucci",
+            "Giulio Palomba",
+            "Eduardo Rossi"
+          ],
+          "published": "2026-06-06",
+          "categories": [
+            "econ.EM",
+            "q-fin.GN"
+          ],
+          "abstract_snippet": "This paper proposes a Structural Matrix Autoregressive (SMAR) model for the joint analysis of asset returns, realized volatility, and trading volume in a large-dimensional setting. This framework simultaneously captures dynamic spillovers across financial variables and cross-sectional dependence across assets while preserving a parsimonious parameterization relative to conventional vector autoregressive models. The m"
+        },
+        {
+          "arxiv_id": "2302.10252v1",
+          "url": "https://arxiv.org/abs/2302.10252v1",
+          "title": "Monetary Policy, Digital Assets, and DeFi Activity",
+          "authors": [
+            "Antzelos Kyriazis",
+            "Iason Ofeidis",
+            "Georgios Palaiokrassas",
+            "Leandros Tassiulas"
+          ],
+          "published": "2023-02-20",
+          "categories": [
+            "q-fin.ST"
+          ],
+          "abstract_snippet": "This paper studies the effects of unexpected changes in US monetary policy on digital asset returns. We use event study regressions and find that monetary policy surprises negatively affect BTC and ETH, the two largest digital assets, but do not significantly affect the rest of the market. Second, we use high-frequency price data to examine the effect of the FOMC statements release and Minutes release on the prices o"
+        }
+      ],
+      "H17": [],
+      "H18": [
+        {
+          "arxiv_id": "1702.07374v1",
+          "url": "https://arxiv.org/abs/1702.07374v1",
+          "title": "Time series momentum and contrarian effects in the Chinese stock market",
+          "authors": [
+            "Huai-Long Shi",
+            "Wei-Xing Zhou"
+          ],
+          "published": "2017-02-07",
+          "categories": [
+            "q-fin.ST",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "This paper concentrates on the time series momentum or contrarian effects in the Chinese stock market. We evaluate the performance of the time series momentum strategy applied to major stock indices in mainland China and explore the relation between the performance of time series momentum strategies and some firm-specific characteristics. Our findings indicate that there is a time series momentum effect in the short "
+        },
+        {
+          "arxiv_id": "1904.04912v3",
+          "url": "https://arxiv.org/abs/1904.04912v3",
+          "title": "Enhancing Time Series Momentum Strategies Using Deep Neural Networks",
+          "authors": [
+            "Bryan Lim",
+            "Stefan Zohren",
+            "Stephen Roberts"
+          ],
+          "published": "2019-04-09",
+          "categories": [
+            "stat.ML",
+            "cs.LG",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "While time series momentum is a well-studied phenomenon in finance, common strategies require the explicit definition of both a trend estimator and a position sizing rule. In this paper, we introduce Deep Momentum Networks -- a hybrid approach which injects deep learning based trading rules into the volatility scaling framework of time series momentum. The model also simultaneously learns both trend estimation and po"
+        },
+        {
+          "arxiv_id": "2406.08742v1",
+          "url": "https://arxiv.org/abs/2406.08742v1",
+          "title": "DeepUnifiedMom: Unified Time-series Momentum Portfolio Construction via Multi-Task Learning with Multi-Gate Mixture of Experts",
+          "authors": [
+            "Joel Ong",
+            "Dorien Herremans"
+          ],
+          "published": "2024-06-13",
+          "categories": [
+            "q-fin.CP"
+          ],
+          "abstract_snippet": "This paper introduces DeepUnifiedMom, a deep learning framework that enhances portfolio management through a multi-task learning approach and a multi-gate mixture of experts. The essence of DeepUnifiedMom lies in its ability to create unified momentum portfolios that incorporate the dynamics of time series momentum across a spectrum of time frames, a feature often missing in traditional momentum strategies. Our compr"
+        },
+        {
+          "arxiv_id": "2306.13661v1",
+          "url": "https://arxiv.org/abs/2306.13661v1",
+          "title": "Constructing Time-Series Momentum Portfolios with Deep Multi-Task Learning",
+          "authors": [
+            "Joel Ong",
+            "Dorien Herremans"
+          ],
+          "published": "2023-06-08",
+          "categories": [
+            "q-fin.CP",
+            "cs.LG",
+            "q-fin.PM"
+          ],
+          "abstract_snippet": "A diversified risk-adjusted time-series momentum (TSMOM) portfolio can deliver substantial abnormal returns and offer some degree of tail risk protection during extreme market events. The performance of existing TSMOM strategies, however, relies not only on the quality of the momentum signal but also on the efficacy of the volatility estimator. Yet many of the existing studies have always considered these two factors"
+        },
+        {
+          "arxiv_id": "2106.08420v4",
+          "url": "https://arxiv.org/abs/2106.08420v4",
+          "title": "Trend-Following Strategies via Dynamic Momentum Learning",
+          "authors": [
+            "Bruno P. C. Levy",
+            "Hedibert F. Lopes"
+          ],
+          "published": "2021-06-15",
+          "categories": [
+            "q-fin.ST"
+          ],
+          "abstract_snippet": "Time series momentum strategies are widely applied in the quantitative financial industry and its academic research has grown rapidly since the work of Moskowitz, Ooi and Pedersen (2012). However, trading signals are usually obtained via simple observation of past return measurements. In this article we study the benefits of incorporating dynamic econometric models to sequentially learn the time-varying importance of"
+        }
+      ],
+      "H19": [
+        {
+          "arxiv_id": "2609.23703v1",
+          "url": "https://arxiv.org/abs/2609.23703v1",
+          "title": "Financial Language Models as Applied Artificial Intelligence Systems for News-Based Trading under Market Frictions",
+          "authors": [
+            "Kemal Kirtac"
+          ],
+          "published": "2026-09-20",
+          "categories": [
+            "cs.CL",
+            "cs.LG",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "Financial language models can transform unstructured firm-specific news into structured decision signals, but financial AI research lacks an integrated deployment framework for evaluating whether those signals remain useful in financial decision systems. Computer science research has developed strong methods for time-series forecasting, text classification, multimodal stock prediction, graph-based market modeling, an"
+        },
+        {
+          "arxiv_id": "2604.03888v1",
+          "url": "https://arxiv.org/abs/2604.03888v1",
+          "title": "PolySwarm: A Multi-Agent Large Language Model Framework for Prediction Market Trading and Latency Arbitrage",
+          "authors": [
+            "Rajat M. Barot",
+            "Arjun S. Borkhatariya"
+          ],
+          "published": "2026-04-04",
+          "categories": [
+            "cs.AI",
+            "cs.CL",
+            "cs.MA",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "This paper presents PolySwarm, a novel multi-agent large language model (LLM) framework designed for real-time prediction market trading and latency arbitrage on decentralized platforms such as Polymarket. PolySwarm deploys a swarm of 50 diverse LLM personas that concurrently evaluate binary outcome markets, aggregating individual probability estimates through confidence-weighted Bayesian combination of swarm consens"
+        },
+        {
+          "arxiv_id": "2606.04217v2",
+          "url": "https://arxiv.org/abs/2606.04217v2",
+          "title": "Polymarket-v1 Database",
+          "authors": [
+            "Boka Qin",
+            "Rui Yang"
+          ],
+          "published": "2026-06-02",
+          "categories": [
+            "cs.CE",
+            "q-fin.ST",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "We introduce the Polymarket-v1 Database: the complete on-chain trade archive of Polymarket's first-generation CTF Exchange on Polygon, spanning 2022-11-21 to 2026-04-28 and covering the full contract lifecycle from first settlement to natural termination. The dataset comprises 1.20 billion trade records across 1.30 million markets with $61 billion in nominal volume. Its defining feature is 100% ground-truth aggressor"
+        },
+        {
+          "arxiv_id": "2603.06733v1",
+          "url": "https://arxiv.org/abs/2603.06733v1",
+          "title": "Calibrated Credit Intelligence: Shift-Robust and Fair Risk Scoring with Bayesian Uncertainty and Gradient Boosting",
+          "authors": [
+            "Srikumar Nayak"
+          ],
+          "published": "2026-03-06",
+          "categories": [
+            "q-fin.RM",
+            "cs.AI",
+            "cs.LG"
+          ],
+          "abstract_snippet": "Credit risk scoring must support high-stakes lending decisions where data distributions change over time, probability estimates must be reliable, and group-level fairness is required. While modern machine learning models improve default prediction accuracy, they often produce poorly calibrated scores under distribution shift and may create unfair outcomes when trained without explicit constraints. This paper proposes"
+        },
+        {
+          "arxiv_id": "2512.18118v3",
+          "url": "https://arxiv.org/abs/2512.18118v3",
+          "title": "Distribution-Free Selection of Low-Risk Oncology Patients for Survival Beyond a Time Horizon",
+          "authors": [
+            "Matteo Sesia",
+            "Vladimir Svetnik"
+          ],
+          "published": "2025-12-19",
+          "categories": [
+            "stat.AP",
+            "stat.ME"
+          ],
+          "abstract_snippet": "We study how to select a subset of patients who are unlikely to experience an adverse event within a given time horizon, by calibrating a screening rule based on the output of any survival model. We consider two complementary frameworks. The first extends the classical idea of estimating the event rate among selected patients using a hold-out dataset, integrating it with the Learn-Then-Test method. This provides appr"
+        }
+      ],
+      "H20": [
+        {
+          "arxiv_id": "2411.05807v1",
+          "url": "https://arxiv.org/abs/2411.05807v1",
+          "title": "Schur Complementary Allocation: A Unification of Hierarchical Risk Parity and Minimum Variance Portfolios",
+          "authors": [
+            "Peter Cotton"
+          ],
+          "published": "2024-10-29",
+          "categories": [
+            "q-fin.PM",
+            "q-fin.MF"
+          ],
+          "abstract_snippet": "Despite many attempts to make optimization-based portfolio construction in the spirit of Markowitz robust and approachable, it is far from universally adopted. Meanwhile, the collection of more heuristic divide-and-conquer approaches was revitalized by Lopez de Prado where Hierarchical Risk Parity (HRP) was introduced. This paper reveals the hidden connection between these seemingly disparate approaches."
+        },
+        {
+          "arxiv_id": "2202.02728v1",
+          "url": "https://arxiv.org/abs/2202.02728v1",
+          "title": "Hierarchical Risk Parity and Minimum Variance Portfolio Design on NIFTY 50 Stocks",
+          "authors": [
+            "Jaydip Sen",
+            "Sidra Mehtab",
+            "Abhishek Dutta",
+            "Saikat Mondal"
+          ],
+          "published": "2022-02-06",
+          "categories": [
+            "q-fin.PM",
+            "cs.LG"
+          ],
+          "abstract_snippet": "Portfolio design and optimization have been always an area of research that has attracted a lot of attention from researchers from the finance domain. Designing an optimum portfolio is a complex task since it involves accurate forecasting of future stock returns and risks and making a suitable tradeoff between them. This paper proposes a systematic approach to designing portfolios using two algorithms, the critical l"
+        },
+        {
+          "arxiv_id": "2210.00984v1",
+          "url": "https://arxiv.org/abs/2210.00984v1",
+          "title": "A Comparative Study of Hierarchical Risk Parity Portfolio and Eigen Portfolio on the NIFTY 50 Stocks",
+          "authors": [
+            "Jaydip Sen",
+            "Abhishek Dutta"
+          ],
+          "published": "2022-10-03",
+          "categories": [
+            "q-fin.PM",
+            "cs.LG"
+          ],
+          "abstract_snippet": "Portfolio optimization has been an area of research that has attracted a lot of attention from researchers and financial analysts. Designing an optimum portfolio is a complex task since it not only involves accurate forecasting of future stock returns and risks but also needs to optimize them. This paper presents a systematic approach to portfolio optimization using two approaches, the hierarchical risk parity algori"
+        },
+        {
+          "arxiv_id": "2509.03712v1",
+          "url": "https://arxiv.org/abs/2509.03712v1",
+          "title": "Hierarchical Risk Parity for Portfolio Allocation in the Latin American NUAM Market",
+          "authors": [
+            "Gonzalo Ramirez-Carrillo",
+            "David Ortiz-Mora",
+            "Alex Aguilar-Larrotta"
+          ],
+          "published": "2025-09-03",
+          "categories": [
+            "q-fin.PM"
+          ],
+          "abstract_snippet": "This study applies the Hierarchical Risk Parity (HRP) portfolio allocation methodology to the NUAM market, a regional holding that integrates the markets of Chile, Colombia and Peru. As one of the first empirical analyses of HRP in this newly formed Latin American context, the paper addresses a gap in the literature on portfolio construction under cross-border, emerging market conditions. HRP leverages hierarchical c"
+        },
+        {
+          "arxiv_id": "2305.17523v1",
+          "url": "https://arxiv.org/abs/2305.17523v1",
+          "title": "A Comparative Analysis of Portfolio Optimization Using Mean-Variance, Hierarchical Risk Parity, and Reinforcement Learning Approaches on the Indian Stock Market",
+          "authors": [
+            "Jaydip Sen",
+            "Aditya Jaiswal",
+            "Anshuman Pathak",
+            "Atish Kumar Majee",
+            "Kushagra Kumar",
+            "Manas Kumar Sarkar"
+          ],
+          "published": "2023-05-27",
+          "categories": [
+            "cs.LG",
+            "q-fin.PM"
+          ],
+          "abstract_snippet": "This paper presents a comparative analysis of the performances of three portfolio optimization approaches. Three approaches of portfolio optimization that are considered in this work are the mean-variance portfolio (MVP), hierarchical risk parity (HRP) portfolio, and reinforcement learning-based portfolio. The portfolios are trained and tested over several stock data and their performances are compared on their annua"
+        }
+      ],
+      "H21": [
+        {
+          "arxiv_id": "2506.08573v1",
+          "url": "https://arxiv.org/abs/2506.08573v1",
+          "title": "Designing funding rates for perpetual futures in cryptocurrency markets",
+          "authors": [
+            "Jaehyun Kim",
+            "Hyungbin Park"
+          ],
+          "published": "2025-06-10",
+          "categories": [
+            "q-fin.MF",
+            "q-fin.PR"
+          ],
+          "abstract_snippet": "In cryptocurrency markets, a key challenge for perpetual future issuers is maintaining alignment between the perpetual future price and target value. This study addresses this challenge by exploring the relationship between funding rates and perpetual future prices. Our results demonstrate that by appropriately designing funding rates, the perpetual future price can remain aligned with the target value. We develop re"
+        },
+        {
+          "arxiv_id": "2212.06888v7",
+          "url": "https://arxiv.org/abs/2212.06888v7",
+          "title": "Fundamentals of Perpetual Futures",
+          "authors": [
+            "Songrun He",
+            "Asaf Manela",
+            "Omri Ross",
+            "Victor von Wachter"
+          ],
+          "published": "2022-12-13",
+          "categories": [
+            "q-fin.PR",
+            "q-fin.GN"
+          ],
+          "abstract_snippet": "Perpetual futures are the most popular cryptocurrency derivatives. Perpetuals offer leveraged exposure to their underlying without rollover or direct ownership. Unlike fixed-maturity futures, perpetuals are not guaranteed to converge to the spot price. To minimize the gap between perpetual and spot prices, long investors periodically pay shorts a funding rate proportional to this difference. We derive no-arbitrage pr"
+        },
+        {
+          "arxiv_id": "2209.03307v1",
+          "url": "https://arxiv.org/abs/2209.03307v1",
+          "title": "A primer on perpetuals",
+          "authors": [
+            "Guillermo Angeris",
+            "Tarun Chitra",
+            "Alex Evans",
+            "Matthew Lorig"
+          ],
+          "published": "2022-09-07",
+          "categories": [
+            "q-fin.MF"
+          ],
+          "abstract_snippet": "We consider a continuous-time financial market with no arbitrage and no transactions costs. In this setting, we introduce two types of perpetual contracts, one in which the payoff to the long side is a fixed function of the underlyers and the long side pays a funding rate to the short side, the other in which the payoff to the long side is a fixed function of the underlyers times a discount factor that changes over t"
+        },
+        {
+          "arxiv_id": "2609.05433v1",
+          "url": "https://arxiv.org/abs/2609.05433v1",
+          "title": "Perpetual Futures for Stocks: The SpaceX Pre-IPO Market",
+          "authors": [
+            "Aditya Gupta",
+            "Nick Polson"
+          ],
+          "published": "2026-06-22",
+          "categories": [
+            "q-fin.PR"
+          ],
+          "abstract_snippet": "Robert Shiller proposed perpetual futures in 1993 to create derivative markets for assets that are illiquid or whose price cannot be observed directly, such as single family homes, human capital, and the consumer price index. The crypto markets later built the instrument for a different reason and with a different funding rule. We give a single no arbitrage result that nests both designs: the perpetual price is the p"
+        },
+        {
+          "arxiv_id": "2601.10812v1",
+          "url": "https://arxiv.org/abs/2601.10812v1",
+          "title": "Optimal Liquidation of Perpetual Contracts",
+          "authors": [
+            "Ryan Donnelly",
+            "Junhan Lin",
+            "Matthew Lorig"
+          ],
+          "published": "2026-01-15",
+          "categories": [
+            "q-fin.MF"
+          ],
+          "abstract_snippet": "An agent holds a position in a perpetual contract with payoff function $ψ$ and attempts to liquidate the position while managing transaction costs, inventory risk, and funding rate payments. By solving the agent's stochastic control problem we obtain a closed-form expression for the optimal trading strategy when the payoff function is given by $ψ(s) = s$. When the payoff function is non-linear we provide approximatio"
+        }
+      ],
+      "H22": [
+        {
+          "arxiv_id": "2505.16136v1",
+          "url": "https://arxiv.org/abs/2505.16136v1",
+          "title": "Interpretable Machine Learning for Macro Alpha: A News Sentiment Case Study",
+          "authors": [
+            "Yuke Zhang"
+          ],
+          "published": "2025-05-22",
+          "categories": [
+            "q-fin.CP",
+            "cs.AI",
+            "cs.LG",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "This study introduces an interpretable machine learning (ML) framework to extract macroeconomic alpha from global news sentiment. We process the Global Database of Events, Language, and Tone (GDELT) Project's worldwide news feed using FinBERT -- a Bidirectional Encoder Representations from Transformers (BERT) based model pretrained on finance-specific language -- to construct daily sentiment indices incorporating mea"
+        },
+        {
+          "arxiv_id": "1412.3948v4",
+          "url": "https://arxiv.org/abs/1412.3948v4",
+          "title": "Coupling news sentiment with web browsing data improves prediction of intra-day price dynamics",
+          "authors": [
+            "Gabriele Ranco",
+            "Ilaria Bordino",
+            "Giacomo Bormetti",
+            "Guido Caldarelli",
+            "Fabrizio Lillo",
+            "Michele Treccani"
+          ],
+          "published": "2014-12-12",
+          "categories": [
+            "q-fin.ST",
+            "q-fin.CP"
+          ],
+          "abstract_snippet": "The new digital revolution of big data is deeply changing our capability of understanding society and forecasting the outcome of many social and economic systems. Unfortunately, information can be very heterogeneous in the importance, relevance, and surprise it conveys, affecting severely the predictive power of semantic and statistical methods. Here we show that the aggregation of web users' behavior can be elicited"
+        },
+        {
+          "arxiv_id": "2603.11408v2",
+          "url": "https://arxiv.org/abs/2603.11408v2",
+          "title": "Beyond Polarity: Multi-Dimensional LLM Sentiment Signals for WTI Crude Oil Futures Return Prediction",
+          "authors": [
+            "Dehao Dai",
+            "Ding Ma",
+            "Dou Liu",
+            "Kerui Geng",
+            "Yiqing Wang"
+          ],
+          "published": "2026-03-12",
+          "categories": [
+            "q-fin.ST",
+            "cs.CL"
+          ],
+          "abstract_snippet": "Forecasting crude oil prices remains challenging because market-relevant information is embedded in large volumes of unstructured news and is not fully captured by traditional polarity-based sentiment measures. This paper examines whether multi-dimensional sentiment signals extracted by large language models improve the prediction of weekly WTI crude oil futures returns. Using energy-sector news articles from 2020 to"
+        },
+        {
+          "arxiv_id": "1807.06824v1",
+          "url": "https://arxiv.org/abs/1807.06824v1",
+          "title": "News-based trading strategies",
+          "authors": [
+            "Stefan Feuerriegel",
+            "Helmut Prendinger"
+          ],
+          "published": "2018-07-18",
+          "categories": [
+            "q-fin.TR",
+            "cs.LG",
+            "stat.ML"
+          ],
+          "abstract_snippet": "The marvel of markets lies in the fact that dispersed information is instantaneously processed and used to adjust the price of goods, services and assets. Financial markets are particularly efficient when it comes to processing information; such information is typically embedded in textual news that is then interpreted by investors. Quite recently, researchers have started to automatically determine news sentiment in"
+        },
+        {
+          "arxiv_id": "2304.05115v1",
+          "url": "https://arxiv.org/abs/2304.05115v1",
+          "title": "Towards systematic intraday news screening: a liquidity-focused approach",
+          "authors": [
+            "Jianfei Zhang",
+            "Mathieu Rosenbaum"
+          ],
+          "published": "2023-04-11",
+          "categories": [
+            "q-fin.TR",
+            "cs.LG",
+            "q-fin.CP"
+          ],
+          "abstract_snippet": "News can convey bearish or bullish views on financial assets. Institutional investors need to evaluate automatically the implied news sentiment based on textual data. Given the huge amount of news articles published each day, most of which are neutral, we present a systematic news screening method to identify the ``true'' impactful ones, aiming for more effective development of news sentiment learning methods. Based "
+        }
+      ],
+      "RECENT_QFIN_TR": [
+        {
+          "arxiv_id": "2610.37324v1",
+          "url": "https://arxiv.org/abs/2610.37324v1",
+          "title": "Optimal Order Placement under a State-Dependent Hawkes Process Limit Order Book model",
+          "authors": [
+            "Jonathan Chávez Casillas",
+            "Li Gan"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "q-fin.TR",
+            "q-fin.CP",
+            "q-fin.MF"
+          ],
+          "abstract_snippet": "We study optimal quote placement for a market maker facing order flow modeled by a state-dependent Hawkes process. A block-based linear demand specification links market-order counts to execution volumes, providing the demand moments required by a continuous time discrete state dynamic programming formulation. Under a quadratic terminal inventory penalty, we characterize inventory-dependent quotes and derive backward"
+        },
+        {
+          "arxiv_id": "2610.36899v1",
+          "url": "https://arxiv.org/abs/2610.36899v1",
+          "title": "Depositing More Should Not Earn Less: Supplier Income Monotonicity and Rate Curve Design in Pooled Lending Markets",
+          "authors": [
+            "Ahzam Khan",
+            "Cavey Cool"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "In utilization dependent interest rate models, adding liquidity can reduce a supplier's total interest income even as the supplier's balance increases. A supplier holding a fraction $α$ of final pool supply keeps income nondecreasing with a marginal deposit exactly when $α(1+η)\\leq1$, where $η$ is the elasticity of the borrow rate with respect to utilization. When the condition fails, the supplier can instead raise i"
+        },
+        {
+          "arxiv_id": "2610.36317v1",
+          "url": "https://arxiv.org/abs/2610.36317v1",
+          "title": "Event definition and the branching ratio: Hawkes estimates of price-change clustering in the consolidated quote feed",
+          "authors": [
+            "Hyoeun Lee"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "q-fin.ST",
+            "q-fin.CP",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "Hawkes models of price changes in the consolidated US quote feed find a sub-millisecond kernel component and a branching ratio near criticality. We show that in large-tick stocks the first is the feed's construction: half of NBBO changes are locks or depleted quotes, resolved within a millisecond, which the model reads as excitation. Defining the event as a mid-price level persisting for one millisecond removes the c"
+        },
+        {
+          "arxiv_id": "2610.36083v1",
+          "url": "https://arxiv.org/abs/2610.36083v1",
+          "title": "FinLLM-KG: Knowledge Graph-Enhanced LLMs for Financial Sentiment Analysis in Algorithmic Trading",
+          "authors": [
+            "Giorgos Iacovides",
+            "Oliver Hannibal",
+            "Wuyang Zhou",
+            "Danilo Mandic"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "cs.CL",
+            "cs.LG",
+            "q-fin.ST",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "Recent advances in Generative AI have substantially improved financial sentiment analysis through post-trained financial large language models (LLMs). However, existing approaches remain confined to predicting the sentiment of each article in isolation and operate as black boxes, which limits contextual understanding and hinders deployment in high-stakes financial decision-making. To this end, we introduce FinLLM-KG,"
+        },
+        {
+          "arxiv_id": "2610.35738v1",
+          "url": "https://arxiv.org/abs/2610.35738v1",
+          "title": "Fuji: The Shape, Composition, and Spread of Demand Bursts on Robinhood Chain",
+          "authors": [
+            "Pranay Anchuri"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "econ.EM",
+            "cs.SI",
+            "q-fin.TR"
+          ],
+          "abstract_snippet": "Demand on blockchain-based marketplaces arrives in bursts and at a high rate. On these platforms the data are completely visible, which makes it feasible to compare the bursty demand against the usual load. The congestion manifests as an increased demand for gas, the primary resource a blockchain sells. Existing studies consider how to price the gas. The demand itself, and what it is made of during bursts, has not be"
+        }
+      ],
+      "RECENT_QFIN_PM": []
+    },
+    "errors": {
+      "RECENT_QFIN_PM": "URLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1006)'))",
+      "P1_MARKETS_QUANT": "URLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1006)'))",
+      "P2_CORE_BRAIN_REASONING": "URLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1006)'))"
+    },
+    "pillar_queries": {
+      "P1_MARKETS_QUANT": "(cat:q-fin.TR OR cat:q-fin.PM OR cat:q-fin.ST)",
+      "P2_CORE_BRAIN_REASONING": "cat:cs.AI AND (all:calibration OR all:metacognition OR all:abstention)",
+      "P3_LEARNING_FORECASTING": "cat:cs.LG AND all:\"time series\" AND (all:forecasting OR all:\"distribution shift\")",
+      "P4_SECURITY_WHITE_HATS": "cat:cs.CR AND (all:\"smart contract\" OR all:honeypot OR all:\"prompt injection\" OR all:\"rug pull\")",
+      "P5_SYSTEM_PERFORMANCE_BODY": "cat:cs.PF AND (all:memory OR all:latency OR all:streaming)",
+      "P6_STATISTICS_VALIDATION": "cat:stat.ML AND (all:conformal OR all:\"multiple testing\" OR all:calibration OR all:overfitting)",
+      "P7_MACRO_EVENTS_OSINT": "(cat:econ.EM OR cat:q-fin.GN) AND (all:announcement OR all:\"event study\" OR all:news)"
+    },
+    "papers_by_pillar": {
+      "P1_MARKETS_QUANT": [],
+      "P2_CORE_BRAIN_REASONING": [],
+      "P3_LEARNING_FORECASTING": [
+        {
+          "arxiv_id": "2610.37563v1",
+          "url": "https://arxiv.org/abs/2610.37563v1",
+          "title": "Pneuma: A Large-Scale Real-World Time Series Benchmark for Commercial Aircraft Predictive Maintenance",
+          "authors": [
+            "Jiafeng Lin",
+            "Yutian Zhang",
+            "Huan Zhang",
+            "Yuxuan Wang",
+            "Jinyan Feng",
+            "Yuhui Liu"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.LG"
+          ],
+          "abstract_snippet": "Predictive maintenance is vital for commercial aviation, yet progress remains hindered by the lack of public, large-scale real-world datasets. As a result, most methods are developed and evaluated on proprietary data, limiting reproducibility. We introduce Pneuma, the first publicly available large-scale benchmark for predictive maintenance using onboard time series from in-service commercial aircraft. Built around b"
+        },
+        {
+          "arxiv_id": "2610.36703v1",
+          "url": "https://arxiv.org/abs/2610.36703v1",
+          "title": "RankFormer: Rethinking Time Series Transformers through Representation Capacity Analysis and Progressive Decoding",
+          "authors": [
+            "Peiwang Tang",
+            "Cheng HE",
+            "Xijie Liang",
+            "Defu Lian"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.LG"
+          ],
+          "abstract_snippet": "Multivariate time series forecasting plays a critical role in Web and cyber-physical systems, where large-scale services and IoT infrastructures generate complex temporal data. Transformer-based models have achieved strong empirical performance in this domain, yet the principles governing the expressive capacity of their learned representations remain insufficiently understood. Moreover, many existing models rely on "
+        },
+        {
+          "arxiv_id": "2610.36572v1",
+          "url": "https://arxiv.org/abs/2610.36572v1",
+          "title": "Learning from Points and Patches: A Pre-trained Hybrid Attention Transformer for Time Series Analysis",
+          "authors": [
+            "Peiwang Tang",
+            "Cheng HE",
+            "Yupeng Ye",
+            "Weitai Zhang",
+            "Qinghua Sun",
+            "Defu Lian"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.LG"
+          ],
+          "abstract_snippet": "Time-series data generated by Web services and connected systems support applications such as user activity analysis, service monitoring, and resource management. However, learning transferable representations from heterogeneous time series remains challenging due to diverse temporal patterns, variable sequence lengths, and limited high-quality annotations. Despite the success of pre-training in natural language proc"
+        },
+        {
+          "arxiv_id": "2610.35484v1",
+          "url": "https://arxiv.org/abs/2610.35484v1",
+          "title": "Evaluating Bayesian deep learning for robust biomedical time-series classification under distribution shift: A sleep scoring case study",
+          "authors": [
+            "Mads Birch Sørensen",
+            "Ulrike Richter",
+            "Francois Gastambide",
+            "Michael Riis Andersen"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "cs.LG"
+          ],
+          "abstract_snippet": "In biomedical time-series classification, machine learning models often suffer from deteriorating accuracy and calibration due to distribution shift. We investigate to what degree Bayesian-inspired deep learning improves robustness through Bayesian model averaging (BMA). Using rodent sleep scoring as a case study, we evaluate BMA under distribution shifts in genotype, laboratory, and species. We systematically compar"
+        },
+        {
+          "arxiv_id": "2610.35128v2",
+          "url": "https://arxiv.org/abs/2610.35128v2",
+          "title": "STeP-TS: Shared Temporal Filters with Pruning for Time Series",
+          "authors": [
+            "Hanne Raum",
+            "Jasper Hoffmann",
+            "Joschka Boedecker"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "cs.LG"
+          ],
+          "abstract_snippet": "Multivariate time series forecasting requires capturing temporal dependencies across multiple scales while accounting for both shared and variable-specific dynamics. Compact forecasting models have emerged as an attractive alternative to increasingly large architectures, but preserving strong predictive performance within tight computational and memory budgets remains challenging. We propose a compact one-layer convo"
+        }
+      ],
+      "P4_SECURITY_WHITE_HATS": [
+        {
+          "arxiv_id": "2610.37657v1",
+          "url": "https://arxiv.org/abs/2610.37657v1",
+          "title": "Heads of Security: Learned Attention Gates Improve Prompt Injection Robustness",
+          "authors": [
+            "Igor Shilov",
+            "Xiaoxue Yang",
+            "Alexander Panfilov",
+            "Evgenii Kortukov",
+            "Matthieu Meeus",
+            "Peter Romov"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.LG",
+            "cs.CL",
+            "cs.CR"
+          ],
+          "abstract_snippet": "We introduce Heads of Security (HoS), a prompt injection defense that enforces instruction-data separation via a small set of learned per-head attention gates. HoS learns how each head should redistribute attention between trusted and untrusted tokens, enabling models to reason over untrusted content without following injected instructions. We evaluate HoS on Llama-3.3-70B-Instruct and GPT-OSS-20B. We compare it agai"
+        },
+        {
+          "arxiv_id": "2610.36866v1",
+          "url": "https://arxiv.org/abs/2610.36866v1",
+          "title": "UniPCH: A Unified Framework for Cross-Chain Payments via Payment Channel Hubs",
+          "authors": [
+            "Yuanming Shao",
+            "Yuming Feng",
+            "Weizhe Zhang",
+            "Bin Xiao",
+            "Song Guo",
+            "Zejun Wang"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.CR"
+          ],
+          "abstract_snippet": "Payment channel hubs (PCHs) enable private cross-chain payments, but existing protocols remain difficult to extend across heterogeneous blockchains. Their payment flows often depend on how particular blockchains represent transactions, authorize channel updates, and settle balances. Some protocols do not explain how their channels are implemented on actual blockchains. Supporting a new ledger or execution model requi"
+        },
+        {
+          "arxiv_id": "2610.36422v1",
+          "url": "https://arxiv.org/abs/2610.36422v1",
+          "title": "What Victims Take Away: Attack Reuse and Defense Revision after Prompt-Injection Attacks",
+          "authors": [
+            "Zihan Chen",
+            "Lei Nico Zheng",
+            "Di Zhu"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.CR",
+            "cs.HC"
+          ],
+          "abstract_snippet": "Attack logs and red-team reports show targets the attacks used against them, to help them repair their defenses. Prompt injections against large language models (LLMs) are plain text, so such records also hand targets a working copy. Drawing on social learning theory and work on the victim-offender overlap, we study what targets do with that copy in Tensor Trust, an online game whose players defended LLM-guarded acco"
+        },
+        {
+          "arxiv_id": "2610.36108v1",
+          "url": "https://arxiv.org/abs/2610.36108v1",
+          "title": "Log-To-Leak: Prompt Injection Attacks on Tool-Using LLM Agents via the Model Context Protocol",
+          "authors": [
+            "Yuepeng Hu",
+            "Chongyu Fan",
+            "Sirat Samyoun",
+            "Jian Du"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "cs.CR",
+            "cs.AI"
+          ],
+          "abstract_snippet": "LLM agents increasingly access external tools through the Model Context Protocol (MCP), but the natural-language metadata used to describe those tools creates a prompt-injection surface. Within this established tool-poisoning surface, we study Log-To-Leak, an additive post-hoc logging attack that induces a separate attacker-controlled call after the final legitimate call. Its payload targets the user query, MCP serve"
+        },
+        {
+          "arxiv_id": "2610.36001v1",
+          "url": "https://arxiv.org/abs/2610.36001v1",
+          "title": "Merkle-Tree-Based Verifiable Public Data Auditing for Cloud Object Storage Using Smart Contracts",
+          "authors": [
+            "Siri Reddy Tadi",
+            "K. Gangadhara Rao",
+            "M. Venu Gopalachari",
+            "C. Chetann Reddy",
+            "Jaswanth Bhimireddy"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "cs.CR",
+            "cs.DC"
+          ],
+          "abstract_snippet": "Owners of data in cloud object storage cannot directly check whether the provider still keeps every object unchanged. Existing research mostly checks blocks inside files or relies on third-party auditors, and less attention has been given to checking each object against a public blockchain reference while measuring the cost. A full-data audit downloads every object and compares it with a saved hash list, which is slo"
+        }
+      ],
+      "P5_SYSTEM_PERFORMANCE_BODY": [
+        {
+          "arxiv_id": "2610.37307v1",
+          "url": "https://arxiv.org/abs/2610.37307v1",
+          "title": "EdgePace: Deadline- and Freshness-Aware LLM Scheduling on Unified-Memory Platforms",
+          "authors": [
+            "Teng Mei",
+            "Chengxuan Pei",
+            "Weijun Wang",
+            "Jie Wu",
+            "Marco Canini",
+            "Yunming Xiao"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.PF"
+          ],
+          "abstract_snippet": "Large language models (LLMs) increasingly run on edge devices alongside tasks that continuously process sensor data. In many applications, these foreground tasks prepare observations as inputs to the LLM, whose outputs guide subsequent processing or actions. The observations must be processed by foreground deadlines, and LLM feedback must arrive while its source observations remain useful. Yet the CPU and accelerator"
+        },
+        {
+          "arxiv_id": "2610.36564v1",
+          "url": "https://arxiv.org/abs/2610.36564v1",
+          "title": "DeepInfer-Mac: Running a 750B-Class MoE on a 24 GB Laptop",
+          "authors": [
+            "Haorui Li"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.PF"
+          ],
+          "abstract_snippet": "DeepInfer-Mac runs the 750B-class DeepSeek-V4.1-Flash model on a MacBook Air with 24 GB of unified memory. A mixed low-bit conversion occupies 338 GiB on the internal SSD. About 7.6 GiB of weights remain resident; routed experts and Engram rows are loaded when needed. This separation makes the model executable, but it leaves each generated token waiting for a succession of storage reads. We organize expert weights so"
+        },
+        {
+          "arxiv_id": "2610.35336v1",
+          "url": "https://arxiv.org/abs/2610.35336v1",
+          "title": "One Megakernel is Not Enough: Predicting Where to Cut for Streaming Inference",
+          "authors": [
+            "Aditya Chatterjee",
+            "Anand Joseph X M",
+            "Sanjay Singh Chauhan"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "cs.PF",
+            "cs.DC",
+            "cs.LG"
+          ],
+          "abstract_snippet": "We address a fundamental question: How far should kernel fusion extend and which boundaries are worth preserving? Unlike the general convention of using one monolith megakernel at lower batch sizes or supporting only a selective model component as megakernel and rest of the model as conventional graph, we show that the best configuration is a composition of multiple megakernels with no overlapping conventional graph "
+        },
+        {
+          "arxiv_id": "2610.35231v1",
+          "url": "https://arxiv.org/abs/2610.35231v1",
+          "title": "Thermal-Headroom Routing for Efficient Robot Perception in Extreme Heat",
+          "authors": [
+            "Sparsh Roy",
+            "Kevin Zhou",
+            "Arhaan Shah",
+            "Shreyan Garg",
+            "Vihaan Joshi-Apte",
+            "Maxim Kudryashov"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "cs.RO",
+            "cs.CV",
+            "cs.PF"
+          ],
+          "abstract_snippet": "Adaptive robot perception systems must balance detector accuracy, inference latency, and energy consumption, particularly when high ambient temperatures cause processors to thermally throttle. We propose Thermal-Headroom Routing (THR), a lightweight model-selection policy that forecasts processor temperature using a closed-form RC thermal model and excludes detector configurations predicted to cross a throttling thre"
+        },
+        {
+          "arxiv_id": "2610.33923v1",
+          "url": "https://arxiv.org/abs/2610.33923v1",
+          "title": "Queuing for Inference: Dynamic Memory Footprints and Costly Preemption",
+          "authors": [
+            "Jiahui Ni",
+            "Vishrant Tripathi"
+          ],
+          "published": "2026-10-24",
+          "categories": [
+            "cs.PF",
+            "cs.NI"
+          ],
+          "abstract_snippet": "Modeling inference workloads for transformer-based neural networks poses unique challenges due to their dynamic memory footprints, head-of-line blocking caused by heavy-tailed request distributions, and memory-dependent preemption overhead arising from the need to load/unload cache state. In this paper, we introduce a new queuing model that captures the impacts of these features on system stability and scheduling des"
+        }
+      ],
+      "P6_STATISTICS_VALIDATION": [
+        {
+          "arxiv_id": "2610.37353v1",
+          "url": "https://arxiv.org/abs/2610.37353v1",
+          "title": "Cost-based variable selection for prediction models",
+          "authors": [
+            "Lasai Barreñada",
+            "Andrew Vickers",
+            "Laure Wynants",
+            "Bieke Tack",
+            "Dirk Timmerman",
+            "Ewout Steyerberg"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "stat.ME",
+            "stat.ML"
+          ],
+          "abstract_snippet": "Objective: Variable selection for clinical prediction models is commonly done on statistical grounds related to model fit. Statistical approaches ignore the cost of misclassifications and the harm of measuring a variable. We aim to develop a decision-analytic variable selection algorithm based on net benefit. Materials and Methods: The proposed algorithm selects the set of predictors by exhaustively comparing the net"
+        },
+        {
+          "arxiv_id": "2610.37227v1",
+          "url": "https://arxiv.org/abs/2610.37227v1",
+          "title": "Doubly Robust Deep Kernel Tests for Structured Outcomes",
+          "authors": [
+            "Robin Leman",
+            "Bariscan Bozkurt",
+            "Sofiane Tanji",
+            "Arthur Gretton",
+            "Houssam Zenati"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "stat.ML",
+            "cs.LG"
+          ],
+          "abstract_snippet": "We propose a test of whether two interventions induce the same outcome distribution when outcomes are structured and high-dimensional, such as images, text and graphs. We represent the interventional distributions as mean embeddings on learned deep features, such that the treatment effect is a doubly robust representation of the difference in mean embeddings. Our test, DR-KTE-Deep, optimises the learned features so a"
+        },
+        {
+          "arxiv_id": "2610.37169v1",
+          "url": "https://arxiv.org/abs/2610.37169v1",
+          "title": "Rènyi-Regularized Flow-Based Variational Inference for Bayesian Calibration",
+          "authors": [
+            "Exaucè Luweh Adjim Ngarti",
+            "Élise Arnaud",
+            "Léo Nicoletti",
+            "Victor Trappler",
+            "Arthur Vidard"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.AI",
+            "stat.ML"
+          ],
+          "abstract_snippet": "Variational inference with normalizing flows provides a flexible posterior approximation for Bayesian model calibration, but struggles when the posterior has several modes separated by regions of low probability mass. We study this behavior in a two-parameter twin experiment and regularize the variational objective. Under Gaussian observation errors and a Gaussian prior, the corresponding minimization objective is th"
+        },
+        {
+          "arxiv_id": "2610.36633v1",
+          "url": "https://arxiv.org/abs/2610.36633v1",
+          "title": "Deep Bayesian Approaches for Interpretable Nonlinear Structural System Identification",
+          "authors": [
+            "Wei Liu",
+            "Konstantinos Vlachas",
+            "Eleni Chatzi"
+          ],
+          "published": "2026-10-27",
+          "categories": [
+            "cs.LG",
+            "cs.CE",
+            "stat.ML"
+          ],
+          "abstract_snippet": "System identification, namely the inference of mathematical representations of dynamical systems from measured data, is fundamental to engineering diagnostics, prognostics, and decision-making. Bayesian filtering offers a principled framework for probabilistic state estimation but traditionally relies on prescribed transition and observation models. Recent advances in deep Bayesian filtering address this limitation b"
+        },
+        {
+          "arxiv_id": "2610.36311v1",
+          "url": "https://arxiv.org/abs/2610.36311v1",
+          "title": "Confidence Is Not a Promise: A Reference Audit of Typed Decision Models",
+          "authors": [
+            "Pedro Carvalho Brom"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "cs.LG",
+            "stat.ML"
+          ],
+          "abstract_snippet": "Typed decision models return a probability distribution over options supplied by the caller, and software tends to act on that number as if it were a guarantee. We measure what it licenses, comparing the open-weight Laya, in five checkpoints, with Jev 1.13, available only through an API. A probability licenses a statement about groups of decisions, not about one decision, and a gate that promises an accuracy among th"
+        }
+      ],
+      "P7_MACRO_EVENTS_OSINT": [
+        {
+          "arxiv_id": "2610.36352v1",
+          "url": "https://arxiv.org/abs/2610.36352v1",
+          "title": "Many Hands Make Light Work: Long-Term Effect Inference for the Experiment Reservoir",
+          "authors": [
+            "Will Hartog",
+            "Lihua Lei",
+            "Mandar Rahurkar",
+            "Navdeep Sahni",
+            "Yixin Tang"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "econ.EM",
+            "stat.ME"
+          ],
+          "abstract_snippet": "The surrogate index method is the modern standard for estimation of long-term effects in a designed experiment using only short-term outcomes. This method relies on the surrogacy and comparability assumptions which may be violated in practice leading to estimation bias. We propose a new method called Experiment Reservoir Surrogate (ERS) which leverages a reservoir of historical long-term experiments that is common in"
+        },
+        {
+          "arxiv_id": "2610.36093v1",
+          "url": "https://arxiv.org/abs/2610.36093v1",
+          "title": "Testing strong exogeneity in proxy SVARs with internal synthetic proxies",
+          "authors": [
+            "Sascha A. Keweloh",
+            "Shu Wang"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "econ.EM",
+            "stat.ME"
+          ],
+          "abstract_snippet": "Proxy SVARs often rely on a single credible proxy, leaving proxy exogeneity untestable. Narrative arguments used to justify proxy validity imply a stronger form of exogeneity. We formalize the strong exogeneity assumption and propose a corresponding test based on internal synthetic proxies. The approach uses the external proxy to locate the target-shock direction in the reduced-form innovations and synthesize the can"
+        },
+        {
+          "arxiv_id": "2610.34818v1",
+          "url": "https://arxiv.org/abs/2610.34818v1",
+          "title": "Cordon Tolls and Urban Traffic Volumes: Evidence from NYC's 2025 Congestion Relief Zone",
+          "authors": [
+            "Yash Prajapati"
+          ],
+          "published": "2026-10-26",
+          "categories": [
+            "econ.EM"
+          ],
+          "abstract_snippet": "On January 5, 2025, New York City became the first U.S. city to operate a permanent cordon-based congestion toll, charging vehicles entering Manhattan's Central Business District (the Congestion Relief Zone, or CRZ). This study estimates the short-run causal effect of the toll on hourly traffic volumes using a two-way fixed-effects difference in-differences (TWFE-DiD) strategy that compares treated CRZ street segment"
+        },
+        {
+          "arxiv_id": "2610.33137v1",
+          "url": "https://arxiv.org/abs/2610.33137v1",
+          "title": "Smoothing splines with some discontinuities",
+          "authors": [
+            "Matteo Pelagatti",
+            "Paolo Maranzano",
+            "Giulio Cesare Gatto Ronchieri"
+          ],
+          "published": "2026-10-23",
+          "categories": [
+            "stat.ME",
+            "econ.EM",
+            "stat.AP",
+            "stat.CO"
+          ],
+          "abstract_snippet": "We generalize cubic smoothing splines to signals with a finite number of discontinuities at unknown positions. Rather than changing the roughness penalty, we deform the domain over which it is computed: every interval between consecutive observations can be stretched by a non-negative warp, subject to a total budget, and the optimizer spends the budget only where a jump makes stretching cheaper than bending. The esti"
+        },
+        {
+          "arxiv_id": "2610.30487v1",
+          "url": "https://arxiv.org/abs/2610.30487v1",
+          "title": "Monetary Policy Forecast Errors and Inflation Compensation under Sovereign Stress in Brazil",
+          "authors": [
+            " Giovana",
+            " Tommy"
+          ],
+          "published": "2026-10-21",
+          "categories": [
+            "econ.EM"
+          ],
+          "abstract_snippet": "This paper examines whether inflation compensation around Brazilian monetary policy decisions is associated differently with policy forecast errors when sovereign spreads are relatively elevated. Public Tesouro Direto quotations, meeting-specific Focus forecasts and a lagged EMBI indicator yield 68 three-year and 60 five-year event observations. The outcome is a matched-horizon retail yield proxy; the policy variable"
+        }
+      ]
+    },
+    "pillar_paper_count": 25,
+    "paper_count": 40,
+    "honesty_note": "Papers motivate hypotheses only; acceptance requires walk-forward OOS evidence."
+  }
+}

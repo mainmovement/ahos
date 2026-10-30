@@ -1,0 +1,279 @@
+{
+  "schema": "ahos.next_tranche_receipt.v1",
+  "generated_at": "2026-10-30T00:27:20Z",
+  "paper_only": true,
+  "iso_week": "2026-W44",
+  "tracks": {
+    "scheduling": {
+      "schema": "ahos.scheduling_receipt.v1",
+      "generated_at": "2026-10-30T00:27:20Z",
+      "paper_only": true,
+      "production_scheduler_module": "architecture/scheduling/engine.py",
+      "scheduler_db_exists": true,
+      "scheduler_db_path": "G:\\robat\\ahos\\data\\ahos_local.sqlite",
+      "snapshot_schedule_windows": [
+        "s+15m",
+        "s+1h",
+        "s+4h",
+        "s+12h",
+        "s+24h",
+        "s+48h",
+        "s+72h",
+        "s+7d"
+      ],
+      "windows_tasks": [
+        {
+          "task_name": "AHOS_arxiv_scout_daily",
+          "script": "scripts/scheduled/run_arxiv_scout_daily.py",
+          "schedule_type": "DAILY",
+          "start_time": "04:00",
+          "command": "\"G:\\robat\\ahos\\.venv\\Scripts\\python.exe\" \"G:\\robat\\ahos\\scripts\\scheduled\\run_arxiv_scout_daily.py\"",
+          "repo_root": "G:\\robat\\ahos"
+        },
+        {
+          "task_name": "AHOS_pipeline_6h",
+          "script": "scripts/scheduled/run_pipeline_6h.py",
+          "schedule_type": "HOURLY",
+          "modifier": "6",
+          "command": "\"G:\\robat\\ahos\\.venv\\Scripts\\python.exe\" \"G:\\robat\\ahos\\scripts\\scheduled\\run_pipeline_6h.py\"",
+          "repo_root": "G:\\robat\\ahos"
+        },
+        {
+          "task_name": "AHOS_university_exam_sat",
+          "script": "scripts/scheduled/run_university_exam_sat.py",
+          "schedule_type": "WEEKLY",
+          "days": "SAT",
+          "start_time": "09:00",
+          "command": "\"G:\\robat\\ahos\\.venv\\Scripts\\python.exe\" \"G:\\robat\\ahos\\scripts\\scheduled\\run_university_exam_sat.py\"",
+          "repo_root": "G:\\robat\\ahos"
+        },
+        {
+          "task_name": "AHOS_negahban_daily",
+          "script": "scripts/scheduled/run_negahban_daily.py",
+          "schedule_type": "DAILY",
+          "start_time": "05:30",
+          "command": "\"G:\\robat\\ahos\\.venv\\Scripts\\python.exe\" \"G:\\robat\\ahos\\scripts\\scheduled\\run_negahban_daily.py\"",
+          "repo_root": "G:\\robat\\ahos"
+        }
+      ],
+      "windows_tasks_registered_at": "2026-10-30T00:24:33Z",
+      "authority": "observation_windows_only",
+      "note": "Production cadence is Windows Task Scheduler (AHOS_* tasks); this receipt mirrors registration state."
+    },
+    "m58_promote_loop": {
+      "schema": "ahos.m58_promote_loop_receipt.v1",
+      "generated_at": "2026-10-30T00:27:20Z",
+      "paper_only": true,
+      "auto_promote_enabled": false,
+      "strategy_switch_version": 0,
+      "active_promotions": {},
+      "promotion_eligible_candidates": [],
+      "aci_agi_si_loop_status": "OPEN_AT_PROMOTE",
+      "promote_fn": "architecture.learning.strategy_switch.promote (human/agent explicit only)",
+      "gates_required": [
+        "PASS_STATS",
+        "SURVIVED_RED_TEAM",
+        "oos_trades>=30"
+      ],
+      "next_human_actions": [
+        "Review promotion_eligible vs live UNPROVEN_EDGE book",
+        "Never promote from shadow hit_rate alone"
+      ]
+    },
+    "university_exam": {
+      "schema": "ahos.university_exam_tranche_receipt.v1",
+      "generated_at": "2026-10-30T00:27:22Z",
+      "paper_only": true,
+      "heldout_5domain": {
+        "overall_score": 1.0,
+        "leaked": false,
+        "status": null,
+        "generated_at": "2026-10-30T00:27:20Z"
+      },
+      "live_exam_receipt": {
+        "live_daemon_episodes": {
+          "count": 6,
+          "min_episodes": 10,
+          "gap_hours": 24,
+          "status": "ACCUMULATING",
+          "note": "Live rows so far are one short window. This count is not a skill score."
+        },
+        "historical_oos_episodes": {
+          "count": 169,
+          "heldout": 85,
+          "status": "MEASURED",
+          "leaked": false,
+          "estimate_ability_theta": 0.1172,
+          "theta_se": 0.2173,
+          "theta_trend_rule": -0.2116,
+          "theta_trend_rule_se": 0.2181,
+          "brier": 0.25,
+          "brier_constant_0_5": 0.25,
+          "brier_calibrated": 0.3158,
+          "brier_skill_score": -0.2632,
+          "probability_model": "constant 0.5 baseline, plus a ridge logit fit on earlier episodes only",
+          "calibration": {
+            "status": "FIT",
+            "wick_body": "OHLCV_CACHE",
+            "features": [
+              "vol_ratio",
+              "trail_z",
+              "cross_align",
+              "wick_asym",
+              "parkinson",
+              "volume_z",
+              "parkinson_over_close_vol"
+            ],
+            "n_train": 84,
+            "n_test": 85,
+            "l2_selection": {
+              "l2": 0.01,
+              "status": "SELECTED_ON_INNER_TRAIN_ONLY",
+              "inner_brier": 0.2189,
+              "inner_train_end": "2024-08-28",
+              "inner_val_start": "2024-09-04",
+              "grid": [
+                0.01,
+                0.05,
+                0.2,
+                1.0
+              ],
+              "tie_break": "larger_l2"
+            },
+            "mean_predicted_p": 0.3829,
+            "max_train_ts": "2025-03-05",
+            "min_test_ts": "2025-03-12",
+            "l2": 0.01
+          },
+          "rule": "sign of the prior 20 sessions vs the next session after an official event; features stop the day before the event",
+          "why_stage7_brier_was_0_25": "Stage 7 scored every episode at p=0.5, so Brier is 0.25 for any mix of right and wrong.",
+          "cards_fa": [
+            {
+              "prompt_fa": "EIA_WPSR در 2026-09-16 روی WTI",
+              "verdict_fa": "نادرست",
+              "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+            },
+            {
+              "prompt_fa": "EIA_WPSR در 2026-09-23 روی WTI",
+              "verdict_fa": "درست",
+              "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+            },
+            {
+              "prompt_fa": "EIA_WPSR در 2026-09-30 روی WTI",
+              "verdict_fa": "درست",
+              "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+            },
+            {
+              "prompt_fa": "EIA_WPSR در 2026-10-07 روی WTI",
+              "verdict_fa": "نادرست",
+              "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+            },
+            {
+              "prompt_fa": "EIA_WPSR در 2026-10-15 روی WTI",
+              "verdict_fa": "نادرست",
+              "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+            },
+            {
+              "prompt_fa": "EIA_WPSR در 2026-10-21 روی WTI",
+              "verdict_fa": "درست",
+              "lesson_fa": "این یک رویداد تاریخی خارج از نمونه است، نه نتیجهٔ معامله‌گر زنده."
+            }
+          ]
+        }
+      },
+      "paths": [
+        "reports/grok/M50/weekly_exam_snapshot.json",
+        "reports/grok/M50/live_conflict_exam_items.json",
+        "reports/grok/M50/live_exam_receipt.json"
+      ]
+    },
+    "didehban": {
+      "schema": "ahos.didehban_desk_receipt.v1",
+      "generated_at": "2026-10-30T00:27:22Z",
+      "paper_only": true,
+      "organ": "Didehban OSINT (M18 / news_desk)",
+      "newsroom_generated_at": "2026-10-30T00:26:58Z",
+      "corroborated_clusters": 102,
+      "feeds_used": 90,
+      "registry_candidates": 246,
+      "registry_verified_any": 174,
+      "registry_generated_at": "2026-10-30T00:26:58Z",
+      "corroboration_snapshot_at": "2026-10-24T10:10:39Z",
+      "two_source_rule": "CORROBORATED requires >=2 independent domains",
+      "authority": "evidence_for_council_and_macro_only"
+    },
+    "negahban": {
+      "schema": "ahos.negahban_receipt.v1",
+      "generated_at": "2026-10-30T00:27:27Z",
+      "paper_only": true,
+      "organ": "Negahban Security (M64/M80-B)",
+      "overall_verdict": "CLEAN",
+      "checks_passed": 6,
+      "checks_total": 6,
+      "python_cve_findings": [],
+      "npm_advisories_noted": [
+        {
+          "package": "next",
+          "installed": "16.3.8",
+          "fix": "16.4.3",
+          "severity": "critical",
+          "note": "loopback-only 127.0.0.1 bind mitigates external exposure; upgrade gated by OWNER_GATE"
+        },
+        {
+          "package": "postcss",
+          "installed": "8.5.8",
+          "fix": "8.5.31",
+          "severity": "high",
+          "note": "build-time CSS parser only; upgrade gated by OWNER_GATE"
+        }
+      ],
+      "audit_path": "reports/grok/M64/whitehat_security_audit.json",
+      "authority": "defensive_audit_only"
+    },
+    "ideas_shelf": {
+      "schema": "ahos.ideas_shelf_receipt.v1",
+      "generated_at": "2026-10-30T00:27:27Z",
+      "paper_only": true,
+      "proposals_count": 5,
+      "proposals_sample": [
+        {
+          "file": "prop_1787220693_6e764424.json",
+          "title": "prop_1787220693_6e764424",
+          "status": "PROPOSED",
+          "paper_only": true
+        },
+        {
+          "file": "prop_1787227838_7120d5f2.json",
+          "title": "prop_1787227838_7120d5f2",
+          "status": "PROPOSED",
+          "paper_only": true
+        },
+        {
+          "file": "prop_m51_atr_trailing_exit.json",
+          "title": "prop_m51_atr_trailing_exit",
+          "status": "PROPOSED",
+          "paper_only": true
+        },
+        {
+          "file": "prop_m51_brier_shrinkage.json",
+          "title": "prop_m51_brier_shrinkage",
+          "status": "PROPOSED",
+          "paper_only": true
+        },
+        {
+          "file": "prop_m51_regime_filter.json",
+          "title": "prop_m51_regime_filter",
+          "status": "PROPOSED",
+          "paper_only": true
+        }
+      ],
+      "registry_not_run": 0,
+      "note": "Ideas shelf is advisory; promotion remains gated."
+    },
+    "m57_weekly_shadow_scorecard": {
+      "path": "reports/grok/M57/weekly_research_shadow_scorecard.json",
+      "hypotheses_tracked": 0,
+      "outcomes_total": 0
+    }
+  }
+}

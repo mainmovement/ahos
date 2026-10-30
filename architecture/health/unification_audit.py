@@ -1768,7 +1768,7 @@ def _research_prediction_scorecard_checks(root: Path) -> list[dict[str, Any]]:
     problems: list[str] = []
     if card is None:
         problems.append("scorecard missing while outcomes exist")
-    elif card.get("schema") != "ahos.research_hypothesis_scorecard.v1":
+    elif card.get("schema") not in (SCHEMA_SCORECARD, "ahos.research_hypothesis_scorecard.v1"):
         problems.append("scorecard schema invalid")
     elif card.get("outcomes_total") != len(outcomes):
         problems.append("scorecard outcomes_total drift")

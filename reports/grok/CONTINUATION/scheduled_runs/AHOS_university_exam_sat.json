@@ -1,0 +1,10 @@
+{
+  "schema": "ahos.scheduled_run_receipt.v1",
+  "task_name": "AHOS_university_exam_sat",
+  "finished_at": "2026-10-30T00:26:08Z",
+  "status": "OK",
+  "result": {
+    "heldout_score": 1.0,
+    "receipt_schema": "ahos.university_exam_tranche_receipt.v1"
+  }
+}

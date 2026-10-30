@@ -1,0 +1,34 @@
+{
+  "schema": "ahos.scheduled_run_receipt.v1",
+  "task_name": "AHOS_negahban_daily",
+  "finished_at": "2026-10-30T00:26:04Z",
+  "status": "OK",
+  "result": {
+    "schema": "ahos.negahban_receipt.v1",
+    "generated_at": "2026-10-30T00:26:04Z",
+    "paper_only": true,
+    "organ": "Negahban Security (M64/M80-B)",
+    "overall_verdict": "CLEAN",
+    "checks_passed": 6,
+    "checks_total": 6,
+    "python_cve_findings": [],
+    "npm_advisories_noted": [
+      {
+        "package": "next",
+        "installed": "16.3.8",
+        "fix": "16.4.3",
+        "severity": "critical",
+        "note": "loopback-only 127.0.0.1 bind mitigates external exposure; upgrade gated by OWNER_GATE"
+      },
+      {
+        "package": "postcss",
+        "installed": "8.5.8",
+        "fix": "8.5.31",
+        "severity": "high",
+        "note": "build-time CSS parser only; upgrade gated by OWNER_GATE"
+      }
+    ],
+    "audit_path": "reports/grok/M64/whitehat_security_audit.json",
+    "authority": "defensive_audit_only"
+  }
+}

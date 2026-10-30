@@ -212,7 +212,115 @@ class KnowledgeSyncBridge:
                 created_ts=ts,
                 review_status="ACTIVE",
                 confidence=lens.confidence,
-                meta={"principles": lens.verified_principles, "failures": lens.documented_failures}
+            )
+            self.store.store_claim(claim)
+            synced += 1
+        return synced
+
+    def sync_documented_lessons(self, root: Path | None = None) -> dict[str, int]:
+        """Ingest real M49 + M65 lesson snapshots into knowledge_claims (empirical / teaching only)."""
+        from config.paths import get_project_root
+
+        base = Path(root) if root else get_project_root()
+        return {
+            "m49_lessons": self._sync_m49_lessons_snapshot(base),
+            "m65_teaching": self._sync_m65_teaching_lessons(base),
+        }
+
+    def _sync_m49_lessons_snapshot(self, base: Path) -> int:
+        path = base / "reports" / "grok" / "M49" / "lessons_snapshot.json"
+        if not path.is_file():
+            return 0
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return 0
+        synced = 0
+        ts = time.time()
+        for row in doc.get("lessons") or []:
+            if not isinstance(row, dict):
+                continue
+            lid = str(row.get("id") or "").strip()
+            lesson = str(row.get("lesson") or row.get("mistake") or "").strip()
+            if not lid or not lesson:
+                continue
+            cid = f"CLAIM-M49-LESSON-{lid.upper().replace(' ', '-')[:80]}"
+            ev = EvidenceLink(
+                evidence_id=f"ev_m49_{lid}",
+                source_id="SRC-M49-LESSONS-SNAPSHOT",
+                trust_class=TrustClass.RAW_FACT,
+                pointer=f"reports/grok/M49/lessons_snapshot.json:{lid}",
+                description=f"M49 lesson {lid} market={row.get('market')} status={row.get('status')}",
+                raw_sha256=hashlib.sha256(json.dumps(row, sort_keys=True).encode()).hexdigest(),
+                retrieved_ts=ts,
+            )
+            claim = VersionedClaim(
+                claim_id=cid,
+                version=1,
+                category=ClaimCategory.RESEARCH,
+                statement=lesson[:2000],
+                trust_class=TrustClass.RAW_FACT,
+                author_or_source_id="SRC-M49-LESSONS-SNAPSHOT",
+                evidence_links=[ev],
+                contradicting_evidence_ids=[],
+                contradiction_edges=[],
+                provenance_sha256=hashlib.sha256(f"M49_{lid}_{lesson[:200]}".encode()).hexdigest(),
+                created_ts=ts,
+                review_status=str(row.get("status") or "PROPOSED"),
+                confidence=0.6 if row.get("status") == "PROPOSED" else 0.8,
+                meta={"market": row.get("market"), "reason": row.get("reason"), "paper_only": True},
+            )
+            self.store.store_claim(claim)
+            synced += 1
+        return synced
+
+    def _sync_m65_teaching_lessons(self, base: Path) -> int:
+        path = base / "reports" / "grok" / "M65" / "teaching_journal_snapshot.json"
+        if not path.is_file():
+            return 0
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return 0
+        synced = 0
+        ts = time.time()
+        for row in doc.get("lessons") or []:
+            if not isinstance(row, dict):
+                continue
+            lid = str(row.get("lesson_id") or "").strip()
+            takeaway = str(row.get("key_takeaway_fa") or row.get("what_happened_fa") or "").strip()
+            if not lid or not takeaway:
+                continue
+            cid = f"CLAIM-M65-TEACH-{lid.upper().replace(' ', '-')[:72]}"
+            ev = EvidenceLink(
+                evidence_id=f"ev_{lid}",
+                source_id="SRC-M65-TEACHING-JOURNAL",
+                trust_class=TrustClass.RAW_FACT,
+                pointer=f"reports/grok/M65/teaching_journal_snapshot.json:{lid}",
+                description=f"M65 teaching lesson {lid} source={row.get('source')}",
+                raw_sha256=hashlib.sha256(json.dumps(row, sort_keys=True, ensure_ascii=False).encode()).hexdigest(),
+                retrieved_ts=ts,
+            )
+            claim = VersionedClaim(
+                claim_id=cid,
+                version=1,
+                category=ClaimCategory.RESEARCH,
+                statement=takeaway[:2000],
+                trust_class=TrustClass.RAW_FACT,
+                author_or_source_id="SRC-M65-TEACHING-JOURNAL",
+                evidence_links=[ev],
+                contradicting_evidence_ids=[],
+                contradiction_edges=[],
+                provenance_sha256=hashlib.sha256(f"M65_{lid}_{takeaway[:120]}".encode()).hexdigest(),
+                created_ts=ts,
+                review_status="ACTIVE",
+                confidence=0.7,
+                meta={
+                    "symbol": row.get("symbol"),
+                    "regime_tag": row.get("regime_tag"),
+                    "source": row.get("source"),
+                    "paper_only": True,
+                },
             )
             self.store.store_claim(claim)
             synced += 1

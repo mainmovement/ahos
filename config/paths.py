@@ -52,6 +52,21 @@ def get_project_root() -> Path:
     return candidate
 
 
+def resolve_ahos_python_exe(start: Path | None = None) -> Path:
+    """Canonical Python for audits and scheduled tasks (prefer repo .venv, then G:\\robat\\ahos_runtime)."""
+    root = start.resolve() if start else get_project_root()
+    candidates = (
+        root / ".venv" / "Scripts" / "python.exe",
+        root / ".venv" / "bin" / "python",
+        root.parent / "ahos_runtime" / "python" / "python.exe",
+        root.parent / "ahos_runtime" / "python" / "bin" / "python3",
+    )
+    for exe in candidates:
+        if exe.is_file():
+            return exe
+    return Path(sys.executable)
+
+
 # Core directory getters
 def get_data_dir(*, create: bool = True) -> Path:
     """Resolve the data directory.

@@ -409,6 +409,8 @@ def _lessons_from_historical_exam(repo: "Path") -> list[TeachingLessonFa]:
 
 
 def _lesson_source(lesson_id: str) -> str:
+    if lesson_id.startswith("m57-shadow-"):
+        return "M57_WEEKLY_SHADOW_SCORECARD"
     if lesson_id.startswith("m65-hist-"):
         return "HISTORICAL_OOS"
     if lesson_id.startswith("m65-exam-"):

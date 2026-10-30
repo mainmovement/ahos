@@ -197,3 +197,19 @@
 **Choice:** YES to `research_prediction_outcomes.jsonl` + `research_hypothesis_scorecard.json` on each CLOSE; HIT/MISS only when predicted direction matches executed side; SKIPPED otherwise; composite weight remains 0; unification check `research.prediction_scorecard`.
 
 **Reason:** Closes the University→desk loop with measurable receipts while keeping promotion gate on PASS_STATS+SURVIVED only.
+
+## 2026-10-30: Counterfactual shadow scoring + NEXT TRANCHE receipts
+
+**Question:** Should shadow predictions be scored only when aligned with executed side, and where should weekly calibration live?
+
+**Choice:** YES to counterfactual scoring vs entry→exit `price_return_pct` on every logged hypothesis; primary metric on scorecard. Weekly export to `M57/weekly_research_shadow_scorecard.json` merged into M65 teaching journal (U-108). `run_next_tranche.py` writes scheduling, M58 promote loop (auto_promote=false), University exam, Didehban, Negahban, ideas shelf receipts.
+
+**Reason:** Owner requested counterfactual horizon scoring and start of scheduling/M58/exam/Didehban/Negahban tranche without promotion authority leaks.
+
+## 2026-10-30: Negahban CVE + Windows Task Scheduler + knowledge lessons sync
+
+**Question:** What caused Negahban FINDING, and how should production cadence run on the laptop?
+
+**Choice:** FINDING was `cve_supply_chain_audit`: **setuptools 65.5.0** on the default `python` interpreter (below floor 84.1.0); receipt also wrongly counted `status==PASS` instead of `verdict==CLEAN`. Fixed by upgrading setuptools in `G:\\robat\\ahos\\.venv`, auditing via `resolve_ahos_python_exe`, and registering four **AHOS_*** Task Scheduler jobs (arxiv daily, pipeline 6h, exam Sat 09:00, Negahban daily) with run receipts under `CONTINUATION/scheduled_runs/`. Filled `ahos_knowledge.sqlite` via `KnowledgeSyncBridge.sync_documented_lessons` + empirical sync (**205** claims).
+
+**Reason:** Owner asked for real scheduling on G: paths, accurate Negahban verdict, Didehban 100+ source registry, and non-empty knowledge store from real lessons.

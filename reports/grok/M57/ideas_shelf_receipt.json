@@ -1,0 +1,40 @@
+{
+  "schema": "ahos.ideas_shelf_receipt.v1",
+  "generated_at": "2026-10-30T00:27:27Z",
+  "paper_only": true,
+  "proposals_count": 5,
+  "proposals_sample": [
+    {
+      "file": "prop_1787220693_6e764424.json",
+      "title": "prop_1787220693_6e764424",
+      "status": "PROPOSED",
+      "paper_only": true
+    },
+    {
+      "file": "prop_1787227838_7120d5f2.json",
+      "title": "prop_1787227838_7120d5f2",
+      "status": "PROPOSED",
+      "paper_only": true
+    },
+    {
+      "file": "prop_m51_atr_trailing_exit.json",
+      "title": "prop_m51_atr_trailing_exit",
+      "status": "PROPOSED",
+      "paper_only": true
+    },
+    {
+      "file": "prop_m51_brier_shrinkage.json",
+      "title": "prop_m51_brier_shrinkage",
+      "status": "PROPOSED",
+      "paper_only": true
+    },
+    {
+      "file": "prop_m51_regime_filter.json",
+      "title": "prop_m51_regime_filter",
+      "status": "PROPOSED",
+      "paper_only": true
+    }
+  ],
+  "registry_not_run": 0,
+  "note": "Ideas shelf is advisory; promotion remains gated."
+}

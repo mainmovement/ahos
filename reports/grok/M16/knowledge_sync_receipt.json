@@ -1,0 +1,17 @@
+{
+  "schema": "ahos.knowledge_sync_receipt.v1",
+  "paper_only": true,
+  "empirical": {
+    "e01_outcomes": 1,
+    "baseline_research": 9,
+    "strategy_lab_rejections": 1,
+    "defect_lessons": 1,
+    "expert_lenses": 30
+  },
+  "lessons": {
+    "m49_lessons": 135,
+    "m65_teaching": 28
+  },
+  "knowledge_claims_total": 205,
+  "db_path": "G:\\robat\\ahos\\data\\ahos_knowledge.sqlite"
+}

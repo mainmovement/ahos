@@ -1,0 +1,45 @@
+{
+  "schema": "ahos.windows_scheduled_tasks.v1",
+  "paper_only": true,
+  "repo_root": "G:\\robat\\ahos",
+  "python_exe": "G:\\robat\\ahos\\.venv\\Scripts\\python.exe",
+  "tasks": [
+    {
+      "task_name": "AHOS_arxiv_scout_daily",
+      "script": "scripts/scheduled/run_arxiv_scout_daily.py",
+      "schedule_type": "DAILY",
+      "start_time": "04:00",
+      "command": "\"G:\\robat\\ahos\\.venv\\Scripts\\python.exe\" \"G:\\robat\\ahos\\scripts\\scheduled\\run_arxiv_scout_daily.py\"",
+      "repo_root": "G:\\robat\\ahos"
+    },
+    {
+      "task_name": "AHOS_pipeline_6h",
+      "script": "scripts/scheduled/run_pipeline_6h.py",
+      "schedule_type": "HOURLY",
+      "modifier": "6",
+      "command": "\"G:\\robat\\ahos\\.venv\\Scripts\\python.exe\" \"G:\\robat\\ahos\\scripts\\scheduled\\run_pipeline_6h.py\"",
+      "repo_root": "G:\\robat\\ahos"
+    },
+    {
+      "task_name": "AHOS_university_exam_sat",
+      "script": "scripts/scheduled/run_university_exam_sat.py",
+      "schedule_type": "WEEKLY",
+      "days": "SAT",
+      "start_time": "09:00",
+      "command": "\"G:\\robat\\ahos\\.venv\\Scripts\\python.exe\" \"G:\\robat\\ahos\\scripts\\scheduled\\run_university_exam_sat.py\"",
+      "repo_root": "G:\\robat\\ahos"
+    },
+    {
+      "task_name": "AHOS_negahban_daily",
+      "script": "scripts/scheduled/run_negahban_daily.py",
+      "schedule_type": "DAILY",
+      "start_time": "05:30",
+      "command": "\"G:\\robat\\ahos\\.venv\\Scripts\\python.exe\" \"G:\\robat\\ahos\\scripts\\scheduled\\run_negahban_daily.py\"",
+      "repo_root": "G:\\robat\\ahos"
+    }
+  ],
+  "registered_at": "2026-10-30T00:24:33Z",
+  "register_exit_code": 0,
+  "register_stdout": "SUCCESS: The scheduled task \"AHOS_arxiv_scout_daily\" has successfully been created.\nSUCCESS: The scheduled task \"AHOS_pipeline_6h\" has successfully been created.\nSUCCESS: The scheduled task \"AHOS_university_exam_sat\" has successfully been created.\nSUCCESS: The scheduled task \"AHOS_negahban_daily\" has successfully been created.\nRegistered AHOS_* tasks using G:\\robat\\ahos\\.venv\\Scripts\\python.exe\n",
+  "register_stderr": ""
+}

@@ -626,11 +626,11 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             try:
                 from architecture.university.research_prediction_scoring import (
                     append_close_outcomes,
-                    export_research_hypothesis_scorecard,
+                    export_weekly_shadow_scorecard_to_m57,
                 )
 
                 append_close_outcomes(root, row)
-                export_research_hypothesis_scorecard(root)
+                export_weekly_shadow_scorecard_to_m57(root)
             except Exception:
                 pass
             university_lesson(root, weights, row, (pos.get("entry_brain") or {}).get("contributions") or [])

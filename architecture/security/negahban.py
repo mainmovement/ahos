@@ -8,6 +8,8 @@ import importlib.metadata as importlib_metadata
 import json
 import re
 import shutil
+import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -178,18 +180,51 @@ def check_secret_hygiene(root: Path) -> dict[str, Any]:
     }
 
 
-def check_cve_audit(root: Path) -> dict[str, Any]:
-    """Inspect Python runtime package versions against 2026 OSV safe floors and report npm lockfile advisories."""
-    py_installed: dict[str, str] = {}
-    py_vulnerable: list[dict[str, Any]] = []
-    for pkg, min_ver in _PY_MIN_SAFE.items():
+def _python_pkg_versions_for_audit(root: Path) -> tuple[dict[str, str], str]:
+    """Read package versions from the canonical AHOS interpreter, not whatever launched the IDE."""
+    from config.paths import resolve_ahos_python_exe
+
+    exe = resolve_ahos_python_exe(root)
+    code = (
+        "import importlib.metadata as m, json\n"
+        "pkgs=['certifi','urllib3','setuptools','requests','PyYAML']\n"
+        "out={}\n"
+        "for p in pkgs:\n"
+        "  try: out[p]=m.version(p)\n"
+        "  except m.PackageNotFoundError: pass\n"
+        "print(json.dumps(out))"
+    )
+    try:
+        proc = subprocess.run(
+            [str(exe), "-c", code],
+            capture_output=True,
+            text=True,
+            timeout=90,
+            cwd=str(root),
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            return json.loads(proc.stdout.strip()), str(exe)
+    except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError):
+        pass
+    fallback: dict[str, str] = {}
+    for pkg in _PY_MIN_SAFE:
         try:
-            ver = importlib_metadata.version(pkg)
-            py_installed[pkg] = ver
-            if _ver_tuple(ver) < min_ver:
-                py_vulnerable.append({"package": pkg, "installed": ver, "min_safe": ".".join(map(str, min_ver))})
+            fallback[pkg] = importlib_metadata.version(pkg)
         except importlib_metadata.PackageNotFoundError:
             continue
+    return fallback, str(Path(sys.executable))
+
+
+def check_cve_audit(root: Path) -> dict[str, Any]:
+    """Inspect Python runtime package versions against 2026 OSV safe floors and report npm lockfile advisories."""
+    py_installed, python_exe = _python_pkg_versions_for_audit(root)
+    py_vulnerable: list[dict[str, Any]] = []
+    for pkg, min_ver in _PY_MIN_SAFE.items():
+        ver = py_installed.get(pkg)
+        if not ver:
+            continue
+        if _ver_tuple(ver) < min_ver:
+            py_vulnerable.append({"package": pkg, "installed": ver, "min_safe": ".".join(map(str, min_ver))})
 
     arena_lock = root.parent / "ahos_arena" / "package-lock.json"
     npm_advisories_noted: list[dict[str, str]] = []
@@ -211,6 +246,7 @@ def check_cve_audit(root: Path) -> dict[str, Any]:
     return {
         "check": "cve_supply_chain_audit",
         "verdict": "CLEAN" if not py_vulnerable else "FINDING",
+        "python_exe_audited": python_exe,
         "python_runtime_packages": py_installed,
         "python_runtime_vulnerabilities": py_vulnerable,
         "npm_advisories_noted": npm_advisories_noted,

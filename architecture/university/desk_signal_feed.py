@@ -55,8 +55,8 @@ def build_desk_signal_feed(root: Path) -> dict[str, Any]:
                 shadow_scores.append(
                     {
                         "hypothesis_id": hid,
-                        "hit_rate": h.get("hit_rate"),
-                        "scored_closes": h.get("scored_closes"),
+                        "hit_rate": h.get("counterfactual_hit_rate"),
+                        "scored_closes": h.get("counterfactual_scored_closes"),
                         "hits": h.get("hits"),
                         "misses": h.get("misses"),
                         "skipped": h.get("skipped"),

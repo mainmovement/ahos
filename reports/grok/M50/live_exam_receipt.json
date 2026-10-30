@@ -1,9 +1,9 @@
 {
   "schema": "ahos.m50_live_exam_receipt.v1",
-  "generated_at": "2026-10-24T18:09:23Z",
+  "generated_at": "2026-10-30T00:27:21Z",
   "paper_only": true,
   "live_daemon_episodes": {
-    "count": 1,
+    "count": 6,
     "min_episodes": 10,
     "gap_hours": 24,
     "status": "ACCUMULATING",
@@ -91,6 +91,6 @@
       }
     ]
   },
-  "live_1h_exam_status": "INSUFFICIENT_INDEPENDENT_EPISODES",
+  "live_1h_exam_status": "MEASURED",
   "note_fa": "نمرهٔ زنده و نمرهٔ تاریخی جدا هستند. هیچ‌کدام ارتقا نمی‌دهد."
 }

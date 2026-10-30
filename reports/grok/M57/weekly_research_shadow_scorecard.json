@@ -1,0 +1,13 @@
+{
+  "schema": "ahos.m57.weekly_research_shadow_scorecard.v1",
+  "iso_week": "2026-W44",
+  "generated_at": "2026-10-30T00:27:20Z",
+  "paper_only": true,
+  "scorecard_path": "reports/grok/PAPER/research_hypothesis_scorecard.json",
+  "outcomes_path": "reports/grok/PAPER/research_prediction_outcomes.jsonl",
+  "hypotheses_tracked": 0,
+  "outcomes_total": 0,
+  "hypotheses": [],
+  "honesty_note": "Primary hit_rate is counterfactual vs entry→exit price return on the same horizon, whether or not the desk traded that direction. Does not prove edge or enable promotion.",
+  "teaching_module_fa": "U-108: کالیبراسیون فرضیه‌های سایهٔ دانشگاه روی افق قیمت واقعی (وزن صفر در composite)"
+}
