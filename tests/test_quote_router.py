@@ -64,20 +64,60 @@ def test_perp_basis_uses_the_future_and_a_wide_gap_skips() -> None:
     assert wide["SPX"]["witness_deviation_pct"] > 0.5
 
 
-def test_streaming_fx_is_not_stamped_fifteen_minutes_and_a_daily_gap_skips() -> None:
+def test_frankfurter_is_a_daily_check_and_the_fx_skip_uses_the_perp() -> None:
     asof = datetime(2026, 10, 30, 12, 0, tzinfo=timezone.utc).timestamp()
     quotes = {"EURUSD": _yahoo(1.1189), "DAX": _yahoo(26040.0)}
-    route_public_quotes(quotes, asof=asof, cnbc=_empty, hl=_empty, gold=_empty, tv=lambda: {
+    route_public_quotes(quotes, asof=asof, cnbc=_empty, gold=_empty, tv=lambda: {
         "EURUSD": {"price": 1.1189, "source": "tradingview:FX:EURUSD", "delay_flag": "streaming", "delay_s": 0, "latency_ms": 12},
         "DAX": {"price": 26039.68, "source": "tradingview:XETR:DAX", "delay_flag": "delayed_900s", "delay_s": 900, "latency_ms": 12},
         "FDAX": {"price": 26099.0, "source": "tradingview:EUREX:FDAX1!", "delay_flag": "delayed_900s", "delay_s": 900},
+    }, hl=lambda: {
+        "EURUSD": {"price": 1.1193, "source": "hyperliquid:xyz:EUR"},
     }, fx=lambda: {"EURUSD": {"price": 1.1130, "source": "frankfurter:USD", "delay_flag": "daily"}})
     assert quotes["EURUSD"]["delay_flag"] == "streaming"
-    assert quotes["EURUSD"]["divergence_skip"] is True
-    assert quotes["EURUSD"]["witness_deviation_pct"] > 0.5
+    assert quotes["EURUSD"]["divergence_skip"] is False
+    assert quotes["EURUSD"]["witness_deviation_pct"] < 0.5
+    assert quotes["EURUSD"]["daily_sanity"] == "PASS"
+    assert quotes["EURUSD"]["frankfurter_deviation_pct"] > 0.5
     assert quotes["DAX"]["delay_flag"] == "delayed_900s"
     assert quotes["FDAX"]["omitted_from_book"] is True
     assert "FDAX" not in INSTRUMENTS
+
+    wide = {"EURUSD": _yahoo(1.1189)}
+    route_public_quotes(wide, asof=asof, cnbc=_empty, gold=_empty, tv=lambda: {
+        "EURUSD": {"price": 1.1189, "source": "tradingview:FX:EURUSD", "delay_flag": "streaming", "delay_s": 0},
+    }, hl=lambda: {"EURUSD": {"price": 1.1300, "source": "hyperliquid:xyz:EUR"}},
+       fx=lambda: {"EURUSD": {"price": 1.0900, "source": "frankfurter:USD"}})
+    assert wide["EURUSD"]["divergence_skip"] is True
+    assert wide["EURUSD"]["daily_sanity"] == "FAIL"
+    assert 0.5 < wide["EURUSD"]["witness_deviation_pct"] < 2.0
+    assert wide["EURUSD"]["frankfurter_deviation_pct"] > wide["EURUSD"]["witness_deviation_pct"]
+
+
+def test_cash_oil_and_gold_take_the_tradingview_primary() -> None:
+    asof = datetime(2026, 10, 30, 12, 0, tzinfo=timezone.utc).timestamp()
+    quotes = {
+        "WTI": _yahoo(103.2, "yahoo_finance:CL=F"),
+        "BRENT": _yahoo(112.1, "yahoo_finance:BZ=F"),
+        "GC": _yahoo(4002.0, "yahoo_finance:GC=F"),
+    }
+    route_public_quotes(quotes, asof=asof, cnbc=_empty, fx=_empty, tv=lambda: {
+        "WTI": {"price": 103.16, "source": "tradingview:NYMEX:CL1!", "delay_flag": "delayed_600s", "delay_s": 600},
+        "BRENT": {"price": 112.08, "source": "tradingview:ICEEUR:BRN1!", "delay_flag": "delayed_600s", "delay_s": 600},
+        "GC": {"price": 4001.5, "source": "tradingview:COMEX:GC1!", "delay_flag": "delayed_600s", "delay_s": 600},
+    }, hl=lambda: {
+        "CL": {"price": 103.18, "source": "hyperliquid:xyz:CL"},
+        "BZ": {"price": 112.10, "source": "hyperliquid:xyz:BRENTOIL"},
+        "XAU": {"price": 3998.0, "source": "hyperliquid:xyz:GOLD"},
+    }, gold=lambda: {"XAU": {"price": 3996.0, "source": "gold-api:XAU", "delay_flag": "realtime"}})
+    assert quotes["WTI"]["source"] == "tradingview:NYMEX:CL1!"
+    assert quotes["BRENT"]["source"] == "tradingview:ICEEUR:BRN1!"
+    assert quotes["GC"]["source"] == "tradingview:COMEX:GC1!"
+    assert quotes["WTI"]["divergence_skip"] is False
+    assert quotes["BRENT"]["divergence_skip"] is False
+    assert quotes["GC"]["divergence_skip"] is False
+    assert any(w["source"] == "gold-api:XAU" for w in quotes["GC"]["witnesses"])
+    assert any(w["source"] == "hyperliquid:xyz:CL" for w in quotes["WTI"]["witnesses"])
 
 
 def test_same_vendor_witness_is_replaced_by_yahoo() -> None:

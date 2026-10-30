@@ -488,3 +488,5 @@ CNBC is primary only for SPX, NDX, SPY, QQQ, and NVDA. Brent is not on that requ
 | R2 Data | APPROVE | A silent primary keeps Yahoo. A same-vendor print cannot verify itself. |
 | R4 Council | APPROVE | No key, no live order, and Brent is not taken from CNBC. |
 | Meta-Critic | APPROVE | FDAX stays off the book. The rejected print is not an exit. |
+
+Frankfurter no longer feeds the 0.5% skip. A prior-day gap is a daily sanity result at 2%. The FX cycle witness is the Hyperliquid EUR and JPY perp. WTI, Brent, and GC take the TradingView primary: shared CL and Brent rows, and `COMEX:GC1!` for GC. `pytest tests/test_quote_router.py tests/test_tradingview_batch.py tests/test_frankfurter_fx.py tests/test_paper_trader.py -q` → **28 passed**. Gates stay 2 families and 2× fees.

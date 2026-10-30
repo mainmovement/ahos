@@ -15,6 +15,9 @@ from architecture.markets.tradingview_batch import TICKERS as TV_TICKERS
 from architecture.markets.tradingview_batch import fetch_tradingview_batch
 
 MAX_DEVIATION_PCT = 0.5
+DAILY_SANITY_PCT = 2.0
+# Prior-day FX is a sanity check. The 0.5% cycle witness for these two is the perp.
+FX_PERP = {"EURUSD", "USDJPY"}
 PRIMARY_VENDORS = ("tradingview", "cnbc")
 # FDAX printed, but it has no Yahoo continuous and no perp, so it is not a book.
 OMITTED = {"FDAX"}
@@ -165,7 +168,7 @@ def route_public_quotes(quotes: dict[str, Any], *, asof: float | None = None,
         yahoo = quote.get("yahoo_witness") if isinstance(quote.get("yahoo_witness"), dict) else None
         if yahoo and quote.get("source_role") == "primary":
             gap = _note(quote, str(yahoo.get("source") or "yahoo"), float(yahoo["price"]), float(quote["price"]), "yahoo")
-            if gap is not None:
+            if gap is not None and sym not in FX_PERP:
                 gaps.append(gap)
         extra = gold_q.get(sym) if sym in ("XAU", "GC") else None
         if sym == "GC" and extra is None:
@@ -176,9 +179,15 @@ def route_public_quotes(quotes: dict[str, Any], *, asof: float | None = None,
                 gaps.append(gap)
         fx_row = fx_q.get(sym)
         if isinstance(fx_row, dict) and isinstance(fx_row.get("price"), (int, float)):
-            gap = _note(quote, str(fx_row.get("source")), float(fx_row["price"]), float(quote["price"]), "daily")
+            gap = _pct(fx_row["price"], quote["price"])
             if gap is not None:
-                gaps.append(gap)
+                quote["frankfurter_deviation_pct"] = round(gap, 4)
+                quote["daily_sanity"] = "PASS" if gap <= DAILY_SANITY_PCT else "FAIL"
+                quote.setdefault("witnesses", []).append({
+                    "source": str(fx_row.get("source") or "frankfurter"), "price": float(fx_row["price"]),
+                    "ref": float(quote["price"]), "deviation_pct": round(gap, 4), "delay_flag": "daily",
+                    "role": "daily_sanity",
+                })
         quote["witness_deviation_pct"] = None if not gaps else round(max(gaps), 4)
         quote["divergence_skip"] = quote["witness_deviation_pct"] is not None and quote["witness_deviation_pct"] > MAX_DEVIATION_PCT
 

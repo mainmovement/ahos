@@ -21,7 +21,10 @@ TICKERS = {
     "NQ": "CME_MINI:NQ1!",
     "NKD": "CME:NKD1!",
     "CL": "NYMEX:CL1!",
+    "WTI": "NYMEX:CL1!",
     "BZ": "ICEEUR:BRN1!",
+    "BRENT": "ICEEUR:BRN1!",
+    "GC": "COMEX:GC1!",
 }
 
 
@@ -36,34 +39,38 @@ def delay_flag(update_mode: Any) -> tuple[int, str]:
     return 0, "realtime"
 
 
+def _symbols_for(ticker: Any) -> list[str]:
+    return [sym for sym, code in TICKERS.items() if code == ticker]
+
+
 def parse_tradingview(payload: Any, latency_ms: int) -> dict[str, dict[str, Any]]:
-    rev = {ticker: sym for sym, ticker in TICKERS.items()}
+    """One scanner row can fill the cash book and the listed book when they share a ticker."""
     out: dict[str, dict[str, Any]] = {}
     for row in (payload or {}).get("data") or []:
         if not isinstance(row, dict):
             continue
-        sym = rev.get(row.get("s"))
         cols = row.get("d") or []
         price = cols[0] if cols else None
-        if sym is None or not isinstance(price, (int, float)) or price <= 0:
+        if not isinstance(price, (int, float)) or price <= 0:
             continue
         seconds, flag = delay_flag(cols[1] if len(cols) > 1 else None)
-        out[sym] = {
-            "price": float(price),
-            "source": f"tradingview:{row.get('s')}",
-            "source_role": "primary",
-            "latency_ms": latency_ms,
-            "delay_flag": flag,
-            "delay_s": seconds,
-            "paper_only": True,
-        }
+        for sym in _symbols_for(row.get("s")):
+            out[sym] = {
+                "price": float(price),
+                "source": f"tradingview:{row.get('s')}",
+                "source_role": "primary",
+                "latency_ms": latency_ms,
+                "delay_flag": flag,
+                "delay_s": seconds,
+                "paper_only": True,
+            }
     return out
 
 
 def fetch_tradingview_batch(*, opener: Callable[..., bytes] | None = None, now: float | None = None) -> dict[str, dict[str, Any]]:
     result = fetch_json(
         URL, source=SOURCE, method="POST",
-        payload={"symbols": {"tickers": list(TICKERS.values())}, "columns": ["close", "update_mode"]},
+        payload={"symbols": {"tickers": list(dict.fromkeys(TICKERS.values()))}, "columns": ["close", "update_mode"]},
         opener=opener, now=now,
     )
     if not result.get("ok"):

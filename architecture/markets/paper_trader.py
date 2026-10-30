@@ -569,6 +569,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 "native_verdict": q.get("native_verdict"), "native_note": q.get("native_note"),
                 "market_time": q.get("market_time"), "source_timestamp": q.get("source_timestamp") or q.get("market_time"),
                 "delay_flag": q.get("delay_flag"), "witness_deviation_pct": q.get("witness_deviation_pct"),
+                "frankfurter_deviation_pct": q.get("frankfurter_deviation_pct"), "daily_sanity": q.get("daily_sanity"),
                 "quote_asof": _iso(quote_asof), "witness": logged_witness(w)}
         mt = _parse(q.get("market_time"))
         pos = positions.get(sym)

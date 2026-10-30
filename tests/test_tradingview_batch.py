@@ -19,7 +19,16 @@ def test_delay_flag_follows_the_feed() -> None:
     assert out["DAX"]["delay_flag"] == "delayed_900s"
     assert out["ES"]["delay_flag"] == "delayed_600s"
     assert out["FDAX"]["source"] == "tradingview:EUREX:FDAX1!"
-    assert "BRENT" not in TICKERS
+    shared = {"data": [
+        {"s": "NYMEX:CL1!", "d": [103.44, "delayed_streaming_600"]},
+        {"s": "ICEEUR:BRN1!", "d": [112.37, "delayed_streaming_600"]},
+        {"s": "COMEX:GC1!", "d": [4001.5, "delayed_streaming_600"]},
+    ]}
+    oil = parse_tradingview(shared, 9)
+    assert oil["CL"]["price"] == oil["WTI"]["price"] == 103.44
+    assert oil["BZ"]["price"] == oil["BRENT"]["price"] == 112.37
+    assert oil["GC"]["source"] == "tradingview:COMEX:GC1!"
+    assert oil["GC"]["delay_flag"] == "delayed_600s"
 
 
 def test_failed_batch_returns_no_prices() -> None:
@@ -33,7 +42,8 @@ def test_failed_batch_returns_no_prices() -> None:
 
     def ok(req, timeout):
         body["n"] += 1
-        assert json.loads(req.data.decode())["symbols"]["tickers"]
+        tickers = json.loads(req.data.decode())["symbols"]["tickers"]
+        assert tickers.count("NYMEX:CL1!") == 1 and "COMEX:GC1!" in tickers
         return json.dumps({"data": [{"s": "NYMEX:CL1!", "d": [103.44, "delayed_streaming_600"]}]}).encode()
 
     out = fetch_tradingview_batch(opener=ok, now=60.0)
