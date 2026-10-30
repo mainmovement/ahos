@@ -348,6 +348,12 @@ def fetch_live_market_prices(*, timeout: float = 6.0) -> dict[str, Any]:
             "age_seconds": q.get("age_seconds"),
         })
 
+    try:
+        from architecture.markets.crypto_futures_paper import merge_swap_quotes
+
+        merge_swap_quotes(quotes)
+    except Exception:
+        pass
     live_n = sum(1 for q in quotes.values() if q.get("freshness") == "LIVE")
     return {
         "schema": "ahos.live_market_prices.v2",

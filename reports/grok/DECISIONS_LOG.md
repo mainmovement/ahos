@@ -269,3 +269,11 @@
 **Choice:** Add `NDX` on the US equities desk, Yahoo `^NDX`, TradingView `NASDAQ:NDX`, and Stooq `^ndq`. An open still requires the existing two-source witness. A QQQ-scale price is not a same-instrument witness. The session is NYSE. No new desk weight. The 2-family and 2× fee gates stay as they are.
 
 **Reason:** QQQ and the index are different price levels. Relabeling the ETF would not be an index book. The owner asked for an own book only when both sources agree.
+
+## 2026-10-30: Crypto futures paper desk
+
+**Question:** How should a long/short crypto swap book exist without leverage, a wallet, or a second decision brain?
+
+**Choice:** `BTC-SWAP`, `ETH-SWAP`, and `SOL-SWAP` use the OKX public mark. Binance public mark is the second witness at 15 bps. Funding is paper cash on the open notional. Liquidation is a simulated flat at isolated maintenance 0.5%. The book cap is 0.10 of equity, in its own cluster, and it does not share the spot 0.25 weight. Applied leverage is 1.0. A finished week of the family scorecard does not raise it. `architecture/markets/margin.py` stays unwired.
+
+**Reason:** The owner approved this desk under the strictest cap. A public mark is not an order. The 2-family and 2× fee gates stay as they are.

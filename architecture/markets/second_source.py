@@ -35,7 +35,8 @@ KRAKEN_MAP = {"XXBTZUSD": "BTC", "XETHZUSD": "ETH", "SOLUSD": "SOL", "UNIUSD": "
 # compared on the yield level; crypto spot across venues 40 bps.
 TOLERANCE = {"XAU": 0.005, "WTI": 0.005, "BRENT": 0.005,
              "SPX": 0.0035, "NDX": 0.0035, "QQQ": 0.0035, "DAX": 0.0035, "N225": 0.0035, "HSI": 0.0035,
-             "EURUSD": 0.0035, "USDJPY": 0.0035, "DXY": 0.0035, "US10Y": 0.02}
+             "EURUSD": 0.0035, "USDJPY": 0.0035, "DXY": 0.0035, "US10Y": 0.02,
+             "BTC-SWAP": 0.0015, "ETH-SWAP": 0.0015, "SOL-SWAP": 0.0015}
 DEFAULT_TOL = 0.004
 FUTURES = ("BRENT", "WTI", "XAU")
 MONTH_CODES = "FGHJKMNQUVXZ"

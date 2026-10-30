@@ -197,3 +197,7 @@ CFTC current file refreshes after Friday 15:30 America/New_York. ICE current-yea
 ## NASDAQ-100 book (2026-10-30)
 
 `NDX` uses Yahoo `^NDX` plus TradingView `NASDAQ:NDX`, with Stooq `^ndq` as the third source. QQQ is not a same-price witness. Session is NYSE. Desk weight is the existing US equities cap. Gates unchanged. Gap IDs closed: **none**.
+
+## Crypto futures paper desk (2026-10-30)
+
+OKX public swap mark, Binance mark as the second witness, long and short, funding as paper cashflow, simulated liquidation, cap 0.10 of equity, leverage held at 1.0. Spot symbols stay on the crypto desk. Gates unchanged. Gap IDs closed: **none**.

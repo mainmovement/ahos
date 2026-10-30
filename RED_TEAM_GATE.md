@@ -377,3 +377,17 @@ Command: `pytest tests/test_ndx_witness.py -q` → **1 passed**.
 | R2 Data | APPROVE | One source stays UNRESOLVED. A different instrument basis is not a pair. |
 | R7 SRE | APPROVE | Lane A not edited. Cash session uses the existing NYSE calendar. |
 | Meta-Critic | APPROVE | Agreement is two index prints. It is not a rename of QQQ. |
+
+## Crypto futures paper desk (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_crypto_futures_paper.py tests/test_paper_trader.py -q` → **3 + 19 passed**.
+
+The swap symbols are `BTC-SWAP`, `ETH-SWAP`, and `SOL-SWAP`. The execution price is the OKX public mark. The second witness is the Binance public mark, tolerance 15 bps. Spot `BTC` stays on the crypto desk. Funding while a paper position is open is `notional * rate * elapsed/8h`, and a positive rate makes the long pay. A mark through the isolated maintenance price flats the paper position with reason `SIMULATED_LIQUIDATION`. Maintenance is the pre-registered 0.5%. At 1x a long liquidates only after almost the whole move, which is the formula, not a fitted stop. Notional is capped at 0.10 of equity for the futures cluster. Requested leverage above 1.0 is stored as requested and applied as 1.0. After seven days of family-vote observations the lock label changes to `CAP_HELD_AT_1` and the applied leverage stays 1.0. `margin.py` is not imported. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | A requested 2.0 is applied as 1.0. The book cap is 10% of equity. |
+| R2 Data | APPROVE | Mark, funding, and candles are parsed from public payloads. A missing mark omits the symbol. |
+| R4 Council | APPROVE | The same composite and vote gate decide the side. Funding is cashflow, not an upgrade. |
+| R7 SRE | APPROVE | No wallet, no live order, Lane A not edited. The spot book is a different symbol. |
+| Meta-Critic | APPROVE | This is a paper swap. It does not adopt the unused 2.0 margin cap. |

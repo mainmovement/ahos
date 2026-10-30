@@ -48,6 +48,8 @@ AGENT = "agent:paper_trader"
 
 INSTRUMENTS: dict[str, tuple[str, float, float]] = {   # sym -> (desk, fee/side, slippage/side)
     "BTC": ("CRYPTO", 0.0010, 0.0005), "ETH": ("CRYPTO", 0.0010, 0.0005), "SOL": ("CRYPTO", 0.0010, 0.0008),
+    "BTC-SWAP": ("CRYPTO_FUTURES", 0.0005, 0.0004), "ETH-SWAP": ("CRYPTO_FUTURES", 0.0005, 0.0004),
+    "SOL-SWAP": ("CRYPTO_FUTURES", 0.0005, 0.0004),
     "UNI": ("PB_TOKEN", 0.0015, 0.0010),
     "XAU": ("GOLD", 0.0004, 0.0003),
     "WTI": ("OIL", 0.0005, 0.0004), "BRENT": ("OIL", 0.0005, 0.0004),
@@ -57,15 +59,15 @@ INSTRUMENTS: dict[str, tuple[str, float, float]] = {   # sym -> (desk, fee/side,
     "N225": ("ASIA_EQUITIES", 0.0004, 0.0003), "HSI": ("ASIA_EQUITIES", 0.0004, 0.0003),
     "EURUSD": ("FOREX", 0.0002, 0.0001), "USDJPY": ("FOREX", 0.0002, 0.0001),
 }
-DESK_WEIGHTS = {"CRYPTO": 0.25, "PB_TOKEN": 0.05, "GOLD": 0.15, "OIL": 0.15, "US_EQUITIES": 0.15,
-                "EU_EQUITIES": 0.10, "ASIA_EQUITIES": 0.10, "FOREX": 0.10}
+DESK_WEIGHTS = {"CRYPTO": 0.25, "CRYPTO_FUTURES": 0.10, "PB_TOKEN": 0.05, "GOLD": 0.15, "OIL": 0.15,
+                "US_EQUITIES": 0.15, "EU_EQUITIES": 0.10, "ASIA_EQUITIES": 0.10, "FOREX": 0.10}
 CLUSTER_OF_DESK = {
-    "CRYPTO": "crypto", "PB_TOKEN": "crypto",
+    "CRYPTO": "crypto", "CRYPTO_FUTURES": "crypto_futures", "PB_TOKEN": "crypto",
     "GOLD": "metals", "OIL": "energy",
     "US_EQUITIES": "equities", "EU_EQUITIES": "equities", "ASIA_EQUITIES": "equities",
     "FOREX": "fx",
 }
-CLUSTER_CAPS = {"crypto": 0.35, "metals": 0.20, "energy": 0.20, "equities": 0.40, "fx": 0.15}
+CLUSTER_CAPS = {"crypto": 0.35, "crypto_futures": 0.10, "metals": 0.20, "energy": 0.20, "equities": 0.40, "fx": 0.15}
 
 
 def logged_witness(witness: dict) -> dict:
@@ -454,6 +456,13 @@ def gather_witness(quotes: dict[str, Any], *, fetch_b: Callable[[], dict[str, An
     else:
         months = {s: (quotes.get(s) or {}).get("contract_month") for s in FUTURES}
         second = fetch_second_sources(contract_months={s: m for s, m in months.items() if m})
+        if any(str(s).endswith("-SWAP") for s in syms):
+            try:
+                from architecture.markets.crypto_futures_paper import fetch_swap_witnesses
+
+                second.update(fetch_swap_witnesses())
+            except Exception:
+                pass
     pre = {s: witness(s, quotes.get(s), second.get(s)) for s in syms}
     if fetch_c is not None:
         third = fetch_c(third_source_needed(pre))
@@ -605,22 +614,28 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             held_s = t - pos["opened_ts"]
             reason = None
             partial = False
-            if move <= -pos["stop_pct"]:
+            if desk == "CRYPTO_FUTURES":
+                from architecture.markets.crypto_futures_paper import accrue_funding, simulated_liquidation
+
+                accrue_funding(pos, q.get("funding_rate_8h"), t)
+                if simulated_liquidation(side, price, pos.get("liquidation_price")):
+                    reason = "SIMULATED_LIQUIDATION"
+            if reason is None and move <= -pos["stop_pct"]:
                 reason = "STOP_LOSS"
-            elif move >= pos["stop_pct"] * TAKE_MULT:
+            elif reason is None and move >= pos["stop_pct"] * TAKE_MULT:
                 reason = "TAKE_PROFIT"
-            elif not pos.get("partial_taken") and move >= pos["stop_pct"]:
+            elif reason is None and not pos.get("partial_taken") and move >= pos["stop_pct"]:
                 reason = "PARTIAL_TAKE_PROFIT"
                 partial = True
-            elif _chandelier_hit(pos, price):
+            elif reason is None and _chandelier_hit(pos, price):
                 reason = "CHANDELIER_STOP"
-            elif comp * d <= -ENTRY:
+            elif reason is None and comp * d <= -ENTRY:
                 reason = "SIGNAL_REVERSAL"
-            elif held_s > MAX_HOLD_S * TIME_STOP_HOLD_FRAC and abs(move) < TIME_STOP_MOVE_FRAC * pos["stop_pct"]:
+            elif reason is None and held_s > MAX_HOLD_S * TIME_STOP_HOLD_FRAC and abs(move) < TIME_STOP_MOVE_FRAC * pos["stop_pct"]:
                 reason = "TIME_STOP"
-            elif held_s > MAX_HOLD_S:
+            elif reason is None and held_s > MAX_HOLD_S:
                 reason = "MAX_HOLD"
-            elif w["verdict"] == "CONFLICT":
+            elif reason is None and w["verdict"] == "CONFLICT":
                 reason = "WITNESS_CONFLICT_EXIT"
             if not reason:
                 pos["mark_price"] = price
@@ -635,13 +650,15 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             gross = (exit_px - pos["entry_price"]) * qty_close * d
             exit_fee = exit_px * qty_close * fee
             entry_fee_part = pos["entry_fee_usd"] * fraction
-            pnl = round(gross - exit_fee - entry_fee_part, 4)
+            funding_part = float(pos.get("funding_usd") or 0.0) * fraction
+            pnl = round(gross - exit_fee - entry_fee_part + funding_part, 4)
             eb = pos.get("entry_brain")
             row = {**base, "event": "CLOSE", "side": side, "reason": reason, "partial": partial, "quote_price": price,
                    "fill_price": round(exit_px, 6), "entry_price": pos["entry_price"], "qty": qty_close,
                    "notional_usd": round(pos["notional_usd"] * fraction, 4),
                    "fees_usd": round(exit_fee + entry_fee_part, 6),
                    "slippage_pct": slip, "opened_at": pos["opened_at"], "closed_at": _iso(t), "realized_pnl_usd": pnl,
+                   "funding_usd": round(funding_part, 6),
                    "mae": None if pos.get("mae") is None else round(float(pos["mae"]), 6),
                    "mfe": None if pos.get("mfe") is None else round(float(pos["mfe"]), 6),
                    "path_points": int(pos.get("path_points") or 0),
@@ -675,6 +692,7 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 pos["entry_fee_usd"] = round(pos["entry_fee_usd"] - entry_fee_part, 6)
                 pos["partial_taken"] = True
                 pos["mark_price"] = price
+                pos["funding_usd"] = round(float(pos.get("funding_usd") or 0.0) - funding_part, 6)
             else:
                 del positions[sym]
             continue
@@ -783,6 +801,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         cluster_rem = max(0.0, CLUSTER_CAPS.get(cluster, 0.35) * equity - cluster_open)
         open_now = sum(p["notional_usd"] for p in positions.values())
         notional = round(min(notional, cluster_rem, MAX_OPEN_NOTIONAL * equity - open_now), 4)
+        if desk == "CRYPTO_FUTURES":
+            from architecture.markets.crypto_futures_paper import book_notional_cap, leverage_decision
+
+            brain["futures"] = leverage_decision(root)
+            open_fut = sum(p["notional_usd"] for p in positions.values() if p.get("desk") == "CRYPTO_FUTURES")
+            notional = round(min(notional, book_notional_cap(equity, open_fut)), 4)
         adv_chk = sb.adv_cap_check(notional, q, ohlcv)
         brain["adv_cap"] = adv_chk
         if not adv_chk["allowed"]:
@@ -824,10 +848,22 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         fill = price * (1 + slip * d)
         qty = notional / fill
         entry_fee = notional * fee
+        fut_fields: dict[str, Any] = {}
+        if desk == "CRYPTO_FUTURES":
+            from architecture.markets.crypto_futures_paper import liquidation_price as _liq_px
+
+            liq = _liq_px(side, fill)
+            fut_fields = {
+                "liquidation_price": None if liq is None else round(liq, 8),
+                "funding_usd": 0.0,
+                "funding_ts": t,
+                "leverage": 1.0,
+            }
         positions[sym] = {"side": side, "entry_price": round(fill, 6), "qty": qty, "notional_usd": notional,
                           "entry_fee_usd": round(entry_fee, 6), "opened_at": _iso(t), "opened_ts": t, "desk": desk,
                           "stop_pct": round(stop_pct, 5), "entry_brain": brain, "mark_price": price,
-                          **({"token_address": q["token_address"], "dex_pool": q.get("dex_pool")} if q.get("token_address") else {})}
+                          **({"token_address": q["token_address"], "dex_pool": q.get("dex_pool")} if q.get("token_address") else {}),
+                          **fut_fields}
         row = {**base, "event": "OPEN", "side": side, "quote_price": price, "fill_price": round(fill, 6), "qty": qty,
                "notional_usd": notional, "fee_usd": round(entry_fee, 6), "slippage_pct": slip, "stop_pct": round(stop_pct, 5),
                "take_pct": round(stop_pct * TAKE_MULT, 5), "equity_at_open_usd": round(equity, 4), "brain": brain,
