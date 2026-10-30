@@ -87,11 +87,11 @@ def test_code_cannot_promote_even_when_everything_passes():
 
 
 def test_regime_coverage_is_three_of_three_and_fails_without_counts():
-    """No fourth regime was named in the design docs. Missing counts fail closed."""
+    """Four labels exist. Missing counts still fail closed."""
     r = evaluate_tier_gate(market="gold", trades=_trades(250))
     by_id = {c.criterion: c for c in r.criteria}
     assert by_id["regime_coverage"].passed is False
-    assert by_id["regime_coverage"].required.startswith(">=3 of 3 regimes")
+    assert by_id["regime_coverage"].required.startswith(">=3 of 4 regimes")
     assert "regime_coverage" not in r.unmeasurable
     assert r.ready_for_owner_review is False
     assert not any("M-REGIME-4" in q for q in r.open_questions)
@@ -269,7 +269,7 @@ def test_the_written_report_never_styles_a_gap_as_progress(tmp_path):
     assert "T0" in text and "Promoted by this evaluation: **False**" in text
     assert "UNMEASURABLE" in text
     assert "Not ready for owner review" in text
-    assert ">=3 of 3 regimes" in text
+    assert ">=3 of 4 regimes" in text
     assert "M-REGIME-4" not in text
     assert "**Ready for owner review.**" not in text
 

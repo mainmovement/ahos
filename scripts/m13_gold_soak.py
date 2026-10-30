@@ -86,6 +86,20 @@ def _read_status(soak_dir: Path) -> dict[str, Any]:
     return doc if isinstance(doc, dict) else {}
 
 
+def _resume_soak_state(previous: dict[str, Any]) -> dict[str, Any]:
+    """A process restart continues the same soak. It does not zero the counters or clear a latched halt."""
+    health = previous.get("health") if isinstance(previous.get("health"), dict) else {}
+    last_day = previous.get("last_day_report")
+    return {
+        "cycles_ok": int(previous.get("cycles_ok") or 0),
+        "cycles_failed": int(previous.get("cycles_failed") or 0),
+        "last_day": last_day if isinstance(last_day, str) else None,
+        "latched_halt": health.get("latched") is True,
+        "tier": previous.get("last_tier_gate") if isinstance(previous.get("last_tier_gate"), dict) else None,
+        "reconcile": previous.get("last_m42_reconcile") if isinstance(previous.get("last_m42_reconcile"), dict) else None,
+    }
+
+
 def _keep_window_start(previous: dict[str, Any], interval_sec: float) -> str:
     """A running cadence keeps its window. A gap longer than three intervals starts a new one."""
     start = previous.get("window_started_utc")
@@ -404,21 +418,45 @@ def _write_status(soak_dir: Path, status: dict[str, Any]) -> None:
                 fresh = age.total_seconds() < 6 * 3600
             except ValueError:
                 fresh = False
-        if not fresh:
-            from config.paths import (
-                get_discovery_db_path, get_knowledge_db_path,
-                get_local_db_path, get_paper_trading_db_path,
+        prior = _read_status(soak_dir)
+        prior_block = prior.get("store_integrity") if isinstance(prior.get("store_integrity"), dict) else {}
+        if not stamp and isinstance(prior_block.get("checked_at"), str):
+            stamp = str(prior_block.get("checked_at") or "")
+            try:
+                age = datetime.now(timezone.utc) - datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+                fresh = age.total_seconds() < 6 * 3600
+            except ValueError:
+                fresh = False
+            open_check = any(
+                (prior_block.get("stores") or {}).get(name) in ("INTERRUPTED", "RUNNING")
+                for name in ("ahos_local", "e01_discovery")
             )
-            from architecture.persistence.store_integrity import check_known_stores
-            status["store_integrity"] = {
-                "checked_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "stores": check_known_stores({
-                    "ahos_local": Path(get_local_db_path()),
-                    "e01_discovery": Path(get_discovery_db_path()),
-                    "paper_trading": Path(get_paper_trading_db_path()),
-                    "ahos_knowledge": Path(get_knowledge_db_path()),
-                }),
-            }
+            if fresh and not open_check:
+                status["store_integrity"] = prior_block
+            else:
+                fresh = False
+        if not fresh:
+            from config.paths import get_knowledge_db_path, get_paper_trading_db_path
+            from architecture.persistence.store_integrity import (
+                check_known_stores,
+                merge_store_integrity,
+                spawn_snapshot_job,
+            )
+            small = check_known_stores({
+                "paper_trading": Path(get_paper_trading_db_path()),
+                "ahos_knowledge": Path(get_knowledge_db_path()),
+            })
+            snap_path = ROOT / "reports" / "grok" / "PAPER" / "store_integrity_snapshot.json"
+            snapshot = None
+            if snap_path.is_file():
+                try:
+                    snapshot = json.loads(snap_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    snapshot = None
+            now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            status["store_integrity"] = merge_store_integrity(prior, snapshot, small, now=now)
+            if status["store_integrity"].get("stores", {}).get("ahos_local") == "RUNNING":
+                spawn_snapshot_job(ROOT)
     except Exception as exc:  # noqa: BLE001 - a status write still has to land
         status["store_integrity"] = {"error": type(exc).__name__}
     try:
@@ -493,11 +531,13 @@ def run_soak(*, interval_sec: float, days: float, soak_dir: Path,
         return 0 if not bad else 1
 
     deadline = (time.time() + days * 86400.0) if days and days > 0 else None
-    last_day: str | None = None
-    tier: dict[str, Any] | None = None
-    reconcile: dict[str, Any] | None = None
-    cycles_ok = cycles_fail = 0
-    latched_halt = False
+    resumed = _resume_soak_state(_read_status(soak_dir))
+    last_day = resumed["last_day"]
+    tier = resumed["tier"]
+    reconcile = resumed["reconcile"]
+    cycles_ok = resumed["cycles_ok"]
+    cycles_fail = resumed["cycles_failed"]
+    latched_halt = resumed["latched_halt"]
 
     while True:
         if latched_halt:

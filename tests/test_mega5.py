@@ -82,3 +82,37 @@ def test_new_vision_rows_stay_off_without_proof_and_count_with_it():
 
 def test_a_missing_store_is_not_ok(tmp_path: Path):
     assert integrity_check(tmp_path / "missing.sqlite") == "NO_DATA"
+
+
+def test_snapshot_copy_of_a_small_store_is_ok(tmp_path: Path):
+    import sqlite3
+    from architecture.persistence.store_integrity import snapshot_integrity
+    source = tmp_path / "live.sqlite"
+    conn = sqlite3.connect(source)
+    conn.execute("CREATE TABLE t(x INTEGER)")
+    conn.execute("INSERT INTO t VALUES (1)")
+    conn.commit()
+    conn.close()
+    assert snapshot_integrity(source, tmp_path / "copy.sqlite", timeout_s=30) == "ok"
+    assert not (tmp_path / "copy.sqlite").exists()
+
+
+def test_an_interrupted_large_store_is_not_kept_as_fresh():
+    from architecture.persistence.store_integrity import merge_store_integrity
+    previous = {"store_integrity": {
+        "checked_at": "2026-10-30T14:47:34Z",
+        "stores": {"ahos_local": "INTERRUPTED", "e01_discovery": "INTERRUPTED", "paper_trading": "ok"},
+    }}
+    merged = merge_store_integrity(
+        previous, None, {"paper_trading": "ok", "ahos_knowledge": "ok"}, now="2026-10-30T16:00:00Z",
+    )
+    assert merged["stores"]["ahos_local"] == "RUNNING"
+    assert merged["stores"]["e01_discovery"] == "RUNNING"
+    ready = merge_store_integrity(
+        previous,
+        {"checked_at": "2099-01-01T00:00:00Z", "stores": {"ahos_local": "ok", "e01_discovery": "ok"}},
+        {"paper_trading": "ok", "ahos_knowledge": "ok"},
+        now="2099-01-01T00:00:01Z",
+    )
+    assert ready["stores"]["ahos_local"] == "ok"
+    assert ready["stores"]["e01_discovery"] == "ok"

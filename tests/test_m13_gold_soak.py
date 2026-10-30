@@ -180,7 +180,7 @@ def test_report_only_also_evaluates_the_tier_gate(populated_ledger, soak_dir):
     # The ladder law: code measures, the owner promotes.
     assert "Promoted by this evaluation: **False**" in text
     assert "Not ready for owner review" in text
-    assert ">=3 of 3 regimes" in text
+    assert ">=3 of 4 regimes" in text
     assert "M-REGIME-4" not in text
 
 

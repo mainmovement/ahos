@@ -738,6 +738,13 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             d = 1 if side == "LONG" else -1
             atr_pct = _atr_pct(ohlcv) or float(pos["stop_pct"]) / 2.0
             move = _mark_excursion(pos, price, atr_pct)
+            if desk == "GOLD":
+                try:
+                    from architecture.markets.entry_shadow import note_gold_path
+
+                    note_gold_path(root, pos, float(price), t)
+                except Exception:
+                    pass
             held_s = t - pos["opened_ts"]
             reason = None
             partial = False
@@ -815,6 +822,18 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             )
             from architecture.mission.close_reason_fa import close_reason_fa
             row["close_reason_fa"] = close_reason_fa(row)
+            features = pos.get("entry_features") if isinstance(pos.get("entry_features"), dict) else None
+            if features is not None:
+                row["entry_features"] = features
+                row["predicted_probability"] = features.get("predicted_probability")
+                row["probability_source"] = features.get("probability_source")
+                row["probability_calibrated"] = False
+            if pos.get("shadow_trail_exit_price") is not None:
+                row["shadow_trail_exit_price"] = pos.get("shadow_trail_exit_price")
+                row["shadow_trail_at"] = pos.get("shadow_trail_at")
+            if pos.get("shadow_time_exit_price") is not None:
+                row["shadow_time_exit_price"] = pos.get("shadow_time_exit_price")
+                row["shadow_time_at"] = pos.get("shadow_time_at")
             row["research_predictions"] = (eb or {}).get("research_predictions") if isinstance(eb, dict) else None
             row["ledger_hash"] = ledger.fill(row)
             log(row)
@@ -1088,16 +1107,32 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         if str(sym).startswith("DEX_"):
             fut_fields["entry_liquidity_usd"] = q.get("liquidity_usd")
             fut_fields["entry_dev_balance"] = q.get("dev_balance")
+        from architecture.markets.entry_shadow import stamp_open
+
+        entry_features = stamp_open(
+            composite=float(comp), side=side, vote_audit=vote_audit,
+            spread_pct=q.get("witness_deviation_pct"), atr_pct=atr, symbol=sym,
+            moment=datetime.fromtimestamp(t, tz=timezone.utc), fee_rate=fee, desk=desk,
+        )
+        brain["predicted_probability"] = entry_features["predicted_probability"]
+        brain["probability_source"] = entry_features["probability_source"]
+        brain["probability_calibrated"] = False
+        brain["probability_applied"] = False
         positions[sym] = {"side": side, "entry_price": round(fill, 6), "qty": qty, "notional_usd": notional,
                           "entry_fee_usd": round(entry_fee, 6), "opened_at": _iso(t), "opened_ts": t, "desk": desk,
                           "stop_pct": round(stop_pct, 5), "entry_brain": brain, "mark_price": price,
+                          "entry_features": entry_features,
                           **({"token_address": q["token_address"], "dex_pool": q.get("dex_pool")} if q.get("token_address") else {}),
                           **fut_fields}
         row = {**base, "event": "OPEN", "side": side, "quote_price": price, "fill_price": round(fill, 6), "qty": qty,
                "notional_usd": notional, "fee_usd": round(entry_fee, 6), "slippage_pct": slip, "stop_pct": round(stop_pct, 5),
                "take_pct": round(stop_pct * TAKE_MULT, 5), "equity_at_open_usd": round(equity, 4), "brain": brain,
                "kelly": "OFF (a close count does not switch Kelly on)", "oms": "ACCEPTED_PAPER",
-               "session_gate": session_gate}
+               "session_gate": session_gate,
+               "entry_features": entry_features,
+               "predicted_probability": entry_features["predicted_probability"],
+               "probability_source": entry_features["probability_source"],
+               "probability_calibrated": False}
         row["signal_provenance"] = build_signal_provenance(brain)
         row["kian_explain_fa"] = explain_paper_trade_fa(
             symbol=sym, side=side, desk=desk, brain=brain, composite=comp

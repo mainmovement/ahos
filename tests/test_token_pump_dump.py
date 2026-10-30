@@ -32,7 +32,8 @@ def _gp(**over):
     row.update({k: "0" for k in (
         "is_proxy", "hidden_owner", "can_take_back_ownership", "owner_change_balance",
         "selfdestruct", "cannot_sell_all", "transfer_pausable", "slippage_modifiable",
-        "personal_slippage_modifiable", "cannot_buy")})
+        "personal_slippage_modifiable", "cannot_buy", "is_whitelisted")})
+    row["honeypot_with_same_creator"] = "0"
     row.update(over)
     return {"result": {TOK: row}}
 
@@ -98,6 +99,10 @@ def test_strict_path_requires_locked_or_burned_lp() -> None:
     missing = veto_check("GOOD", TOK, getter=_getter(_gp(lp_holders=[])), strict=True)
     assert missing["verdict"] == "VETOED_FAIL_CLOSED"
     assert "goplus:lp_lock_or_burn_missing" in missing["reasons"]
+    creator = veto_check("BAD", TOK, getter=_getter(_gp(honeypot_with_same_creator="2")), strict=True)
+    assert any("dev_history" in r for r in creator["reasons"])
+    listed = veto_check("BAD", TOK, getter=_getter(_gp(is_whitelisted="1")), strict=True)
+    assert any("whitelist" in r for r in listed["reasons"])
     assert MIN_AGREEING_FAMILIES == 2
     assert MIN_EXPECTED_PROFIT_TO_FEE_RATIO == 2.0
     assert DYNAMIC_TOKEN_EQUITY == 0.02

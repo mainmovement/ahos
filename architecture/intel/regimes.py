@@ -19,10 +19,13 @@ import numpy as np
 class MarketRegimeClassifier:
     """Classifies financial time-series into discrete market regimes."""
 
+    # The fourth label is not a fourth fitted Gaussian. It is a variance override.
+    STRESS_VARIANCE = 0.002
     REGIME_LABELS = {
         0: "BULL_TREND",
         1: "BEAR_VOLATILE",
         2: "NEUTRAL_CHOP",
+        3: "LIQUIDITY_STRESS",
     }
 
     def __init__(self, n_regimes: int = 3) -> None:
@@ -90,6 +93,10 @@ class MarketRegimeClassifier:
 
         active_id = int(np.argmax(probs))
         active_label = self.REGIME_LABELS.get(active_id, "NEUTRAL_CHOP")
+        stress = var_r >= self.STRESS_VARIANCE
+        if stress:
+            active_id = 3
+            active_label = "LIQUIDITY_STRESS"
 
         return {
             "active_regime": active_label,
@@ -98,6 +105,7 @@ class MarketRegimeClassifier:
                 "BULL_TREND": round(probs[0], 3),
                 "BEAR_VOLATILE": round(probs[1], 3),
                 "NEUTRAL_CHOP": round(probs[2], 3),
+                "LIQUIDITY_STRESS": 1.0 if stress else 0.0,
             },
             "recent_mean_return": round(mean_r, 5),
             "recent_volatility": round(math.sqrt(var_r), 5),

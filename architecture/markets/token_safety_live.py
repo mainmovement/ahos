@@ -202,6 +202,15 @@ def lp_lock_or_burn(lp_holders: Any) -> dict[str, Any]:
     return {"share": round(share, 4), "ok": share >= LP_LOCK_MIN_SHARE}
 
 
+def _creator_count(value: Any) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+
 def _owner_balance(tok: dict[str, Any]) -> float | None:
     """Token units of the owner. A burn or renounced owner is not a sell we can see."""
     owner = str(tok.get("owner_address") or "").lower()
@@ -237,10 +246,15 @@ def fetch_goplus(address: str, chain_id: str = "1", getter: Callable[[str], Any]
         "authority": {k: _flag(tok.get(k)) for k in AUTHORITY_FLAGS},
         "cannot_sell_all": _flag(tok.get("cannot_sell_all")),
         "holder_count": int(_f(tok.get("holder_count")) or 0),
-        "holder_concentration": _holder_concentration(tok.get("holders"), {p.lower() for p in (lp_pools or set())}),
+        "holder_concentration": (conc := _holder_concentration(tok.get("holders"), {p.lower() for p in (lp_pools or set())})),
         "lp_lock": lp_lock_or_burn(tok.get("lp_holders")),
         "owner_address": str(tok.get("owner_address") or "").lower() or None,
         "dev_balance": _owner_balance(tok),
+        "creator_honeypot_count": _creator_count(tok.get("honeypot_with_same_creator")),
+        "is_whitelisted": _flag(tok.get("is_whitelisted")),
+        "slippage_modifiable": _flag(tok.get("slippage_modifiable")),
+        "personal_slippage_modifiable": _flag(tok.get("personal_slippage_modifiable")),
+        "max_wallet_pct": None if not isinstance(conc, dict) else conc.get("top1_pct"),
     }
 
 
@@ -368,7 +382,20 @@ def veto_check(
             if strict:
                 missing.append("goplus:missing_holders")
         elif conc["top1_pct"] > MAX_SINGLE_HOLDER_PCT or conc["top10_pct"] > MAX_TOP10_HOLDER_PCT:
-            breach.append(f"goplus:holder_concentration(top1={conc['top1_pct']},top10={conc['top10_pct']})")
+            breach.append(f"goplus:max_wallet(top1={conc['top1_pct']},top10={conc['top10_pct']})")
+        creator = gp.get("creator_honeypot_count")
+        if creator is None and strict:
+            missing.append("goplus:dev_history_unknown")
+        elif isinstance(creator, int) and creator > 0:
+            breach.append(f"goplus:dev_history_honeypot_creator({creator})")
+        if gp.get("is_whitelisted") is True:
+            breach.append("goplus:whitelist_restricts_transfer")
+        elif gp.get("is_whitelisted") is None and strict:
+            missing.append("goplus:whitelist_unknown")
+        if gp.get("slippage_modifiable") is True or gp.get("personal_slippage_modifiable") is True:
+            breach.append("goplus:fee_or_slippage_modifiable")
+        elif strict and (gp.get("slippage_modifiable") is None or gp.get("personal_slippage_modifiable") is None):
+            missing.append("goplus:fee_rule_unknown")
         if strict:
             lock = gp.get("lp_lock") or {}
             if lock.get("share") is None:
