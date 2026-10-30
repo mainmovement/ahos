@@ -525,3 +525,35 @@
 **Choice:** No live weight change. The family registry was written at 2026-10-30T15:35:50Z before the score. On 157 closes that already carry a contribution list, mtf_trend is the largest absolute contribution on 148 (share 0.9427). The user's 115/124 figure is not the stored book. The last 40 percent is the score window. Breadth is WEIGHT_ZERO_OR_ABSENT. News, macro, whales (large_trades), and wicks (candles) already sit in the one scorer. Their marginal dollars are a lookback. `pass_stats` is false. Reasons: `LOOKBACK_NOT_A_FRESH_SAMPLE`, `RED_TEAM_ABSENT`. `applied_to_live_weights` is false. LIQUIDITY_STRESS is a variance override at 0.002, not a fourth fitted Gaussian. The tier count is 3 of 4. The code still cannot promote. A book with 30 trades in the original three labels can pass the count with zero stress trades. ECB and OPEC were not re-fetched; the earlier certificate failure stands and the macro-event weight stays 0. Mistake memory is already called before a paper open. The logged review on the stored book is action NONE, because no desk and side has three matching losses. arXiv task `M44ScoutDedupe` has `code_execution` false. GitHub and Hugging Face were not fetched. University regime rows stay SHADOW. One unified cycle wrote world-state version 74. Senders are AG-09 and AG-33. Judge and dashboard did not fire. `ask()` returned CITED and UNKNOWN on two questions. It is not called from every agent path. GOLD-SCI and GUARD-2 are bound in `architecture/mission/seats.py` to the regime classifier and `veto_check`. They were not added to the 43-agent registry. The stall decision on the live soak was HOLD. Window start stayed `2026-10-29T00:45:31Z`. Soak PID 14260 and trader PID 13020 were left running. No reboot was performed, so OP-3 stays open. The runtime ledgers, caches, bus log, world-state file, and `soak_pid.txt` stay unstaged. Named MEGA 7 files are the commit. Fresh MEGA 6 closes after 2026-10-30T14:46:47Z remain 0. Nothing was promoted. Gap IDs closed: none.
 
 **Reason:** A lookback that shows one signal is large is not a license to raise the others, and a reboot that was not done is not a start-up proof.
+
+## 2026-10-30: AD-0128 allows one nightly paper note on the existing token
+
+**Question:** The owner approved AD-0128 at 2026-10-30 18:42 Tehran for a nightly Telegram digest to Mehrdad on the existing token. Does that unlock Kian chat, opportunity alerts, or live orders?
+
+**Choice:** No. Only the short paper note in `architecture/mission/mehrdad_digest.py` is sent, and only to the first allowlisted chat. The token is loaded from the existing env file and is not printed or written to the log. One live send at 2026-10-30T15:55:34Z returned ok, message 357. Task `AHOS_mehrdad_nightly` is enabled for 22:00 local time, which is 22:00 Tehran. It still runs only while this user is logged on. It is allowed on battery. Opportunity alerts stay gated. The live switch stays off. M-GAP-009 stays open for general Telegram. Gap IDs closed: none.
+
+**Reason:** The approval names a digest, not a trading channel, and a token that is printed is no longer a secret.
+
+## 2026-10-30: Listed stocks are scanned in shadow, not added to the live book
+
+**Question:** Should every NASDAQ, NYSE, XETR, LSE, Euronext, Tokyo, and Hong Kong name that passes a liquidity screen be opened in the live paper book on this cycle?
+
+**Choice:** No. The scanner reads the public TradingView stock list and keeps eight names per desk. Bid and ask were empty on every row, so spread is unknown and no name passes the full screen. A scanner row has no family vote and no signal composite, so the fee gate stays unevaluable. The promotion rule was written at 2026-10-30T16:07:16Z, before the score at 16:17:20Z. Fresh closes are 0. `pass_stats` is false. No name was added to the live instrument list. The live floors stay 2 families, 0.05, and 2× fees. Market cap is kept in the scanner's own units and is not converted with a guessed exchange rate. The full read is cached for 15 minutes. It is not placed inside the five-minute paper cycle, because this pass took several minutes and a stall there would freeze the existing book. Gap IDs closed: none.
+
+**Reason:** A volume rank is not a family vote, and an unknown spread is not a pass.
+
+## 2026-10-30: The strategy library is registered and not scored
+
+**Question:** Should the new strategy library be weighted into the live paper book because the formulas exist and a prior Thompson draw produced weights?
+
+**Choice:** No. Twenty-six strategies are in `architecture/strategies/`. Each row cites its paper, book, or public report. The formulas are ours. No upstream repository was executed. The promotion rule was written to `reports/grok/PAPER/strategy_library_registry.json` at 2026-10-30T16:34:09Z in the same run as the board, and before any path was scored. Every row on `strategy_leaderboard.json` has no strategy path, so DSR and PBO are absent, expectancy is absent, and the state is shadow. `pass_stats` is false. The red team did not survive. The Thompson weights are a Beta(1, 1) prior, Kelly is absent, and those weights cannot open a trade without the existing family votes. The daily-loss count on the stored closes is a lookback: 7 days, 0 past the one-dollar stop, and it is not applied. Eighty arXiv titles already on disk stay candidates. SSRN and GitHub were not fetched. Live floors stay 2 families, 0.05, and 2× fees. Gap IDs closed: none.
+
+**Reason:** A citation is not a track record, and a prior is not a fresh out-of-sample result.
+
+## 2026-10-30: MEGA9 is registered first and the libraries are not installed
+
+**Question:** Should LightGBM, MAPIE, hmmlearn, ruptures, Riskfolio, cvxpy, river, arch, scikit-learn, and Chronos-Bolt be installed on this 8 GB soak so the science pack can import them, and should any module be promoted because a toy fixture met its rule?
+
+**Choice:** No install and no promotion. The pre-registration `docs/prereg/MEGA9.yaml` was committed as `ae8ec09` before any score. Its sha256 is `3edff5606bad6fc16d5745c9b56a50a1e360eb3461978d3840046e66a9ec07f9`, also stored in world-state hypotheses at version 82. A byte change that does not match that hash cannot be scored, and a later edit must raise `trial_count`. The named libraries were absent. Torch and Chronos weights were not downloaded. Moirai is refused. Own formulas cover the barriers, purged folds, conformal abstain, costs, a short changepoint step, hierarchical weights, the Kelly ceiling, fractional differentiation, expert weights, the block bootstrap, and a lock-plus-isolation veto. The legacy walk-forward helper was not rewritten. Process peak RSS on the shadow run was about 32 MB. Every module stays shadow. `promoted` is 0. The red team did not survive. Gap IDs closed: none.
+
+**Reason:** A fixture that abstains is not an out-of-sample pass, and a multi-hundred-megabyte install does not belong on this soak.

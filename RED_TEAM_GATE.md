@@ -756,3 +756,23 @@ Command: `pytest tests/test_mega7.py tests/test_token_pump_dump.py tests/test_ti
 Level 1. The 115/124 claim was measured instead of repeated. The stored book is 148 of 157 contribution rows. The out-of-sample slice is the last 40 percent, and it was registered in the same second as the score because the registry file did not exist before this run. That stamp is not a fresh-close sample.
 
 Level 2. Calling the fourth regime DONE means the label and the count exist. It does not mean a gold track passed the exit gate, and it does not mean a stress cluster was fitted.
+
+## AD-0128 digest (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+One paper note was sent to the allowlisted chat. Message id 357 at 2026-10-30T15:55:34Z. The token is not in the log. The note states the live switch is off and names no order. Nightly task `AHOS_mehrdad_nightly` is 22:00 Tehran. Kian chat and opportunity alerts were not opened. Gap IDs closed: **none**.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R7 SRE/Security | APPROVE the scoped send | Allowlist only. Log has `token_logged` false. No opportunity path. |
+| Meta-Critic | APPROVE | Level 2: a successful digest does not close the general Telegram gap, and the task does not run if the user is logged off. |
+
+## MEGA 9 (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Pre-registration commit e8ec09 is before any score. Hash 3edff5606bad6fc16d5745c9b56a50a1e360eb3461978d3840046e66a9ec07f9. Tests: pytest tests/test_mega9.py tests/test_mehrdad_digest.py tests/test_equity_universe.py -> 5 passed. Lane A integrity OK. No module was promoted.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | REJECT promotion | No book path was scored. DSR and PBO were not produced. Fixture rules are not a pass. |
+| R2 Data | APPROVE the registration | The yaml hash matches the sidecar. A mismatched file cannot be scored. |
+| R7 SRE/Security | APPROVE the refusal to install | Named libraries were absent. Chronos weights were not downloaded. Peak RSS about 32 MB. HOLD files were not edited. |
+| Meta-Critic | APPROVE | Level 2: purged folds exist, and the old walk-forward helper was not rerouted. Look-ahead, leakage, and a zero-cost fill are caught. That catch is NOT_SURVIVED for promotion. |

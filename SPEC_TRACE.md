@@ -300,3 +300,11 @@ Family marginal
 eports/grok/PAPER/family_marginal.json at **2026-10-30T15:35:50Z**: **157** closes with contributions, mtf_trend dominant **148** (share **0.9427**). Out-of-sample window **63** closes. Breadth reason WEIGHT_ZERO_OR_ABSENT. pass_stats false. Live weights unchanged. Fourth regime label LIQUIDITY_STRESS is a variance override at **0.002**. Tier 
 egime_coverage is **3 of 4**. Token veto adds dev-history, whitelist, fee/slippage, and max-wallet reasons before a strict PB_TOKEN open. Seats GOLD-SCI and GUARD-2 are bound in rchitecture/mission/seats.py and are not new registry agents. Unified cycle world-state version **74**, messages **84**, senders **AG-09** and **AG-33**. Silent modules: judge, dashboard. sk() statuses CITED and UNKNOWN. Mistake-memory logged action **NONE**. arXiv task M44ScoutDedupe, code_execution false. Stall **HOLD**. Soak window **2026-10-29T00:45:31Z**. Soak PID **14260**. Trader PID **13020**. Fresh MEGA 6 closes **0**. 
 eboot_proven false. Gap IDs closed: **none**. M13, M31, and M36 stay PARTIAL. SPEC_TRACE counts stay **119 REAL / 3 PARTIAL**.
+
+## AD-0128 digest (2026-10-30)
+
+Owner approval at 18:42 Tehran allows the existing token for one nightly paper note to Mehrdad. The note is rchitecture/mission/mehrdad_digest.py. One send at 2026-10-30T15:55:34Z was ok. Task AHOS_mehrdad_nightly runs at 22:00 Tehran. Kian chat and opportunity alerts stay closed. M31 stays PARTIAL. M-GAP-009 stays open. Gap IDs closed: **none**.
+
+## MEGA 9 (2026-10-30)
+
+Pre-registration docs/prereg/MEGA9.yaml commit e8ec09, sha256 3edff5606bad6fc16d5745c9b56a50a1e360eb3461978d3840046e66a9ec07f9. Twelve shadow modules under science/. Named libraries were not installed. Chronos weights were not downloaded. Moirai refused. Promoted **0**. States: M9-01 through M9-11 PARTIAL, M9-12 OPEN. The live paper broker was not rewritten. Peak RSS about **32 MB**. Gap IDs closed: **none**.

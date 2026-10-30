@@ -34,6 +34,10 @@
   {
    "id": "regime_fourth",
    "change": "Show LIQUIDITY_STRESS as the fourth label. The page must not say the 3-of-4 count has passed."
+  },
+  {
+   "id": "mega9_shadow",
+   "change": "Show the science pack as shadow. Do not paint a module as passed or promoted."
   }
  ],
  "decides": false
