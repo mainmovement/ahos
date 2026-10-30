@@ -1,0 +1,56 @@
+{
+ "schema": "ahos.whale_by_desk.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T14:08:32Z",
+ "desks": {
+  "CRYPTO": {
+   "status": "STORED",
+   "ts": "2026-10-30T12:22:02Z",
+   "symbol": "ETH",
+   "sign": "SHORT",
+   "mean_score": -0.0678,
+   "composite_weight": 0.0
+  },
+  "GOLD": {
+   "status": "STORED",
+   "ts": "2026-10-30T14:01:22Z",
+   "symbol": "XAU",
+   "sign": "SHORT",
+   "mean_score": -0.1964,
+   "composite_weight": 0.0
+  },
+  "OIL": {
+   "status": "STORED",
+   "ts": "2026-10-30T14:01:22Z",
+   "symbol": "BRENT",
+   "sign": "LONG",
+   "mean_score": 0.1496,
+   "composite_weight": 0.0
+  },
+  "CRYPTO_FUTURES": {
+   "status": "STORED",
+   "ts": "2026-10-30T14:01:22Z",
+   "symbol": "ETH-SWAP",
+   "sign": "SHORT",
+   "mean_score": -0.0678,
+   "composite_weight": 0.0
+  },
+  "LISTED_FUTURES": {
+   "status": "STORED",
+   "ts": "2026-10-30T14:01:22Z",
+   "symbol": "GC",
+   "sign": "SHORT",
+   "mean_score": -0.1964,
+   "composite_weight": 0.0
+  }
+ },
+ "stored_desks": [
+  "CRYPTO",
+  "CRYPTO_FUTURES",
+  "GOLD",
+  "LISTED_FUTURES",
+  "OIL"
+ ],
+ "live_switch": false,
+ "decides": false
+}

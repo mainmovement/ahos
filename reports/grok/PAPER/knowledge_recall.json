@@ -1,0 +1,38 @@
+{
+ "schema": "ahos.knowledge_recall.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T14:08:32Z",
+ "cited": {
+  "schema": "ahos.knowledge_answer.v1",
+  "paper_only": true,
+  "question": "why BTC-SWAP CRYPTO_FUTURES close",
+  "answer": "BTC-SWAP CRYPTO_FUTURES WIN WITNESS_CONFLICT_EXIT",
+  "citations": [
+   "paper_close:BTC-SWAP:CRYPTO_FUTURES:2026-10-30T13:49:40Z"
+  ],
+  "overlap": [
+   "btc-swap",
+   "crypto",
+   "futures"
+  ],
+  "status": "CITED",
+  "decides": false,
+  "generated_at": "2026-10-30T14:08:32Z",
+  "live_switch": false
+ },
+ "unknown": {
+  "schema": "ahos.knowledge_answer.v1",
+  "paper_only": true,
+  "question": "why zzz-no-such-market close",
+  "answer": "UNKNOWN",
+  "citations": [],
+  "status": "UNKNOWN",
+  "decides": false,
+  "generated_at": "2026-10-30T14:08:32Z",
+  "live_switch": false
+ },
+ "recall_cited": true,
+ "recall_unknown": true,
+ "live_switch": false,
+ "decides": false
+}

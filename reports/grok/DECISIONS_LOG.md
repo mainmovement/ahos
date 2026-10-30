@@ -477,3 +477,27 @@
 **Choice:** No. The baseline is the last close at 2026-10-30T12:22:02Z. Further closes since that stamp: 0. The out-of-sample expectancy on that empty tail is not positive. There is no `lesson_red_team.json` with verdict `SURVIVED_RED_TEAM`. The decision is `KEEP_SHADOW`. Reasons: `AWAITING_30_FURTHER_CLOSES`, `OOS_EXPECTANCY_NOT_POSITIVE`, `RED_TEAM_ABSENT`. `applied_to_live_weights` is false and `lesson_live_weight.json` was not written. On the current book the shadow delta after fees is +0.010123 USD and the out-of-sample delta is +0.008119 USD. That measurement does not move the baseline. A desk pauses before the session, composite, and two-family gates, so the cycle log shows `DESK_EXPECTANCY_PAUSE` for the flat names. Half size applies only when a desk has at least 10 closes and its mean loss is worse than twice its own mean fee. GOLD qualifies (14 closes, expectancy -0.023593, mean fee 0.008066). PB_TOKEN does not (expectancy -0.010264, mean fee 0.010715), so it keeps its existing desk multiplier. The XAU row at 2026-10-30T12:31:34Z carries `size_factor` 0.5. Paper trader PID 12248. The data walk found 11 sqlite files after 41 directory entries and did not time out. Gap IDs closed: none.
 
 **Reason:** A positive shadow on the closes we already had is not thirty newer closes, and a missing red team is not a pass. PB_TOKEN's loss is about one fee, not two.
+
+## 2026-10-30: The launcher checkout follows the commit port 3200 is already serving
+
+**Question:** Should the detached launcher checkout at 064daf2 be rebuilt on this laptop so it matches branch ahos, or pointed at the commit the running bundle already is?
+
+**Choice:** No laptop build and no server restart. `AHOS_Launcher\app` is a worktree. Branch `ahos` stays checked out at `G:\robat\ahos`, so this worktree cannot also hold that branch name. Its detached HEAD moved from 064daf2 to 1b08b58 (`1b08b58bdaeaf3fac5a0a56dfee13ca60bfb6873`). The `reports` junction was removed before the checkout and put back afterward. The live decision log and soak status hashes were the same before and after. PID 11416 kept serving `.next` and answered HTTP 200. `built_commit.txt` and `served_commit.txt` now record that same SHA, so the next launcher click does not start a background `next build` against the old 064daf2 marker. `three-globe@2.45.3` was already a direct dependency, with a lockfile entry, on this commit. `npm ls` resolves it. It was not in 064daf2. The older root `globals.css` and `src/styles/shell.css` stay deleted, which is what 1b08b58 already recorded. Gap IDs closed: none.
+
+**Reason:** The running `.next` contains `app/paper`, and 064daf2 does not. The staged bundle is named for 1b08b58. A force checkout through the reports junction would have rewritten the live soak files.
+
+## 2026-10-30: The type fix is committed, and this laptop does not build it
+
+**Question:** After `6704410` lands on branch `ahos`, should this laptop build it because the served markers still say `1b08b58`?
+
+**Choice:** No. Commit `6704410c61260fea4685fe0046babad1b937de3b` is the type and gitignore fix only. It was not pushed. Port 3200 keeps serving `1b08b58`. `served_commit.txt` and `built_commit.txt` stay on that SHA. `pending_commit.txt` is set to `6704410` with no pending dist, so the launcher updater does not start `next build` or a force checkout. Soltan rebuilds `6704410` off-laptop and swaps the bundle later. Gap IDs closed: none.
+
+**Reason:** A marker that still names the old bundle would start a laptop build on the next launcher click. A marker that names the new commit as already served would be false.
+
+## 2026-10-30: The cause-drop stays shadow, and the backup series stays at two nights
+
+**Question:** Should the entry-cause drop be promoted because its measured DSR is 0.9997 and its PBO is 0.0, and should the missing five backup nights be filled from earlier dates?
+
+**Choice:** No. The rule `ENTRY_CAUSES` deletes closes that were already labeled losses. `pass_stats` is forced false. Reasons are `POST_HOC_CAUSE_DROP` and `RED_TEAM_ABSENT`. `applied_to_live_weights` is false. No `SURVIVED_RED_TEAM` file was written. ASIA_EQUITIES, CRYPTO, and OIL stay paused. GOLD stays at half size. PB_TOKEN is not special-cased. The nightly run `20261030T141228Z` is a real PASS, so the series is 2 of 7 distinct dates (2026-10-02 and 2026-10-30). `series_complete` is false. The first attempt that day died on a Windows code-page error inside `git status` and did not record a night; the UTF-8 retry did. Task `AHOS_nightly_backup` runs daily at 02:15 from `G:\robat\AHOS_Launcher\nightly_backup.ps1`. The 20-second soak integrity check left `ahos_local` and `e01_discovery` as INTERRUPTED. Soak PID 11388 and trader PID 12248 were not restarted, so they do not yet run the new sentence or the six-hour hook. Dashboard and app files were not edited. The UI list is `reports/grok/PAPER/ui_queue_next_build.json`. `pending_commit.txt` will name the docs commit with no pending dist, and `served_commit.txt` stays `1b08b58`. Gap IDs closed: none.
+
+**Reason:** A high DSR on a rule that throws away known losers is not a tradable pass, and a series of two nights is not seven.

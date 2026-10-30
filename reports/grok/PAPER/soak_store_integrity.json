@@ -1,0 +1,15 @@
+{
+ "schema": "ahos.soak_store_integrity.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T14:09:14Z",
+ "stores": {
+  "ahos_local": "INTERRUPTED",
+  "e01_discovery": "INTERRUPTED",
+  "paper_trading": "ok",
+  "ahos_knowledge": "ok"
+ },
+ "every_store_ok": false,
+ "running_soak_reloaded": false,
+ "live_switch": false,
+ "decides": false
+}

@@ -1,0 +1,13 @@
+{
+ "schema": "ahos.calibration_shadow.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T14:08:32Z",
+ "n": 0,
+ "brier": null,
+ "calibration_measured": false,
+ "calibration_applied": false,
+ "applied_to_live_weights": false,
+ "reason": "NO_PROBABILITY_ON_CLOSES",
+ "live_switch": false,
+ "decides": false
+}

@@ -4,8 +4,8 @@
  "audit_date": "2026-09-12",
  "audit_operational_impl": 0,
  "audit_rows": 26,
- "current_impl": 10,
- "current_impl_pct": 38.5,
+ "current_impl": 16,
+ "current_impl_pct": 61.5,
  "live_switch": false,
  "rows": [
   {
@@ -17,7 +17,7 @@
   {
    "id": "token_discovery",
    "step": "Log one new token from a free source that then faces the safety veto.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
@@ -47,7 +47,7 @@
   {
    "id": "market_intelligence",
    "step": "Point the served market page at a quote that has source, time, and latency.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
@@ -71,7 +71,7 @@
   {
    "id": "explainable_scoring",
    "step": "Attach a Persian sentence that cites the logged reason on the next close.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
@@ -131,19 +131,19 @@
   {
    "id": "provider_architecture",
    "step": "Record a provider probe as SUCCESS or the real failure.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
    "id": "knowledge_memory",
    "step": "Answer from a stored close, or return UNKNOWN.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {
    "id": "security_ops",
    "step": "Re-run the kill-switch drill without editing the live book.",
-   "current_impl": false,
+   "current_impl": true,
    "audit_2026_09_12_impl": false
   },
   {

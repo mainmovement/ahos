@@ -693,3 +693,24 @@ Command: `pytest tests/test_mega4b.py -q` → **10 passed**. Lane A integrity OK
 | R6 Learning | APPROVE | The promoter deletes a live-weight file when the red team is absent. |
 | R7 SRE/Security | APPROVE | The data walk stops at 5 seconds, 2,000 entries, and skips `node_modules`. It saw 41 entries and 11 sqlite files. |
 | Meta-Critic | APPROVE | Level 2: 38.5 percent is 10 rows with a file each. The September audit is still 0 of 26. Readiness stays 50 percent. |
+
+## MEGA 5 (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_mega5.py tests/test_mega4b.py tests/test_soak_snapshot.py -q` → **18 passed**. `python scripts/freeze_lane_a.py` → Lane-A integrity OK (36 files). Gap IDs closed: **none**. The live switch is false. No dashboard or app file was edited. Soak PID 11388 and trader PID 12248 were not restarted.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | REJECT the promotion, APPROVE the shadow | Rule `ENTRY_CAUSES` drops already-labeled losses. OOS expectancy 0.003755 and shadow expectancy 0.01564 are on 62 then 40 closes. Measured DSR 0.9997 and PBO 0.0 are forced to `pass_stats` false. Reasons: `POST_HOC_CAUSE_DROP`, `RED_TEAM_ABSENT`. Decision `KEEP_SHADOW`. |
+| R2 Data | APPROVE | 16 of 26 overlay rows have a receipt. The September audit stays 0 of 26. SPEC_TRACE stays 119 REAL and 3 PARTIAL. Calibration stays unmeasured because no close carries a probability in [0, 1]. |
+| R3 News | APPROVE | News-trap closes sit inside `ENTRY_CAUSES`. The news weight was not written. No desk was unpaused. |
+| R4 Intelligence (Kian) | APPROVE | The cited answer names `paper_close:ETH-SWAP:CRYPTO_FUTURES:2026-10-30T12:22:02Z`. The unmatched question is UNKNOWN. The Persian sentence quotes the logged reason and says it is not a new ruling. |
+| R5 Visual/UX | APPROVE | UI work is queued in `reports/grok/PAPER/ui_queue_next_build.json`. Port 3200 still serves `1b08b58`. |
+| R6 Learning | APPROVE | `applied_to_live_weights` is false. `lesson_red_team.json` was not written. Calibration `applied` is false. |
+| R7 SRE/Security | APPROVE | Night `20261030T141228Z` is PASS. The series is 2 of 7. The 20-second soak check interrupted the two large stores. The kill drill did not edit the live book. HOLD files were not removed. Lane A was not edited. |
+| Meta-Critic | APPROVE | Level 2: 61.5 percent is the current overlay, not the September audit and not SPEC_TRACE. A DSR of 0.9997 on a cause deletion is not `PASS_STATS`. INTERRUPTED is not ok. The running processes do not yet execute the new close sentence or the six-hour integrity hook. |
+
+### Two-level self-critique
+
+Level 1. The overlay copied the previous ten proof flags from `vision_steps.json` instead of re-reading every older receipt in this pass. Those files are still on disk. `safety_veto` stays on the earlier rows; the new token log is a separate count of 9. News flags were not re-fetched.
+
+Level 2. Calling the overlay 61.5 percent would be a false vision claim if it were written into the 2026-09-12 audit. It was not. The served page, the seven remaining nights, the large-store soak check, calibration, and the live weights are still open.

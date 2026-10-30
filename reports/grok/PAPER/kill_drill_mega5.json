@@ -1,0 +1,14 @@
+{
+ "schema": "ahos.kill_drill_mega5.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T14:08:32Z",
+ "name": "kill_switch",
+ "synthetic_tripped": true,
+ "synthetic_reason": "DAILY_LOSS -3.98 < -3%",
+ "live_book_tripped": false,
+ "live_reason": null,
+ "passed": true,
+ "live_book_edited": false,
+ "live_switch": false,
+ "decides": false
+}

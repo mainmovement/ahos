@@ -1,0 +1,1253 @@
+{
+ "schema": "ahos.close_reason_fa.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T14:08:32Z",
+ "closes": 155,
+ "cited": 155,
+ "close_reasons_cited": true,
+ "rows": [
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T14:20:16Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T14:31:13Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-24T14:52:33Z",
+   "reason": "TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T15:04:09Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T15:16:06Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T15:16:06Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T15:21:56Z",
+   "reason": "TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T16:50:28Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T16:50:28Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T16:50:28Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "DEX_LINK",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-24T17:02:34Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن DEX_LINK روی PB_TOKEN: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T20:05:30Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "DEX_LINK",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-24T20:05:30Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن DEX_LINK روی PB_TOKEN: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "DEX_LINK",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-24T21:36:52Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن DEX_LINK روی PB_TOKEN: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T21:44:02Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T21:44:02Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-24T22:16:47Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T22:29:07Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-24T22:29:07Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "DEX_LINK",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-24T22:35:08Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن DEX_LINK روی PB_TOKEN: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-25T03:26:22Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T04:02:07Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-25T05:44:48Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T06:03:07Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T06:39:35Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده هزینه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T06:51:45Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-25T14:58:48Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T15:26:23Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T15:33:33Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T15:54:54Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T17:31:47Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T22:01:36Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T22:26:42Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-25T23:05:13Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-25T23:48:01Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-26T00:49:21Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-26T01:13:33Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده هزینه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-26T01:19:56Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده نامعلوم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-26T01:56:41Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-26T02:45:14Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "closed_at": "2026-10-26T03:03:42Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن USDJPY روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-26T03:33:42Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-26T03:57:53Z",
+   "reason": "TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "closed_at": "2026-10-26T04:22:08Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن USDJPY روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-26T05:05:50Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده نامعلوم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-26T07:43:15Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده نامعلوم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-26T09:20:20Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-26T09:39:25Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-26T12:38:23Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-26T14:01:35Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-26T15:20:54Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده هزینه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-26T15:42:12Z",
+   "reason": "STOP_LOSS",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «STOP_LOSS» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-26T15:49:18Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-26T16:33:36Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-26T16:33:36Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-27T14:31:19Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-27T14:31:19Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-27T14:31:19Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-27T14:31:19Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "DAX",
+   "desk": "EU_EQUITIES",
+   "closed_at": "2026-10-27T14:31:19Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن DAX روی EU_EQUITIES: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-27T14:31:19Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-27T14:38:55Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-27T14:38:55Z",
+   "reason": "STOP_LOSS",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «STOP_LOSS» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-27T14:38:55Z",
+   "reason": "STOP_LOSS",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «STOP_LOSS» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-27T14:50:50Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "QQQ",
+   "desk": "US_EQUITIES",
+   "closed_at": "2026-10-27T20:03:16Z",
+   "reason": "TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن QQQ روی US_EQUITIES: دلیل ثبت‌شده «TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SPX",
+   "desk": "US_EQUITIES",
+   "closed_at": "2026-10-27T20:18:03Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن SPX روی US_EQUITIES: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "closed_at": "2026-10-27T21:16:39Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن USDJPY روی FOREX: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-28T00:20:31Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-28T00:26:37Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-28T00:55:23Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-28T01:41:04Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-28T01:53:21Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-28T02:04:39Z",
+   "reason": "STOP_LOSS",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «STOP_LOSS» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-28T02:49:54Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-28T02:55:47Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-28T04:04:23Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده هزینه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-28T17:39:58Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده زمان‌بندی است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-28T17:39:58Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده نامعلوم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-28T17:39:58Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-28T17:39:58Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-28T17:47:20Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده زمان‌بندی است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-28T19:35:59Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-28T20:14:10Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده زمان‌بندی است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-28T20:14:10Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-28T20:56:50Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "closed_at": "2026-10-28T21:04:10Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن USDJPY روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده نامعلوم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-28T21:11:11Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-29T00:25:27Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده نامعلوم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T00:49:19Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T01:07:16Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T01:24:47Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-29T01:30:42Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T01:36:50Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده زمان‌بندی است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T01:42:45Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T02:00:20Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T02:06:10Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T02:37:26Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-29T02:43:20Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T03:06:29Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T03:46:06Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T04:09:19Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T04:37:40Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T05:17:14Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-29T05:34:45Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-29T05:52:23Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده زمان‌بندی است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-29T08:07:03Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "DAX",
+   "desk": "EU_EQUITIES",
+   "closed_at": "2026-10-29T08:18:42Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن DAX روی EU_EQUITIES: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T10:22:34Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-29T10:56:52Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T11:59:09Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-29T12:11:09Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-29T12:40:20Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T13:44:15Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T13:50:16Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "DAX",
+   "desk": "EU_EQUITIES",
+   "closed_at": "2026-10-29T14:03:38Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن DAX روی EU_EQUITIES: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T14:15:43Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-29T14:28:04Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده رژیم است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-29T14:52:41Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SPX",
+   "desk": "US_EQUITIES",
+   "closed_at": "2026-10-29T15:38:29Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن SPX روی US_EQUITIES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T18:45:08Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T18:45:08Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T20:15:15Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-29T20:52:43Z",
+   "reason": "TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "closed_at": "2026-10-29T21:03:28Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن USDJPY روی FOREX: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-29T22:58:13Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-29T22:58:13Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده دادهٔ بد است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-29T23:46:13Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-29T23:46:13Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن SOL روی CRYPTO: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-30T00:16:21Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده زمان‌بندی است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-30T00:36:54Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-30T01:35:39Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-30T01:35:39Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-30T01:52:17Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-30T01:52:17Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-30T02:01:04Z",
+   "reason": "TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "HSI",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-30T03:30:14Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن HSI روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BRENT",
+   "desk": "OIL",
+   "closed_at": "2026-10-30T03:53:51Z",
+   "reason": "STOP_LOSS",
+   "cites_reason": true,
+   "fa": "بستن BRENT روی OIL: دلیل ثبت‌شده «STOP_LOSS» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "N225",
+   "desk": "ASIA_EQUITIES",
+   "closed_at": "2026-10-30T04:20:04Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن N225 روی ASIA_EQUITIES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-30T04:24:46Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "GC",
+   "desk": "LISTED_FUTURES",
+   "closed_at": "2026-10-30T04:24:46Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن GC روی LISTED_FUTURES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "EURUSD",
+   "desk": "FOREX",
+   "closed_at": "2026-10-30T05:04:11Z",
+   "reason": "TIME_STOP",
+   "cites_reason": true,
+   "fa": "بستن EURUSD روی FOREX: دلیل ثبت‌شده «TIME_STOP» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-30T05:13:08Z",
+   "reason": "STOP_LOSS",
+   "cites_reason": true,
+   "fa": "بستن BTC روی CRYPTO: دلیل ثبت‌شده «STOP_LOSS» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "UNI",
+   "desk": "PB_TOKEN",
+   "closed_at": "2026-10-30T06:26:34Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن UNI روی PB_TOKEN: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-30T06:43:22Z",
+   "reason": "CHANDELIER_STOP",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «CHANDELIER_STOP» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "USDJPY",
+   "desk": "FOREX",
+   "closed_at": "2026-10-30T06:59:39Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن USDJPY روی FOREX: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده خانوادهٔ اشتباه است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "DAX",
+   "desk": "EU_EQUITIES",
+   "closed_at": "2026-10-30T09:13:05Z",
+   "reason": "MAX_HOLD",
+   "cites_reason": true,
+   "fa": "بستن DAX روی EU_EQUITIES: دلیل ثبت‌شده «MAX_HOLD» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH",
+   "desk": "CRYPTO",
+   "closed_at": "2026-10-30T10:33:53Z",
+   "reason": "CHANDELIER_STOP",
+   "cites_reason": true,
+   "fa": "بستن ETH روی CRYPTO: دلیل ثبت‌شده «CHANDELIER_STOP» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH-SWAP",
+   "desk": "CRYPTO_FUTURES",
+   "closed_at": "2026-10-30T10:50:31Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن ETH-SWAP روی CRYPTO_FUTURES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "WTI",
+   "desk": "OIL",
+   "closed_at": "2026-10-30T10:59:38Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن WTI روی OIL: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "XAU",
+   "desk": "GOLD",
+   "closed_at": "2026-10-30T11:56:40Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن XAU روی GOLD: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "GC",
+   "desk": "LISTED_FUTURES",
+   "closed_at": "2026-10-30T11:56:40Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن GC روی LISTED_FUTURES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "ETH-SWAP",
+   "desk": "CRYPTO_FUTURES",
+   "closed_at": "2026-10-30T12:22:02Z",
+   "reason": "SIGNAL_REVERSAL",
+   "cites_reason": true,
+   "fa": "بستن ETH-SWAP روی CRYPTO_FUTURES: دلیل ثبت‌شده «SIGNAL_REVERSAL» است و علت محاسبه‌شده دام خبر است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "BTC-SWAP",
+   "desk": "CRYPTO_FUTURES",
+   "closed_at": "2026-10-30T13:49:40Z",
+   "reason": "WITNESS_CONFLICT_EXIT",
+   "cites_reason": true,
+   "fa": "بستن BTC-SWAP روی CRYPTO_FUTURES: دلیل ثبت‌شده «WITNESS_CONFLICT_EXIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  },
+  {
+   "symbol": "SOL-SWAP",
+   "desk": "CRYPTO_FUTURES",
+   "closed_at": "2026-10-30T13:49:40Z",
+   "reason": "PARTIAL_TAKE_PROFIT",
+   "cites_reason": true,
+   "fa": "بستن SOL-SWAP روی CRYPTO_FUTURES: دلیل ثبت‌شده «PARTIAL_TAKE_PROFIT» است و علت محاسبه‌شده سود است. این جمله از همان ردیف بسته ساخته شده و حکم جدیدی نیست."
+  }
+ ],
+ "live_switch": false,
+ "decides": false,
+ "process_reloaded": false
+}

@@ -1,0 +1,91 @@
+{
+ "schema": "ahos.sourced_quotes.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T14:08:32Z",
+ "sourced_quotes": true,
+ "markets": [
+  {
+   "desk": "ASIA_EQUITIES",
+   "symbol": "N225",
+   "source": "tradingview:TVC:NI225",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 879,
+   "complete": true
+  },
+  {
+   "desk": "CRYPTO",
+   "symbol": "BTC",
+   "source": "binance:BTCUSDT",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 990,
+   "complete": true
+  },
+  {
+   "desk": "CRYPTO_FUTURES",
+   "symbol": "ETH-SWAP",
+   "source": "okx:ETH-USDT-SWAP",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 896,
+   "complete": true
+  },
+  {
+   "desk": "EU_EQUITIES",
+   "symbol": "DAX",
+   "source": "tradingview:XETR:DAX",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 879,
+   "complete": true
+  },
+  {
+   "desk": "FOREX",
+   "symbol": "EURUSD",
+   "source": "tradingview:FX:EURUSD",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 879,
+   "complete": true
+  },
+  {
+   "desk": "GOLD",
+   "symbol": "XAU",
+   "source": "tradingview:TVC:GOLD",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 879,
+   "complete": true
+  },
+  {
+   "desk": "LISTED_FUTURES",
+   "symbol": "CL",
+   "source": "tradingview:NYMEX:CL1!",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 879,
+   "complete": true
+  },
+  {
+   "desk": "OIL",
+   "symbol": "WTI",
+   "source": "tradingview:NYMEX:CL1!",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 879,
+   "complete": true
+  },
+  {
+   "desk": "PB_TOKEN",
+   "symbol": "UNI",
+   "source": "yahoo_finance:UNI7083-USD",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 1545,
+   "complete": true
+  },
+  {
+   "desk": "US_EQUITIES",
+   "symbol": "SPX",
+   "source": "yahoo_finance:^GSPC",
+   "ts": "2026-10-30T14:01:22Z",
+   "latency_ms": 1027,
+   "complete": true
+  }
+ ],
+ "served_page": "NOT_REBUILT",
+ "live_switch": false,
+ "decides": false
+}

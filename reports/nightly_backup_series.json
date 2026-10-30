@@ -1,21 +1,23 @@
 {
   "schema": "ahos.nightly_backup_series.v1",
-  "updated_utc": "2026-10-02T03:15:29Z",
+  "updated_utc": "2026-10-30T14:13:01Z",
   "git": {
-    "commit_sha": "6cf3f5ab71c4e367c17ca3e1b0dbb24f83253799",
+    "commit_sha": "5bfaadc9a2ade28c618f2f73e2258b7566a47a50",
     "branch": "ahos",
     "working_tree_clean": false
   },
-  "backup_root": "data\\backups",
+  "backup_root": "G:\\robat\\ahos\\data\\backups",
   "target_nights": 7,
-  "runs_recorded": 1,
+  "runs_recorded": 2,
   "distinct_dates": [
-    "2026-10-02"
+    "2026-10-02",
+    "2026-10-30"
   ],
   "distinct_passing_dates": [
-    "2026-10-02"
+    "2026-10-02",
+    "2026-10-30"
   ],
-  "nights_completed": 1,
+  "nights_completed": 2,
   "series_complete": false,
   "latest_verdict": "PASS",
   "nights": [
@@ -121,10 +123,113 @@
         }
       ],
       "verdict": "PASS"
+    },
+    {
+      "night_utc": "20261030T141228Z",
+      "date_utc": "2026-10-30",
+      "backup_dir": "G:\\robat\\ahos\\data\\backups\\20261030T141228Z",
+      "stores": [
+        {
+          "store": "e01_discovery",
+          "source": "G:\\robat\\ahos\\data\\e01_discovery.sqlite",
+          "backup": "G:\\robat\\ahos\\data\\backups\\20261030T141228Z\\e01_discovery.sqlite",
+          "source_sha256": "ab98f2e6429ab1a5b027e0d2c8d56dc0589fc67ffcf17848b2d7c4389909b0c8",
+          "backup_sha256": "9b4c00c502e7dc1d2dd1d006fe244558fc5c67a6ddd245c4bd26f89a2a7ff3ec",
+          "row_counts": {
+            "discovery_observations": 222817,
+            "feature_definitions": 0,
+            "feature_vector": 0,
+            "gap_register": 131451,
+            "gate_summary": 0,
+            "holder_snapshot": 0,
+            "lifecycle_events": 180910,
+            "observation_state": 44109,
+            "opportunity_assessments": 3789,
+            "opportunity_rank": 0,
+            "outcome_label": 1316,
+            "pairs": 0,
+            "production_observations": 60054,
+            "provider_failure_events": 1125,
+            "raw_payloads": 16598,
+            "security_verdicts": 0,
+            "tokens": 44109,
+            "wallet_observation": 0
+          },
+          "integrity_check": "ok",
+          "verdict": "PASS",
+          "failures": []
+        },
+        {
+          "store": "paper_trading",
+          "source": "G:\\robat\\ahos\\data\\paper_trading.sqlite",
+          "backup": "G:\\robat\\ahos\\data\\backups\\20261030T141228Z\\paper_trading.sqlite",
+          "source_sha256": "ec39160eb1eaaae23bfa6c5f9706b966517283b08589717778d523a9cda62687",
+          "backup_sha256": "a85875298a454b41c2b2fcbcbc83529814b03f5a748bd68f94d7d6b9d6eaf00b",
+          "row_counts": {
+            "decision_snapshot": 0,
+            "decision_snapshot_v2": 0,
+            "invalidation": 0,
+            "learning_stats_snapshot": 0,
+            "monitor_event": 0,
+            "paper_exit": 0,
+            "paper_exit_v2": 0,
+            "paper_exit_v3": 0,
+            "paper_position_events": 0,
+            "paper_positions": 0,
+            "paper_trade": 0,
+            "paper_trade_v2": 0,
+            "portfolio_ledger": 0,
+            "position_decision_event": 0,
+            "position_state_event": 0,
+            "post_trade_lesson": 0,
+            "realizable_snapshot": 0,
+            "scam_assessment": 0,
+            "strategy_version": 0
+          },
+          "integrity_check": "ok",
+          "verdict": "PASS",
+          "failures": []
+        },
+        {
+          "store": "ahos_local",
+          "source": "G:\\robat\\ahos\\data\\ahos_local.sqlite",
+          "backup": "G:\\robat\\ahos\\data\\backups\\20261030T141228Z\\ahos_local.sqlite",
+          "source_sha256": "edb90b78110eac6224ef9a4b8e92409ad05a664dedd8a6a97485bee5b0a8f79a",
+          "backup_sha256": "11041b3f82855b80156ef84ed751fcfa3a3e2e58bfa6d8baa179032c35db0d7d",
+          "row_counts": {
+            "control_flags": 5,
+            "opportunity_score_ledger": 56268,
+            "position_ledger": 0,
+            "runtime_lifecycle_events": 0,
+            "runtime_operational_metrics": 44901,
+            "scheduler_heartbeats": 2,
+            "scheduler_locks": 1,
+            "scheduler_runs": 5287
+          },
+          "integrity_check": "ok",
+          "verdict": "PASS",
+          "failures": []
+        },
+        {
+          "store": "ahos_knowledge",
+          "source": "G:\\robat\\ahos\\data\\ahos_knowledge.sqlite",
+          "backup": "G:\\robat\\ahos\\data\\backups\\20261030T141228Z\\ahos_knowledge.sqlite",
+          "source_sha256": "b531222771ba97764b2a31bacda9b53befbe73867bcb4feace8273f79f90101e",
+          "backup_sha256": "7a5642658cc5fcc15480f79d40150f8cb7973011f5b4b81c72f571e35481f3a7",
+          "row_counts": {
+            "claim_contradiction_edges": 0,
+            "knowledge_claims": 251
+          },
+          "integrity_check": "ok",
+          "verdict": "PASS",
+          "failures": []
+        }
+      ],
+      "verdict": "PASS"
     }
   ],
   "unproven_until_operator_runs_them": [
-    "7 consecutive nightly backups on the laptop (1/7 distinct days so far)",
+    "7 consecutive nightly backups on the laptop (2/7 distinct days so far)",
     "restore onto a FRESH host (different machine) \u2014 USER-ACTION-REQUIRED"
   ]
 }

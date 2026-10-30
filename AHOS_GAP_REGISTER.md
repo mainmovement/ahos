@@ -644,3 +644,12 @@ The 2026-08-20 classification table above is a historical snapshot. The living s
 - **M-GAP-006 stays MITIGATED.** A Frankfurter `Date` header was 0.69 seconds from this host's UTC. That is not an NTP measurement and it does not by itself close the gap. Receipt: `reports/grok/PAPER/clock_offset_drill.json`.
 - **M-GAP-010 stays MITIGATED.** One synthetic backup drill passed at 2026-10-30T12:09:33Z (`reports/grok/PAPER/backup_restore_drill.json`, passed 1). The series still needs 7 distinct nights.
 - Kill-switch and judge drills passed without editing the live book (`reports/grok/PAPER/operator_drills.json`). Mehrdad readiness moved from 16.7 percent to 50 percent. The live switch is false. Profit months, DSR/PBO, and the tiny capped start are still unmet.
+
+## Addendum (2026-10-30) — MEGA 5, paper only
+
+The 2026-08-20 classification table above is a historical snapshot. The living status is the register table.
+
+- **M-GAP-010 stays MITIGATED.** Night `20261030T141228Z` passed integrity on all four backup copies. Distinct passing dates are 2026-10-02 and 2026-10-30. That is 2 of 7. `series_complete` is false. Ledger: `reports/nightly_backup_series.json`. Task `AHOS_nightly_backup` is daily at 02:15 and runs `G:\robat\AHOS_Launcher\nightly_backup.ps1`. A fresh-host restore is still required.
+- **M-GAP-005 stays MITIGATED.** The nightly copies returned `integrity_check` ok. The soak-cadence check at 20 seconds returned INTERRUPTED for `ahos_local.sqlite` and `e01_discovery.sqlite`, and ok for `paper_trading.sqlite` and `ahos_knowledge.sqlite` (`reports/grok/PAPER/soak_store_integrity.json`). The running soak PID 11388 does not have the six-hour hook. The next soak start will attach it. `every_store_ok` on that receipt is false.
+- The cause-drop shadow is `KEEP_SHADOW`. Measured DSR 0.9997 and PBO 0.0 are not a pass. `pass_stats` is false. Reasons: `POST_HOC_CAUSE_DROP`, `RED_TEAM_ABSENT`. Live weights were not written.
+- Current vision overlay is 16 of 26 (61.5 percent). The 2026-09-12 operational column stays 0 of 26. Readiness stays 50 percent. Gap IDs closed: none.

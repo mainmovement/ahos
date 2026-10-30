@@ -1,0 +1,251 @@
+{
+ "schema": "ahos.edge_decomposition.v1",
+ "paper_only": true,
+ "generated_at": "2026-10-30T14:08:32Z",
+ "live_switch": false,
+ "decides": false,
+ "applied_to_live_weights": false,
+ "desks": [
+  {
+   "desk": "ASIA_EQUITIES",
+   "closes": 26,
+   "net_usd": -0.0227,
+   "expectancy_usd": -0.000873,
+   "fees_usd": 0.0529,
+   "bucket_usd": {
+    "WIN": 0.1191,
+    "FEES": -0.0005,
+    "ENTRIES": -0.0954,
+    "EXITS": -0.0303,
+    "TIMING": -0.0156
+   },
+   "bucket_n": {
+    "WIN": 11,
+    "FEES": 1,
+    "ENTRIES": 9,
+    "EXITS": 3,
+    "TIMING": 2
+   },
+   "dominant_negative": "ENTRIES"
+  },
+  {
+   "desk": "CRYPTO",
+   "closes": 43,
+   "net_usd": -0.5532,
+   "expectancy_usd": -0.012865,
+   "fees_usd": 0.4621,
+   "bucket_usd": {
+    "WIN": 0.5986,
+    "FEES": -0.0146,
+    "ENTRIES": -1.0759,
+    "EXITS": -0.023,
+    "TIMING": -0.0383
+   },
+   "bucket_n": {
+    "WIN": 14,
+    "FEES": 2,
+    "ENTRIES": 24,
+    "EXITS": 1,
+    "TIMING": 2
+   },
+   "dominant_negative": "ENTRIES"
+  },
+  {
+   "desk": "CRYPTO_FUTURES",
+   "closes": 4,
+   "net_usd": -0.0083,
+   "expectancy_usd": -0.002075,
+   "fees_usd": 0.0116,
+   "bucket_usd": {
+    "WIN": 0.053,
+    "FEES": 0.0,
+    "ENTRIES": -0.0613,
+    "EXITS": 0.0,
+    "TIMING": 0.0
+   },
+   "bucket_n": {
+    "WIN": 2,
+    "FEES": 0,
+    "ENTRIES": 2,
+    "EXITS": 0,
+    "TIMING": 0
+   },
+   "dominant_negative": "ENTRIES"
+  },
+  {
+   "desk": "EU_EQUITIES",
+   "closes": 4,
+   "net_usd": 0.1648,
+   "expectancy_usd": 0.0412,
+   "fees_usd": 0.0199,
+   "bucket_usd": {
+    "WIN": 0.1648,
+    "FEES": 0.0,
+    "ENTRIES": 0.0,
+    "EXITS": 0.0,
+    "TIMING": 0.0
+   },
+   "bucket_n": {
+    "WIN": 4,
+    "FEES": 0,
+    "ENTRIES": 0,
+    "EXITS": 0,
+    "TIMING": 0
+   },
+   "dominant_negative": null
+  },
+  {
+   "desk": "FOREX",
+   "closes": 18,
+   "net_usd": -0.031,
+   "expectancy_usd": -0.001722,
+   "fees_usd": 0.0294,
+   "bucket_usd": {
+    "WIN": 0.0587,
+    "FEES": 0.0,
+    "ENTRIES": -0.0523,
+    "EXITS": -0.0359,
+    "TIMING": -0.0015
+   },
+   "bucket_n": {
+    "WIN": 5,
+    "FEES": 0,
+    "ENTRIES": 7,
+    "EXITS": 5,
+    "TIMING": 1
+   },
+   "dominant_negative": "ENTRIES"
+  },
+  {
+   "desk": "GOLD",
+   "closes": 14,
+   "net_usd": -0.3303,
+   "expectancy_usd": -0.023593,
+   "fees_usd": 0.1129,
+   "bucket_usd": {
+    "WIN": 0.0973,
+    "FEES": -0.0102,
+    "ENTRIES": -0.1399,
+    "EXITS": -0.2775,
+    "TIMING": 0.0
+   },
+   "bucket_n": {
+    "WIN": 5,
+    "FEES": 1,
+    "ENTRIES": 3,
+    "EXITS": 5,
+    "TIMING": 0
+   },
+   "dominant_negative": "EXITS"
+  },
+  {
+   "desk": "LISTED_FUTURES",
+   "closes": 2,
+   "net_usd": 0.0071,
+   "expectancy_usd": 0.00355,
+   "fees_usd": 0.0026,
+   "bucket_usd": {
+    "WIN": 0.0071,
+    "FEES": 0.0,
+    "ENTRIES": 0.0,
+    "EXITS": 0.0,
+    "TIMING": 0.0
+   },
+   "bucket_n": {
+    "WIN": 2,
+    "FEES": 0,
+    "ENTRIES": 0,
+    "EXITS": 0,
+    "TIMING": 0
+   },
+   "dominant_negative": null
+  },
+  {
+   "desk": "OIL",
+   "closes": 27,
+   "net_usd": -0.1398,
+   "expectancy_usd": -0.005178,
+   "fees_usd": 0.1092,
+   "bucket_usd": {
+    "WIN": 0.351,
+    "FEES": 0.0,
+    "ENTRIES": -0.4852,
+    "EXITS": 0.0,
+    "TIMING": -0.0056
+   },
+   "bucket_n": {
+    "WIN": 15,
+    "FEES": 0,
+    "ENTRIES": 11,
+    "EXITS": 0,
+    "TIMING": 1
+   },
+   "dominant_negative": "ENTRIES"
+  },
+  {
+   "desk": "PB_TOKEN",
+   "closes": 14,
+   "net_usd": -0.1437,
+   "expectancy_usd": -0.010264,
+   "fees_usd": 0.15,
+   "bucket_usd": {
+    "WIN": 0.2994,
+    "FEES": 0.0,
+    "ENTRIES": -0.28,
+    "EXITS": -0.1631,
+    "TIMING": 0.0
+   },
+   "bucket_n": {
+    "WIN": 4,
+    "FEES": 0,
+    "ENTRIES": 8,
+    "EXITS": 2,
+    "TIMING": 0
+   },
+   "dominant_negative": "ENTRIES"
+  },
+  {
+   "desk": "US_EQUITIES",
+   "closes": 3,
+   "net_usd": 0.0948,
+   "expectancy_usd": 0.0316,
+   "fees_usd": 0.0061,
+   "bucket_usd": {
+    "WIN": 0.0985,
+    "FEES": 0.0,
+    "ENTRIES": -0.0037,
+    "EXITS": 0.0,
+    "TIMING": 0.0
+   },
+   "bucket_n": {
+    "WIN": 2,
+    "FEES": 0,
+    "ENTRIES": 1,
+    "EXITS": 0,
+    "TIMING": 0
+   },
+   "dominant_negative": "ENTRIES"
+  }
+ ],
+ "shadow": {
+  "schema": "ahos.edge_shadow.v1",
+  "paper_only": true,
+  "rule": "ENTRY_CAUSES",
+  "chosen_on": "first_60_percent",
+  "scored_on": "last_40_percent",
+  "oos_closes": 62,
+  "oos_kept": 40,
+  "oos_expectancy_usd": 0.003755,
+  "shadow_expectancy_usd": 0.01564,
+  "dsr": 0.9997,
+  "pbo": 0.0,
+  "pass_stats": false,
+  "red_team": null,
+  "decision": "KEEP_SHADOW",
+  "applied_to_live_weights": false,
+  "reasons": [
+   "POST_HOC_CAUSE_DROP",
+   "RED_TEAM_ABSENT"
+  ]
+ }
+}
