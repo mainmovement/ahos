@@ -26,12 +26,16 @@ def _close(**extra):
 
 
 def test_a_loss_names_the_family_that_voted_the_losing_side():
-    case = university_case(_close())
+    case = university_case(_close(entry_brain={"signals": [{"name": "candles", "score": 0.4, "available": True, "evidence": {}}]}))
     assert case["outcome"] == "LOSS"
     assert case["cause"] == "WRONG_FAMILY"
-    assert case["families_wrong"] == ["news"]
+    assert case["families_wrong"] == ["candle_wicks"]
     assert case["families_right"] == []
     assert case["applied_to_live_weights"] is False
+    news = university_case(_close())
+    assert news["cause"] == "NEWS_TRAP"
+    conflict = university_case(_close(reason="WITNESS_CONFLICT_EXIT", entry_brain={"signals": []}))
+    assert conflict["cause"] == "BAD_DATA"
 
 
 def test_fees_that_flip_the_sign_are_fee_drag():

@@ -20,7 +20,7 @@ DSR_MIN = 0.95
 PBO_MAX = 0.5
 MIN_RESOLVED = 30
 
-_CAUSE_ORDER = ("FEE_DRAG", "BAD_TIMING", "REGIME", "WRONG_FAMILY", "UNKNOWN")
+_CAUSE_ORDER = ("FEE_DRAG", "BAD_DATA", "BAD_TIMING", "NEWS_TRAP", "REGIME", "WRONG_FAMILY", "UNKNOWN")
 
 
 def _profitable_sign(side: str, win: bool) -> str | None:
@@ -54,8 +54,14 @@ def loss_cause(close_row: dict[str, Any]) -> str:
     fees = float(close_row.get("fees_usd") or 0)
     if fees > 0 and pnl + fees >= 0:
         return "FEE_DRAG"
-    if str(close_row.get("reason") or "") in ("TIME_STOP", "MAX_HOLD"):
+    reason = str(close_row.get("reason") or "")
+    witness = close_row.get("witness") if isinstance(close_row.get("witness"), dict) else {}
+    if reason.startswith("WITNESS") or witness.get("verdict") == "CONFLICT":
+        return "BAD_DATA"
+    if reason in ("TIME_STOP", "MAX_HOLD"):
         return "BAD_TIMING"
+    if reason.startswith("PUMP_NEWS") or "news" in family_outcomes(close_row)["wrong"]:
+        return "NEWS_TRAP"
     brain = close_row.get("entry_brain") if isinstance(close_row.get("entry_brain"), dict) else {}
     regime = brain.get("regime") if isinstance(brain.get("regime"), dict) else {}
     mult = regime.get("size_mult")
