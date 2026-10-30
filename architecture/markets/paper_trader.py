@@ -294,7 +294,23 @@ def university_lesson(root: Path, w: dict[str, Any], close_row: dict[str, Any], 
             store.close()
     except Exception as exc:  # never block trading on the lesson store
         m49_id = f"ERROR:{repr(exc)[:120]}"
+    mistake = None
+    if not win:
+        try:
+            from architecture.learning.mistakes import record_losing_close
+
+            mistake = record_losing_close(
+                root,
+                case_id=str(m49_id or f"PT-{close_row['symbol']}-{close_row['closed_at']}"),
+                pnl_usd=float(close_row["realized_pnl_usd"]),
+                symbol=str(close_row["symbol"]),
+                desk=str(close_row["desk"]),
+                closed_at=str(close_row["closed_at"]),
+            )
+        except Exception:
+            mistake = {"status": "ERROR", "threshold_changed": False}
     _append(root, LESSONS_REL, {"m49_lesson_id": m49_id, "ts": close_row["closed_at"], "symbol": close_row["symbol"], "win": win,
+                                "mistake_case": mistake,
                                 "pnl_usd": close_row["realized_pnl_usd"], "signals": contributions,
                                 "weights_changed": changed, "weights_version": w["version"], "paper_only": True})
     _save_json(root / WEIGHTS_REL, w)

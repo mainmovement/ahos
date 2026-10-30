@@ -145,3 +145,7 @@ Live book census after re-export: **130** closes, dominant `mtf_trend` **121**, 
 ## P0 Stage 2 note (2026-10-30)
 
 Soak relaunch census: **33** stamped rows in `GAP_NOTES.md` (30 under 1h, 3 host gaps). Oct 26 18:45Z → Oct 27 14:18 +03:30 is **16.05h** host downtime. M36 receipt `reports/grok/M36/soak_72h_receipt.json` is **`NOT_MET`**. Logon→LightStart chain is present in `G:\robat\AHOS_Launcher\logs` (last logon end 2026-10-29T01:00:21, lastExit=0). Paper trader PID **13180** loads the two-family gate. Daily block counter starts at 0 until a cycle reaches that gate. Gap IDs closed: **none**. **M36** and **M-GAP-003** stay open.
+
+## P0 Stage 3 note (2026-10-30)
+
+University dry-run: knowledge store **251** claims (46 new winning CLOSE claims with provenance; prior lesson sync kept). **85** losing closes are `UNVERIFIED` eval cases via `mistakes.record_losing_close` (also hooked on every future losing CLOSE). Agent help desk `architecture/university/helpdesk.py::ask` is advisory. L0–L4 receipt does not raise the ceiling past `L1_ANALYZE`. Weekly shadow scorecard still **0** outcomes. Windows tasks remain registered. Gap IDs closed: **none**.

@@ -217,6 +217,73 @@ class KnowledgeSyncBridge:
             synced += 1
         return synced
 
+    def sync_winning_paper_closes(self, root: Path | None = None) -> int:
+        """Store one RESEARCH claim per winning paper CLOSE. A win is not an edge claim."""
+        from config.paths import connect_sqlite_ro, get_project_root
+
+        base = Path(root) if root else get_project_root()
+        log = base / "reports" / "grok" / "PAPER" / "paper_trades.jsonl"
+        if not log.is_file():
+            return 0
+        conn = connect_sqlite_ro(self.store.db_path)
+        existing = {
+            str(r[0])
+            for r in conn.execute("SELECT DISTINCT claim_id FROM knowledge_claims").fetchall()
+        }
+        conn.close()
+        synced = 0
+        ts = time.time()
+        for line in log.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if row.get("event") != "CLOSE":
+                continue
+            pnl = float(row.get("realized_pnl_usd") or 0)
+            if pnl <= 0:
+                continue
+            symbol = str(row.get("symbol") or "UNKNOWN")
+            closed = str(row.get("closed_at") or row.get("ts") or "")
+            cid = f"CLAIM-PAPER-WIN-{symbol}-{closed.replace(':', '').replace('-', '')[:32]}"
+            if cid in existing:
+                continue
+            statement = (
+                f"Paper CLOSE {symbol} {row.get('side')} realized {pnl} USD at {closed} "
+                f"reason={row.get('reason')}. This is a logged win, not evidence of edge."
+            )
+            ev = EvidenceLink(
+                evidence_id=f"ev_win_{symbol}_{closed}",
+                source_id="SRC-PAPER-TRADES",
+                trust_class=TrustClass.RAW_FACT,
+                pointer=f"reports/grok/PAPER/paper_trades.jsonl:{symbol}:{closed}",
+                description=statement[:300],
+                raw_sha256=hashlib.sha256(statement.encode()).hexdigest(),
+                retrieved_ts=ts,
+            )
+            claim = VersionedClaim(
+                claim_id=cid,
+                version=1,
+                category=ClaimCategory.RESEARCH,
+                statement=statement[:2000],
+                trust_class=TrustClass.RAW_FACT,
+                author_or_source_id="SRC-PAPER-TRADES",
+                evidence_links=[ev],
+                contradicting_evidence_ids=[],
+                contradiction_edges=[],
+                provenance_sha256=hashlib.sha256(f"WIN_{symbol}_{closed}_{pnl}".encode()).hexdigest(),
+                created_ts=ts,
+                review_status="PROPOSED",
+                confidence=0.4,
+                meta={"paper_only": True, "proves_edge": False, "desk": row.get("desk")},
+            )
+            self.store.store_claim(claim)
+            existing.add(cid)
+            synced += 1
+        return synced
+
     def sync_documented_lessons(self, root: Path | None = None) -> dict[str, int]:
         """Ingest real M49 + M65 lesson snapshots into knowledge_claims (empirical / teaching only)."""
         from config.paths import get_project_root

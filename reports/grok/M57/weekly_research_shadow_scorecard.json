@@ -1,7 +1,7 @@
 {
   "schema": "ahos.m57.weekly_research_shadow_scorecard.v1",
   "iso_week": "2026-W44",
-  "generated_at": "2026-10-30T00:27:20Z",
+  "generated_at": "2026-10-30T00:45:45Z",
   "paper_only": true,
   "scorecard_path": "reports/grok/PAPER/research_hypothesis_scorecard.json",
   "outcomes_path": "reports/grok/PAPER/research_prediction_outcomes.jsonl",

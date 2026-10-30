@@ -1,0 +1,45 @@
+{
+  "schema": "ahos.certification_ladder_dry_run.v1",
+  "generated_at": "2026-10-30T00:45:54Z",
+  "paper_only": true,
+  "autonomy_ceiling": "L1_ANALYZE",
+  "ceiling_unchanged": true,
+  "promotion_eligible": false,
+  "levels": [
+    {
+      "level": "L0_OBSERVE",
+      "observed": true,
+      "evidence": "reports/grok/M13_SOAK/soak_heartbeat.json",
+      "granted": false
+    },
+    {
+      "level": "L1_ANALYZE",
+      "observed": true,
+      "evidence": "reports/grok/PAPER/edge_report.json",
+      "granted": true,
+      "note": "Granted only as the existing cognitive ceiling, not as a new promotion."
+    },
+    {
+      "level": "L2_RECOMMEND",
+      "observed": true,
+      "evidence": "architecture/markets/council_gate.py",
+      "granted": false,
+      "note": "Council output stays advisory."
+    },
+    {
+      "level": "L3_AUTONOMOUS_EXPERIMENT",
+      "observed": true,
+      "evidence": "strategy_lab/registry.json",
+      "granted": false,
+      "note": "Experiments stay unpromoted while strategy_switch is version 0."
+    },
+    {
+      "level": "L4_PAPER_TRADING",
+      "observed": true,
+      "evidence": "architecture/markets/paper_trader.py",
+      "granted": false,
+      "note": "Paper trading is a separate PAPER_ONLY engine. This dry-run does not grant L4 to the cognitive core."
+    }
+  ],
+  "honesty": "Dry-run only. L2–L4 are observed, not certified."
+}

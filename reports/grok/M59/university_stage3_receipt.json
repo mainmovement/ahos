@@ -1,0 +1,19 @@
+{
+  "schema": "ahos.university_stage3_receipt.v1",
+  "paper_only": true,
+  "weekly_hypotheses_tracked": 0,
+  "weekly_outcomes_total": 0,
+  "winning_closes_inserted": 46,
+  "loss_eval_cases_appended": 85,
+  "knowledge_claims_total": 251,
+  "helpdesk_asku_ref": "asku_ebb416564875",
+  "helpdesk_decides": false,
+  "helpdesk_knowledge_hits": 5,
+  "autonomy_ceiling": "L1_ANALYZE",
+  "scheduled_tasks_present": [
+    "AHOS_arxiv_scout_daily",
+    "AHOS_pipeline_6h",
+    "AHOS_university_exam_sat",
+    "AHOS_negahban_daily"
+  ]
+}

@@ -177,3 +177,20 @@ Command: `pytest tests/test_multi_signal_block_counter.py tests/test_soak_gap_ac
 | R6 University | N/A | Not this stage. |
 | R7 SRE | APPROVE with limit | Heartbeat at export: last soak cycle `2026-10-30T00:32:29Z`, `stale=false`. Logon→LightStart chain seen: logon `invoke begin/end` **6/6**, last end `2026-10-29T01:00:21 … lastExit=0`, and `light_start.log` has begin lines. M36 72h receipt status **`NOT_MET`**. A clean 72h is not claimed. |
 | Meta-Critic | APPROVE | Short relaunches are a logon/VBS restart loop when the soak process is already dead. The long gap is host downtime. Do not treat `cycles_ok` inside one process as a 72h soak. |
+
+## P0 Stage 3 — university (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `G:\robat\ahos\.venv\Scripts\python.exe -m pytest tests/test_university_stage3.py -q --tb=short` → **3 passed**.
+
+`scripts/run_university_stage3.py` receipt: weekly shadow hypotheses **0** / outcomes **0** (no CLOSE yet carries `research_predictions`). Winning paper closes inserted **46** (idempotent claim ids). Loss eval cases appended **85**, each `UNVERIFIED` and `threshold_changed=false`. Knowledge claims **251**. Help desk `asku_ebb416564875`, `decides=false`, 5 knowledge hits. Autonomy ceiling stays **`L1_ANALYZE`**. Scheduled tasks still present: arxiv daily, pipeline 6h, Saturday exam, Negahban daily.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE (0 promoted) | Wins are stored as “logged win, not evidence of edge”, confidence 0.4. Loss cases do not move thresholds. Promotion gate untouched. |
+| R2 Data | APPROVE | Each win claim points at `paper_trades.jsonl:symbol:closed_at` and a provenance hash. Re-runs skip existing claim ids. |
+| R3 News | N/A | Not this stage. |
+| R4 Council | APPROVE | `helpdesk.ask` is `ADVISORY_ONLY` and `decides=false`. It does not emit WATCH or PAPER_CANDIDATE. |
+| R5 UX | N/A | No laptop build. |
+| R6 University | APPROVE with limit | L0–L4 dry-run observes files. L2–L4 `granted=false`. Weekly scorecard remains empty until shadow predictions exist on closes. Curriculum constants in organ evolution stay labeled static. |
+| R7 SRE | APPROVE | Four `AHOS_*` tasks still queryable. Lane A not edited. Cognitive ceiling constant unchanged. |
+| Meta-Critic | APPROVE | 251 claims and 85 loss cases are a ledger of what happened. They are not a certificate and not an edge. |
