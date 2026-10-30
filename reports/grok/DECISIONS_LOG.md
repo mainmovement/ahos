@@ -381,3 +381,11 @@
 **Choice:** No. The close writes a university case (win or loss, one cause, families that voted with the profitable direction and families that voted against it). The weekly scorecard's 4h and 24h hit rates, including a per-desk split, can propose a candidate multiplier. The live weight changes only when that proposal has PASS_STATS, SURVIVED_RED_TEAM, deflated Sharpe above 0.95, and PBO under 0.5 on the supplied out-of-sample paths. One path, or a missing DSR or PBO, stays shadow. The old n>=10 rewrite is removed.
 
 **Reason:** A hit rate is not an out-of-sample deflated Sharpe. Letting it move a live weight would change later paper size without the promotion gate.
+
+## 2026-10-30: Research ideas stay unscored until they have a number
+
+**Question:** Should the weekly arXiv shortlist invent a predicted score so every desk has a number?
+
+**Choice:** No. The three newest distinct papers in the on-disk scout are written as shadow hypotheses on every book, including listed futures. The predicted score is copied only when the paper record already has one. This week's three have none, so the field is null and counterfactual scoring returns UNSCORED. SSRN has no keyless feed here, so that source is ABSENT_NO_FEED and no SSRN paper is added. A hypothesis is promote-eligible only after PASS_STATS and SURVIVED_RED_TEAM. Measured failure kills it. A missing statistic, or a pass that the red team has not reviewed, stays shadow. Promote-eligible does not write a live weight.
+
+**Reason:** A score copied from a title, or from a crypto result onto oil, would be a fabricated forecast. The overlay weight path is unchanged.

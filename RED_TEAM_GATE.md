@@ -516,3 +516,16 @@ A close writes a university case and, after ten outcomes, a shadow candidate. It
 | R2 Data | APPROVE | Fee drag is the sign flip from fees. Anything else unmatched stays UNKNOWN. |
 | R4 Council | APPROVE | The live weight file is unchanged by ten hits. |
 | Meta-Critic | APPROVE | The case records who was right. It does not open a trade. |
+
+## Research institute (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_research_institute.py -q` → **3 passed**.
+
+The on-disk arXiv scout produced three ideas dated from 2026-10-27 (`2610.37324v1` and two older). Each is a shadow hypothesis on all ten desks (the nine pipeline desks plus LISTED_FUTURES): 30 rows, zero numeric predicted scores. SSRN is ABSENT_NO_FEED. A failed measured OOS path is KILL. A passing path without the red team stays shadow. Promote-eligible does not write a weight. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Null scores are not treated as a direction. |
+| R2 Data | APPROVE | SSRN contributed no paper. The shortlist is the scout file, not a generated abstract. |
+| R4 Council | APPROVE | Promote-eligible leaves the live weight untouched. |
+| Meta-Critic | APPROVE | Kill requires both DSR and PBO to have been measured and to have failed. |

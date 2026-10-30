@@ -233,3 +233,7 @@ CNBC is the primary for SPX, NDX, SPY, QQQ, and NVDA. TradingView is one batch a
 ## Learning loop (2026-10-30)
 
 Every close writes `reports/grok/PAPER/university_cases.jsonl`: win or loss, one cause (fee drag, bad timing, regime, wrong family, or UNKNOWN), and which vote families agreed with the profitable direction. The weekly family scorecard now includes `by_desk` hit rates at 4h and 24h. Those rates propose a shadow multiplier. A live weight changes only through PASS_STATS, SURVIVED_RED_TEAM, DSR above 0.95, and PBO under 0.5. The previous n>=10 rewrite is gone. Gates unchanged. Gap IDs closed: **none**.
+
+## Research institute (2026-10-30)
+
+Weekly shortlist is the three newest distinct papers in `reports/grok/M44/arxiv_scout.json`. This export is `reports/grok/PAPER/research_weekly.json`: 3 ideas, 30 shadow rows, predicted_score null on every desk including LISTED_FUTURES. SSRN is ABSENT_NO_FEED. Counterfactual scoring skips a null score. Promote-eligible requires PASS_STATS and SURVIVED_RED_TEAM and does not write a live weight. A measured DSR/PBO failure is KILL. Gates unchanged. Gap IDs closed: **none**.
