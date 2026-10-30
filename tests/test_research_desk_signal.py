@@ -47,7 +47,10 @@ def test_shadow_registry_does_not_move_composite(tmp_path):
     assert with_research["composite"] == without["composite"]
     overlay = research_overlay_for_desk(tmp_path, "CRYPTO")
     assert overlay["available"] is False
-    assert (overlay.get("evidence") or {}).get("composite_weight") == 0.0
+    evidence = overlay.get("evidence") or {}
+    assert evidence.get("composite_weight") == 0.0
+    assert evidence.get("advisory_vote_score") == 0.3
+    assert evidence.get("vote_authority") == "ADVISORY_ONLY"
     preds = research_predictions_for_trade(tmp_path, "CRYPTO")
     h15 = next(p for p in preds["predictions"] if p["hypothesis_id"] == "H15")
     assert h15["composite_weight"] == 0.0
@@ -84,3 +87,5 @@ def test_pass_stats_survived_can_weight_overlay(tmp_path):
     c0 = sb.combine(base, w)
     c1 = sb.combine(append_research_signal(tmp_path, "CRYPTO", list(base)), w)
     assert c1["composite"] != c0["composite"]
+    assert (overlay.get("evidence") or {}).get("advisory_vote_score") is None
+    assert (overlay.get("evidence") or {}).get("vote_authority") == "PASS_STATS+SURVIVED_RED_TEAM"

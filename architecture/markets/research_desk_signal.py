@@ -6,6 +6,7 @@ PAPER_ONLY — not promotion authority.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -205,6 +206,34 @@ def research_predictions_for_trade(root: Path, desk: str) -> dict[str, Any]:
     }
 
 
+def _finite_metric(value: Any) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    number = float(value)
+    if not math.isfinite(number):
+        return None
+    return number
+
+
+def advisory_vote_score(predictions: list[dict[str, Any]]) -> float | None:
+    """Mean of existing numeric predicted scores, clamped to [-1, 1].
+
+    Direction-only rows (predicted_score None) are skipped. This never invents a score.
+    """
+    nums: list[float] = []
+    for row in predictions:
+        if not isinstance(row, dict):
+            continue
+        metric = _finite_metric(row.get("predicted_score"))
+        if metric is None:
+            continue
+        nums.append(metric)
+    if not nums:
+        return None
+    mean = sum(nums) / len(nums)
+    return round(max(-1.0, min(1.0, mean)), 4)
+
+
 def research_overlay_for_desk(root: Path, desk: str) -> dict[str, Any]:
     pipe = DESK_TO_PIPELINE.get(desk)
     if not pipe:
@@ -212,6 +241,9 @@ def research_overlay_for_desk(root: Path, desk: str) -> dict[str, Any]:
     score, batch_keys, batch_rows = _batch_weighted_overlay(root, pipe)
     shadow = _registry_shadow_predictions(root, pipe)
     sw = _read_switch(root)
+    preds = research_predictions_for_trade(root, desk).get("predictions") or []
+    promoted = score is not None
+    advisory = None if promoted else advisory_vote_score(preds)
     return sb._sig(
         "research_overlay",
         score,
@@ -222,11 +254,14 @@ def research_overlay_for_desk(root: Path, desk: str) -> dict[str, Any]:
             "batch_pass_stats_keys": batch_keys,
             "batch_pass_stats": batch_rows[:8],
             "shadow_forward_logged": [p["hypothesis_id"] for p in shadow],
-            "composite_weight": 0.05 if score is not None else 0.0,
+            "advisory_vote_score": advisory,
+            "advisory_sources": [p.get("hypothesis_id") for p in preds if _finite_metric(p.get("predicted_score")) is not None] if not promoted else [],
+            "vote_authority": "PASS_STATS+SURVIVED_RED_TEAM" if promoted else ("ADVISORY_ONLY" if advisory is not None else "UNAVAILABLE"),
+            "composite_weight": 0.05 if promoted else 0.0,
             "paper_only": True,
             "not_promotion": True,
         },
-        "batch_pass_stats+red_team",
+        "batch_pass_stats+red_team" if promoted else "advisory_shadow_or_switch",
         "M57",
     )
 

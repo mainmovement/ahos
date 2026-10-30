@@ -100,6 +100,15 @@ def independent_vote_gate(sigs: list[dict], side: str) -> tuple[bool, dict]:
             for s in members
             if s.get("available") and isinstance(s.get("score"), (int, float)) and not isinstance(s.get("score"), bool)
         ]
+        advisory = False
+        if not scores and family == "research":
+            for s in members:
+                evidence = s.get("evidence") if isinstance(s.get("evidence"), dict) else {}
+                raw = evidence.get("advisory_vote_score")
+                if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+                    continue
+                scores.append(float(raw))
+                advisory = True
         if not scores:
             votes.append({"family": family, "vote": "UNAVAILABLE"})
             continue
@@ -110,7 +119,11 @@ def independent_vote_gate(sigs: list[dict], side: str) -> tuple[bool, dict]:
             vote = "AGREE"
         else:
             vote = "DISAGREE"
-        votes.append({"family": family, "vote": vote, "mean_score": round(mean, 4)})
+        row = {"family": family, "vote": vote, "mean_score": round(mean, 4)}
+        if advisory:
+            row["advisory"] = True
+            row["composite_weight"] = 0.0
+        votes.append(row)
     agree = sum(1 for v in votes if v["vote"] == "AGREE")
     applicable = len(present) >= MIN_AGREEING_FAMILIES
     ok = (not applicable) or agree >= MIN_AGREEING_FAMILIES

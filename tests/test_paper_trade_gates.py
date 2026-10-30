@@ -1,4 +1,5 @@
 from architecture.markets.paper_trade_gates import (
+    MIN_AGREEING_FAMILIES,
     MIN_EXPECTED_PROFIT_TO_FEE_RATIO,
     DESK_NOTIONAL_MULT,
     excess_composite_strength,
@@ -56,6 +57,43 @@ def test_two_families_must_agree():
     ok, audit = independent_vote_gate(sigs, "LONG")
     assert ok is False
     assert audit["agreeing_families"] == 1
+
+
+def test_research_advisory_votes_without_moving_composite():
+    from architecture.markets import signal_brain as sb
+
+    research = {
+        "name": "research_overlay",
+        "score": 0.0,
+        "available": False,
+        "evidence": {"advisory_vote_score": 0.3, "composite_weight": 0.0, "vote_authority": "ADVISORY_ONLY"},
+    }
+    sigs = [_sig("news", 0.4), research]
+    ok, audit = independent_vote_gate(sigs, "LONG")
+    assert ok is True
+    assert audit["agreeing_families"] == 2
+    research_vote = next(v for v in audit["votes"] if v["family"] == "research")
+    assert research_vote["vote"] == "AGREE"
+    assert research_vote["advisory"] is True
+    assert research_vote["composite_weight"] == 0.0
+    w = dict(sb.DEFAULT_WEIGHTS)
+    base = [_sig("news", 0.4)]
+    assert sb.combine(base + [research], w)["composite"] == sb.combine(base, w)["composite"]
+    assert MIN_AGREEING_FAMILIES == 2
+    assert MIN_EXPECTED_PROFIT_TO_FEE_RATIO == 2.0
+
+
+def test_research_without_numeric_score_stays_unavailable():
+    research = {
+        "name": "research_overlay",
+        "score": 0.0,
+        "available": False,
+        "evidence": {"advisory_vote_score": None, "vote_authority": "UNAVAILABLE"},
+    }
+    ok, audit = independent_vote_gate([_sig("news", 0.4), research], "LONG")
+    assert ok is False
+    research_vote = next(v for v in audit["votes"] if v["family"] == "research")
+    assert research_vote["vote"] == "UNAVAILABLE"
 
 
 def test_news_and_wicks_agree_passes():
