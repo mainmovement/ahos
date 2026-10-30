@@ -1,94 +1,33 @@
 {
   "schema": "ahos.gate_window_report.v1",
-  "generated_at": "2026-10-30T01:24:45Z",
+  "generated_at": "2026-10-30T06:42:11Z",
   "paper_only": true,
   "gate_live_at": "2026-10-30T00:40:16Z",
   "required_hours": 6.0,
-  "elapsed_hours": 0.742,
-  "window_status": "INSUFFICIENT_WINDOW",
-  "opens": 0,
-  "blocks": 2,
-  "fee_drag": 5,
+  "elapsed_hours": 6.032,
+  "window_status": "COMPLETE",
+  "opens": 16,
+  "blocks": 43,
+  "fee_drag": 13,
   "by_desk": [
     {
-      "desk": "CRYPTO",
-      "opens": 0,
-      "blocks": 0,
-      "fee_drag": 4,
-      "cycles_with_votes": 0,
-      "vote_states": {
-        "news": {
-          "AGREE": 0,
-          "DISAGREE": 0,
-          "FLAT": 0,
-          "UNAVAILABLE": 0,
-          "ABSENT": 0
-        },
-        "macro_central_bank": {
-          "AGREE": 0,
-          "DISAGREE": 0,
-          "FLAT": 0,
-          "UNAVAILABLE": 0,
-          "ABSENT": 0
-        },
-        "whales": {
-          "AGREE": 0,
-          "DISAGREE": 0,
-          "FLAT": 0,
-          "UNAVAILABLE": 0,
-          "ABSENT": 0
-        },
-        "candle_wicks": {
-          "AGREE": 0,
-          "DISAGREE": 0,
-          "FLAT": 0,
-          "UNAVAILABLE": 0,
-          "ABSENT": 0
-        },
-        "research": {
-          "AGREE": 0,
-          "DISAGREE": 0,
-          "FLAT": 0,
-          "UNAVAILABLE": 0,
-          "ABSENT": 0
-        }
-      },
-      "agree_counts": {
-        "news": 0,
-        "macro_central_bank": 0,
-        "whales": 0,
-        "candle_wicks": 0,
-        "research": 0
-      },
-      "families_never_agreed_in_window": [],
-      "families_scored": [],
-      "families_never_scored": [],
-      "families_not_observed": [
-        "news",
-        "macro_central_bank",
-        "whales",
-        "candle_wicks",
-        "research"
-      ]
-    },
-    {
-      "desk": "OIL",
-      "opens": 0,
-      "blocks": 2,
+      "desk": "ASIA_EQUITIES",
+      "opens": 2,
+      "blocks": 26,
       "fee_drag": 1,
-      "cycles_with_votes": 2,
+      "cycles_with_votes": 29,
       "vote_states": {
         "news": {
-          "AGREE": 2,
-          "DISAGREE": 0,
-          "FLAT": 0,
+          "AGREE": 9,
+          "DISAGREE": 17,
+          "FLAT": 3,
           "UNAVAILABLE": 0,
           "ABSENT": 0
         },
         "macro_central_bank": {
-          "AGREE": 0,
-          "DISAGREE": 0,
-          "FLAT": 2,
+          "AGREE": 20,
+          "DISAGREE": 9,
+          "FLAT": 0,
           "UNAVAILABLE": 0,
           "ABSENT": 0
         },
@@ -97,12 +36,12 @@
           "DISAGREE": 0,
           "FLAT": 0,
           "UNAVAILABLE": 0,
-          "ABSENT": 2
+          "ABSENT": 29
         },
         "candle_wicks": {
-          "AGREE": 0,
-          "DISAGREE": 0,
-          "FLAT": 2,
+          "AGREE": 3,
+          "DISAGREE": 1,
+          "FLAT": 25,
           "UNAVAILABLE": 0,
           "ABSENT": 0
         },
@@ -110,21 +49,19 @@
           "AGREE": 0,
           "DISAGREE": 0,
           "FLAT": 0,
-          "UNAVAILABLE": 2,
+          "UNAVAILABLE": 29,
           "ABSENT": 0
         }
       },
       "agree_counts": {
-        "news": 2,
-        "macro_central_bank": 0,
+        "news": 9,
+        "macro_central_bank": 20,
         "whales": 0,
-        "candle_wicks": 0,
+        "candle_wicks": 3,
         "research": 0
       },
       "families_never_agreed_in_window": [
-        "macro_central_bank",
         "whales",
-        "candle_wicks",
         "research"
       ],
       "families_scored": [
@@ -137,45 +74,392 @@
         "research"
       ],
       "families_not_observed": []
+    },
+    {
+      "desk": "CRYPTO",
+      "opens": 1,
+      "blocks": 0,
+      "fee_drag": 6,
+      "cycles_with_votes": 3,
+      "vote_states": {
+        "news": {
+          "AGREE": 3,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "macro_central_bank": {
+          "AGREE": 0,
+          "DISAGREE": 3,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "whales": {
+          "AGREE": 1,
+          "DISAGREE": 0,
+          "FLAT": 2,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "candle_wicks": {
+          "AGREE": 3,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "research": {
+          "AGREE": 0,
+          "DISAGREE": 2,
+          "FLAT": 0,
+          "UNAVAILABLE": 1,
+          "ABSENT": 0
+        }
+      },
+      "agree_counts": {
+        "news": 3,
+        "macro_central_bank": 0,
+        "whales": 1,
+        "candle_wicks": 3,
+        "research": 0
+      },
+      "families_never_agreed_in_window": [
+        "macro_central_bank",
+        "research"
+      ],
+      "families_scored": [
+        "news",
+        "macro_central_bank",
+        "whales",
+        "candle_wicks",
+        "research"
+      ],
+      "families_never_scored": [],
+      "families_not_observed": []
+    },
+    {
+      "desk": "CRYPTO_FUTURES",
+      "opens": 2,
+      "blocks": 9,
+      "fee_drag": 1,
+      "cycles_with_votes": 12,
+      "vote_states": {
+        "news": {
+          "AGREE": 12,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "macro_central_bank": {
+          "AGREE": 0,
+          "DISAGREE": 12,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "whales": {
+          "AGREE": 3,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 9
+        },
+        "candle_wicks": {
+          "AGREE": 0,
+          "DISAGREE": 12,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "research": {
+          "AGREE": 0,
+          "DISAGREE": 3,
+          "FLAT": 0,
+          "UNAVAILABLE": 9,
+          "ABSENT": 0
+        }
+      },
+      "agree_counts": {
+        "news": 12,
+        "macro_central_bank": 0,
+        "whales": 3,
+        "candle_wicks": 0,
+        "research": 0
+      },
+      "families_never_agreed_in_window": [
+        "macro_central_bank",
+        "candle_wicks",
+        "research"
+      ],
+      "families_scored": [
+        "news",
+        "macro_central_bank",
+        "whales",
+        "candle_wicks",
+        "research"
+      ],
+      "families_never_scored": [],
+      "families_not_observed": []
+    },
+    {
+      "desk": "GOLD",
+      "opens": 1,
+      "blocks": 3,
+      "fee_drag": 1,
+      "cycles_with_votes": 5,
+      "vote_states": {
+        "news": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 5,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "macro_central_bank": {
+          "AGREE": 1,
+          "DISAGREE": 4,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "whales": {
+          "AGREE": 4,
+          "DISAGREE": 1,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "candle_wicks": {
+          "AGREE": 2,
+          "DISAGREE": 0,
+          "FLAT": 3,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "research": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 5,
+          "ABSENT": 0
+        }
+      },
+      "agree_counts": {
+        "news": 0,
+        "macro_central_bank": 1,
+        "whales": 4,
+        "candle_wicks": 2,
+        "research": 0
+      },
+      "families_never_agreed_in_window": [
+        "news",
+        "research"
+      ],
+      "families_scored": [
+        "news",
+        "macro_central_bank",
+        "whales",
+        "candle_wicks"
+      ],
+      "families_never_scored": [
+        "research"
+      ],
+      "families_not_observed": []
+    },
+    {
+      "desk": "LISTED_FUTURES",
+      "opens": 7,
+      "blocks": 3,
+      "fee_drag": 2,
+      "cycles_with_votes": 12,
+      "vote_states": {
+        "news": {
+          "AGREE": 6,
+          "DISAGREE": 0,
+          "FLAT": 6,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "macro_central_bank": {
+          "AGREE": 0,
+          "DISAGREE": 9,
+          "FLAT": 3,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "whales": {
+          "AGREE": 7,
+          "DISAGREE": 2,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 3
+        },
+        "candle_wicks": {
+          "AGREE": 8,
+          "DISAGREE": 0,
+          "FLAT": 4,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "research": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 12,
+          "ABSENT": 0
+        }
+      },
+      "agree_counts": {
+        "news": 6,
+        "macro_central_bank": 0,
+        "whales": 7,
+        "candle_wicks": 8,
+        "research": 0
+      },
+      "families_never_agreed_in_window": [
+        "macro_central_bank",
+        "research"
+      ],
+      "families_scored": [
+        "news",
+        "macro_central_bank",
+        "whales",
+        "candle_wicks"
+      ],
+      "families_never_scored": [
+        "research"
+      ],
+      "families_not_observed": []
+    },
+    {
+      "desk": "OIL",
+      "opens": 3,
+      "blocks": 2,
+      "fee_drag": 2,
+      "cycles_with_votes": 6,
+      "vote_states": {
+        "news": {
+          "AGREE": 6,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "macro_central_bank": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 6,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "whales": {
+          "AGREE": 3,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 0,
+          "ABSENT": 3
+        },
+        "candle_wicks": {
+          "AGREE": 4,
+          "DISAGREE": 0,
+          "FLAT": 2,
+          "UNAVAILABLE": 0,
+          "ABSENT": 0
+        },
+        "research": {
+          "AGREE": 0,
+          "DISAGREE": 0,
+          "FLAT": 0,
+          "UNAVAILABLE": 6,
+          "ABSENT": 0
+        }
+      },
+      "agree_counts": {
+        "news": 6,
+        "macro_central_bank": 0,
+        "whales": 3,
+        "candle_wicks": 4,
+        "research": 0
+      },
+      "families_never_agreed_in_window": [
+        "macro_central_bank",
+        "research"
+      ],
+      "families_scored": [
+        "news",
+        "macro_central_bank",
+        "whales",
+        "candle_wicks"
+      ],
+      "families_never_scored": [
+        "research"
+      ],
+      "families_not_observed": []
     }
   ],
   "composite_stop_census": {
     "entry_abs": 0.32,
-    "composite_below_entry_rows": 17,
+    "composite_below_entry_rows": 233,
     "every_desk_stopped_at_composite_below_entry": false,
     "by_desk": [
       {
         "desk": "ASIA_EQUITIES",
         "reason_counts": {
-          "MARKET_CLOSED_OR_STALE": 12
+          "MARKET_CLOSED_OR_STALE": 27,
+          "WITNESS_CONFLICT": 8,
+          "COMPOSITE_BELOW_ENTRY": 13,
+          "MULTI_SIGNAL_AGREEMENT": 26,
+          "OPEN": 2,
+          "SESSION_CLOSED": 12,
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 1
         },
-        "composite_below_entry_n": 0,
-        "composite_distribution": null,
-        "families_with_any_nonzero_score": [],
+        "composite_below_entry_n": 13,
+        "composite_distribution": {
+          "min": -0.3065,
+          "p50": -0.1415,
+          "max": 0.3008,
+          "buckets_vs_entry_0.32": {
+            "below_neg_entry": 0,
+            "inside_entry_band": 13,
+            "above_pos_entry": 0
+          }
+        },
+        "families_with_any_nonzero_score": [
+          "news",
+          "macro_central_bank",
+          "candle_wicks"
+        ],
         "family_hit_rows": {
-          "news": 0,
-          "macro_central_bank": 0,
+          "news": 13,
+          "macro_central_bank": 13,
           "whales": 0,
-          "candle_wicks": 0,
+          "candle_wicks": 6,
           "research": 0
         }
       },
       {
         "desk": "CRYPTO",
         "reason_counts": {
-          "COMPOSITE_BELOW_ENTRY": 14,
+          "COMPOSITE_BELOW_ENTRY": 77,
           "QUOTE_TIME_AHEAD": 6,
-          "WITNESS_CONFLICT": 2,
-          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 4
+          "WITNESS_CONFLICT": 3,
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 6,
+          "OPEN": 1,
+          "FUNDING_CROWDING": 1,
+          "WITNESS_UNRESOLVED": 8,
+          "NEWS_EVENT_RISK": 1
         },
-        "composite_below_entry_n": 14,
+        "composite_below_entry_n": 77,
         "composite_distribution": {
-          "min": -0.3108,
-          "p50": -0.2246,
-          "max": -0.046,
+          "min": -0.3133,
+          "p50": -0.0366,
+          "max": 0.3075,
           "buckets_vs_entry_0.32": {
             "below_neg_entry": 0,
-            "inside_entry_band": 14,
+            "inside_entry_band": 77,
             "above_pos_entry": 0
           }
         },
@@ -186,17 +470,52 @@
           "candle_wicks"
         ],
         "family_hit_rows": {
-          "news": 14,
-          "macro_central_bank": 14,
-          "whales": 6,
-          "candle_wicks": 5,
+          "news": 77,
+          "macro_central_bank": 77,
+          "whales": 28,
+          "candle_wicks": 33,
+          "research": 0
+        }
+      },
+      {
+        "desk": "CRYPTO_FUTURES",
+        "reason_counts": {
+          "MULTI_SIGNAL_AGREEMENT": 9,
+          "COMPOSITE_BELOW_ENTRY": 47,
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 1,
+          "OPEN": 2,
+          "NEWS_EVENT_RISK": 4,
+          "WITNESS_CONFLICT": 1
+        },
+        "composite_below_entry_n": 47,
+        "composite_distribution": {
+          "min": -0.3039,
+          "p50": 0.0062,
+          "max": 0.3119,
+          "buckets_vs_entry_0.32": {
+            "below_neg_entry": 0,
+            "inside_entry_band": 47,
+            "above_pos_entry": 0
+          }
+        },
+        "families_with_any_nonzero_score": [
+          "news",
+          "macro_central_bank",
+          "whales",
+          "candle_wicks"
+        ],
+        "family_hit_rows": {
+          "news": 47,
+          "macro_central_bank": 47,
+          "whales": 7,
+          "candle_wicks": 29,
           "research": 0
         }
       },
       {
         "desk": "EU_EQUITIES",
         "reason_counts": {
-          "MARKET_CLOSED_OR_STALE": 12
+          "MARKET_CLOSED_OR_STALE": 47
         },
         "composite_below_entry_n": 0,
         "composite_distribution": null,
@@ -212,16 +531,96 @@
       {
         "desk": "FOREX",
         "reason_counts": {
-          "QUOTE_TIME_AHEAD": 9
+          "QUOTE_TIME_AHEAD": 9,
+          "DIVERGENCE": 2,
+          "COMPOSITE_BELOW_ENTRY": 13
         },
-        "composite_below_entry_n": 0,
-        "composite_distribution": null,
-        "families_with_any_nonzero_score": [],
+        "composite_below_entry_n": 13,
+        "composite_distribution": {
+          "min": 0.1047,
+          "p50": 0.2108,
+          "max": 0.3024,
+          "buckets_vs_entry_0.32": {
+            "below_neg_entry": 0,
+            "inside_entry_band": 13,
+            "above_pos_entry": 0
+          }
+        },
+        "families_with_any_nonzero_score": [
+          "candle_wicks"
+        ],
         "family_hit_rows": {
           "news": 0,
           "macro_central_bank": 0,
           "whales": 0,
-          "candle_wicks": 0,
+          "candle_wicks": 4,
+          "research": 0
+        }
+      },
+      {
+        "desk": "GOLD",
+        "reason_counts": {
+          "COMPOSITE_BELOW_ENTRY": 15,
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 1,
+          "MULTI_SIGNAL_AGREEMENT": 3,
+          "OPEN": 1
+        },
+        "composite_below_entry_n": 15,
+        "composite_distribution": {
+          "min": -0.2348,
+          "p50": -0.0989,
+          "max": 0.1745,
+          "buckets_vs_entry_0.32": {
+            "below_neg_entry": 0,
+            "inside_entry_band": 15,
+            "above_pos_entry": 0
+          }
+        },
+        "families_with_any_nonzero_score": [
+          "macro_central_bank",
+          "whales",
+          "candle_wicks"
+        ],
+        "family_hit_rows": {
+          "news": 0,
+          "macro_central_bank": 15,
+          "whales": 15,
+          "candle_wicks": 9,
+          "research": 0
+        }
+      },
+      {
+        "desk": "LISTED_FUTURES",
+        "reason_counts": {
+          "CONTRACT_MONTH_UNKNOWN": 8,
+          "OPEN": 7,
+          "COMPOSITE_BELOW_ENTRY": 46,
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 2,
+          "MULTI_SIGNAL_AGREEMENT": 3,
+          "DIVERGENCE": 2
+        },
+        "composite_below_entry_n": 46,
+        "composite_distribution": {
+          "min": -0.2731,
+          "p50": 0.0767,
+          "max": 0.309,
+          "buckets_vs_entry_0.32": {
+            "below_neg_entry": 0,
+            "inside_entry_band": 46,
+            "above_pos_entry": 0
+          }
+        },
+        "families_with_any_nonzero_score": [
+          "news",
+          "macro_central_bank",
+          "whales",
+          "candle_wicks"
+        ],
+        "family_hit_rows": {
+          "news": 26,
+          "macro_central_bank": 20,
+          "whales": 45,
+          "candle_wicks": 22,
           "research": 0
         }
       },
@@ -229,44 +628,61 @@
         "desk": "OIL",
         "reason_counts": {
           "SESSION_CLOSED": 6,
-          "COMPOSITE_BELOW_ENTRY": 3,
+          "COMPOSITE_BELOW_ENTRY": 21,
           "MULTI_SIGNAL_AGREEMENT": 2,
-          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 1
+          "FEE_DRAG_EXPECTED_PROFIT_LT_2X_FEES": 2,
+          "OPEN": 3,
+          "DIVERGENCE": 2
         },
-        "composite_below_entry_n": 3,
+        "composite_below_entry_n": 21,
         "composite_distribution": {
-          "min": 0.1062,
+          "min": -0.1582,
           "p50": 0.1063,
           "max": 0.274,
           "buckets_vs_entry_0.32": {
             "below_neg_entry": 0,
-            "inside_entry_band": 3,
+            "inside_entry_band": 21,
             "above_pos_entry": 0
           }
         },
         "families_with_any_nonzero_score": [
           "news",
+          "whales",
           "candle_wicks"
         ],
         "family_hit_rows": {
-          "news": 3,
+          "news": 20,
           "macro_central_bank": 0,
-          "whales": 0,
-          "candle_wicks": 3,
+          "whales": 18,
+          "candle_wicks": 4,
           "research": 0
         }
       },
       {
         "desk": "PB_TOKEN",
         "reason_counts": {
-          "QUOTE_TIME_AHEAD": 8
+          "QUOTE_TIME_AHEAD": 8,
+          "PRICE_UNAVAILABLE": 1,
+          "COMPOSITE_BELOW_ENTRY": 1
         },
-        "composite_below_entry_n": 0,
-        "composite_distribution": null,
-        "families_with_any_nonzero_score": [],
+        "composite_below_entry_n": 1,
+        "composite_distribution": {
+          "min": 0.2341,
+          "p50": 0.2341,
+          "max": 0.2341,
+          "buckets_vs_entry_0.32": {
+            "below_neg_entry": 0,
+            "inside_entry_band": 1,
+            "above_pos_entry": 0
+          }
+        },
+        "families_with_any_nonzero_score": [
+          "news",
+          "macro_central_bank"
+        ],
         "family_hit_rows": {
-          "news": 0,
-          "macro_central_bank": 0,
+          "news": 1,
+          "macro_central_bank": 1,
           "whales": 0,
           "candle_wicks": 0,
           "research": 0
@@ -275,7 +691,7 @@
       {
         "desk": "US_EQUITIES",
         "reason_counts": {
-          "MARKET_CLOSED_OR_STALE": 24
+          "MARKET_CLOSED_OR_STALE": 192
         },
         "composite_below_entry_n": 0,
         "composite_distribution": null,
