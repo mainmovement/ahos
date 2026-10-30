@@ -389,3 +389,11 @@
 **Choice:** No. The three newest distinct papers in the on-disk scout are written as shadow hypotheses on every book, including listed futures. The predicted score is copied only when the paper record already has one. This week's three have none, so the field is null and counterfactual scoring returns UNSCORED. SSRN has no keyless feed here, so that source is ABSENT_NO_FEED and no SSRN paper is added. A hypothesis is promote-eligible only after PASS_STATS and SURVIVED_RED_TEAM. Measured failure kills it. A missing statistic, or a pass that the red team has not reviewed, stays shadow. Promote-eligible does not write a live weight.
 
 **Reason:** A score copied from a title, or from a crypto result onto oil, would be a fabricated forecast. The overlay weight path is unchanged.
+
+## 2026-10-30: One daily fix, tested in shadow
+
+**Question:** When two loss causes tie, which fix is proposed, and is it applied?
+
+**Choice:** The most common cause is named. A tie uses the pre-registered order: fee drag, then wrong family, then bad timing, then regime, then unknown. The proposal is a sentence about leaving the existing gate where it is. The shadow replay drops that cause's closes and reports the pnl difference. It does not change a weight, a gate, or the live book. Unknown gets no fix.
+
+**Reason:** Applying the day's idea to the live book would move a gate from one session of losses. The 2026-10-30 book had one bad-timing loss and one regime loss, so the order named bad timing. The shadow difference was 0.0132 USD and was not applied.

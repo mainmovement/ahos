@@ -529,3 +529,16 @@ The on-disk arXiv scout produced three ideas dated from 2026-10-27 (`2610.37324v
 | R2 Data | APPROVE | SSRN contributed no paper. The shortlist is the scout file, not a generated abstract. |
 | R4 Council | APPROVE | Promote-eligible leaves the live weight untouched. |
 | Meta-Critic | APPROVE | Kill requires both DSR and PBO to have been measured and to have failed. |
+
+## Self-diagnosis (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_self_diagnosis.py tests/test_learning_loop.py -q` → **8 passed**.
+
+`reports/grok/PAPER/daily_diagnosis.json` for 2026-10-30: 2 losing closes, one BAD_TIMING and one REGIME. The tie used the pre-registered order and named BAD_TIMING. Shadow replay difference 0.0132 USD. `applied_to_live` is false. The day's live pnl of 0.1265 is not an edge claim. Gates stay 2 families and 2× fees.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | The replay does not rewrite the fee multiple or the time stop. |
+| R2 Data | APPROVE | Causes are counted from closed rows. A tie does not invent a third cause. |
+| R4 Council | APPROVE | applied_to_live is false. |
+| Meta-Critic | APPROVE | Unknown would have proposed no fix. |

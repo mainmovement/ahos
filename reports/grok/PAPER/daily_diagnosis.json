@@ -1,0 +1,20 @@
+{
+  "schema": "ahos.daily_diagnosis.v1",
+  "paper_only": true,
+  "day": "2026-10-30",
+  "loss_count": 2,
+  "causes": {
+    "FEE_DRAG": 0,
+    "WRONG_FAMILY": 0,
+    "BAD_TIMING": 1,
+    "REGIME": 1,
+    "UNKNOWN": 0
+  },
+  "primary_cause": "BAD_TIMING",
+  "fix_proposal": "Leave the time stop where it is. Shadow: replay the same closes with the existing time stop only.",
+  "fix_status": "SHADOW",
+  "applied_to_live": false,
+  "live_pnl_usd": 0.1265,
+  "shadow_pnl_usd": 0.1397,
+  "shadow_minus_live_usd": 0.0132
+}

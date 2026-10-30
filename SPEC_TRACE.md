@@ -237,3 +237,7 @@ Every close writes `reports/grok/PAPER/university_cases.jsonl`: win or loss, one
 ## Research institute (2026-10-30)
 
 Weekly shortlist is the three newest distinct papers in `reports/grok/M44/arxiv_scout.json`. This export is `reports/grok/PAPER/research_weekly.json`: 3 ideas, 30 shadow rows, predicted_score null on every desk including LISTED_FUTURES. SSRN is ABSENT_NO_FEED. Counterfactual scoring skips a null score. Promote-eligible requires PASS_STATS and SURVIVED_RED_TEAM and does not write a live weight. A measured DSR/PBO failure is KILL. Gates unchanged. Gap IDs closed: **none**.
+
+## Self-diagnosis (2026-10-30)
+
+`reports/grok/PAPER/daily_diagnosis.json` names one cause for the UTC day and one shadow fix. 2026-10-30 had two losing closes (bad timing and regime); the order named bad timing. Shadow minus live was 0.0132 USD. Nothing was applied to the live book. Gates unchanged. Gap IDs closed: **none**.
