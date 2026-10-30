@@ -15,17 +15,20 @@ def test_learning_and_diagnosis_are_filled_and_the_rest_of_the_priority_is_not_a
     filled = {row["agent_id"] for row in doc["agents"] if row["seat_filled"]}
     assert doc["registry_agents"] == 43
     assert doc["filled_seats"] < 43
-    assert "AG-18" in filled
-    assert "AG-19" in filled
+    assert {"AG-18", "AG-19", "AG-33", "AG-34", "AG-40"} <= filled
     assert "AG-01" not in filled
     assert rank_unfilled(doc) == []
-    assert [agent_id for agent_id, _why in PRIORITY] == ["AG-18", "AG-19"]
+    assert [agent_id for agent_id, _why in PRIORITY] == ["AG-18", "AG-19", "AG-40", "AG-34", "AG-33"]
     reg = yaml.safe_load((ROOT / "config" / "agent_registry.yaml").read_text(encoding="utf-8"))
     by_id = {agent["agent_id"]: agent for agent in reg["agents"]}
     assert "learning_loop.py" in by_id["AG-18"]["evidence"]
     assert "self_diagnosis.py" in by_id["AG-19"]["evidence"]
     assert "PROMOTE" in by_id["AG-18"]["forbidden_authority"]
     assert "PROMOTE" in by_id["AG-19"]["forbidden_authority"]
+    assert "desk_news.py" in by_id["AG-33"]["evidence"]
+    assert "candle_patterns" in by_id["AG-34"]["evidence"]
+    assert "mistake_memory.py" in by_id["AG-40"]["evidence"]
+    assert "PROMOTE" in by_id["AG-40"]["forbidden_authority"]
     case = university_case({
         "symbol": "BTC", "desk": "CRYPTO", "side": "LONG", "realized_pnl_usd": 1.0,
         "fees_usd": 0.01, "reason": "TAKE_PROFIT", "closed_at": "2026-10-30T00:00:00Z",

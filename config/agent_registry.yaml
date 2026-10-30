@@ -1079,7 +1079,7 @@ agents:
     role_fa: "رهبری اخبار و استخراج رویداد (دیده‌بان)"
     input_contract_summary: "ورودی: news_monitoring، event_extraction، sentiment_analysis، entity_anonymization، source_quality_scoring; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
     output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
-    status: PLANNED
+    status: EXISTS
     lane: B
     form: service
     cadence: continuous
@@ -1091,11 +1091,11 @@ agents:
     forbidden_authority: [DECIDE, PROMOTE]
     required_probes: [CROSS_SOURCE_PROBE, SOURCE_QUALITY_PROBE]
     version: "spec-M12"
-    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #27 (نگار charter)"
+    evidence: "architecture/markets/desk_news.py; tests/test_desk_news.py; weight stays 0; reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #27 (نگار charter)"
     ops:
-      runtime: none
+      runtime: python_lib
       boot_class: ADVISORY
-      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
       health: {kind: none, ref: none}
       circuit: {state: CLOSED, failures: 0}
       contract: agent_contract_v1 (envelope target; spec only — not satisfied)
@@ -1112,7 +1112,7 @@ agents:
     role_fa: "هوش نمودار و پرایس‌اکشن"
     input_contract_summary: "ورودی: technical_analysis، price_action، indicators، market_structure، volume_analysis; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
     output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
-    status: PLANNED
+    status: EXISTS
     lane: B
     form: service
     cadence: per_decision
@@ -1124,11 +1124,11 @@ agents:
     forbidden_authority: [DECIDE, PROMOTE]
     required_probes: [NUMERIC_VISION_AGREEMENT_PROBE, OUT_OF_SAMPLE_PATTERN_PROBE]
     version: "spec-M12"
-    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #28 (بیژن charter)"
+    evidence: "architecture/markets/signal_brain.py candle_patterns; reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #28 (بیژن charter)"
     ops:
-      runtime: none
+      runtime: python_lib
       boot_class: ADVISORY
-      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
       health: {kind: none, ref: none}
       circuit: {state: CLOSED, failures: 0}
       contract: agent_contract_v1 (envelope target; spec only — not satisfied)
@@ -1310,7 +1310,7 @@ agents:
     role_fa: "تحلیل شکست و پس از معامله"
     input_contract_summary: "ورودی: attribution، error_classification، post_mortem، root_cause_analysis، counterfactual; فقط شواهد/رویدادهای PAPER_ONLY و بدون کلید زنده"
     output_contract_summary: "خروجی: رکورد مشاهده‌پذیر، مشورت یا وتو ثبت‌شده؛ بدون PROMOTE و بدون trading.live"
-    status: PLANNED
+    status: EXISTS
     lane: B
     form: service
     cadence: event_driven
@@ -1322,11 +1322,11 @@ agents:
     forbidden_authority: [DECIDE, PROMOTE]
     required_probes: [ROOT_CAUSE_PROBE, ERROR_CLASSIFICATION_PROBE]
     version: "spec-M12"
-    evidence: "reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #34 (هومن charter)"
+    evidence: "architecture/university/mistake_memory.py; tests/test_behaviour_learning.py; shrink or veto only; reports/grok/AHOS_AUTONOMOUS_VISION.md §2.3.3 #34 (هومن charter)"
     ops:
-      runtime: none
+      runtime: python_lib
       boot_class: ADVISORY
-      operability: {implemented: false, contracted: false, orchestrated: false, live: false}
+      operability: {implemented: true, contracted: false, orchestrated: false, live: true}
       health: {kind: none, ref: none}
       circuit: {state: CLOSED, failures: 0}
       contract: agent_contract_v1 (envelope target; spec only — not satisfied)
@@ -1438,13 +1438,13 @@ agents:
       notes: "vision #37 · plane GOVERNANCE · reports the governance anchor (گیتی, Slice-1). Auditor, takes no trading decision; may take an agent or strategy to PROBATION and report upward, never deletes an agent or changes a rule. No important decision exists without a record (P2§53). At least one second seat is mandated (§2.7) and stays unregistered; the 'Gold Guardian Agents x2' (P1§27) are @gold profiles of this group."
 totals:
   agents: 43
-  EXISTS: 9
-  PARTIAL: 12
-  PLANNED: 21
+  EXISTS: 14
+  PARTIAL: 10
+  PLANNED: 18
   MISSING: 1
   operability_totals:
-    implemented: 21
+    implemented: 24
     contracted: 6
     orchestrated: 0
-    live: 15
+    live: 18
   boot_class_totals: {CRITICAL: 16, NON_CRITICAL: 9, OPTIONAL: 0, ADVISORY: 18}

@@ -123,9 +123,18 @@ def test_no_new_agent_holds_a_decide_or_promote_anywhere(reg):
 
 # --- honesty: nothing is promoted ---------------------------------------
 
+FILLED_CHARTERS = {"AG-33", "AG-34", "AG-40"}
+
+
 def test_every_new_agent_is_planned_with_no_claimed_runtime(by_id):
     for ag in NEW_IDS:
         a = by_id[ag]
+        if ag in FILLED_CHARTERS:
+            assert a["status"] == "EXISTS"
+            assert a["ops"]["operability"]["implemented"] is True
+            assert "PROMOTE" in a["forbidden_authority"]
+            assert "DECIDE" not in a["allowed_authority"]
+            continue
         assert a["status"] == "PLANNED", f"{ag} must stay PLANNED (no artifact exists)"
         o = a["ops"]["operability"]
         assert o == {"implemented": False, "contracted": False,
@@ -151,7 +160,8 @@ def test_totals_block_is_truthful_after_the_registration(reg):
     from collections import Counter
     c = Counter(a["status"] for a in reg["agents"])
     assert reg["totals"]["agents"] == len(reg["agents"]) == 43
-    assert reg["totals"]["PLANNED"] == c["PLANNED"] == 21
+    assert reg["totals"]["PLANNED"] == c["PLANNED"] == 18
+    assert c["EXISTS"] == reg["totals"]["EXISTS"]
     boot = Counter(a["ops"]["boot_class"] for a in reg["agents"])
     assert reg["totals"]["boot_class_totals"]["CRITICAL"] == boot["CRITICAL"]
     assert reg["totals"]["boot_class_totals"]["ADVISORY"] == boot["ADVISORY"]

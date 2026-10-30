@@ -13,6 +13,9 @@ from typing import Any
 PRIORITY: tuple[tuple[str, str], ...] = (
     ("AG-18", "The learning loop records each close and stops a hit rate from editing a live weight."),
     ("AG-19", "The daily diagnosis names one loss cause and replays the fix in shadow."),
+    ("AG-40", "Mistake memory shrinks or vetoes a repeated paper loss and does not write a weight."),
+    ("AG-34", "Candle patterns are an entry family. They do not decide alone."),
+    ("AG-33", "Desk news stays at weight 0. A pump headline still needs another family and the safety veto."),
 )
 
 
