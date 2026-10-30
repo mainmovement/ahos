@@ -1073,8 +1073,19 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         **_lane_status_fields(positions, events, root),
     }
     try:
+        from architecture.markets.crypto_futures_paper import leverage_decision as _crypto_lev
         from architecture.markets.leverage_ladder import books_report
+        from architecture.markets.listed_futures_paper import leverage_decision as _listed_lev
 
+        def _unreal(desk: str) -> float:
+            return sum((float(p.get("mark_price") or p["entry_price"]) - float(p["entry_price"])) * float(p["qty"])
+                       * (1 if p["side"] == "LONG" else -1)
+                       for p in positions.values() if p.get("desk") == desk)
+
+        _crypto_lev(root, trades=[x for x in trades if x.get("desk") == "CRYPTO_FUTURES"],
+                    unrealized=_unreal("CRYPTO_FUTURES"), stamp=_iso(t))
+        _listed_lev(root, trades=[x for x in trades if x.get("desk") == "LISTED_FUTURES"],
+                    unrealized=_unreal("LISTED_FUTURES"), stamp=_iso(t))
         status["leverage_books"] = books_report(root, positions, trades)
     except Exception:
         status["leverage_books"] = None
