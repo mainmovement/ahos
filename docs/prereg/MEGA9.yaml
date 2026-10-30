@@ -1,0 +1,108 @@
+schema: ahos.mega9_prereg.v1
+paper_only: true
+shadow_only: true
+registered_for: scientific upgrade pack
+promotion:
+  dsr_min: 0.95
+  pbo_max: 0.5
+  min_oos: 30
+  after_fees: true
+  bootstrap_percentile: 5
+  bootstrap_rule: the fifth percentile of the cost-net path must stay above zero
+  red_team: required
+  state_until_then: shadow
+change_rule: >
+  Any edit to a module block below is a new trial. trial_count must increase
+  by one in the same edit. DSR and PBO then use the new trial_count.
+  A file whose bytes no longer match the registered hash cannot be scored.
+data_window: none_at_registration
+cv_scheme:
+  name: purged_embargoed_kfold_and_cpcv
+  folds: 5
+  embargo: 1
+  cpcv_groups: 8
+modules:
+  M9-01:
+    hypothesis: A meta-label keeps a strategy signal only when the chance it clears the barrier is high enough to size.
+    metric: out_of_sample_brier
+    threshold: 0.25
+    data_window: none_at_registration
+    cv_scheme: purged_embargoed_kfold
+    trial_count: 1
+  M9-02:
+    hypothesis: Walk-forward scores that ignore purge and embargo leak the label window into training.
+    metric: leaked_folds
+    threshold: 0
+    data_window: none_at_registration
+    cv_scheme: purged_embargoed_kfold_and_cpcv
+    trial_count: 1
+  M9-03:
+    hypothesis: A prediction whose interval crosses zero, or whose edge is below round-trip cost, must abstain.
+    metric: abstain_when_interval_crosses_zero_or_edge_below_cost
+    threshold: 1
+    data_window: none_at_registration
+    cv_scheme: split_conformal_then_adaptive
+    trial_count: 1
+  M9-04:
+    hypothesis: A paper fill that ignores fees, spread, square-root impact, funding, or slicing overstates the result.
+    metric: cost_omitted
+    threshold: 0
+    data_window: none_at_registration
+    cv_scheme: not_a_fit
+    trial_count: 1
+  M9-05:
+    hypothesis: A high changepoint probability should cut paper size, and the published regime is not a promotion.
+    metric: delever_when_changepoint_prob_above
+    threshold: 0.5
+    data_window: none_at_registration
+    cv_scheme: not_a_fit
+    trial_count: 1
+  M9-06:
+    hypothesis: Hierarchical risk parity weights stay long-only and sum to one, and they do not open a name.
+    metric: weight_sum_error
+    threshold: 0.001
+    data_window: none_at_registration
+    cv_scheme: not_a_fit
+    trial_count: 1
+  M9-07:
+    hypothesis: Drawdown-constrained fractional Kelly is a hard ceiling and cannot raise leverage.
+    metric: leverage_above_ceiling
+    threshold: 0
+    data_window: none_at_registration
+    cv_scheme: not_a_fit
+    trial_count: 1
+  M9-08:
+    hypothesis: A feature whose importance flips across regimes is spurious and is dropped.
+    metric: spurious_features_kept
+    threshold: 0
+    data_window: none_at_registration
+    cv_scheme: purged_embargoed_kfold
+    trial_count: 1
+  M9-09:
+    hypothesis: Online expert weights stay a shadow prior beside Thompson and do not replace family votes.
+    metric: applied_to_live
+    threshold: 0
+    data_window: none_at_registration
+    cv_scheme: not_a_fit
+    trial_count: 1
+  M9-10:
+    hypothesis: A path that fails the fifth percentile of a stationary block bootstrap does not pass.
+    metric: fifth_percentile_after_costs
+    threshold: 0
+    data_window: none_at_registration
+    cv_scheme: stationary_block_bootstrap
+    trial_count: 1
+  M9-11:
+    hypothesis: A pump-like name with a short isolation depth or a broken lock is vetoed and still cannot open alone.
+    metric: lone_token_opens
+    threshold: 0
+    data_window: none_at_registration
+    cv_scheme: not_a_fit
+    trial_count: 1
+  M9-12:
+    hypothesis: A tiny chronological forecast may sit in the shadow ensemble only after a CRPS comparison on CPU. Moirai is refused.
+    metric: crps_better_than_baseline
+    threshold: 1
+    data_window: none_at_registration
+    cv_scheme: not_a_fit
+    trial_count: 1
