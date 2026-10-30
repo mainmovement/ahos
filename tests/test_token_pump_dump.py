@@ -57,6 +57,32 @@ def _getter(gp):
     return g
 
 
+def test_live_defaults_refresh_the_snapshot_before_quotes(monkeypatch, tmp_path: Path) -> None:
+    order: list[str] = []
+
+    def refresh(root, **kwargs):
+        order.append("refresh")
+        return {"refreshed": False}
+
+    def fetch():
+        order.append("fetch")
+        return {"quotes": {}}
+
+    monkeypatch.setattr("architecture.markets.token_safety_live.refresh_safety_snapshot_if_due", refresh)
+    monkeypatch.setattr("architecture.markets.live_price_feed.fetch_live_market_prices", fetch)
+    monkeypatch.setattr(
+        pt, "gather_witness",
+        lambda quotes, **k: {
+            s: {"verdict": "UNRESOLVED", "source_b": None, "price_b": None, "gap": None}
+            for s in set(quotes) | set(pt.INSTRUMENTS)
+        },
+    )
+    monkeypatch.setattr(pt, "live_dex_feed", lambda root, positions: {})
+    monkeypatch.setattr("architecture.markets.signal_brain.fetch_news", lambda *a, **k: [])
+    pt.run_cycle(tmp_path, now=lambda: 1_800_000_000.0, use_ledger=False)
+    assert order[:2] == ["refresh", "fetch"]
+
+
 def test_strict_path_requires_locked_or_burned_lp() -> None:
     locked = veto_check("GOOD", TOK, getter=_getter(_gp()), strict=True)
     assert locked["verdict"] == "ELIGIBLE_PAPER_TOKEN", locked["reasons"]

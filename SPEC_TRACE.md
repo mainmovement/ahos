@@ -204,4 +204,4 @@ OKX public swap mark, Binance mark as the second witness, long and short, fundin
 
 ## Dynamic token safety (2026-10-30)
 
-Safety snapshot refreshes at 5 hours via GoPlus and honeypot.is. Strict path vetoes unless LP is locked or burned for at least half. One dynamic name, 0.02 of equity. Exits add a 6-hour hold, a liquidity drop below half the entry print, and a 10% dev-wallet drop. Missing dev balance is not a sale. Gates unchanged. Gap IDs closed: **none**.
+Safety snapshot refreshes at 5 hours via GoPlus and honeypot.is. The live cycle decides to refresh before it binds the quote function. Strict path vetoes unless LP is locked or burned for at least half. One dynamic name, 0.02 of equity. Exits add a 6-hour hold, a liquidity drop below half the entry print, and a 10% dev-wallet drop. Missing dev balance is not a sale. A direct refresh at 02:38:39Z vetoed 16 names and left 0 dynamic. Gates unchanged. Gap IDs closed: **none**.

@@ -412,3 +412,10 @@ A snapshot younger than 5 hours is not fetched again. At 5 hours the GoPlus and 
 | R4 Council | APPROVE | UNI is not put under the dynamic cap. A shock exit does not upgrade a score. |
 | R7 SRE | APPROVE | No wallet and no on-chain transaction. Lane A not edited. |
 | Meta-Critic | APPROVE | A fresh snapshot means the veto sources were read. It does not mean the token is a buy. |
+
+The 02:35Z cycle did not refresh. `fetch` was bound to the live quote function before the `fetch is None` check, so the check was false on every live loop. The flag is now taken first. Command: `pytest tests/test_token_pump_dump.py::test_live_defaults_refresh_the_snapshot_before_quotes -q` → **1 passed**. A direct refresh at 02:38:39Z rewrote the snapshot: 16 vetoed, 0 dynamic names. That file is a runtime receipt and is not part of the commit.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R2 Data | APPROVE | The live path calls refresh before quotes. A young snapshot is not fetched again. |
+| Meta-Critic | APPROVE | Zero dynamic names is the veto result. It is not an empty pass. |

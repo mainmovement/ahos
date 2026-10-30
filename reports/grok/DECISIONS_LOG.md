@@ -293,3 +293,11 @@
 **Choice:** Refresh the GoPlus and honeypot.is snapshot when it is 5 hours old, before the existing 6-hour fail-closed. A failed refresh leaves the old file, and a snapshot older than 6 hours still loads no dynamic name. On the strict path, LP must be locked or burned for at least half the LP. Missing LP data is a veto. One dynamic `DEX_` name at a time, notional cap 0.02 of equity. UNI stays the listed PB instrument. Exits already include the shared hard stop and chandelier. A dynamic name also exits on a 6-hour hold, on pool liquidity below half the entry print, or on a dev-wallet balance down 10% from the entry print. A missing dev balance is not treated as a sale.
 
 **Reason:** The owner asked for a refresh inside 6 hours, an explicit lock or burn veto, and pre-registered shock exits. Those fractions were not fit to the book. The 2-family and 2× fee gates stay as they are.
+
+## 2026-10-30: Token refresh runs on the live cycle
+
+**Question:** The live cycle rebound the quote function before the refresh check, so the check always saw a function and skipped the snapshot.
+
+**Choice:** Decide that this is a live cycle before the quote function is bound. The refresh then runs first. A snapshot younger than 5 hours is still not fetched again.
+
+**Reason:** The 02:35Z cycle left the 24 October snapshot in place. The safety refresh has to run on the real loop, not only when called by hand.

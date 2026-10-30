@@ -497,10 +497,11 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
               now: Callable[[], float] = time.time, use_ledger: bool = True,
               fetch_c: Callable[[list[str]], dict[str, Any]] | None = None,
               dex_feed: Callable[[Path, dict[str, Any]], dict[str, tuple[dict[str, Any], dict[str, Any]]]] | None = None) -> dict[str, Any]:
+    live_cycle = fetch is None and signals_fn is None and fetch_b is None
     if fetch is None:
         from architecture.markets.live_price_feed import fetch_live_market_prices as fetch
     t = now()
-    if fetch is None and signals_fn is None and fetch_b is None:
+    if live_cycle:
         try:
             from architecture.markets.token_safety_live import refresh_safety_snapshot_if_due
 
