@@ -1,0 +1,9 @@
+{
+  "schema": "ahos.multi_signal_block_daily.v1",
+  "day_utc": "2026-10-30",
+  "generated_at": "2026-10-30T00:41:38Z",
+  "paper_only": true,
+  "blocked_opens": 0,
+  "by_desk": [],
+  "note": "A family counts as missing on a block when its vote was not AGREE (unavailable, flat, disagree, or absent). This is a feed census, not an edge score."
+}

@@ -801,6 +801,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         mp = p.get("mark_price") or p["entry_price"]
         unreal += (mp - p["entry_price"]) * p["qty"] * (1 if p["side"] == "LONG" else -1) - p["entry_fee_usd"]
     _save_json(root / STATE_REL, state)
+    try:
+        from architecture.markets.multi_signal_block_counter import export_daily_block_counter
+
+        export_daily_block_counter(root)
+    except Exception:
+        pass
     acct = paper_account_summary(root)
     trades = load_paper_trades(root)
     status = {
