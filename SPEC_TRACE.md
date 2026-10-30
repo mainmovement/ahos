@@ -141,3 +141,7 @@ The table above is a **document-to-code trace**, not a claim that owner vision i
 ## P0 Stage 1 note (2026-10-30)
 
 Live book census after re-export: **130** closes, dominant `mtf_trend` **121**, promotion **`eligible=False`**, `edge_status=UNPROVEN_EDGE`. New opens require two independent family votes (news, macro/central bank, whales, candle wicks, research) and expected profit ≥ 2× fees. SHRINK desks are a paper size cap. Gap IDs closed: **none** (measurement and a fail-closed entry rule; edge remains unproven).
+
+## P0 Stage 2 note (2026-10-30)
+
+Soak relaunch census: **33** stamped rows in `GAP_NOTES.md` (30 under 1h, 3 host gaps). Oct 26 18:45Z → Oct 27 14:18 +03:30 is **16.05h** host downtime. M36 receipt `reports/grok/M36/soak_72h_receipt.json` is **`NOT_MET`**. Logon→LightStart chain is present in `G:\robat\AHOS_Launcher\logs` (last logon end 2026-10-29T01:00:21, lastExit=0). Paper trader PID **13180** loads the two-family gate. Daily block counter starts at 0 until a cycle reaches that gate. Gap IDs closed: **none**. **M36** and **M-GAP-003** stay open.

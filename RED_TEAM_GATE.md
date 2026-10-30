@@ -160,3 +160,20 @@ Live export: `scripts/export_edge_report.py` → `edge_status=UNPROVEN_EDGE clos
 | R6 University | APPROVE | `research_overlay` can vote by score sign. Composite weight for shadow research stays 0. |
 | R7 SRE | APPROVE | Desk SHRINK is a paper notional multiplier via `effective_desk_notional_mult`. Shadow-block of opens stays off unless `AHOS_PAPER_DESK_SHADOW_BLOCK`. Lane A untouched. |
 | Meta-Critic | APPROVE | 121/130 closes still show `mtf_trend` dominance. That census is the past book. The new gate changes future opens only. It does not claim the past book had multi-signal edge. |
+
+## P0 Stage 2 — soak stability (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Paper trader reloaded before this stage so the Stage 1 gate is in the running process. PID **13180**. Command line: `G:\robat\ahos\.venv\Scripts\python.exe -u G:\robat\ahos\scripts\paper_trader_cycle.py --interval 300`. First cycle `2026-10-30T00:40:16Z`: 0 opens, skips were `COMPOSITE_BELOW_ENTRY` / session closed, so the two-family counter is **0** for UTC day 2026-10-30 (`multi_signal_block_daily.json`). That zero means no symbol reached the agreement gate this cycle, not that the feeds are healthy.
+
+Command: `pytest tests/test_multi_signal_block_counter.py tests/test_soak_gap_accounting.py -q` → **5 passed**.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | N/A | No promotion change. Gate stays fail-closed. |
+| R2 Data | APPROVE | `GAP_NOTES.md`: **33** relaunch rows with a last-cycle stamp (**30** gaps under 1h, **3** host gaps). Oct 26–27 row is `HOST_DOWNTIME`, timezone-correct **16.05h** (naive same-clock subtraction of the two stamps is ~19.5h). Not forty independent crashes. |
+| R3 News | N/A | Block counter will show missing news only after a cycle reaches `MULTI_SIGNAL_AGREEMENT`. |
+| R4 Council | APPROVE | No new decision authority. |
+| R5 UX | N/A | No laptop build. |
+| R6 University | N/A | Not this stage. |
+| R7 SRE | APPROVE with limit | Heartbeat at export: last soak cycle `2026-10-30T00:32:29Z`, `stale=false`. Logon→LightStart chain seen: logon `invoke begin/end` **6/6**, last end `2026-10-29T01:00:21 … lastExit=0`, and `light_start.log` has begin lines. M36 72h receipt status **`NOT_MET`**. A clean 72h is not claimed. |
+| Meta-Critic | APPROVE | Short relaunches are a logon/VBS restart loop when the soak process is already dead. The long gap is host downtime. Do not treat `cycles_ok` inside one process as a 72h soak. |

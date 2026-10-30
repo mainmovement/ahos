@@ -1,0 +1,13 @@
+{
+  "schema": "ahos.m36_soak_72h_receipt.v1",
+  "generated_at": "2026-10-30T00:39:58Z",
+  "paper_only": true,
+  "target_continuous_hours": 72,
+  "status": "NOT_MET",
+  "reason": "GAP_NOTES shows repeated process death and at least one multi-hour host gap. No unbroken 72h window is claimed.",
+  "longest_recorded_gap_hours": 16.05,
+  "relaunch_rows_parsed": 33,
+  "heartbeat_stale": false,
+  "last_cycle_utc": "2026-10-30T00:32:29Z",
+  "logon_lightstart_chain_seen": true
+}
