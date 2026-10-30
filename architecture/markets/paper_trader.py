@@ -590,6 +590,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                  "weights_used": {str(k): round(float(v), 4) for k, v in live_weights.items()
                                   if isinstance(v, (int, float)) and not isinstance(v, bool)}}
         scores = {s["name"]: round(float(s["score"]), 4) for s in sigs if s.get("available")}
+        try:
+            from architecture.markets.family_vote_scorecard import record_family_votes
+
+            record_family_votes(root, ts=_iso(t), symbol=sym, desk=desk, price=float(price), sigs=sigs)
+        except Exception:
+            pass
         if pos:
             side = pos["side"]
             d = 1 if side == "LONG" else -1
@@ -844,6 +850,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
 
         export_daily_block_counter(root)
         export_gate_window_report(root)
+        from architecture.markets.family_vote_scorecard import export_weekly_family_scorecard
+
+        export_weekly_family_scorecard(root)
     except Exception:
         pass
     acct = paper_account_summary(root)

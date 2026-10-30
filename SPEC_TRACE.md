@@ -185,3 +185,7 @@ Research votes from existing numeric shadow and switch scores are advisory. Comp
 ## COT code selection (2026-10-30)
 
 WTI is CFTC code **067651**. Gold is **088691**. Brent is the higher open interest of `ICEU:B:FutOnly` and **06765T**; the 2026-10-20 choice is `ICEU:B:FutOnly`. Score is `tanh(z/2)` on that contract's prior 52 weeks. Weight stays 0. The 0.05 scale is removed. Gap IDs closed: **none**.
+
+## Family vote scorecard (2026-10-30)
+
+Weekly counterfactual hit-rate per family versus the next 4h and 24h price print. Weight stays 0. File: `reports/grok/PAPER/weekly_family_vote_scorecard.json`. Gap IDs closed: **none**.

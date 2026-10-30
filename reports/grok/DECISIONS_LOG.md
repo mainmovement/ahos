@@ -245,3 +245,11 @@
 **Choice:** Select by code. WTI is 067651. Gold is 088691. Brent is the higher open interest of ICE futures-only Brent (`ICEU:B:FutOnly`, commodity code B) and NYMEX 06765T. On 2026-10-20 that is the ICE contract. The score is tanh(z/2) versus that code's own prior 52 weeks. CFTC history is the annual futures-only zip. ICE Brent history is the ICE CSV, because ICE Brent is not in the CFTC file. Weight stays 0. A history shorter than 52 weeks does not fall back to the old 0.05 scale.
 
 **Reason:** The previous WTI row was ICE code 067411, chosen by name. The previous gold score saturated because 5% of open interest was treated as a full vote. The owner required the main codes and a trailing z-score.
+
+## 2026-10-30: Weekly family vote scorecard
+
+**Question:** How should family votes be scored against later prices without letting the score move the book?
+
+**Choice:** Record each signed vote and its price. Once a week, score the sign against the next 4h and 24h print, including cycles that did not open. Overlapping votes inside the horizon count once. Pending and missing prints are not hits. Composite weight stays 0. Signal weights are not written.
+
+**Reason:** The owner asked for a counterfactual hit-rate per family while the 6h window is still running. A hit-rate is not a weight.

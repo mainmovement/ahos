@@ -337,3 +337,17 @@ Gates unchanged. The 6h window is still short of COMPLETE; the figure is reporte
 | R4 Council | APPROVE | This is a positioning vote, not a promotion path. |
 | R7 SRE | APPROVE | Lane A not edited. The downloaded files stay in the uncommitted cache. |
 | Meta-Critic | APPROVE | ICE Brent is a real free file. It is not a fabricated open interest, and it is not the NYMEX look-alike. |
+
+## Weekly family vote scorecard (2026-10-30, PAPER_ONLY, NO_PUSH)
+
+Command: `pytest tests/test_family_vote_scorecard.py tests/test_paper_trade_gates.py -q` → **13 passed**.
+
+Each cycle that has a signed family vote appends that sign and the price. The weekly card scores the sign against the first later print in [4h, 4h30m] and [24h, 25h]. A vote inside the horizon of an earlier vote for the same symbol and family is not a second trial. Pending prints and gaps are not hits. A zero move is a tie and stays out of the rate. The card is counterfactual: it does not look at whether an OPEN followed. `composite_weight` is 0 and `signal_weights.json` is not written. The 2-family and 2× fee constants are unchanged.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE | Hit rate is hits/(hits+misses). An empty denominator stays null. Weight stays 0. |
+| R2 Data | APPROVE | A print outside the slack window is `no_print_in_window`, not a hit. |
+| R4 Council | APPROVE | Advisory research signs are scored and still carry weight 0. |
+| R7 SRE | APPROVE | The observation log is separate from the trade ledger. Lane A not edited. |
+| Meta-Critic | APPROVE | This is a census of vote signs. It is not an edge claim. |

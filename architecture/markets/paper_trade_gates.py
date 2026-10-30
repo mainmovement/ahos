@@ -80,6 +80,50 @@ def expected_take_profit_usd(
     return notional_usd * stop_pct * take_mult * strength
 
 
+def _finite_scores(members: list[dict], family: str) -> tuple[list[float], bool]:
+    scores = [
+        float(s["score"])
+        for s in members
+        if s.get("available") and isinstance(s.get("score"), (int, float)) and not isinstance(s.get("score"), bool)
+    ]
+    advisory = False
+    if not scores and family == "research":
+        for s in members:
+            evidence = s.get("evidence") if isinstance(s.get("evidence"), dict) else {}
+            raw = evidence.get("advisory_vote_score")
+            if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+                continue
+            scores.append(float(raw))
+            advisory = True
+    return scores, advisory
+
+
+def family_vote_signs(sigs: list[dict]) -> list[dict]:
+    """Each family's own sign. This does not open a trade and does not change a weight."""
+    out: list[dict] = []
+    for family, names in INDEPENDENT_VOTE_FAMILIES.items():
+        members = [s for s in sigs if isinstance(s, dict) and s.get("name") in names]
+        if not members:
+            out.append({"family": family, "sign": "ABSENT"})
+            continue
+        scores, advisory = _finite_scores(members, family)
+        if not scores:
+            out.append({"family": family, "sign": "UNAVAILABLE", "advisory": advisory})
+            continue
+        mean = sum(scores) / len(scores)
+        if abs(mean) < VOTE_SCORE_FLOOR:
+            sign = "FLAT"
+        elif mean > 0:
+            sign = "LONG"
+        else:
+            sign = "SHORT"
+        row = {"family": family, "sign": sign, "mean_score": round(mean, 4), "composite_weight": 0.0}
+        if advisory:
+            row["advisory"] = True
+        out.append(row)
+    return out
+
+
 def independent_vote_gate(sigs: list[dict], side: str) -> tuple[bool, dict]:
     """Require two independent families to agree with the side.
 
@@ -95,20 +139,7 @@ def independent_vote_gate(sigs: list[dict], side: str) -> tuple[bool, dict]:
         if not members:
             continue
         present.append(family)
-        scores = [
-            float(s["score"])
-            for s in members
-            if s.get("available") and isinstance(s.get("score"), (int, float)) and not isinstance(s.get("score"), bool)
-        ]
-        advisory = False
-        if not scores and family == "research":
-            for s in members:
-                evidence = s.get("evidence") if isinstance(s.get("evidence"), dict) else {}
-                raw = evidence.get("advisory_vote_score")
-                if isinstance(raw, bool) or not isinstance(raw, (int, float)):
-                    continue
-                scores.append(float(raw))
-                advisory = True
+        scores, advisory = _finite_scores(members, family)
         if not scores:
             votes.append({"family": family, "vote": "UNAVAILABLE"})
             continue
