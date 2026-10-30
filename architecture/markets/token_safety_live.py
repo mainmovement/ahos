@@ -525,11 +525,14 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
         age = None
         if isinstance(created, (int, float)) and created > 0:
             age = (now.timestamp() - created / 1000.0) / 86400.0
+        tx = (pair.get("txns") or {}).get("h24") if isinstance(pair.get("txns"), dict) else {}
         raw.append({"address": addr, "symbol": str((pair.get("baseToken") or {}).get("symbol") or "")[:16],
                     "pool": _normalize_pool_id(pair.get("pairAddress")), "source": "dexscreener_search",
                     "pool_age_days": age, "volume_24h_usd": _f((pair.get("volume") or {}).get("h24")),
                     "liquidity_usd": _f((pair.get("liquidity") or {}).get("usd")), "fdv_usd": _f(pair.get("fdv")),
-                    "price_change_h6_pct": _f((pair.get("priceChange") or {}).get("h6")), "buys_24h": None, "sells_24h": None})
+                    "price_change_h6_pct": _f((pair.get("priceChange") or {}).get("h6")),
+                    "buys_24h": None if not isinstance(tx, dict) else tx.get("buys"),
+                    "sells_24h": None if not isinstance(tx, dict) else tx.get("sells")})
         seen.add(addr)
     ep["tokens"] = len(raw) - before
     listed, ep = _probe(getter, DEXS_TOKENS_URL)
@@ -544,11 +547,14 @@ def discover_candidates(getter: Callable[[str], Any] = _http_json, *, now: datet
             continue
         created = pair.get("pairCreatedAt")
         age = (now.timestamp() - created / 1000.0) / 86400.0 if isinstance(created, (int, float)) and created > 0 else None
+        tx = (pair.get("txns") or {}).get("h24") if isinstance(pair.get("txns"), dict) else {}
         raw.append({"address": addr, "symbol": str((pair.get("baseToken") or {}).get("symbol") or "")[:16],
                     "pool": _normalize_pool_id(pair.get("pairAddress")), "source": "dexscreener_tokens",
                     "pool_age_days": age, "volume_24h_usd": _f((pair.get("volume") or {}).get("h24")),
                     "liquidity_usd": _f((pair.get("liquidity") or {}).get("usd")), "fdv_usd": _f(pair.get("fdv")),
-                    "price_change_h6_pct": _f((pair.get("priceChange") or {}).get("h6")), "buys_24h": None, "sells_24h": None})
+                    "price_change_h6_pct": _f((pair.get("priceChange") or {}).get("h6")),
+                    "buys_24h": None if not isinstance(tx, dict) else tx.get("buys"),
+                    "sells_24h": None if not isinstance(tx, dict) else tx.get("sells")})
         seen.add(addr)
     ep["tokens"] = len(raw) - before
     scout, ep = _probe(getter, BLOCKSCOUT_TOKENS_URL)
