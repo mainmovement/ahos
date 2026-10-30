@@ -126,3 +126,20 @@ Profitability cannot be judged: 0 closed trades, and the promotion gate needs �
 | R6 University / Exam | HOLD | Historical exam receipts unchanged; live book loss does not upgrade exam authority. |
 | R7 SRE / Security | APPROVE | Scoped pytest **13 passed** (`test_edge_report.py` + `test_paper_trader.py`). Lane A untouched. No secrets in EDGE artifacts. |
 | Meta-Critic | APPROVE | Positive closed-trade count (**122**) does **not** imply edge. Do not treat descriptive per-trade Sharpe or research PBO as live-book promotion. MTM **~$98.85** on **$100** initial — fee drag and negative expectancy documented. |
+
+## P0 Stage 0 — clean baseline (2026-10-30, laptop, PAPER_ONLY, NO_PUSH)
+
+Named modules were already committed. `git diff` on `unification_audit.py`, `paper_trader.py`, `desk_signal_feed.py`, `research_prediction_scoring.py`, `teaching_mode_m65.py`, `teaching_shadow_scorecard_m65.py`, `architecture/continuation/`, `negahban.py`, `config/paths.py`, `scripts/run_next_tranche.py` is empty. Baseline hash **`49f4534`**. This stage's new commit is the gate note only. Runtime snapshots, soak logs, and autopilot churn stay unstaged.
+
+Command: `G:\robat\ahos\.venv\Scripts\python.exe -m pytest tests/test_research_prediction_scoring.py tests/test_research_desk_signal.py tests/test_next_tranche.py tests/test_desk_signal_feed.py tests/test_unification_desk_artifacts.py tests/test_m80_negahban_audit.py -q --tb=line` → **17 passed** in 10.16s.
+
+| Critic | Verdict | Evidence |
+|---|---|---|
+| R1 Quant | APPROVE (baseline only) | Counterfactual scoring and zero composite weight for shadow predictions are in `49f4534`. Promotion gate unchanged. No new edge claim. |
+| R2 Data | APPROVE | No historical rewrite. Knowledge sync receipt (`205` claims) is in that commit; live SQLite is gitignored. |
+| R3 News | N/A | Didehban expansion is Stage 5. Registry/newsroom JSON remains dirty and uncommitted. |
+| R4 Council / Kian | APPROVE | No second decision authority added in the baseline commit. |
+| R5 UX | N/A | No Arena build on the laptop. |
+| R6 University | APPROVE (mechanism) | Weekly M57 scorecard path and M65 lesson merge exist. Live shadow hypotheses still `0` until CLOSEs carry `research_predictions`. |
+| R7 SRE / Security | APPROVE | Negahban receipt counts `verdict==CLEAN`. CVE audit targets `.venv` Python (`setuptools 84.2.1`). Four `AHOS_*` tasks registered on `G:`. Lane A not edited. HOLD.flag untouched. |
+| Meta-Critic | APPROVE | Doc-trace coverage in SPEC_TRACE (119/122 REAL) is not owner-vision completeness (~35–45%, 56-gap register). Empty product commit avoided. Stages 1–7 remain blocked until the owner says continue. |

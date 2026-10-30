@@ -133,3 +133,7 @@ Weighted coverage (REAL=1, PARTIAL=0.5): **98%**
 | M-D10 | حافظه_ادامه/بسته_داشبورد_داشی | Dashi dashboard mission M-D10 (DASHBOARD_DESIGN_SPEC / CLAUDE_BUILD_MISSIONS) | **REAL** | AHOS_Launcher/splash/splash.html instant <2.5s splash + ahos-lion-sun emblem + reduced-motion static seal |
 | M-D11 | حافظه_ادامه/بسته_داشبورد_داشی | Dashi dashboard mission M-D11 (DASHBOARD_DESIGN_SPEC / CLAUDE_BUILD_MISSIONS) | **REAL** | PerfTierOverlay.tsx displays active tier (T0 · 8GB_SAFE_MODE_ACTIVE), FPS budget, frame-time p95 (28.4ms on T0 / 16.4ms on T1), and reduced-motion state; receipt in reports/grok/M_D11/perf_tier_receipt.json |
 | M-D12 | حافظه_ادامه/بسته_داشبورد_داشی | Dashi dashboard mission M-D12 (DASHBOARD_DESIGN_SPEC / CLAUDE_BUILD_MISSIONS) | **REAL** | ahos_assets/OWNER_ACCEPTANCE_PACK_M_D12.md + MOOD_AGENT_QUEUE.md + RED_TEAM_GATE.md + SPEC_TRACE.md document live evidence, screenshots, and honest statuses |
+
+## P0 Stage 0 note (2026-10-30)
+
+The table above is a **document-to-code trace**, not a claim that owner vision is complete. Owner P0 register: **56 gaps**, about **35–45%** of the vision working. Stage 0 baseline is commit **`49f4534`** (continuation, counterfactual shadow scoring, Windows `AHOS_*` tasks, knowledge-sync code). Gap IDs closed this stage: **none**. Next stages (edge attribution, soak heartbeat, university help-desk, org lifecycle, Didehban/Negahban scanners, M-REGIME-4 owner question, UI) wait for "continue". Wall-clock PARTIAL rows remain **M13, M31, M36**.
