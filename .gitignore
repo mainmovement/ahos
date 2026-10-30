@@ -33,6 +33,7 @@ config/paths.yaml
 .vscode/
 tsconfig.tsbuildinfo
 .next/
+.next_1b08b58_*
 .cursor-local/
 .cursor/ralph/
 

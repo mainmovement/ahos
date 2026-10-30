@@ -339,6 +339,7 @@ describe("M-D3: a stale verification is not a verification", () => {
 
   it("a fresh VERIFIED stays VERIFIED", () => {
     assert.equal(applyFreshness("AVAILABLE", "OK"), "VERIFIED");
+    assert.equal(applyFreshness("AVAILABLE", "INSUFFICIENT_EVIDENCE"), "UNKNOWN");
   });
 
   it("never upgrades: an UNKNOWN stays UNKNOWN whatever the freshness says", () => {

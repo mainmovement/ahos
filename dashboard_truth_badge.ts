@@ -167,9 +167,11 @@ export function applyFreshness(
 ): BadgeState {
   const base = badgeForState(state);
   if (RANK[base] >= RANK["UNKNOWN"]) return base;   // already at or below UNKNOWN
-  return fresh === "STALE" || fresh === "UNKNOWN" || fresh === "VIOLATION"
-    ? (fresh === "VIOLATION" ? "REJECTED" : fresh === "UNKNOWN" ? "UNKNOWN" : "STALE")
-    : base;
+  if (fresh === "OK") return base;
+  if (fresh === "VIOLATION") return "REJECTED";
+  if (fresh === "STALE") return "STALE";
+  // UNKNOWN and INSUFFICIENT_EVIDENCE are abstentions. Neither may stay VERIFIED.
+  return "UNKNOWN";
 }
 
 /**

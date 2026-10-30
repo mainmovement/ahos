@@ -172,7 +172,8 @@ export function TelemetryStrips() {
   const gates = slice?.health?.dimensions ?? null;
   const papers = slice?.paper ?? null;
   const open = papers ? papers.filter((p) => p.status === "OPEN").length : null;
-  const paperLane = slice?.paperLane?.status === "AVAILABLE" ? slice.paperLane : null;
+  const lane = slice?.paperLane;
+  const paperLane = lane?.status === "AVAILABLE" ? lane : null;
 
   // The engine's telemetry wins while it is live. Where it is not — which on a
   // host whose engine is idle is the normal state — the strips present the local
@@ -377,8 +378,9 @@ function SoakGates({ gates }: { gates: NonNullable<SoakReadModel["gates"]> }) {
 function PaperLaneGates({
   lane,
 }: {
-  lane: NonNullable<CommandSlice["paperLane"]> & { status: "AVAILABLE" };
+  lane: NonNullable<CommandSlice["paperLane"]>;
 }) {
+  if (lane.status !== "AVAILABLE") return null;
   const shrink = lane.deskPolicy?.shrinkAdvisoryCount ?? 0;
   const edge = lane.edgeStatusFa || lane.edgeStatus || "UNKNOWN";
   return (
@@ -400,8 +402,9 @@ function PaperLaneGates({
 function PaperLaneLedger({
   lane,
 }: {
-  lane: NonNullable<CommandSlice["paperLane"]> & { status: "AVAILABLE" };
+  lane: NonNullable<CommandSlice["paperLane"]>;
 }) {
+  if (lane.status !== "AVAILABLE") return null;
   const shrink = lane.deskPolicy?.shrinkAdvisoryCount ?? 0;
   return (
     <>

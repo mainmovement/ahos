@@ -12,7 +12,7 @@
  * Run: npm run test:dashboard-truth
  */
 
-export type TruthStatus = "OK" | "STALE" | "UNKNOWN" | "VIOLATION";
+export type TruthStatus = "OK" | "STALE" | "UNKNOWN" | "VIOLATION" | "INSUFFICIENT_EVIDENCE";
 
 /** Evidence may lag the engine interval; anything beyond this is STALE. */
 export const MIN_EVIDENCE_FRESHNESS_MS = 10 * 60_000;
@@ -74,6 +74,7 @@ export function paperEdgeHealthStatus(lane: {
   if (!lane || lane.status !== "AVAILABLE") return "UNKNOWN";
   const edge = (lane.edgeStatus ?? "").trim().toUpperCase();
   if (!edge) return "UNKNOWN";
+  // UNPROVEN_EDGE is an abstention. It is shown as insufficient evidence, never as OK.
   if (edge === "UNPROVEN_EDGE") return "INSUFFICIENT_EVIDENCE";
   return "UNKNOWN";
 }
