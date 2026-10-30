@@ -43,6 +43,7 @@ STATUS_REL = PAPER_DIR / "paper_trader_status.json"
 WEIGHTS_REL = PAPER_DIR / "signal_weights.json"
 LESSONS_REL = PAPER_DIR / "signal_lessons.jsonl"
 BREADTH_REL = PAPER_DIR / "crypto_breadth.jsonl"
+DESK_NEWS_REL = PAPER_DIR / "desk_news.jsonl"
 MISSION_LEDGER_REL = Path("data") / "mission_ledger" / "mission_ledger.jsonl"
 M49_DB_REL = Path("data") / "mission_ledger" / "m49_lessons.sqlite"   # same store gold_paper.py uses
 AGENT = "agent:paper_trader"
@@ -583,6 +584,25 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
             _append(root, BREADTH_REL, log_row)
         except Exception:
             breadth_pack = None
+    if signals_fn is None:
+        try:
+            from architecture.markets.desk_news import load_live_snapshot
+
+            desk_news = load_live_snapshot(root, quotes)
+            _append(root, DESK_NEWS_REL, {
+                "ts": _iso(t),
+                "paper_only": True,
+                "source_weight": desk_news["source_weight"],
+                "counts_toward_entry_gate": False,
+                "dropped": desk_news["dropped"],
+                "reliability": desk_news["reliability"],
+                "eia_release_clock": desk_news["eia_release_clock"],
+                "n_items": len(desk_news["items"]),
+                "shadow_signs": desk_news["shadow_signs"],
+                "items": desk_news["items"][:40],
+            })
+        except Exception:
+            pass
 
     def log(row: dict[str, Any]) -> None:
         _append(root, LEDGER_REL, row)
@@ -906,6 +926,14 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
                 }
             )
             continue
+        if desk == "PB_TOKEN":
+            from architecture.markets.desk_news import pump_news_block
+
+            pump_block = pump_news_block(vote_audit, brain.get("token_safety_veto"))
+            if pump_block:
+                log({**base, "event": "NO_TRADE", "reason": pump_block, "price": price, "composite": comp,
+                     "independent_votes": vote_audit, "top_contributions": comb["contributions"][:5]})
+                continue
 
         desk_mult, desk_mult_src = effective_desk_notional_mult(root, desk)
         if desk_mult < 1.0:
