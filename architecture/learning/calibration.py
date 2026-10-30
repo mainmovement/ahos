@@ -20,6 +20,16 @@ def brier_score(probs: list[float], outcomes: list[float]) -> float | None:
     return sum((p - y) ** 2 for p, y in zip(probs, outcomes)) / len(probs)
 
 
+def log_odds_recalibrate(probs: list[float], alpha: float = 1.0) -> list[float]:
+    """Sharpen or flatten probabilities in log-odds space. alpha=1 is identity. 0.5 stays 0.5."""
+    out: list[float] = []
+    for raw in probs:
+        p = min(1.0 - 1e-6, max(1e-6, float(raw)))
+        logit = math.log(p / (1.0 - p))
+        out.append(_sigmoid(float(alpha) * logit))
+    return out
+
+
 def brier_skill_score(brier: float | None, climatology: float = 0.25) -> float | None:
     if brier is None or climatology <= 0:
         return None
