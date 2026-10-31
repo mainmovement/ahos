@@ -1,0 +1,11 @@
+{
+ "schema": "ahos.free_second_contract.v1",
+ "paper_only": true,
+ "fetched_at": "2026-10-31T00:41:36Z",
+ "front_symbol": "GC=F",
+ "back_symbol": "GCZ26.CME",
+ "front": 3884.89990234375,
+ "back": null,
+ "reason": "NO_SECOND_CONTRACT",
+ "applied_to_live": false
+}

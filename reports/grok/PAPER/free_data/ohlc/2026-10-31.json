@@ -1,0 +1,11 @@
+{
+ "symbol": "BTCUSDT",
+ "bars": 30,
+ "has_ohlc": true,
+ "reason": null,
+ "stock_reason": "YAHOO_5M_EMPTY",
+ "schema": "ahos.free_ohlc.v1",
+ "paper_only": true,
+ "fetched_at": "2026-10-31T00:42:10Z",
+ "applied_to_live": false
+}

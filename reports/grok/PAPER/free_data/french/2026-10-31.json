@@ -1,0 +1,10 @@
+{
+ "schema": "ahos.free_french.v1",
+ "paper_only": true,
+ "fetched_at": "2026-10-31T00:41:34Z",
+ "http_status": 200,
+ "n": 1203,
+ "name_loadings": null,
+ "reason": "FACTORS_HAVE_NO_NAME_LOADING",
+ "applied_to_live": false
+}

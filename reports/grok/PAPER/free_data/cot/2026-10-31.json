@@ -1,0 +1,12 @@
+{
+ "status": "READY",
+ "reason": null,
+ "n": 95,
+ "z": -0.8257,
+ "schema": "ahos.free_cot.v1",
+ "paper_only": true,
+ "fetched_at": "2026-10-31T00:41:16Z",
+ "code": "088691",
+ "source": "local_cftc_zip",
+ "applied_to_live": false
+}

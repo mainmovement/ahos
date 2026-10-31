@@ -1,0 +1,12 @@
+{
+ "schema": "ahos.free_funding.v1",
+ "paper_only": true,
+ "fetched_at": "2026-10-31T00:41:19Z",
+ "source": "binance_fapi_public",
+ "n_funding": 30,
+ "n_oi": 30,
+ "funding_z": 1.1691,
+ "oi_z": 0.7908,
+ "reason": null,
+ "applied_to_live": false
+}

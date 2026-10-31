@@ -1,0 +1,28 @@
+{
+  "schema": "ahos.mega14_checklist.v1",
+  "paper_only": true,
+  "promoted": false,
+  "applied_to_live": false,
+  "restarted": false,
+  "peak_rss_mb": 72.3,
+  "peak_job": "cot",
+  "sidecar_pid": 15800,
+  "sampler_pid": 5468,
+  "path_rows": 21,
+  "spread_samples": 2,
+  "spread_names": 24,
+  "spread_quoted": false,
+  "negahban": "PASS_STATIC",
+  "ready": 4,
+  "unavailable": 12,
+  "open_positions_logged": ["BZ", "ES", "BRENT", "NDX", "QQQ", "SPX", "GC"],
+  "mid": "NO_BID_ASK",
+  "atr": "YAHOO_5M",
+  "gold_desk_open": false,
+  "items": {
+    "1": "PARTIAL",
+    "2": "PARTIAL",
+    "3": "PARTIAL",
+    "4": "DONE_NOT_RUN"
+  }
+}

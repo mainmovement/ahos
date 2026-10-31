@@ -58,6 +58,10 @@
   {
    "id": "mega13_running_counts",
    "change": "Show live, shadow-live, and dead counts from the running soak and trader. Do not paint a module live unless that process logged it."
+  },
+  {
+   "id": "mega14_data_gaps",
+   "change": "Show the free-data table as ready or unavailable. Show the path sidecar and the spread sampler as estimates. Do not paint a strategy as promoted."
   }
  ],
  "decides": false

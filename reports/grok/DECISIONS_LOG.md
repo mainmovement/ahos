@@ -621,3 +621,11 @@
 **Choice:** The size equation now uses a normal approximation to the t statistic when a dispersion is present, and the sample size when it is not. A positive mean stays at 1. The stored book of 172 closes has t = −1.5012 and a one-sided tail of 0.0667. Deflated Sharpe is 0.0049 and PBO is 0.2286. Both are lookback. Promoted stays false. The live policy file was not rewritten, so GOLD and PB_TOKEN remain 0.15 and US_EQUITIES remains 1.0.
 
 **Reason:** A two-dollar cliff never described this paper book. The tail probability is not a pass of the 0.95 gate.
+
+## 2026-10-31: Fill free-data caches and do not restart
+
+**Question:** Should the soak, the paper trader, or the Telegram listener be restarted so the new caches and the path log run inside those processes?
+
+**Choice:** No. Soak 14260, trader 13020, and listener 15024 stayed up. Free caches were written one job at a time. The heaviest job peaked at 72.3 MB. A read-only path sidecar is pid 15800 and a spread sampler is pid 5468. The restart checklist script exits WAIT before 2026-11-01T00:45:31Z and was not run. The three pre-registration hashes were stamped back onto the hypotheses section after that section had only a status line. Negahban static review is PASS_STATIC. Nothing was promoted.
+
+**Reason:** A restart before the soak deadline would reset the clock the last registration left closed. A static review is not a red-team pass.

@@ -1,0 +1,124 @@
+{
+ "schema": "ahos.mega14_free_data.v1",
+ "paper_only": true,
+ "fetched_at": "2026-10-31T00:42:54Z",
+ "strategies": [
+  {
+   "strategy": "cs_momentum",
+   "data": "UNAVAILABLE",
+   "reason": "NO_ALIGNED_PRICE_PANEL",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "pairs_zscore",
+   "data": "UNAVAILABLE",
+   "reason": "NO_ALIGNED_PRICE_PANEL",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "futures_carry",
+   "data": "UNAVAILABLE",
+   "reason": "NO_SECOND_CONTRACT",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "turn_of_month",
+   "data": "UNAVAILABLE",
+   "reason": "NO_ALIGNED_DAY_SERIES",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "overnight_intraday",
+   "data": "READY",
+   "reason": null,
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "commodity_calendar",
+   "data": "UNAVAILABLE",
+   "reason": "NO_MONTH_PATH",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "pre_fomc",
+   "data": "UNAVAILABLE",
+   "reason": "NO_ALIGNED_DAY_SERIES",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "pead",
+   "data": "UNAVAILABLE",
+   "reason": "NO_EARNINGS_SURPRISE",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "news_shock",
+   "data": "UNAVAILABLE",
+   "reason": "NO_KEYLESS_NUMERIC_NEWS",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "macro_surprise",
+   "data": "UNAVAILABLE",
+   "reason": "FRED_HAS_ACTUAL_NOT_CONSENSUS",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "low_vol",
+   "data": "UNAVAILABLE",
+   "reason": "NO_ALIGNED_PRICE_PANEL",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "cot_extreme",
+   "data": "READY",
+   "reason": null,
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "liquidations",
+   "data": "UNAVAILABLE",
+   "reason": "NO_KEYLESS_LIQUIDATION_PRINT",
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "funding_oi_squeeze",
+   "data": "READY",
+   "reason": null,
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "wick_sweep",
+   "data": "READY",
+   "reason": null,
+   "applied_to_live": false,
+   "promoted": false
+  },
+  {
+   "strategy": "fama_french",
+   "data": "UNAVAILABLE",
+   "reason": "FACTORS_HAVE_NO_NAME_LOADING",
+   "applied_to_live": false,
+   "promoted": false
+  }
+ ],
+ "ready": 4,
+ "unavailable": 12,
+ "peak_rss_mb": 20.4,
+ "promoted": false,
+ "applied_to_live": false
+}

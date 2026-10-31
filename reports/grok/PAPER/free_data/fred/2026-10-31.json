@@ -1,0 +1,14 @@
+{
+ "schema": "ahos.free_fred.v1",
+ "paper_only": true,
+ "fetched_at": "2026-10-31T00:41:20Z",
+ "series": "CPIAUCSL",
+ "http_status": 200,
+ "n": 956,
+ "last_date": "2026-09-01",
+ "consensus": null,
+ "reason": null,
+ "surprise": "UNAVAILABLE",
+ "surprise_reason": "FRED_HAS_ACTUAL_NOT_CONSENSUS",
+ "applied_to_live": false
+}
