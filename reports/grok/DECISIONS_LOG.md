@@ -637,3 +637,11 @@
 **Choice:** No restart of soak 14260 or trader 13020. The sentence is the TypeScript chat flag `ahos_system_state.running`, written by `startEngine` / `stopEngine`, and the chat tool maps false to off. The Postgres row was not read. The paper cycle is process 13020, halted false, last status write 2026-10-31T10:28:11Z, equity 99.28, six open names. The live switch stays off by design. Free-form questions about what AHOS is doing now read that file. The listener was replaced by pid 6452 so it loads the reply. Negahban was not alerted.
 
 **Reason:** A false off-switch in the chat layer is not a reason to stop the paper cycle or to invent a cause.
+
+## 2026-10-31: Telegram may pause new paper entries only
+
+**Question:** Should a Telegram command turn on live trading, change weights, or restart the soak and the trader so a new pause flag is loaded?
+
+**Choice:** No. The listener was replaced by pid 15472. Soak 14260 and trader 13020 stayed up. Only the first numeric allowlisted chat is accepted, and that id is not written here. Pause and resume are a HALT and a clear on the mission ledger the running paper cycle already reads, so new entries stop without a restart. Open positions were not flattened. Close-all stays armed while that trader process is alive, because it keeps the book in memory. Live switch, promotion, HOLD flags, weights, gates, and shell stay on the local dashboard. Three wrong codes lock the chat for an hour and alert Negahban. The live pause was cleared in the same test. Judge stays NO_PROMOTION.
+
+**Reason:** A chat command must fail closed, and the only pause the loaded trader already honors is the ledger halt. Restarting the soak before its window ends is not required for that.

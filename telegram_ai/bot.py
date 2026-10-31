@@ -12,10 +12,15 @@ from __future__ import annotations
 import time
 from typing import Any
 
+from pathlib import Path
+
 from .adapter import TelegramBotAdapterInterface, TelegramUpdate, TelegramSecurityGate, MockTelegramAdapter
+from .operator_commands import dispatch
 from .service import TelegramDomainService
 from .response_contract import FOOTER_MANDATED
 from .envelope import ReplayGuard, TelegramAuditLog, build_update_envelope, redact_envelope
+
+_ROOT = Path(__file__).resolve().parents[1]
 
 
 TELEGRAM_MAX_CHARS = 4096
@@ -36,10 +41,14 @@ class TelegramBotRunner:
                  gate: TelegramSecurityGate | None = None,
                  *,
                  replay_guard: ReplayGuard | None = None,
-                 audit_log: TelegramAuditLog | None = None):
+                 audit_log: TelegramAuditLog | None = None,
+                 silent_unauthorized: bool = False,
+                 allow_raw: str | None = None):
         self.adapter = adapter
         self.service = service or TelegramDomainService()
         self.gate = gate or TelegramSecurityGate()
+        self.silent_unauthorized = silent_unauthorized
+        self.allow_raw = allow_raw
         self.user_contexts: dict[str, dict[str, Any]] = {}
         # GM-02: duplicate/malformed update rejection + append-only audit.
         # In-memory by default; neither grants nor checks any capability.
@@ -59,12 +68,14 @@ class TelegramBotRunner:
 
         # 1. Authorization check
         if not self.gate.is_authorized(update):
+            self.audit_log.record(envelope, "UNAUTHORIZED")
+            if self.silent_unauthorized:
+                return {"status": "IGNORED", "envelope": redact_envelope(envelope)}
             resp = self.adapter.send_message(
                 update.chat_id,
                 f"⛔ دسترسی شما به این ربات مجاز نمی‌باشد.\n\n{FOOTER_MANDATED}",
                 parse_mode=None,
             )
-            self.audit_log.record(envelope, "UNAUTHORIZED")
             return {"status": "UNAUTHORIZED", "response": resp}
 
         # 2. Rate limit check
@@ -77,8 +88,20 @@ class TelegramBotRunner:
             self.audit_log.record(envelope, "RATE_LIMITED")
             return {"status": "RATE_LIMITED", "response": resp}
 
-        # 3. Command mapping
+        # 3. Safe paper commands, before any model or gateway.
         text = update.text.strip()
+        op = dispatch(_ROOT, update.chat_id, text, allow_raw=self.allow_raw)
+        if op is not None:
+            send_res = None
+            if op.get("status") != "IGNORED" and op.get("text"):
+                send_res = self.adapter.send_message(
+                    update.chat_id, clamp_telegram_text(op["text"]), parse_mode=None)
+            self.audit_log.record(envelope, "PROCESSED",
+                                  intent=op.get("command"), source="operator")
+            return {"status": op.get("status"), "intent": op.get("command"),
+                    "send_result": send_res, "envelope": redact_envelope(envelope)}
+
+        # 4. Command mapping
         if text.startswith("/start") or text.startswith("/help"):
             text = "راهنما"
         elif text.startswith("/top"):

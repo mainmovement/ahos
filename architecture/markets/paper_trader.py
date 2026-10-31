@@ -536,6 +536,12 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     if fetch is None:
         from architecture.markets.live_price_feed import fetch_live_market_prices as fetch
     t = now()
+    try:
+        from telegram_ai.operator_commands import apply_armed_close
+
+        apply_armed_close(root, inside_cycle=True)
+    except Exception:
+        pass
     if live_cycle:
         try:
             from architecture.markets.token_safety_live import refresh_safety_snapshot_if_due

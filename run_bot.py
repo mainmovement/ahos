@@ -236,13 +236,20 @@ def run_polling(poll_timeout: int = 25) -> int:
         print("❌ TELEGRAM_BOT_TOKEN تنظیم نشده. ابتدا .env را بسازید.")
         return 2
 
+    from telegram_ai.operator_commands import mehrdad_chat_id
+
     adapter = ProductionTelegramAdapter(token)
+    allow_raw = os.environ.get("TELEGRAM_ALLOWED_CHAT_IDS")
+    one = mehrdad_chat_id(allow_raw)
     gate = TelegramSecurityGate(
-        allowed_chat_ids=_ids(os.environ.get("TELEGRAM_ALLOWED_CHAT_IDS")),
-        admin_user_ids=_ids(os.environ.get("TELEGRAM_ADMIN_USER_IDS")),
+        allowed_chat_ids=[one] if one else [],
+        admin_user_ids=[],
         rate_limit_user_rps=float(os.environ.get("TELEGRAM_RATE_LIMIT_RPS", "1.0")),
+        allow_open_access=False,
     )
-    runner = TelegramBotRunner(adapter, gate=gate)
+    runner = TelegramBotRunner(
+        adapter, gate=gate, silent_unauthorized=True, allow_raw=allow_raw,
+    )
 
     offset = read_offset()
     stop = _Stop()
@@ -261,8 +268,7 @@ def run_polling(poll_timeout: int = 25) -> int:
                 try:
                     res = runner.process_update(up)
                     print(f"[{time.strftime('%H:%M:%S')}] "
-                          f"{up.username or up.user_id}: {res.get('intent')} "
-                          f"({res.get('status')})")
+                          f"{res.get('intent')} ({res.get('status')})")
                 except Exception as e:
                     print(f"[خطا در پردازش پیام] {type(e).__name__}: {e}")
                     try:

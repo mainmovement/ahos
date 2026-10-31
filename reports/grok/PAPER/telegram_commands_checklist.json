@@ -1,0 +1,25 @@
+{
+  "schema": "ahos.telegram_commands.v1",
+  "paper_only": true,
+  "promoted": false,
+  "allowlist": "first numeric TELEGRAM_ALLOWED_CHAT_IDS only",
+  "chat_id_printed": false,
+  "env_file_read": false,
+  "commands": {
+    "گزارش الان": "read",
+    "وضعیت": "read",
+    "توقف موقت": "code",
+    "ادامه": "code",
+    "بستن همه": "code"
+  },
+  "blocked": ["live_switch", "tier_promotion", "hold_flags", "weights", "gates", "shell"],
+  "pause_mechanism": "mission ledger HALT source telegram_paper_pause",
+  "pause_left": false,
+  "close_deferred_while_trader_alive": true,
+  "listener_pid": 15472,
+  "soak_pid": 14260,
+  "trader_pid": 13020,
+  "negahban_alert": false,
+  "judge": "NO_PROMOTION",
+  "live_switch": false
+}

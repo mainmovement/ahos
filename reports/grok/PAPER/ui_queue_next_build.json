@@ -60,6 +60,10 @@
    "change": "Show live, shadow-live, and dead counts from the running soak and trader. Do not paint a module live unless that process logged it."
   },
   {
+   "id": "telegram_commands",
+   "change": "Show the paper command receipt: pause is new entries only, the live switch stays off, and blocked actions point at the local dashboard."
+  },
+  {
    "id": "telegram_honesty",
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
