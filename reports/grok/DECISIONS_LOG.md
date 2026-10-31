@@ -629,3 +629,11 @@
 **Choice:** No. Soak 14260, trader 13020, and listener 15024 stayed up. Free caches were written one job at a time. The heaviest job peaked at 72.3 MB. A read-only path sidecar is pid 15800 and a spread sampler is pid 5468. The restart checklist script exits WAIT before 2026-11-01T00:45:31Z and was not run. The three pre-registration hashes were stamped back onto the hypotheses section after that section had only a status line. Negahban static review is PASS_STATIC. Nothing was promoted.
 
 **Reason:** A restart before the soak deadline would reset the clock the last registration left closed. A static review is not a red-team pass.
+
+## 2026-10-31: The chat “engine off” line is not the paper cycle
+
+**Question:** Should Telegram keep saying the analysis engine is off, and should the soak or the trader be restarted so the reply changes?
+
+**Choice:** No restart of soak 14260 or trader 13020. The sentence is the TypeScript chat flag `ahos_system_state.running`, written by `startEngine` / `stopEngine`, and the chat tool maps false to off. The Postgres row was not read. The paper cycle is process 13020, halted false, last status write 2026-10-31T10:28:11Z, equity 99.28, six open names. The live switch stays off by design. Free-form questions about what AHOS is doing now read that file. The listener was replaced by pid 6452 so it loads the reply. Negahban was not alerted.
+
+**Reason:** A false off-switch in the chat layer is not a reason to stop the paper cycle or to invent a cause.

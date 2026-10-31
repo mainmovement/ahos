@@ -50,7 +50,12 @@ TG_UID_HEADER = "X-AHOS-TG-Uid"
 TG_TS_HEADER = "X-AHOS-TG-Ts"
 TG_SIG_HEADER = "X-AHOS-TG-Sig"
 
-from architecture.ai.telegram_llm_fallback import _needs_paper_status, answer_question, is_bare_menu
+from architecture.ai.telegram_llm_fallback import (
+    _needs_operating_facts,
+    _needs_paper_status,
+    answer_question,
+    is_bare_menu,
+)
 from .intent import parse, ParseResult, INFO_ONLY_INTENTS, LEDGER_MUTATING_INTENTS
 from .response_contract import FOOTER_MANDATED
 
@@ -81,6 +86,17 @@ class TelegramDomainService:
 
     def handle_message(self, text: str, user_context: dict | None = None) -> dict[str, Any]:
         """Telegram -> Gateway -> Core only. No independent scoring."""
+        if _needs_operating_facts(text):
+            doc = answer_question(Path(__file__).resolve().parents[1], text)
+            return {
+                "text": doc["text"],
+                "text_html": None,
+                "intent": "operating_facts",
+                "status": "OK",
+                "source": "world_state",
+                "evidence": {"answered_from": doc.get("source")},
+                "footer_injected": False,
+            }
         # Normalize empty URL at call time (covers environment variable set to "")
         gateway_url = AHOS_GATEWAY_URL or "http://127.0.0.1:3000/api/chat"
         if gateway_url:

@@ -119,7 +119,7 @@ def _reason_fa(reason: str) -> str:
     if head in REASON_FA:
         return REASON_FA[head] + f" جزئیات ثبت‌شده: {text}."
     if not text:
-        return "دلیلی در این ردیف ثبت نشده است."
+        return "کد علت روی این ردیف خالی است."
     return f"دلیل ثبت‌شده: {text}. ترجمهٔ فارسی این کد از پیش ثبت نشده است."
 
 

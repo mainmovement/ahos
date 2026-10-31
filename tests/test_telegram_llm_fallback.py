@@ -1,4 +1,5 @@
 """Telegram answers a free-form question from the paper file when models fail."""
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -54,6 +55,38 @@ def test_failed_chain_answers_from_the_paper_file_and_alerts(tmp_path: Path) -> 
     assert "api_key" not in health
     bus = (tmp_path / "reports" / "grok" / "PAPER" / "agent_bus.jsonl").read_text(encoding="utf-8")
     assert "AG-09" in bus and "ADVISE" in bus
+
+
+def test_why_off_uses_the_paper_file_and_skips_the_model(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr("architecture.ai.telegram_llm_fallback._trader_process_alive", lambda: True)
+    paper = tmp_path / "reports" / "grok" / "PAPER"
+    paper.mkdir(parents=True)
+    (paper / "paper_trader_status.json").write_text(json.dumps({
+        "halted": False,
+        "updated_at": "2026-10-31T10:28:11Z",
+        "mark_to_market_equity_usd": 99.28,
+        "open_positions": {"GC": {"desk": "LISTED_FUTURES"}},
+        "last_no_trade_reason": "DESK_EXPECTANCY_PAUSE",
+        "paper_only": True,
+    }), encoding="utf-8")
+    calls: list[dict] = []
+    doc = answer_question(
+        tmp_path,
+        "چرا خاموشه",
+        chat=lambda request: calls.append(request),
+        local_ask=lambda _q: "موتور تحلیل خاموش",
+        sleep=lambda _s: None,
+        now=datetime(2026, 10, 31, 10, 30, tzinfo=timezone.utc),
+        publish=False,
+    )
+    assert calls == []
+    assert doc["source"] == "world_state"
+    assert "معامله‌های کاغذی فعال است؛ کلید پول واقعی عمداً خاموش است." in doc["text"]
+    assert "دلیل ثبت نشده" not in doc["text"]
+    assert "no reason recorded" not in doc["text"].lower()
+    assert "موتور تحلیل خاموش" not in doc["text"]
+    assert "GC" in doc["text"]
+    assert "۹۹٫۲۸" in doc["text"]
 
 
 def test_a_good_answer_is_cached(tmp_path: Path) -> None:

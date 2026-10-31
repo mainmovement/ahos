@@ -1,0 +1,21 @@
+{
+  "schema": "ahos.telegram_honesty.v1",
+  "paper_only": true,
+  "promoted": false,
+  "phrase": "موتور تحلیل خاموش",
+  "flag": "ahos_system_state.running",
+  "writer": "engine.ts startEngine/stopEngine",
+  "chat_tool": "get_engine_status",
+  "postgres_row_read": false,
+  "paper_trader_pid": 13020,
+  "paper_halted": false,
+  "last_status_utc": "2026-10-31T10:28:11Z",
+  "equity_usd": 99.28,
+  "open_positions": ["BRENT", "BZ", "GC", "NDX", "QQQ", "SPX"],
+  "live_switch": false,
+  "listener_pid": 6452,
+  "soak_pid": 14260,
+  "trader_pid": 13020,
+  "negahban_alert": false,
+  "answered_from": "world_state"
+}

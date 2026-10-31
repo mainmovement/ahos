@@ -88,6 +88,26 @@ def test_gateway_reply_has_no_forced_footer_and_long_timeout(monkeypatch, servic
     assert res["footer_injected"] is False
 
 
+def test_operating_question_ignores_a_gateway_that_says_the_engine_is_off(monkeypatch, service):
+    monkeypatch.setattr(
+        type(service),
+        "_call_conversation_gateway",
+        lambda self, t, c, u: {"reply": "✅ موتور تحلیل خاموش شد."},
+    )
+    monkeypatch.setattr(
+        "telegram_ai.service.answer_question",
+        lambda root, text, **_k: {
+            "text": "معامله‌های کاغذی فعال است؛ کلید پول واقعی عمداً خاموش است.",
+            "source": "world_state",
+            "error_class": None,
+        },
+    )
+    res = service.handle_message("آهوس چیکار میکنه")
+    assert res["source"] == "world_state"
+    assert "موتور تحلیل خاموش" not in res["text"]
+    assert "معامله‌های کاغذی فعال است؛ کلید پول واقعی عمداً خاموش است." in res["text"]
+
+
 def test_status_question_uses_the_paper_file_when_the_gateway_is_down(monkeypatch, service):
     monkeypatch.setattr(type(service), "_call_conversation_gateway", lambda self, t, c, u: None)
     monkeypatch.setattr(

@@ -55,6 +55,16 @@ def _needs_paper_status(question: str) -> bool:
     return any(word in text for word in ("سود", "مونده", "آمادگی"))
 
 
+def _needs_operating_facts(question: str) -> bool:
+    """What the system is doing, and why a chat line says it is off."""
+    text = question or ""
+    if "چیکار" in text or "چی کار" in text or "چی‌کار" in text:
+        return True
+    if "خاموش" in text:
+        return True
+    return "موتور" in text and "تحلیل" in text
+
+
 def error_class(status: str, reason: str, http_status: int | None, kind: str) -> str:
     """One of quota_429, network, model_name, timeout, auth, other. No body text."""
     reason_l = (reason or "").lower()
@@ -111,14 +121,38 @@ def _fa(value: float, digits: int = 1) -> str:
     return f"{value:.{digits}f}".translate(_DIGITS)
 
 
+def _trader_process_alive() -> bool:
+    """True when a python process is running the paper cycle. It does not signal that process."""
+    if __import__("sys").platform != "win32":
+        return False
+    import subprocess
+    try:
+        raw = subprocess.check_output(
+            [
+                "powershell", "-NoProfile", "-Command",
+                "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | ForEach-Object { $_.CommandLine }",
+            ],
+            text=True,
+            timeout=15,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return "paper_trader_cycle.py" in raw
+
+
 def world_state_reply(root: Path, *, now: datetime | None = None) -> str:
-    """Equity, readiness, soak, paused desks, blockers, and the registered ETA rule."""
+    """Equity, last paper write, open names, and the live switch. No invented reason."""
     root = Path(root)
     moment = now or datetime.now(timezone.utc)
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
     from architecture.mission.mehrdad_status import build_mehrdad_status
 
     status = build_mehrdad_status(root)
+    trader = _read(root / "reports" / "grok" / "PAPER" / "paper_trader_status.json")
     equity = status.get("equity_usd")
+    if not isinstance(equity, (int, float)) or isinstance(equity, bool):
+        equity = trader.get("mark_to_market_equity_usd")
     if isinstance(equity, (int, float)) and not isinstance(equity, bool):
         equity_line = f"سرمایهٔ کاغذی الان {_fa(float(equity), 2)} دلار است."
     else:
@@ -128,6 +162,26 @@ def world_state_reply(root: Path, *, now: datetime | None = None) -> str:
         ready_line = f"آمادگی پول واقعی {_fa(float(pct), 0)} درصد است."
     else:
         ready_line = "آمادگی پول واقعی در پرونده نیست."
+    updated = _parse(trader.get("updated_at") if isinstance(trader.get("updated_at"), str) else None)
+    fresh = updated is not None and (moment - updated).total_seconds() <= 20 * 60
+    halted = trader.get("halted") is True
+    running = (not halted) and (_trader_process_alive() or fresh)
+    state_line = (
+        "معامله‌های کاغذی فعال است؛ کلید پول واقعی عمداً خاموش است."
+        if running
+        else "چرخهٔ کاغذی در این لحظه پرونده را تازه نمی‌کند؛ کلید پول واقعی عمداً خاموش است."
+    )
+    if updated is None:
+        cycle_line = "زمان آخرین نوشتن وضعیت کاغذی در پرونده نیست."
+    else:
+        stamp = updated.strftime("%Y-%m-%d %H:%M:%S").translate(_DIGITS)
+        cycle_line = f"آخرین نوشتن وضعیت کاغذی {stamp} به وقت جهانی است."
+    opens = trader.get("open_positions") if isinstance(trader.get("open_positions"), dict) else {}
+    if not opens and isinstance(status.get("open_names"), list):
+        names = [str(name) for name in status["open_names"]]
+    else:
+        names = sorted(str(name) for name in opens)
+    open_line = "موقعیت باز در پرونده نیست." if not names else "موقعیت‌های باز: " + "، ".join(names) + "."
     soak = _read(root / "reports" / "grok" / "M13_SOAK" / "soak_status.json")
     started = _parse(soak.get("window_started_utc") if isinstance(soak.get("window_started_utc"), str) else None)
     if started is None:
@@ -136,24 +190,36 @@ def world_state_reply(root: Path, *, now: datetime | None = None) -> str:
         hours = round((moment - started).total_seconds() / 3600.0, 1)
         soak_line = f"آزمون پیوسته حدود {_fa(hours, 1)} ساعت از ۷۲ ساعت را آمده است."
     pause = _read(root / "reports" / "grok" / "PAPER" / "desk_pause.json")
-    names = [
+    desks = [
         _DESK_FA.get(str(name), "یک میز")
         for name in (pause.get("paused_desks") or [])
         if isinstance(name, str)
     ]
-    desk_line = "میز متوقف در پرونده نیست." if not names else "میزهای متوقف: " + "، ".join(names) + "."
-    blockers = [str(item) for item in (status.get("missing_fa") or []) if str(item).strip()]
-    block_line = "مانده‌ها: " + " ".join(blockers[:3]) if blockers else "مانده‌ای در پرونده ثبت نشده است."
-    return "\n".join([
-        "سود کاغذی هنوز پایدار نشده است.",
+    desk_line = "میز متوقف در پرونده نیست." if not desks else "میزهای متوقف: " + "، ".join(desks) + "."
+    reason = trader.get("last_no_trade_reason")
+    if reason == "DESK_EXPECTANCY_PAUSE":
+        reason_line = "آخرین رد ورود به‌خاطر توقف میزی است که میانگینش منفی بوده است."
+    elif isinstance(reason, str) and reason.strip():
+        reason_line = "آخرین رد ورود یک کد ثبت‌شده در وضعیت کاغذی است."
+    else:
+        reason_line = ""
+    flag_line = "جملهٔ موتور تحلیل به پرچم رابط گفتگو برمی‌گردد، نه به چرخهٔ کاغذی پایتون."
+    lines = [
+        state_line,
         equity_line,
+        cycle_line,
+        open_line,
         ready_line,
         soak_line,
         desk_line,
-        block_line,
+        flag_line,
+        "سود کاغذی هنوز پایدار نشده است.",
         f"شرط صادقانه: {ETA}",
         "این جواب از پروندهٔ مشترک خوانده شده و معامله‌ای باز نمی‌کند.",
-    ])
+    ]
+    if reason_line:
+        lines.insert(6, reason_line)
+    return "\n".join(lines)
 
 
 def _default_chat(request: dict[str, Any]) -> dict[str, Any]:
@@ -274,6 +340,35 @@ def answer_question(
     moment = now or datetime.now(timezone.utc)
     if moment.tzinfo is None:
         moment = moment.replace(tzinfo=timezone.utc)
+    if _needs_operating_facts(question):
+        text = world_state_reply(root, now=moment)
+        prev = _read(root / HEALTH_REL)
+        health = {
+            "schema": "ahos.telegram_llm_health.v1",
+            "paper_only": True,
+            "incident_tehran": REPORTED_TEHRAN,
+            "incident_utc": REPORTED_UTC,
+            "historical_log": prev.get("historical_log") or "ABSENT",
+            "error_class": prev.get("error_class"),
+            "classified_by": "world_state_facts",
+            "attempts": [],
+            "answered_from": "world_state",
+            "down_since_utc": prev.get("down_since_utc"),
+            "negahban_alert": False,
+            "alerted_for": prev.get("alerted_for"),
+            "generated_at": _utc(moment),
+        }
+        _write_health(root, health)
+        if publish:
+            _publish(root, health)
+        return {
+            "text": text,
+            "source": "world_state",
+            "error_class": None,
+            "attempts": [],
+            "negahban_alert": False,
+        }
+
     key = hashlib.sha256(question.strip().encode("utf-8")).hexdigest()
     cached = _cache_get(root, key, moment)
     if cached and not is_bare_menu(cached) and not (_needs_paper_status(question) and ETA not in cached):
