@@ -72,6 +72,10 @@
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
   {
+   "id": "gold_oil_chains",
+   "change": "Show gold and oil chain rows from the shared desk config. Show SESSION_CLOSED as no setup. Do not paint a paused oil desk or a 0.15 cap as a promotion."
+  },
+  {
    "id": "crypto_real_round_trip",
    "change": "Show the crypto paper round trip with its later close id and after-cost result. Keep the desk pause and the 0.15 size cut visible. Do not paint the ticket as a promotion."
   },

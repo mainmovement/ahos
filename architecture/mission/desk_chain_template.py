@@ -470,7 +470,7 @@ def run_desk_chain(root: Path, cfg: dict[str, Any], quotes: list[dict[str, Any]]
     quote, reasons = _choose(root, cfg, list(quotes or []), moment, own)
     asset = None if quote is None else str(quote["symbol"])
     data_ts = quote.get("market_time") if quote and isinstance(quote.get("market_time"), str) else None
-    prefix = "exp-crypto-" if cfg["desk"] == "CRYPTO" else "exp-us-"
+    prefix = "exp-" + str(cfg["desk"]).split("_")[0].lower() + "-"
 
     if state is None:
         experiment_id = prefix + moment.strftime("%Y%m%dT%H%M%SZ")

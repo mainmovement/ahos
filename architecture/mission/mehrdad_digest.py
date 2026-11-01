@@ -251,6 +251,8 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
     us_line = us_desk_line(root)
     real_line = real_us_line(root)
     crypto_line = desk_line(root, "CRYPTO")
+    gold_line = desk_line(root, "GOLD")
+    oil_line = desk_line(root, "OIL")
     science_digest = science_line(root)
     return "\n".join([
         f"مهراد جان، {_greeting(moment)}.",
@@ -274,6 +276,8 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
         us_line,
         real_line,
         crypto_line,
+        gold_line,
+        oil_line,
         science_digest,
         "فرمان گفتگو فقط گزارش و توقف ورود کاغذی را می‌پذیرد و پول واقعی از آنجا عوض نمی‌شود.",
         _helping(root),

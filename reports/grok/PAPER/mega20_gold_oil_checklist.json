@@ -1,0 +1,54 @@
+{
+  "schema": "ahos.mega20_gold_oil.v1",
+  "paper_only": true,
+  "promoted": false,
+  "ram": {
+    "earlier_free_mb": 946.8,
+    "before_free_mb": 1565.6,
+    "after_free_mb": 2061.6,
+    "total_mb": 8116,
+    "orphans_stopped": [],
+    "reason": "no duplicate sidecar and no old trader pid; free memory was already above 1 GB"
+  },
+  "processes_mb": [
+    {"pid": 15836, "rss_mb": 308.1, "role": "dashboard"},
+    {"pid": 2356, "rss_mb": 90.9, "role": "soak"},
+    {"pid": 15668, "rss_mb": 79.1, "role": "trader"},
+    {"pid": 8596, "rss_mb": 25.7, "role": "llm_bridge"},
+    {"pid": 15800, "rss_mb": 18.2, "role": "gold_path"},
+    {"pid": 14040, "rss_mb": 18.9, "role": "listener"},
+    {"pid": 5468, "rss_mb": 17.6, "role": "spread_sampler"}
+  ],
+  "desks": {
+    "GOLD": {
+      "status": "NO_SETUP",
+      "reasons": ["SESSION_CLOSED"],
+      "experiment_id": "exp-gold-20261101T084414Z",
+      "observed_at": "2026-11-01T08:44:14Z",
+      "close_id": null,
+      "realized_pnl_usd": null,
+      "notional_cap_usd": 0.15,
+      "paused": false
+    },
+    "OIL": {
+      "status": "NO_SETUP",
+      "reasons": ["SESSION_CLOSED"],
+      "experiment_id": "exp-oil-20261101T084414Z",
+      "observed_at": "2026-11-01T08:44:14Z",
+      "close_id": null,
+      "realized_pnl_usd": null,
+      "notional_cap_usd": 0.15,
+      "paused": true
+    }
+  },
+  "org_map": {"filled": 34, "empty": 33, "roles": 67},
+  "pids": {"soak": 2356, "trader_before": 15916, "trader": 15668, "listener": 14040},
+  "template": "architecture/mission/desk_chain_template.py",
+  "config": "config/desk_chains.json",
+  "digest_lines": [
+    "مسیر واقعی میز طلا: هنوز فرصت نبود",
+    "مسیر واقعی میز نفت: هنوز فرصت نبود"
+  ],
+  "lane_a": "OK_36",
+  "decides": false
+}

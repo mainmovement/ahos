@@ -693,3 +693,11 @@
 **Choice:** No. The pause stayed on. The shared chain template allowed one pre-registered ticket of 0.15 USD on BTC, which had no open position and a fresh quote. Trader 6900 was replaced by 15916 so the template would load. Soak 2356 and listener 14040 stayed up. The window stayed 2026-11-01T04:58:28Z. The open was 2026-11-01T08:20:26Z and the time-stop close was 2026-11-01T08:33:24Z, id exp-crypto-20261101T082026Z-close, after-cost result -0.000231 USD. The lesson recorded an unverified loss and a Brier update. Nothing was promoted. Free RAM was 946.8 MB of 8116 MB.
 
 **Reason:** A paused desk can still host one judged paper ticket at the size floor. Removing the pause would let the normal cycle open more crypto risk. The negative after-cost result is a record, not a reason to change a weight.
+
+## 2026-11-01: Free RAM recovered, and gold and oil stay closed
+
+**Question:** Should orphaned AHOS processes be stopped to get free RAM above 1 GB, and should gold or oil open a paper ticket while the venues are closed?
+
+**Choice:** No process was stopped. The earlier 946.8 MB free was not a leftover trader. The protected processes were soak 2356, listener 14040, and trader 15916. The gold-path sidecar 15800 and the spread sampler 5468 are single loops, not duplicates. A fresh reading was 1565.6 MB free, then 2061.6 MB after the trader reload. Gold and oil were added only in config/desk_chains.json, with a one-line experiment-id prefix so they do not share the US id. Trader 15916 was replaced by 15668 so that prefix would load. At 2026-11-01T08:44:14Z both desks recorded SESSION_CLOSED and opened nothing. Oil remains paused. The chain cap stays 0.15 USD. Nothing was promoted.
+
+**Reason:** Killing the soak, the listener, the trader, or the two single sidecars would not have been an orphan cleanup. A closed venue is not a setup.
