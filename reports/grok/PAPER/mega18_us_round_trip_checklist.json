@@ -1,0 +1,23 @@
+{
+  "schema": "ahos.mega18_us_round_trip.v1",
+  "paper_only": true,
+  "promoted": false,
+  "judge": "NO_PROMOTION",
+  "experiment_id": "exp-us-20261101T080053Z",
+  "status": "NO_SETUP",
+  "reasons": ["SESSION_CLOSED", "QUOTE_STALE", "POSITION_ALREADY_OPEN"],
+  "observed_at": "2026-11-01T08:00:53Z",
+  "opened_at": null,
+  "closed_at": null,
+  "close_id": null,
+  "realized_pnl_usd": null,
+  "lesson_written": false,
+  "chain_trades_appended": 0,
+  "pids": {"soak": 2356, "trader_before": 5472, "trader": 6900, "listener": 14040},
+  "window_started_utc": "2026-11-01T04:58:28Z",
+  "free_ram_mb": 1342.7,
+  "total_ram_mb": 8116,
+  "digest_line": "مسیر واقعی میز آمریکا: هنوز فرصت نبود",
+  "lane_a": "OK_36",
+  "decides": false
+}

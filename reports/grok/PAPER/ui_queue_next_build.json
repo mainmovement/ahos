@@ -72,6 +72,14 @@
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
   {
+   "id": "us_real_round_trip",
+   "change": "Show a US equity round trip only after a later paper close id exists. Show NO_SETUP while the session, the quote, or an open position blocks the entry. Do not paint the wait as a completed trade."
+  },
+  {
+   "id": "mega17_health_24h",
+   "change": "Show the post-restart health samples. Do not paint the window as a finished 24 hour proof until 24 hours have elapsed."
+  },
+  {
    "id": "nightly_science_us",
    "change": "Show the nightly US equity DSR, PBO and Brier beside the current values. Do not paint a skipped library or a small sample as a promotion."
   },

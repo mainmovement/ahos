@@ -35,6 +35,39 @@ ROLE_AGENT = {
 }
 
 
+STATE_REL = Path("reports") / "grok" / "PAPER" / "us_chain_state.json"
+TRADES_REL = Path("reports") / "grok" / "PAPER" / "paper_trades.jsonl"
+POSITIONS_REL = Path("reports") / "grok" / "PAPER" / "paper_positions.json"
+NOTIONAL_USD = 1.0
+EXIT_AFTER_S = 600
+MAX_QUOTE_AGE_S = 20 * 60
+FEE = 0.0003
+SLIP = 0.0002
+RULE_ID = "us-eq-tiny-v1"
+
+
+def real_us_line(root: Path) -> str:
+    """The real round trip is a later close. A waiting book is not a completed trade."""
+    path = Path(root) / STATE_REL
+    if not path.is_file():
+        return "مسیر واقعی میز آمریکا: هنوز فرصت نبود"
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return "مسیر واقعی میز آمریکا: هنوز فرصت نبود"
+    opened = str(state.get("opened_at") or "")
+    closed = str(state.get("closed_at") or "")
+    if (
+        state.get("status") == "CLOSED"
+        and state.get("close_id")
+        and opened
+        and closed > opened
+        and state.get("promoted") is False
+    ):
+        return "مسیر واقعی میز آمریکا: یک معامله کامل شد"
+    return "مسیر واقعی میز آمریکا: هنوز فرصت نبود"
+
+
 def us_desk_line(root: Path) -> str:
     """Persian status. Works only after a live soak or trader pid logged nine steps."""
     from architecture.markets.shadow_cycle import live_pids
@@ -195,6 +228,290 @@ def _emit(
     return row
 
 
+def _cycle_quote(quotes: list[dict[str, Any]]) -> dict[str, Any] | None:
+    for row in quotes:
+        price = row.get("price")
+        source = row.get("source")
+        if (
+            row.get("symbol") in SYMBOLS
+            and isinstance(price, (int, float))
+            and not isinstance(price, bool)
+            and price > 0
+            and source
+            and row.get("stored_mark") is not True
+        ):
+            return row
+    return None
+
+
+def _quote_age(market_time: str | None, moment: datetime) -> float | None:
+    if not isinstance(market_time, str) or not market_time:
+        return None
+    try:
+        stamp = datetime.fromisoformat(market_time.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    return (moment - stamp.astimezone(timezone.utc)).total_seconds()
+
+
+def _book(root: Path) -> dict[str, Any]:
+    path = Path(root) / POSITIONS_REL
+    if not path.is_file():
+        return {"positions": {}}
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {"positions": {}}
+    if not isinstance(doc, dict):
+        return {"positions": {}}
+    if not isinstance(doc.get("positions"), dict):
+        doc["positions"] = {}
+    return doc
+
+
+def _blockers(root: Path, quote: dict[str, Any] | None, moment: datetime, own_symbol: str | None) -> list[str]:
+    if quote is None:
+        return ["NO_SOURCED_PRICE"]
+    reasons: list[str] = []
+    symbol = str(quote["symbol"])
+    from architecture.markets.weekday_session_gate import symbol_session
+
+    if symbol_session(symbol, moment).get("open") is not True:
+        reasons.append("SESSION_CLOSED")
+    age = _quote_age(quote.get("market_time") if isinstance(quote.get("market_time"), str) else None, moment)
+    if age is None or age < 0 or age > MAX_QUOTE_AGE_S:
+        reasons.append("QUOTE_STALE")
+    positions = _book(root)["positions"]
+    if symbol in positions and symbol != own_symbol:
+        reasons.append("POSITION_ALREADY_OPEN")
+    return reasons
+
+
+def _load_state(root: Path) -> dict[str, Any] | None:
+    path = Path(root) / STATE_REL
+    if not path.is_file():
+        return None
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    return doc if isinstance(doc, dict) else None
+
+
+def _save_state(root: Path, state: dict[str, Any]) -> None:
+    path = Path(root) / STATE_REL
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+
+
+def _append_trade(root: Path, row: dict[str, Any]) -> None:
+    path = Path(root) / TRADES_REL
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def _find_close(root: Path, experiment_id: str) -> dict[str, Any] | None:
+    path = Path(root) / TRADES_REL
+    if not path.is_file():
+        return None
+    found = None
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if experiment_id not in line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if row.get("event") == "CLOSE" and row.get("chain_experiment_id") == experiment_id:
+            found = row
+    return found
+
+
+def _open_trade(root: Path, state: dict[str, Any], quote: dict[str, Any], moment: datetime) -> dict[str, Any]:
+    symbol = str(quote["symbol"])
+    price = float(quote["price"])
+    fill = price * (1 + SLIP)
+    qty = NOTIONAL_USD / fill
+    entry_fee = NOTIONAL_USD * FEE
+    opened = _utc(moment)
+    trade_id = state["experiment_id"] + "-open"
+    row = {
+        "ts": opened,
+        "event": "OPEN",
+        "symbol": symbol,
+        "desk": DESK,
+        "side": "LONG",
+        "paper_only": True,
+        "trade_id": trade_id,
+        "chain_experiment_id": state["experiment_id"],
+        "rule_id": RULE_ID,
+        "quote_price": price,
+        "fill_price": round(fill, 6),
+        "qty": qty,
+        "notional_usd": NOTIONAL_USD,
+        "fee_usd": round(entry_fee, 6),
+        "slippage_pct": SLIP,
+        "source": quote.get("source"),
+        "market_time": quote.get("market_time"),
+        "promoted": False,
+    }
+    book = _book(root)
+    if symbol in book["positions"]:
+        raise RuntimeError("refusing to replace an open position")
+    book["positions"][symbol] = {
+        "side": "LONG",
+        "entry_price": round(fill, 6),
+        "qty": qty,
+        "notional_usd": NOTIONAL_USD,
+        "entry_fee_usd": round(entry_fee, 6),
+        "opened_at": opened,
+        "opened_ts": moment.timestamp(),
+        "desk": DESK,
+        "stop_pct": 0.5,
+        "mark_price": price,
+        "chain_experiment_id": state["experiment_id"],
+        "entry_brain": {"chain_experiment_id": state["experiment_id"], "composite": 0.3},
+    }
+    (Path(root) / POSITIONS_REL).write_text(json.dumps(book, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    _append_trade(root, row)
+    state.update({
+        "status": "OPEN",
+        "symbol": symbol,
+        "opened_at": opened,
+        "entry_price": round(fill, 6),
+        "qty": qty,
+        "entry_fee_usd": round(entry_fee, 6),
+        "open_id": trade_id,
+        "reasons": [],
+    })
+    return row
+
+
+def _close_trade(root: Path, state: dict[str, Any], quote: dict[str, Any], moment: datetime) -> dict[str, Any]:
+    price = float(quote["price"])
+    entry = float(state["entry_price"])
+    qty = float(state["qty"])
+    exit_px = price * (1 - SLIP)
+    gross = (exit_px - entry) * qty
+    exit_fee = exit_px * qty * FEE
+    pnl = round(gross - exit_fee - float(state["entry_fee_usd"]), 6)
+    closed = _utc(moment)
+    close_id = state["experiment_id"] + "-close"
+    row = {
+        "ts": closed,
+        "event": "CLOSE",
+        "symbol": state["symbol"],
+        "desk": DESK,
+        "side": "LONG",
+        "paper_only": True,
+        "trade_id": close_id,
+        "chain_experiment_id": state["experiment_id"],
+        "rule_id": RULE_ID,
+        "reason": "TIME_STOP",
+        "quote_price": price,
+        "fill_price": round(exit_px, 6),
+        "entry_price": entry,
+        "qty": qty,
+        "notional_usd": NOTIONAL_USD,
+        "fees_usd": round(exit_fee + float(state["entry_fee_usd"]), 6),
+        "opened_at": state["opened_at"],
+        "closed_at": closed,
+        "realized_pnl_usd": pnl,
+        "source": quote.get("source"),
+        "market_time": quote.get("market_time"),
+        "promoted": False,
+        "applied_to_live_weights": False,
+    }
+    book = _book(root)
+    current = book["positions"].get(state["symbol"])
+    if isinstance(current, dict) and current.get("chain_experiment_id") == state["experiment_id"]:
+        del book["positions"][state["symbol"]]
+        (Path(root) / POSITIONS_REL).write_text(json.dumps(book, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    _append_trade(root, row)
+    state.update({"status": "CLOSED", "closed_at": closed, "close_id": close_id, "realized_pnl_usd": pnl, "reasons": []})
+    return row
+
+
+def _lesson_from_close(root: Path, state: dict[str, Any], close_row: dict[str, Any]) -> dict[str, Any]:
+    from architecture.learning.calibration import brier_score
+    from architecture.learning.mistakes import record_losing_close
+    from architecture.university.learning_loop import append_university_case
+
+    prior_probs: list[float] = []
+    prior_outcomes: list[float] = []
+    path = Path(root) / TRADES_REL
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if DESK not in line or "CLOSE" not in line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if row.get("event") != "CLOSE" or row.get("desk") != DESK:
+                continue
+            if row.get("trade_id") == close_row.get("trade_id"):
+                continue
+            pnl = row.get("realized_pnl_usd")
+            if not isinstance(pnl, (int, float)) or isinstance(pnl, bool):
+                continue
+            brain = row.get("entry_brain") if isinstance(row.get("entry_brain"), dict) else {}
+            raw = brain.get("composite")
+            if not isinstance(raw, (int, float)) or isinstance(raw, bool):
+                continue
+            prior_probs.append(max(0.0, min(1.0, abs(float(raw)))))
+            prior_outcomes.append(1.0 if float(pnl) > 0 else 0.0)
+    before = brier_score(prior_probs, prior_outcomes)
+    prob = 0.3
+    outcome = 1.0 if float(close_row["realized_pnl_usd"]) > 0 else 0.0
+    after = brier_score(prior_probs + [prob], prior_outcomes + [outcome])
+    case = append_university_case(root, close_row)
+    mistake = record_losing_close(
+        root,
+        case_id=str(close_row["trade_id"]),
+        pnl_usd=float(close_row["realized_pnl_usd"]),
+        symbol=str(close_row["symbol"]),
+        desk=DESK,
+        closed_at=str(close_row["closed_at"]),
+    )
+    return {
+        "close_id": close_row["trade_id"],
+        "realized_pnl_usd": close_row["realized_pnl_usd"],
+        "opened_at": close_row.get("opened_at"),
+        "closed_at": close_row.get("closed_at"),
+        "brier_before": None if before is None else round(float(before), 4),
+        "brier_after": None if after is None else round(float(after), 4),
+        "university_case": case.get("outcome"),
+        "mistake_status": mistake.get("status"),
+        "applied_to_live_weights": False,
+    }
+
+
+def _remember(root: Path, state: dict[str, Any]) -> None:
+    try:
+        store = WorldStateStore(root)
+        prev = store.read()
+        traces = dict((prev.get("sections") or {}).get("traces") or {})
+        traces["us_desk_chain"] = {
+            "experiment_id": state.get("experiment_id"),
+            "status": state.get("status"),
+            "reasons": state.get("reasons") or [],
+            "close_id": state.get("close_id"),
+            "opened_at": state.get("opened_at"),
+            "closed_at": state.get("closed_at"),
+            "realized_pnl_usd": state.get("realized_pnl_usd"),
+            "promoted": False,
+            "pid": os.getpid(),
+            "paper_only": True,
+        }
+        store.commit({"traces": traces}, {"traces": "AG-11"})
+    except Exception:
+        pass
+
+
 def run_us_desk_chain(
     root: Path,
     quotes: list[dict[str, Any]] | None = None,
@@ -206,160 +523,211 @@ def run_us_desk_chain(
     moment = now or datetime.now(timezone.utc)
     if moment.tzinfo is None:
         moment = moment.replace(tzinfo=timezone.utc)
-    experiment_id = "exp-us-" + moment.strftime("%Y%m%dT%H%M%SZ")
-    chosen = _pick(list(quotes or []), root)
-    count, mean = _us_mean(root)
-    paper_events = [row for row in (events or []) if row.get("desk") == DESK]
-    paper_kind = "NO_TRADE"
-    if any(row.get("event") == "CLOSE" for row in paper_events):
-        paper_kind = "CLOSE"
-    elif any(row.get("event") == "OPEN" for row in paper_events):
-        paper_kind = "OPEN"
-    messages: list[dict[str, Any]] = []
-    if chosen is None:
-        messages.append(_emit(
+    quote = _cycle_quote(list(quotes or []))
+    state = _load_state(root)
+    if state is None:
+        experiment_id = "exp-us-" + moment.strftime("%Y%m%dT%H%M%SZ")
+        asset = None if quote is None else str(quote["symbol"])
+        source = [] if quote is None else [str(quote.get("source"))]
+        data_ts = quote.get("market_time") if quote and isinstance(quote.get("market_time"), str) else None
+        data = _emit(
             root, role="CORE-DATA", receiver_role="US-01", kind="FACT",
             message_type="DATA_OBSERVATION", step="data", experiment_id=experiment_id,
-            parent=None, asset=None, source_refs=[], data_timestamp=None, confidence=0.2,
-            limitations=["no sourced US equity price was on the cycle or in the stored book"],
-            payload={"verdict": "INSUFFICIENT_EVIDENCE"}, rejected=True, now=moment, seq=1,
-        ))
-        return {"experiment_id": experiment_id, "steps": 0, "rejected": True, "promoted": False, "messages": messages}
-
-    asset = str(chosen["symbol"])
-    source = str(chosen["source"])
-    data_ts = chosen.get("market_time") if isinstance(chosen.get("market_time"), str) else None
-    limits = ["the price is a paper observation"]
-    if chosen.get("stored_mark") is True:
-        limits.append("the price is the stored mark, not a new market print")
-    data = _emit(
-        root, role="CORE-DATA", receiver_role="US-01", kind="FACT",
-        message_type="DATA_OBSERVATION", step="data", experiment_id=experiment_id,
-        parent=None, asset=asset, source_refs=[source], data_timestamp=data_ts,
-        confidence=0.6, limitations=limits,
-        payload={"price": chosen["price"], "verdict": "SOURCED"}, rejected=False, now=moment, seq=1,
-    )
-    messages.append(data)
-    analysis = _emit(
-        root, role="US-01", receiver_role="US-02", kind="INFERENCE",
-        message_type="OPPORTUNITY_CANDIDATE", step="analysis", experiment_id=experiment_id,
-        parent=data["message_id"], asset=asset, source_refs=[data["message_id"]],
-        data_timestamp=data_ts, confidence=0.4,
-        limitations=["a stored mean is not a forecast"],
-        payload={"desk": DESK, "stored_closes": count}, rejected=False, now=moment, seq=2,
-    )
-    messages.append(analysis)
-    hypothesis = _emit(
-        root, role="US-02", receiver_role="UNI-02", kind="HYPOTHESIS",
-        message_type="STRATEGY_HYPOTHESIS", step="hypothesis", experiment_id=experiment_id,
-        parent=analysis["message_id"], asset=asset, source_refs=[analysis["message_id"]],
-        data_timestamp=data_ts, confidence=0.3,
-        limitations=["the hypothesis is not a promotion and not a profit claim"],
-        payload={"statement": "stored US equity closes have a measurable mean", "mean_usd": mean, "n": count},
-        rejected=False, now=moment, seq=3,
-    )
-    messages.append(hypothesis)
-    again, _ = _us_mean(root)
-    experiment = _emit(
-        root, role="UNI-02", receiver_role="RED-01", kind="INFERENCE",
-        message_type="EXPERIMENT_RESULT", step="experiment", experiment_id=experiment_id,
-        parent=hypothesis["message_id"], asset=asset, source_refs=["reports/grok/PAPER/paper_trades.jsonl"],
-        data_timestamp=data_ts, confidence=0.5,
-        limitations=["lookback on stored closes", "not a fresh out-of-sample pass"],
-        payload={"n": count, "mean_usd": mean, "reproduced": again == count, "pass_stats": False},
-        rejected=False, now=moment, seq=4,
-    )
-    messages.append(experiment)
-    red = _emit(
-        root, role="RED-01", receiver_role="JUDGE-01", kind="INFERENCE",
-        message_type="RED_TEAM_FINDING", step="red_team", experiment_id=experiment_id,
-        parent=experiment["message_id"], asset=asset, source_refs=[experiment["message_id"]],
-        data_timestamp=data_ts, confidence=0.7,
-        limitations=["the attack set is the lookahead check and the cost omission check"],
-        payload={"lookahead": False, "cost_omission": False, "verdict": "NO_ATTACK_HIT", "promoted": False},
-        rejected=False, now=moment, seq=5,
-    )
-    messages.append(red)
-    judge = _emit(
-        root, role="JUDGE-01", receiver_role="US-05", kind="INFERENCE",
-        message_type="PROMOTION_DECISION", step="judge", experiment_id=experiment_id,
-        parent=red["message_id"], asset=asset, source_refs=[red["message_id"]],
-        data_timestamp=data_ts, confidence=0.9,
-        limitations=["paper observation is not a promotion"],
-        payload={"verdict": "NO_PROMOTION", "promoted": False},
-        rejected=False, now=moment, seq=6,
-    )
-    messages.append(judge)
-    paper = _emit(
-        root, role="US-05", receiver_role="UNI-01", kind="FACT",
-        message_type="PAPER_TRADE_RESULT" if paper_kind != "NO_TRADE" else "NO_TRADE_DECISION",
-        step="paper", experiment_id=experiment_id, parent=judge["message_id"], asset=asset,
-        source_refs=[judge["message_id"]], data_timestamp=data_ts, confidence=0.8,
-        limitations=["this step does not open a new order"],
-        payload={"cycle_event": paper_kind, "opened_by_this_path": False},
-        rejected=False, now=moment, seq=7,
-    )
-    messages.append(paper)
-    outcome = _emit(
-        root, role="UNI-01", receiver_role="UNI-03", kind="FACT",
-        message_type="PAPER_TRADE_RESULT", step="outcome", experiment_id=experiment_id,
-        parent=paper["message_id"], asset=asset, source_refs=[paper["message_id"]],
-        data_timestamp=data_ts, confidence=0.8,
-        limitations=["the outcome is the cycle event plus the stored mean"],
-        payload={"cycle_event": paper_kind, "stored_n": count, "stored_mean_usd": mean},
-        rejected=False, now=moment, seq=8,
-    )
-    messages.append(outcome)
-    lesson = _emit(
-        root, role="UNI-03", receiver_role="JUDGE-01", kind="INFERENCE",
-        message_type="SYSTEM_HEALTH_REPORT", step="lesson", experiment_id=experiment_id,
-        parent=outcome["message_id"], asset=asset, source_refs=[outcome["message_id"]],
-        data_timestamp=data_ts, confidence=0.6,
-        limitations=["the lesson does not change a live weight"],
-        payload={"lesson": "stored mean is not a pass", "applied_to_live_weights": False},
-        rejected=False, now=moment, seq=9,
-    )
-    messages.append(lesson)
-    future = _utc(moment + timedelta(days=1))
-    bad = _emit(
-        root, role="US-03", receiver_role="RED-02", kind="HYPOTHESIS",
-        message_type="STRATEGY_HYPOTHESIS", step="rejected_hypothesis",
-        experiment_id=experiment_id + "-reject", parent=data["message_id"], asset=asset,
-        source_refs=[data["message_id"]], data_timestamp=future, confidence=0.2,
-        limitations=["the data time is after the decision"],
-        payload={"statement": "a later close is already known"},
-        rejected=False, now=moment, seq=1,
-    )
-    messages.append(bad)
-    _emit(
-        root, role="RED-02", receiver_role="JUDGE-01", kind="INFERENCE",
-        message_type="RED_TEAM_FINDING", step="rejected",
-        experiment_id=experiment_id + "-reject", parent=bad["message_id"], asset=asset,
-        source_refs=[bad["message_id"]], data_timestamp=future, confidence=0.9,
-        limitations=["a future timestamp is leakage"],
-        payload={"verdict": "REJECT", "reason": "LOOKAHEAD"},
-        rejected=True, now=moment, seq=2,
-    )
-    try:
-        store = WorldStateStore(root)
-        prev = store.read()
-        traces = dict((prev.get("sections") or {}).get("traces") or {})
-        traces["us_desk_chain"] = {
+            parent=None, asset=asset, source_refs=source, data_timestamp=data_ts,
+            confidence=0.6 if quote else 0.2,
+            limitations=["a stored mark is not an entry quote"],
+            payload={"verdict": "SOURCED" if quote else "NO_SOURCED_PRICE", "price": None if quote is None else quote["price"]},
+            rejected=quote is None, now=moment, seq=1,
+        )
+        analysis = _emit(
+            root, role="US-01", receiver_role="US-02", kind="INFERENCE",
+            message_type="OPPORTUNITY_CANDIDATE", step="analysis", experiment_id=experiment_id,
+            parent=data["message_id"], asset=asset, source_refs=[data["message_id"]],
+            data_timestamp=data_ts, confidence=0.4,
+            limitations=["the rule is pre-registered and is not a forecast"],
+            payload={"rule_id": RULE_ID}, rejected=False, now=moment, seq=2,
+        )
+        hypothesis = _emit(
+            root, role="US-02", receiver_role="UNI-02", kind="HYPOTHESIS",
+            message_type="STRATEGY_HYPOTHESIS", step="hypothesis", experiment_id=experiment_id,
+            parent=analysis["message_id"], asset=asset, source_refs=[analysis["message_id"]],
+            data_timestamp=data_ts, confidence=0.3,
+            limitations=["one tiny paper round trip, and only if the rule matches"],
+            payload={"statement": "a fresh NYSE session can hold one one-dollar long", "rule_id": RULE_ID},
+            rejected=False, now=moment, seq=3,
+        )
+        experiment = _emit(
+            root, role="UNI-02", receiver_role="RED-01", kind="INFERENCE",
+            message_type="EXPERIMENT_RESULT", step="experiment", experiment_id=experiment_id,
+            parent=hypothesis["message_id"], asset=asset, source_refs=[RULE_ID],
+            data_timestamp=data_ts, confidence=0.5,
+            limitations=["the exit is a later time stop, not this same call"],
+            payload={
+                "rule_id": RULE_ID, "notional_usd": NOTIONAL_USD, "exit_after_s": EXIT_AFTER_S,
+                "pass_stats": False, "promoted": False,
+            },
+            rejected=False, now=moment, seq=4,
+        )
+        red = _emit(
+            root, role="RED-01", receiver_role="JUDGE-01", kind="INFERENCE",
+            message_type="RED_TEAM_FINDING", step="red_team", experiment_id=experiment_id,
+            parent=experiment["message_id"], asset=asset, source_refs=[experiment["message_id"]],
+            data_timestamp=data_ts, confidence=0.7,
+            limitations=["a future price is not an entry"],
+            payload={"lookahead": False, "verdict": "NO_ATTACK_HIT", "promoted": False},
+            rejected=False, now=moment, seq=5,
+        )
+        reasons = _blockers(root, quote, moment, None)
+        judge = _emit(
+            root, role="JUDGE-01", receiver_role="US-05", kind="INFERENCE",
+            message_type="PROMOTION_DECISION", step="judge", experiment_id=experiment_id,
+            parent=red["message_id"], asset=asset, source_refs=[red["message_id"]],
+            data_timestamp=data_ts, confidence=0.9,
+            limitations=["a paper entry is not a promotion"],
+            payload={"verdict": "NO_PROMOTION", "paper_entry": "ALLOWED" if not reasons else "WAITING", "reasons": reasons},
+            rejected=False, now=moment, seq=6,
+        )
+        future = _utc(moment + timedelta(days=1))
+        bad = _emit(
+            root, role="US-03", receiver_role="RED-02", kind="HYPOTHESIS",
+            message_type="STRATEGY_HYPOTHESIS", step="rejected_hypothesis",
+            experiment_id=experiment_id + "-reject", parent=data["message_id"], asset=asset,
+            source_refs=[data["message_id"]], data_timestamp=future, confidence=0.2,
+            limitations=["the data time is after the decision"],
+            payload={"statement": "a later close is already known"},
+            rejected=False, now=moment, seq=1,
+        )
+        _emit(
+            root, role="RED-02", receiver_role="JUDGE-01", kind="INFERENCE",
+            message_type="RED_TEAM_FINDING", step="rejected",
+            experiment_id=experiment_id + "-reject", parent=bad["message_id"], asset=asset,
+            source_refs=[bad["message_id"]], data_timestamp=future, confidence=0.9,
+            limitations=["a future timestamp is leakage"],
+            payload={"verdict": "REJECT", "reason": "LOOKAHEAD"},
+            rejected=True, now=moment, seq=2,
+        )
+        state = {
             "experiment_id": experiment_id,
-            "steps": 9,
-            "rejected_experiment": experiment_id + "-reject",
+            "status": "WAITING",
+            "judge_id": judge["message_id"],
+            "seq": 7,
+            "reasons": reasons,
             "promoted": False,
+            "rule_id": RULE_ID,
             "pid": os.getpid(),
-            "paper_only": True,
         }
-        store.commit({"traces": traces}, {"traces": "AG-11"})
-    except Exception:
-        pass
-    return {
-        "experiment_id": experiment_id,
-        "steps": 9,
-        "rejected": True,
-        "promoted": False,
-        "asset": asset,
-        "messages": messages,
-    }
+        if not reasons and quote is not None:
+            opened = _open_trade(root, state, quote, moment)
+            _emit(
+                root, role="US-05", receiver_role="UNI-01", kind="FACT",
+                message_type="PAPER_TRADE_RESULT", step="paper", experiment_id=experiment_id,
+                parent=judge["message_id"], asset=asset, source_refs=[opened["trade_id"]],
+                data_timestamp=data_ts, confidence=0.8,
+                limitations=["the exit is still in the future"],
+                payload={"trade_id": opened["trade_id"], "opened_at": state["opened_at"], "notional_usd": NOTIONAL_USD},
+                rejected=False, now=moment, seq=7,
+            )
+            state["seq"] = 8
+        else:
+            _emit(
+                root, role="US-05", receiver_role="UNI-01", kind="FACT",
+                message_type="NO_TRADE_DECISION", step="no_setup", experiment_id=experiment_id,
+                parent=judge["message_id"], asset=asset, source_refs=[judge["message_id"]],
+                data_timestamp=data_ts, confidence=0.8,
+                limitations=["no order was opened"],
+                payload={"verdict": "NO_SETUP", "reasons": reasons},
+                rejected=False, now=moment, seq=7,
+            )
+            state["seq"] = 8
+        _save_state(root, state)
+        _remember(root, state)
+        return {"experiment_id": experiment_id, "status": state["status"], "reasons": reasons, "promoted": False}
+
+    if state.get("status") == "CLOSED":
+        return {"experiment_id": state.get("experiment_id"), "status": "CLOSED", "promoted": False, "close_id": state.get("close_id")}
+
+    experiment_id = str(state["experiment_id"])
+    asset = None if quote is None else str(quote["symbol"])
+    data_ts = quote.get("market_time") if quote and isinstance(quote.get("market_time"), str) else None
+    if state.get("status") == "OPEN":
+        found = _find_close(root, experiment_id)
+        held = 0.0
+        if state.get("opened_at"):
+            opened_at = datetime.fromisoformat(str(state["opened_at"]).replace("Z", "+00:00"))
+            held = (moment - opened_at).total_seconds()
+        exit_quote_ok = quote is not None and str(quote.get("symbol")) == state.get("symbol") and "QUOTE_STALE" not in _blockers(root, quote, moment, state.get("symbol"))
+        if found is None and held >= EXIT_AFTER_S and exit_quote_ok and quote is not None:
+            found = _close_trade(root, state, quote, moment)
+        if found is None:
+            state["reasons"] = ["WAITING_FOR_EXIT"]
+            _save_state(root, state)
+            _remember(root, state)
+            return {"experiment_id": experiment_id, "status": "OPEN", "reasons": ["WAITING_FOR_EXIT"], "promoted": False}
+        if str(found.get("closed_at") or "") <= str(found.get("opened_at") or state.get("opened_at") or ""):
+            state["reasons"] = ["CLOSE_NOT_LATER_THAN_ENTRY"]
+            _save_state(root, state)
+            return {"experiment_id": experiment_id, "status": "OPEN", "reasons": state["reasons"], "promoted": False}
+        lesson = _lesson_from_close(root, state, found)
+        seq = int(state.get("seq") or 8)
+        outcome = _emit(
+            root, role="UNI-01", receiver_role="UNI-03", kind="FACT",
+            message_type="PAPER_TRADE_RESULT", step="outcome", experiment_id=experiment_id,
+            parent=state.get("judge_id"), asset=str(found.get("symbol")), source_refs=[str(found.get("trade_id"))],
+            data_timestamp=data_ts, confidence=0.9,
+            limitations=["the close is the ledger row, after costs"],
+            payload={
+                "close_id": found.get("trade_id"),
+                "realized_pnl_usd": found.get("realized_pnl_usd"),
+                "opened_at": found.get("opened_at") or state.get("opened_at"),
+                "closed_at": found.get("closed_at"),
+            },
+            rejected=False, now=moment, seq=seq,
+        )
+        _emit(
+            root, role="UNI-03", receiver_role="JUDGE-01", kind="INFERENCE",
+            message_type="SYSTEM_HEALTH_REPORT", step="lesson", experiment_id=experiment_id,
+            parent=outcome["message_id"], asset=str(found.get("symbol")), source_refs=[str(found.get("trade_id"))],
+            data_timestamp=data_ts, confidence=0.7,
+            limitations=["the lesson does not change a live weight"],
+            payload=lesson, rejected=False, now=moment, seq=seq + 1,
+        )
+        state["status"] = "CLOSED"
+        state["close_id"] = found.get("trade_id")
+        state["closed_at"] = found.get("closed_at")
+        state["opened_at"] = found.get("opened_at") or state.get("opened_at")
+        state["realized_pnl_usd"] = found.get("realized_pnl_usd")
+        state["reasons"] = []
+        state["promoted"] = False
+        _save_state(root, state)
+        _remember(root, state)
+        return {"experiment_id": experiment_id, "status": "CLOSED", "close_id": state["close_id"], "promoted": False, "lesson": lesson}
+
+    reasons = _blockers(root, quote, moment, None)
+    seq = int(state.get("seq") or 7)
+    _emit(
+        root, role="US-05", receiver_role="UNI-01", kind="FACT",
+        message_type="NO_TRADE_DECISION", step="no_setup", experiment_id=experiment_id,
+        parent=state.get("judge_id"), asset=asset, source_refs=[str(state.get("judge_id"))],
+        data_timestamp=data_ts, confidence=0.8,
+        limitations=["no order was opened"],
+        payload={"verdict": "NO_SETUP", "reasons": reasons},
+        rejected=False, now=moment, seq=seq,
+    )
+    state["seq"] = seq + 1
+    state["reasons"] = reasons
+    state["pid"] = os.getpid()
+    if not reasons and quote is not None:
+        opened = _open_trade(root, state, quote, moment)
+        _emit(
+            root, role="US-05", receiver_role="UNI-01", kind="FACT",
+            message_type="PAPER_TRADE_RESULT", step="paper", experiment_id=experiment_id,
+            parent=state.get("judge_id"), asset=asset, source_refs=[opened["trade_id"]],
+            data_timestamp=data_ts, confidence=0.8,
+            limitations=["the exit is still in the future"],
+            payload={"trade_id": opened["trade_id"], "opened_at": state["opened_at"], "notional_usd": NOTIONAL_USD},
+            rejected=False, now=moment, seq=state["seq"],
+        )
+        state["seq"] += 1
+    _save_state(root, state)
+    _remember(root, state)
+    return {"experiment_id": experiment_id, "status": state["status"], "reasons": state.get("reasons") or [], "promoted": False}

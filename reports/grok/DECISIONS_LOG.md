@@ -669,3 +669,19 @@
 **Choice:** No. Free RAM at the first look was 608.8 MB, under 1228.8 MB, so nothing was installed then. A later check before scipy was 1594.6 MB and before statsmodels was 1469.6 MB, so those two packages were installed into the G: virtualenv, one at a time. Torch and tensorflow were not installed. The calculation ran in separate processes, scipy pid 15720 and statsmodels pid 16816, each peaking at 197.5 MB, then exited. Soak 2356, trader 5472, and listener 14040 were not restarted. The US desk has 5 closes, so both the current function and scipy leave DSR and PBO empty. The stored whole-book DSR 0.0047 and PBO 0.2286 stay the book figures. The current US Brier is 0.4328. The statsmodels figure 0.16 is an in-sample base rate on those 5 closes, not a holdout and not a weight change. Judge stays NO_PROMOTION.
 
 **Reason:** A library inside the trader would sit in the same process as the paper book. Five closes cannot support the existing DSR rule, and a base-rate score is not a better forecast.
+
+## 2026-11-01: The 24-hour health window is only partly elapsed
+
+**Question:** Should the soak, the trader, or the listener be restarted so a 24-hour health table can be collected, or should the short log since 2026-11-01T04:58:28Z be treated as a finished proof?
+
+**Choice:** No restart. The running pids stayed soak 2356, trader 5472, and listener 14040. At 2026-11-01T05:35:09Z the window was 0.611 hours old, so no two-hour slot had closed and the 24-hour proof is not complete. The report records the six shadow ticks those pids had written, 43 of 43 bus senders, 11 of 11 modules on every tick, 0 new paper closes, 0 soak failures, and no stalled module. Free RAM was 1172.5 MB of the machine total. Nothing was promoted.
+
+**Reason:** A restart would throw away the clock this check is supposed to watch. A log that covers less than an hour is not a 24-hour result.
+
+## 2026-11-01: Do not invent a US equity round trip on a closed session
+
+**Question:** Should the US equity charter path open a paper position while NYSE is closed, the quote is stale, and SPX, QQQ, and NDX are already open?
+
+**Choice:** No. The trader was replaced by pid 6900 so it would load the waiting rule. Soak 2356 and listener 14040 stayed up. The soak window stayed 2026-11-01T04:58:28Z. At 2026-11-01T08:00:53Z the new process recorded NO_SETUP with SESSION_CLOSED, QUOTE_STALE, and POSITION_ALREADY_OPEN. No chain order was appended. Judge stayed NO_PROMOTION. A fixture with an open Monday session still has to wait out the time stop before it writes a later close. Free RAM was 1342.7 MB of 8116 MB.
+
+**Reason:** A same-second outcome with no fill is not a trade. A closed session and an occupied symbol are not a setup.
