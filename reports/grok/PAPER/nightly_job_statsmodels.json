@@ -1,0 +1,11 @@
+{
+ "package": "statsmodels",
+ "status": "COMPUTED",
+ "reason": "INSUFFICIENT_HOLDOUT",
+ "n": 5,
+ "brier": 0.16,
+ "brier_kind": "in_sample_base_rate",
+ "pid": 16816,
+ "peak_ram_mb": 197.5,
+ "promoted": false
+}

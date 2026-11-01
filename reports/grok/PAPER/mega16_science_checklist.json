@@ -1,0 +1,36 @@
+{
+  "schema": "ahos.mega16_science_checklist.v1",
+  "paper_only": true,
+  "promoted": false,
+  "judge": "NO_PROMOTION",
+  "red_team": "NOT_A_PASS",
+  "desk": "US_EQUITIES",
+  "installs": [
+    {"package": "scipy", "version": "1.17.1", "action": "INSTALL", "ram_before_mb": 1594.6, "ram_after_mb": 1469.6},
+    {"package": "statsmodels", "version": "0.15.0", "action": "INSTALL", "ram_before_mb": 1469.6, "ram_after_mb": 1567.9, "dependencies": ["patsy", "formulaic", "interface-meta", "narwhals", "wrapt"]}
+  ],
+  "refused": ["torch", "tensorflow"],
+  "first_ram_check_mb": 608.8,
+  "jobs": [
+    {"package": "scipy", "pid": 15720, "peak_ram_mb": 197.5, "status": "COMPUTED", "reason": "INSUFFICIENT_N"},
+    {"package": "statsmodels", "pid": 16816, "peak_ram_mb": 197.5, "status": "COMPUTED", "reason": "INSUFFICIENT_HOLDOUT"}
+  ],
+  "parent_pid": 16828,
+  "comparison": {
+    "whole_book_dsr": 0.0047,
+    "whole_book_pbo": 0.2286,
+    "us_current_dsr": null,
+    "us_scipy_dsr": null,
+    "us_current_pbo": null,
+    "us_scipy_pbo": null,
+    "us_current_brier": 0.4328,
+    "us_statsmodels_brier": 0.16,
+    "us_statsmodels_brier_kind": "in_sample_base_rate",
+    "us_n": 5
+  },
+  "pids_left_running": {"soak": 2356, "trader": 5472, "listener": 14040},
+  "free_ram_mb_after": 1567.2,
+  "lane_a": "OK_36",
+  "digest_line": "محاسبهٔ آماری میز آمریکا در کار شبانه نوشته شد و به وزن زنده نرسید",
+  "decides": false
+}

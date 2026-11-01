@@ -1,0 +1,13 @@
+{
+ "package": "scipy",
+ "status": "COMPUTED",
+ "reason": "INSUFFICIENT_N",
+ "n": 5,
+ "deflated_sharpe": null,
+ "pbo": null,
+ "current_deflated_sharpe": null,
+ "current_pbo": null,
+ "pid": 15720,
+ "peak_ram_mb": 197.5,
+ "promoted": false
+}

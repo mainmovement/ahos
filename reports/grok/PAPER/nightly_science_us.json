@@ -1,0 +1,90 @@
+{
+ "schema": "ahos.nightly_science_us.v1",
+ "paper_only": true,
+ "desk": "US_EQUITIES",
+ "promoted": false,
+ "applied_to_live_weights": false,
+ "judge": "NO_PROMOTION",
+ "red_team": "NOT_A_PASS",
+ "red_team_reason": "LOOKBACK_ON_STORED_CLOSES",
+ "libs_used": true,
+ "installs": [
+  {
+   "package": "scipy",
+   "action": "INSTALL",
+   "ram_before_mb": 1594.6,
+   "reason": "FREE_RAM_OK",
+   "ram_after_mb": 1469.6,
+   "installed": true,
+   "pip_exit": 0
+  },
+  {
+   "package": "statsmodels",
+   "action": "INSTALL",
+   "ram_before_mb": 1469.6,
+   "reason": "FREE_RAM_OK",
+   "ram_after_mb": 1567.9,
+   "installed": true,
+   "pip_exit": 0
+  }
+ ],
+ "jobs": [
+  {
+   "package": "scipy",
+   "status": "COMPUTED",
+   "reason": "INSUFFICIENT_N",
+   "n": 5,
+   "deflated_sharpe": null,
+   "pbo": null,
+   "current_deflated_sharpe": null,
+   "current_pbo": null,
+   "pid": 15720,
+   "peak_ram_mb": 197.5,
+   "promoted": false
+  },
+  {
+   "package": "statsmodels",
+   "status": "COMPUTED",
+   "reason": "INSUFFICIENT_HOLDOUT",
+   "n": 5,
+   "brier": 0.16,
+   "brier_kind": "in_sample_base_rate",
+   "pid": 16816,
+   "peak_ram_mb": 197.5,
+   "promoted": false
+  }
+ ],
+ "current_file": {
+  "book_scope": "ALL_DESKS",
+  "deflated_sharpe": 0.0047,
+  "pbo": 0.2286,
+  "us_brier": 0.4328,
+  "us_brier_n": 5,
+  "us_oos_brier": 0.5269,
+  "applied_to_entry": false
+ },
+ "current_us_method": {
+  "n": 5,
+  "deflated_sharpe": null,
+  "pbo": null,
+  "brier": 0.4328,
+  "brier_n": 5,
+  "dsr_reason": "INSUFFICIENT_N",
+  "pbo_reason": "INSUFFICIENT_N",
+  "method": "closed_book_equations_and_brier_score",
+  "promoted": false
+ },
+ "new_us": {
+  "deflated_sharpe": null,
+  "pbo": null,
+  "brier": 0.16,
+  "scipy_status": "COMPUTED",
+  "scipy_reason": "INSUFFICIENT_N",
+  "statsmodels_status": "COMPUTED",
+  "statsmodels_reason": "INSUFFICIENT_HOLDOUT"
+ },
+ "pid": 16828,
+ "decides": false,
+ "parent_pid": 16828,
+ "negahban": "PASS"
+}

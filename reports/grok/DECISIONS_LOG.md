@@ -661,3 +661,11 @@
 **Choice:** No new agent and no restart of soak 2356 or listener 14040. The charter stays a design proposal. Trader 17088 was replaced by 5472 because that process had loaded the previous code and could not emit the path. The soak window start stayed 2026-11-01T04:58:28Z. The path is nine charter messages on existing agents, plus one lookahead hypothesis rejected by RED-02. The paper step is NO_TRADE. Promotion stayed false. Free RAM was 1548.4 MB of 8116 MB, so the science libraries were not installed.
 
 **Reason:** A long-running trader does not see a file written after it started. Stopping the soak would open a new window that this path does not need.
+
+## 2026-11-01: Light science libraries stay outside the paper cycle
+
+**Question:** Should scipy and statsmodels be installed into the running trader, and should the US equity desk treat a new DSR as a promotion?
+
+**Choice:** No. Free RAM at the first look was 608.8 MB, under 1228.8 MB, so nothing was installed then. A later check before scipy was 1594.6 MB and before statsmodels was 1469.6 MB, so those two packages were installed into the G: virtualenv, one at a time. Torch and tensorflow were not installed. The calculation ran in separate processes, scipy pid 15720 and statsmodels pid 16816, each peaking at 197.5 MB, then exited. Soak 2356, trader 5472, and listener 14040 were not restarted. The US desk has 5 closes, so both the current function and scipy leave DSR and PBO empty. The stored whole-book DSR 0.0047 and PBO 0.2286 stay the book figures. The current US Brier is 0.4328. The statsmodels figure 0.16 is an in-sample base rate on those 5 closes, not a holdout and not a weight change. Judge stays NO_PROMOTION.
+
+**Reason:** A library inside the trader would sit in the same process as the paper book. Five closes cannot support the existing DSR rule, and a base-rate score is not a better forecast.

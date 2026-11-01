@@ -72,6 +72,10 @@
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
   {
+   "id": "nightly_science_us",
+   "change": "Show the nightly US equity DSR, PBO and Brier beside the current values. Do not paint a skipped library or a small sample as a promotion."
+  },
+  {
    "id": "us_desk_path",
    "change": "Show the nine-step US equity charter path and the rejected lookahead hypothesis. Do not paint NO_PROMOTION as a pass and do not paint the other desks as built."
   },
