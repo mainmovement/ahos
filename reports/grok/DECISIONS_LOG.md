@@ -709,3 +709,11 @@
 **Choice:** No. Free RAM was 1727.6 MB, so the config change proceeded. On-chain, nasdaq futures, Europe, and Asia were added only in config/desk_chains.json. The cap is 0.15 USD and the pause file was not edited. At 2026-11-01T08:50:48Z the on-chain desk recorded POSITION_ALREADY_OPEN on UNI. Nasdaq, Europe, and Asia recorded SESSION_CLOSED. Gold and oil stayed on their earlier waiting state and the same code path opens a ticket only after the venue is open. The next Globex open is 2026-11-02 02:30 Tehran. Soak 2356, trader 15668, and listener 14040 stayed up. Nothing was promoted.
 
 **Reason:** An occupied symbol and a closed session are not a setup. Closing UNI to free a slot would be a forced trade.
+
+## 2026-11-01: The central brain may rank and veto only
+
+**Question:** Should the new brain raise a desk weight, or clear a pause, so that one of the eight desks gets a ticket on a closed Sunday?
+
+**Choice:** No. Free RAM was 1349.5 MB. BRAIN-01 is a small rank-and-veto module on AG-01. The cap is one paper ticket. It does not write weights and it does not touch the live switch. Trader 15668 was replaced by 13256 so the module would load. Soak 2356 and listener 14040 stayed up. At 2026-11-01T09:04:22Z the running trader called it once. The rank had no allowable ticket. The no-trade example was GOLD with SESSION_CLOSED. Oil stayed paused. The empty support roles were mapped onto existing agents. SEC-01 stays INSUFFICIENT_EVIDENCE. Nothing was promoted.
+
+**Reason:** A rank is an ordering, not permission to loosen a pause or to trade through a closed session.

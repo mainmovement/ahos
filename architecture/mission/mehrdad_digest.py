@@ -257,6 +257,8 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
     nasdaq_line = desk_line(root, "NQ")
     europe_line = desk_line(root, "EU_EQUITY")
     asia_line = desk_line(root, "ASIA_EQUITY")
+    from architecture.mission.brain01 import brain_line
+    central_line = brain_line(root)
     science_digest = science_line(root)
     return "\n".join([
         f"مهراد جان، {_greeting(moment)}.",
@@ -286,6 +288,7 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
         nasdaq_line,
         europe_line,
         asia_line,
+        central_line,
         science_digest,
         "فرمان گفتگو فقط گزارش و توقف ورود کاغذی را می‌پذیرد و پول واقعی از آنجا عوض نمی‌شود.",
         _helping(root),

@@ -72,6 +72,10 @@
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
   {
+   "id": "brain01_rank",
+   "change": "Show the central brain rank and the no-trade reason. Do not paint a veto or a zero-ticket rank as a promotion."
+  },
+  {
    "id": "session_desks",
    "change": "Show on-chain, nasdaq, Europe, and Asia chain rows. A closed session or an occupied token stays no-setup. Do not paint the next open as a fill."
   },

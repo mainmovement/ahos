@@ -110,7 +110,23 @@
   "SEC-05": "AG-09",
   "UNI-05": "AG-41",
   "RDI-02": "AG-35",
-  "RED-05": "AG-22"
+  "RED-05": "AG-22",
+  "NEWS-02": "AG-29",
+  "NEWS-03": "AG-04",
+  "NEWS-04": "AG-10",
+  "NEWS-05": "AG-13",
+  "SEC-01": "AG-43",
+  "SEC-02": "AG-39",
+  "SEC-03": "AG-07",
+  "SEC-04": "AG-06",
+  "RED-03": "AG-24",
+  "RED-04": "AG-27",
+  "UNI-04": "AG-18",
+  "RDI-01": "AG-03",
+  "RDI-03": "AG-02",
+  "RDI-04": "AG-36",
+  "RDI-05": "AG-37",
+  "BRAIN-01": "AG-01"
  },
  "filled": [
   "ASIA-01",
@@ -163,9 +179,7 @@
   "US-02",
   "US-03",
   "US-04",
-  "US-05"
- ],
- "empty": [
+  "US-05",
   "NEWS-02",
   "NEWS-03",
   "NEWS-04",
@@ -183,7 +197,8 @@
   "RDI-05",
   "BRAIN-01"
  ],
- "filled_count": 51,
- "empty_count": 16,
+ "empty": [],
+ "filled_count": 67,
+ "empty_count": 0,
  "role_count": 67
 }

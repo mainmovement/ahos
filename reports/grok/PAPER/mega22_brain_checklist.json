@@ -1,0 +1,58 @@
+{
+  "schema": "ahos.mega22_brain.v1",
+  "paper_only": true,
+  "promoted": false,
+  "applied_to_live_weights": false,
+  "live_switch": "UNTOUCHED",
+  "free_ram_before_mb": 1349.5,
+  "free_ram_after_mb": 2024.7,
+  "total_ram_mb": 8116,
+  "n_tickets": 1,
+  "calls": 1,
+  "pid": 13256,
+  "ranked": 0,
+  "rejected": 8,
+  "verdict": "NO_TRADE",
+  "examples": {
+    "rank": {
+      "message_id": "brain-20261101T090422Z-01-rank",
+      "at": "2026-11-01T09:04:22Z",
+      "verdict": "NO_CANDIDATE"
+    },
+    "no_trade": {
+      "message_id": "brain-20261101T090422Z-02-no_trade",
+      "at": "2026-11-01T09:04:22Z",
+      "desk": "GOLD",
+      "reasons": ["SESSION_CLOSED"]
+    },
+    "pause_veto": {
+      "desk": "OIL",
+      "reasons": ["DESK_EXPECTANCY_PAUSE", "SESSION_CLOSED", "CORRELATED_BOOK"]
+    }
+  },
+  "roles": {
+    "BRAIN-01": "AG-01",
+    "NEWS-02": "AG-29",
+    "NEWS-03": "AG-04",
+    "NEWS-04": "AG-10",
+    "NEWS-05": "AG-13",
+    "SEC-01": "AG-43",
+    "SEC-02": "AG-39",
+    "SEC-03": "AG-07",
+    "SEC-04": "AG-06",
+    "RED-03": "AG-24",
+    "RED-04": "AG-27",
+    "UNI-04": "AG-18",
+    "RDI-01": "AG-03",
+    "RDI-03": "AG-02",
+    "RDI-04": "AG-36",
+    "RDI-05": "AG-37"
+  },
+  "sec01": "INSUFFICIENT_EVIDENCE",
+  "org_map": {"filled": 67, "empty": 0, "roles": 67},
+  "empty_roles": [],
+  "pids": {"soak": 2356, "trader_before": 15668, "trader": 13256, "listener": 14040},
+  "digest_line": "مغز مرکزی: ۰ بلیت رتبه‌بندی شد، ۸ رد شد",
+  "lane_a": "OK_36",
+  "decides": false
+}

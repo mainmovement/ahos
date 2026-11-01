@@ -1272,8 +1272,10 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     except Exception:
         pass
     try:
+        from architecture.mission.brain01 import run_brain
         from architecture.mission.desk_chain_template import run_configured_chains
 
+        run_brain(root)
         run_configured_chains(root, quotes)
     except Exception:
         pass

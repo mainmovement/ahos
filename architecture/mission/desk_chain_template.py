@@ -452,6 +452,12 @@ def _remember(root: Path, cfg: dict[str, Any], state: dict[str, Any]) -> None:
         pass
 
 
+def _brain_allows(root: Path, cfg: dict[str, Any]) -> bool:
+    from architecture.mission.brain01 import ticket_allowed
+
+    return ticket_allowed(root, str(cfg.get("desk") or ""))
+
+
 def _prepare(cfg: dict[str, Any], desk: str) -> dict[str, Any]:
     ready = dict(cfg)
     ready["desk"] = desk
@@ -549,6 +555,9 @@ def run_desk_chain(root: Path, cfg: dict[str, Any], quotes: list[dict[str, Any]]
             "rule_id": cfg["rule_id"],
             "pid": os.getpid(),
         }
+        if not reasons and quote is not None and not _brain_allows(root, cfg):
+            reasons = ["BRAIN_VETO"]
+            state["reasons"] = reasons
         if not reasons and quote is not None:
             opened = _open_trade(root, cfg, state, quote, moment)
             _emit(
@@ -626,6 +635,8 @@ def run_desk_chain(root: Path, cfg: dict[str, Any], quotes: list[dict[str, Any]]
         _remember(root, cfg, state)
         return {"experiment_id": experiment_id, "status": "CLOSED", "close_id": state["close_id"], "promoted": False, "lesson": lesson, "desk": cfg["desk"]}
 
+    if not reasons and quote is not None and not _brain_allows(root, cfg):
+        reasons = ["BRAIN_VETO"]
     seq = int(state.get("seq") or 8)
     _emit(
         root, cfg, step="no_setup", receiver_step="outcome", kind="FACT", message_type="NO_TRADE_DECISION",
