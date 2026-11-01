@@ -1271,4 +1271,22 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
         shadow_tick(root, cycle_id=(status.get("last_cycle") or {}).get("closes"), source="paper_trader")
     except Exception:
         pass
+    try:
+        from architecture.mission.us_desk_chain import run_us_desk_chain
+
+        run_us_desk_chain(
+            root,
+            [
+                {
+                    "symbol": sym,
+                    "price": (quotes.get(sym) or {}).get("price"),
+                    "source": (quotes.get(sym) or {}).get("source"),
+                    "market_time": (quotes.get(sym) or {}).get("market_time") or (quotes.get(sym) or {}).get("source_timestamp"),
+                }
+                for sym in ("SPX", "QQQ", "NDX")
+            ],
+            [row for row in events if row.get("desk") == "US_EQUITIES"],
+        )
+    except Exception:
+        pass
     return status

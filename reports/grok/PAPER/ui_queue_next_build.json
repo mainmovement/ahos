@@ -72,6 +72,10 @@
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
   {
+   "id": "us_desk_path",
+   "change": "Show the nine-step US equity charter path and the rejected lookahead hypothesis. Do not paint NO_PROMOTION as a pass and do not paint the other desks as built."
+  },
+  {
    "id": "mega14_data_gaps",
    "change": "Show the free-data table as ready or unavailable. Show the path sidecar and the spread sampler as estimates. Do not paint a strategy as promoted."
   }

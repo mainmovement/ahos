@@ -653,3 +653,11 @@
 **Choice:** Yes. The last cycle of that window was 2026-11-01T04:46:31Z, 76.017 hours after the start, with 162 cycles ok and 0 failed. The certificate is `reports/grok/M13_SOAK/soak_window_certificate.json`. Soak 14260, trader 13020, and listener 15472 were stopped. The status file was archived so the next process would not keep that window. The autostart command then started soak 2356, trader 17088, and listener 14040. The new window start is 2026-11-01T04:58:28Z. Task Scheduler returned access denied, so the same command was registered under the current user Run key and the Startup folder, then executed once. No reboot was performed, so OP-3 is not a reboot proof. Free RAM was 1772.8 MB of 8116 MB, under 2048 MB, so the science libraries were not installed. Nothing was promoted.
 
 **Reason:** The deadline had passed and the stored window was still the one that started on 29 October. A restart before that certificate would have thrown the clock away. A scheduler denial is not a successful task registration.
+
+## 2026-11-01: One US equity desk path on the running cycle
+
+**Question:** Should the charter's 67 roles become new agents, and should soak 2356 or listener 14040 restart so the US equity path can be logged?
+
+**Choice:** No new agent and no restart of soak 2356 or listener 14040. The charter stays a design proposal. Trader 17088 was replaced by 5472 because that process had loaded the previous code and could not emit the path. The soak window start stayed 2026-11-01T04:58:28Z. The path is nine charter messages on existing agents, plus one lookahead hypothesis rejected by RED-02. The paper step is NO_TRADE. Promotion stayed false. Free RAM was 1548.4 MB of 8116 MB, so the science libraries were not installed.
+
+**Reason:** A long-running trader does not see a file written after it started. Stopping the soak would open a new window that this path does not need.

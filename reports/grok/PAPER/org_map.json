@@ -1,0 +1,158 @@
+{
+ "schema": "ahos.org_map.v1",
+ "charter": "design proposal, not a built organization",
+ "roles": 67,
+ "paper_only": true,
+ "promoted": false,
+ "core_roles": {
+  "identity_data_validator": {
+   "agent": "AG-21",
+   "on_path": true
+  },
+  "statistician": {
+   "charter": "UNI-02",
+   "agent": "AG-03",
+   "on_path": true
+  },
+  "overfit_hunter": {
+   "charter": "RED-01",
+   "agent": "AG-14",
+   "on_path": true
+  },
+  "leakage_auditor": {
+   "charter": "RED-02",
+   "agent": "AG-19",
+   "on_path": true
+  },
+  "reproducibility_auditor": {
+   "charter": "RED-05",
+   "agent": "AG-22",
+   "on_path": false
+  },
+  "UNI-01": {
+   "agent": "AG-42",
+   "on_path": true
+  },
+  "UNI-03": {
+   "agent": "AG-40",
+   "on_path": true
+  },
+  "JUDGE-01": {
+   "agent": "AG-11",
+   "on_path": true
+  },
+  "BRAIN-01": {
+   "agent": "AG-01",
+   "on_path": false,
+   "note": "registry seat, not implemented"
+  }
+ },
+ "us_equity": {
+  "built": true,
+  "US-01": {
+   "agent": "AG-05",
+   "on_path": true
+  },
+  "US-02": {
+   "agent": "AG-29",
+   "on_path": true
+  },
+  "US-03": {
+   "agent": "AG-33",
+   "on_path": true
+  },
+  "US-04": {
+   "agent": "AG-08",
+   "on_path": false
+  },
+  "US-05": {
+   "agent": "AG-16",
+   "on_path": true
+  }
+ },
+ "mapping_only": {
+  "GOLD-01": "AG-28",
+  "EU-01": "AG-30",
+  "ASIA-01": "AG-31",
+  "ONCHAIN-01": "AG-06",
+  "NEWS-01": "AG-33",
+  "SEC-05": "AG-09",
+  "UNI-05": "AG-41",
+  "RDI-02": "AG-35",
+  "RED-05": "AG-22"
+ },
+ "filled": [
+  "ASIA-01",
+  "EU-01",
+  "GOLD-01",
+  "JUDGE-01",
+  "NEWS-01",
+  "ONCHAIN-01",
+  "RDI-02",
+  "RED-01",
+  "RED-02",
+  "RED-05",
+  "SEC-05",
+  "UNI-01",
+  "UNI-02",
+  "UNI-03",
+  "UNI-05",
+  "US-01",
+  "US-02",
+  "US-03",
+  "US-04",
+  "US-05"
+ ],
+ "empty": [
+  "GOLD-02",
+  "GOLD-03",
+  "GOLD-04",
+  "GOLD-05",
+  "OIL-01",
+  "OIL-02",
+  "OIL-03",
+  "OIL-04",
+  "OIL-05",
+  "CRYPTO-01",
+  "CRYPTO-02",
+  "CRYPTO-03",
+  "CRYPTO-04",
+  "CRYPTO-05",
+  "EU-02",
+  "EU-03",
+  "EU-04",
+  "EU-05",
+  "ASIA-02",
+  "ASIA-03",
+  "ASIA-04",
+  "ASIA-05",
+  "NQ-01",
+  "NQ-02",
+  "NQ-03",
+  "NQ-04",
+  "NQ-05",
+  "ONCHAIN-02",
+  "ONCHAIN-03",
+  "ONCHAIN-04",
+  "ONCHAIN-05",
+  "NEWS-02",
+  "NEWS-03",
+  "NEWS-04",
+  "NEWS-05",
+  "SEC-01",
+  "SEC-02",
+  "SEC-03",
+  "SEC-04",
+  "RED-03",
+  "RED-04",
+  "UNI-04",
+  "RDI-01",
+  "RDI-03",
+  "RDI-04",
+  "RDI-05",
+  "BRAIN-01"
+ ],
+ "filled_count": 20,
+ "empty_count": 47,
+ "role_count": 67
+}
