@@ -116,8 +116,11 @@ def read_soak_pid(root: Path) -> int | None:
     path = Path(root) / "reports" / "grok" / "M13_SOAK" / "soak_pid.txt"
     if not path.is_file():
         return None
-    text = path.read_text(encoding="utf-8").strip()
-    return int(text) if text.isdigit() else None
+    for line in path.read_text(encoding="utf-8").splitlines():
+        token = line.strip().split()[0] if line.strip() else ""
+        if token.isdigit():
+            return int(token)
+    return None
 
 
 def merge_store_integrity(

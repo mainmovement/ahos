@@ -60,6 +60,10 @@
    "change": "Show live, shadow-live, and dead counts from the running soak and trader. Do not paint a module live unless that process logged it."
   },
   {
+   "id": "post_soak_window",
+   "change": "Show the closed 72h certificate and the new window start. Do not paint the new window as a promotion or as a finished reboot proof."
+  },
+  {
    "id": "telegram_commands",
    "change": "Show the paper command receipt: pause is new entries only, the live switch stays off, and blocked actions point at the local dashboard."
   },

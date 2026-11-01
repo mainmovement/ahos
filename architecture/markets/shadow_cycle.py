@@ -18,7 +18,7 @@ from architecture.markets.paper_trade_gates import (
 )
 
 LOG_REL = Path("reports") / "grok" / "PAPER" / "shadow_cycle.jsonl"
-RUNNING_PIDS = (14260, 13020)
+PID_REL = Path("reports") / "grok" / "M13_SOAK" / "soak_pid.txt"
 _DIGITS = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
 
 # MEGA 7-12 surfaces. A name is shadow-live only after the running pid logs it.
@@ -53,10 +53,24 @@ def _append(root: Path, row: dict[str, Any]) -> None:
         handle.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+def live_pids(root: Path) -> set[int]:
+    """Integer lines in the soak pid file. The first line is the soak process."""
+    path = Path(root) / PID_REL
+    if not path.is_file():
+        return set()
+    found: set[int] = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        token = line.strip().split()[0] if line.strip() else ""
+        if token.isdigit():
+            found.add(int(token))
+    return found
+
+
 def _recent(root: Path, *, now: datetime | None = None) -> list[dict[str, Any]]:
     path = Path(root) / LOG_REL
     if not path.is_file():
         return []
+    allowed = live_pids(root)
     cut = (now or datetime.now(timezone.utc)) - timedelta(minutes=60)
     rows = []
     for line in path.read_text(encoding="utf-8").splitlines()[-400:]:
@@ -71,7 +85,7 @@ def _recent(root: Path, *, now: datetime | None = None) -> list[dict[str, Any]]:
             moment = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
         except ValueError:
             continue
-        if moment >= cut and int(row.get("pid") or 0) in RUNNING_PIDS:
+        if moment >= cut and int(row.get("pid") or 0) in allowed:
             rows.append(row)
     return rows
 
@@ -163,9 +177,44 @@ def shadow_tick(
 
     moment = now or datetime.now(timezone.utc)
     frame = {"closes": list((inputs or {}).get("closes") or [])}
+    calls: dict[str, int] = {}
+
+    def hit(name: str) -> None:
+        calls[name] = calls.get(name, 0) + 1
+
     signals = strategy_rows(frame, inputs or {})
+    hit("strategy_signals")
     scored = evaluate(root)
+    for name in ("news_cooldown", "fade_first_spike", "gold_exits", "capital_tilt", "entry_quality"):
+        hit(name)
     learned = learn_from_book(root)
+    hit("learning_loop")
+    try:
+        from architecture.markets.family_marginal import _closes as family_closes
+        from architecture.markets.family_marginal import measure
+
+        measure(family_closes(root))
+        hit("family_marginal")
+    except Exception:
+        pass
+    try:
+        from science.integrate import book_shadow, run_all
+
+        book_shadow(root)
+        hit("book_shadow")
+        run_all(root)
+        hit("science_pack")
+    except Exception:
+        pass
+    try:
+        from architecture.strategies.leaderboard import SPECS, _book_frames, _closes, _desk_focus, _fomc_days, _row_for
+
+        frames = _book_frames(_closes(root), _fomc_days(root))
+        focus_rows = [_row_for(spec, frame) for spec in SPECS for frame in frames]
+        _desk_focus(root, focus_rows)
+        hit("desk_focus")
+    except Exception:
+        pass
     news = scored.get("news") or {}
     cool = news.get("news_cooldown_15") or {}
     judge = review()
@@ -175,7 +224,8 @@ def shadow_tick(
         "pid": int(pid if pid is not None else os.getpid()),
         "cycle_id": cycle_id,
         "source": source,
-        "modules": list(MODULES),
+        "modules": [name for name in MODULES if calls.get(name)],
+        "module_calls": {name: int(calls.get(name) or 0) for name in MODULES},
         "strategies": signals,
         "strategies_signaled": sum(1 for item in signals if item["state"] == "SIGNAL"),
         "strategies_no_source": sum(1 for item in signals if item["state"] == "NO_FREE_SOURCE"),

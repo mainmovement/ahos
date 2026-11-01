@@ -645,3 +645,11 @@
 **Choice:** No. The listener was replaced by pid 15472. Soak 14260 and trader 13020 stayed up. Only the first numeric allowlisted chat is accepted, and that id is not written here. Pause and resume are a HALT and a clear on the mission ledger the running paper cycle already reads, so new entries stop without a restart. Open positions were not flattened. Close-all stays armed while that trader process is alive, because it keeps the book in memory. Live switch, promotion, HOLD flags, weights, gates, and shell stay on the local dashboard. Three wrong codes lock the chat for an hour and alert Negahban. The live pause was cleared in the same test. Judge stays NO_PROMOTION.
 
 **Reason:** A chat command must fail closed, and the only pause the loaded trader already honors is the ledger halt. Restarting the soak before its window ends is not required for that.
+
+## 2026-11-01: Close the 72-hour window and start a new paper window
+
+**Question:** Has the soak that began at 2026-10-29T00:45:31Z reached 72 hours, and should the paper processes restart onto the current code?
+
+**Choice:** Yes. The last cycle of that window was 2026-11-01T04:46:31Z, 76.017 hours after the start, with 162 cycles ok and 0 failed. The certificate is `reports/grok/M13_SOAK/soak_window_certificate.json`. Soak 14260, trader 13020, and listener 15472 were stopped. The status file was archived so the next process would not keep that window. The autostart command then started soak 2356, trader 17088, and listener 14040. The new window start is 2026-11-01T04:58:28Z. Task Scheduler returned access denied, so the same command was registered under the current user Run key and the Startup folder, then executed once. No reboot was performed, so OP-3 is not a reboot proof. Free RAM was 1772.8 MB of 8116 MB, under 2048 MB, so the science libraries were not installed. Nothing was promoted.
+
+**Reason:** The deadline had passed and the stored window was still the one that started on 29 October. A restart before that certificate would have thrown the clock away. A scheduler denial is not a successful task registration.

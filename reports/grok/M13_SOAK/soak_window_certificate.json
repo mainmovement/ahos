@@ -1,0 +1,16 @@
+{
+ "schema": "ahos.soak_window_certificate.v1",
+ "paper_only": true,
+ "promoted": false,
+ "window_started_utc": "2026-10-29T00:45:31Z",
+ "last_cycle_utc": "2026-11-01T04:46:31Z",
+ "elapsed_hours": 76.017,
+ "threshold_hours": 72,
+ "window_complete": true,
+ "cycles_ok": 162,
+ "cycles_failed": 0,
+ "last_cycle_id": 1571,
+ "last_cycle_ok": true,
+ "certified_at_utc": "2026-11-01T04:56:10Z",
+ "live_switch": false
+}

@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from architecture.markets.paper_trade_gates import MIN_AGREEING_FAMILIES, VOTE_SCORE_FLOOR
-from architecture.markets.shadow_cycle import running_counts_fa, shadow_tick
+from architecture.markets.shadow_cycle import MODULES, running_counts_fa, shadow_tick
 
 
 def test_a_manual_tick_is_not_the_running_soak(tmp_path: Path) -> None:
@@ -29,3 +29,18 @@ def test_a_manual_tick_is_not_the_running_soak(tmp_path: Path) -> None:
     assert row["applied_to_live"] is False
     assert "سایهٔ زنده ۰" in text
     assert not any(ch.isascii() and ch.isalpha() for ch in text)
+    assert set(row["module_calls"]) == set(MODULES)
+    assert row["modules"] == [name for name in MODULES if row["module_calls"][name]]
+    assert sum(row["module_calls"].values()) >= 1
+
+
+def test_only_pids_in_the_file_count(tmp_path: Path) -> None:
+    from architecture.markets.shadow_cycle import live_pids
+
+    folder = tmp_path / "reports" / "grok" / "M13_SOAK"
+    folder.mkdir(parents=True)
+    (folder / "soak_pid.txt").write_text("501\n502\n503\n", encoding="utf-8")
+    assert live_pids(tmp_path) == {501, 502, 503}
+    from architecture.persistence.store_integrity import read_soak_pid
+
+    assert read_soak_pid(tmp_path) == 501
