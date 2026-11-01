@@ -701,3 +701,11 @@
 **Choice:** No process was stopped. The earlier 946.8 MB free was not a leftover trader. The protected processes were soak 2356, listener 14040, and trader 15916. The gold-path sidecar 15800 and the spread sampler 5468 are single loops, not duplicates. A fresh reading was 1565.6 MB free, then 2061.6 MB after the trader reload. Gold and oil were added only in config/desk_chains.json, with a one-line experiment-id prefix so they do not share the US id. Trader 15916 was replaced by 15668 so that prefix would load. At 2026-11-01T08:44:14Z both desks recorded SESSION_CLOSED and opened nothing. Oil remains paused. The chain cap stays 0.15 USD. Nothing was promoted.
 
 **Reason:** Killing the soak, the listener, the trader, or the two single sidecars would not have been an orphan cleanup. A closed venue is not a setup.
+
+## 2026-11-01: Four desks added by config, and no token was forced
+
+**Question:** Should the open UNI position be closed so the on-chain desk can show a round trip now, and should gold or oil be opened before Globex?
+
+**Choice:** No. Free RAM was 1727.6 MB, so the config change proceeded. On-chain, nasdaq futures, Europe, and Asia were added only in config/desk_chains.json. The cap is 0.15 USD and the pause file was not edited. At 2026-11-01T08:50:48Z the on-chain desk recorded POSITION_ALREADY_OPEN on UNI. Nasdaq, Europe, and Asia recorded SESSION_CLOSED. Gold and oil stayed on their earlier waiting state and the same code path opens a ticket only after the venue is open. The next Globex open is 2026-11-02 02:30 Tehran. Soak 2356, trader 15668, and listener 14040 stayed up. Nothing was promoted.
+
+**Reason:** An occupied symbol and a closed session are not a setup. Closing UNI to free a slot would be a forced trade.

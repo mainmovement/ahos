@@ -72,6 +72,10 @@
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
   {
+   "id": "session_desks",
+   "change": "Show on-chain, nasdaq, Europe, and Asia chain rows. A closed session or an occupied token stays no-setup. Do not paint the next open as a fill."
+  },
+  {
    "id": "gold_oil_chains",
    "change": "Show gold and oil chain rows from the shared desk config. Show SESSION_CLOSED as no setup. Do not paint a paused oil desk or a 0.15 cap as a promotion."
   },

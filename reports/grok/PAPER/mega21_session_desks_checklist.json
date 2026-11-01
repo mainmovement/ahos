@@ -1,0 +1,74 @@
+{
+  "schema": "ahos.mega21_session_desks.v1",
+  "paper_only": true,
+  "promoted": false,
+  "free_ram_mb": 1727.6,
+  "free_ram_after_mb": 1834.5,
+  "total_ram_mb": 8116,
+  "stopped_for_ram": false,
+  "pids": {"soak": 2356, "trader": 15668, "listener": 14040},
+  "trader_restarted": false,
+  "desks": {
+    "ONCHAIN": {
+      "status": "NO_SETUP",
+      "reasons": ["POSITION_ALREADY_OPEN"],
+      "symbol": "UNI",
+      "experiment_id": "exp-onchain-20261101T085048Z",
+      "observed_at": "2026-11-01T08:50:48Z",
+      "close_id": null,
+      "realized_pnl_usd": null
+    },
+    "NQ": {
+      "status": "NO_SETUP",
+      "reasons": ["SESSION_CLOSED"],
+      "symbol": "NQ",
+      "experiment_id": "exp-nq-20261101T085049Z",
+      "observed_at": "2026-11-01T08:50:49Z",
+      "next_open_tehran": "2026-11-02 02:30"
+    },
+    "EU_EQUITY": {
+      "status": "NO_SETUP",
+      "reasons": ["SESSION_CLOSED"],
+      "symbol": "DAX",
+      "experiment_id": "exp-eu-20261101T085049Z",
+      "observed_at": "2026-11-01T08:50:49Z",
+      "next_open_tehran": "2026-11-02 11:30"
+    },
+    "ASIA_EQUITY": {
+      "status": "NO_SETUP",
+      "reasons": ["SESSION_CLOSED"],
+      "symbols": ["N225", "HSI"],
+      "experiment_id": "exp-asia-20261101T085049Z",
+      "observed_at": "2026-11-01T08:50:49Z",
+      "next_open_tehran": "2026-11-02 03:30"
+    },
+    "GOLD": {
+      "status": "NO_SETUP",
+      "reasons": ["SESSION_CLOSED"],
+      "experiment_id": "exp-gold-20261101T084414Z",
+      "next_open_tehran": "2026-11-02 02:30",
+      "auto_retry": true
+    },
+    "OIL": {
+      "status": "NO_SETUP",
+      "reasons": ["SESSION_CLOSED"],
+      "experiment_id": "exp-oil-20261101T084414Z",
+      "next_open_tehran": "2026-11-02 02:30",
+      "auto_retry": true
+    }
+  },
+  "notional_cap_usd": 0.15,
+  "pauses_kept": ["ASIA_EQUITIES", "CRYPTO", "OIL"],
+  "org_map": {"filled": 51, "empty": 16, "roles": 67},
+  "empty_roles": ["NEWS-02", "NEWS-03", "NEWS-04", "NEWS-05", "SEC-01", "SEC-02", "SEC-03", "SEC-04", "RED-03", "RED-04", "UNI-04", "RDI-01", "RDI-03", "RDI-04", "RDI-05", "BRAIN-01"],
+  "template": "architecture/mission/desk_chain_template.py",
+  "config": "config/desk_chains.json",
+  "digest_lines": [
+    "مسیر واقعی میز آنچین: هنوز فرصت نبود",
+    "مسیر واقعی میز نزدک: هنوز فرصت نبود",
+    "مسیر واقعی میز اروپا: هنوز فرصت نبود",
+    "مسیر واقعی میز آسیا: هنوز فرصت نبود"
+  ],
+  "lane_a": "OK_36",
+  "decides": false
+}
