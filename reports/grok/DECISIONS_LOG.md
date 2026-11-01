@@ -725,3 +725,11 @@
 **Choice:** No. Free RAM was above 1 GB. The scorecard reads the charter bus and paper closes, writes reports/grok/PAPER/role_scorecard.json each cycle, and does not touch weights or the live switch. Soak 2356 and listener 14040 stayed up. Trader 13256 was replaced by 9708 so the measure would load. At 2026-11-01T10:40:14Z the running trader wrote active 39, name-only 28, overloaded 23, harmful 0. Nothing was promoted.
 
 **Reason:** A scorecard is a measurement. Changing a weight from a flag would invent authority the measure does not have.
+
+## 2026-11-01: Owner asked to push branch ahos
+
+**Question:** Should the already-committed MEGA desk/brain/scorecard work on branch ahos be pushed while the working tree is full of runtime reports?
+
+**Choice:** Yes, push only the existing local commits on branch ahos. Do not stage soak status, paper trades, world state, HOLD runtime, or other unrelated dirty reports into a new commit.
+
+**Reason:** The owner selected commit-and-push for this branch. A new commit of the dirty tree would mix runtime evidence into product history.
