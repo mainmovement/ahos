@@ -72,6 +72,10 @@
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
   {
+   "id": "crypto_real_round_trip",
+   "change": "Show the crypto paper round trip with its later close id and after-cost result. Keep the desk pause and the 0.15 size cut visible. Do not paint the ticket as a promotion."
+  },
+  {
    "id": "us_real_round_trip",
    "change": "Show a US equity round trip only after a later paper close id exists. Show NO_SETUP while the session, the quote, or an open position blocks the entry. Do not paint the wait as a completed trade."
   },

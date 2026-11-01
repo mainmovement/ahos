@@ -685,3 +685,11 @@
 **Choice:** No. The trader was replaced by pid 6900 so it would load the waiting rule. Soak 2356 and listener 14040 stayed up. The soak window stayed 2026-11-01T04:58:28Z. At 2026-11-01T08:00:53Z the new process recorded NO_SETUP with SESSION_CLOSED, QUOTE_STALE, and POSITION_ALREADY_OPEN. No chain order was appended. Judge stayed NO_PROMOTION. A fixture with an open Monday session still has to wait out the time stop before it writes a later close. Free RAM was 1342.7 MB of 8116 MB.
 
 **Reason:** A same-second outcome with no fill is not a trade. A closed session and an occupied symbol are not a setup.
+
+## 2026-11-01: One tiny crypto paper ticket while the desk stays paused
+
+**Question:** Should the crypto expectancy pause be lifted so a real-time chain can open a position before Monday?
+
+**Choice:** No. The pause stayed on. The shared chain template allowed one pre-registered ticket of 0.15 USD on BTC, which had no open position and a fresh quote. Trader 6900 was replaced by 15916 so the template would load. Soak 2356 and listener 14040 stayed up. The window stayed 2026-11-01T04:58:28Z. The open was 2026-11-01T08:20:26Z and the time-stop close was 2026-11-01T08:33:24Z, id exp-crypto-20261101T082026Z-close, after-cost result -0.000231 USD. The lesson recorded an unverified loss and a Brier update. Nothing was promoted. Free RAM was 946.8 MB of 8116 MB.
+
+**Reason:** A paused desk can still host one judged paper ticket at the size floor. Removing the pause would let the normal cycle open more crypto risk. The negative after-cost result is a record, not a reason to change a weight.

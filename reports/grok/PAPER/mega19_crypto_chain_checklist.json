@@ -1,0 +1,39 @@
+{
+  "schema": "ahos.mega19_crypto_chain.v1",
+  "paper_only": true,
+  "promoted": false,
+  "judge": "NO_PROMOTION",
+  "desk": "CRYPTO",
+  "desk_pause": "RESPECTED",
+  "template": "architecture/mission/desk_chain_template.py",
+  "config": "config/desk_chains.json",
+  "experiment_id": "exp-crypto-20261101T082026Z",
+  "symbol": "BTC",
+  "notional_usd": 0.15,
+  "open_id": "exp-crypto-20261101T082026Z-open",
+  "opened_at": "2026-11-01T08:20:26Z",
+  "close_id": "exp-crypto-20261101T082026Z-close",
+  "closed_at": "2026-11-01T08:33:24Z",
+  "realized_pnl_usd": -0.000231,
+  "lesson": {
+    "brier_before": 0.2191,
+    "brier_after": 0.2162,
+    "university_case": "LOSS",
+    "mistake_status": "UNVERIFIED",
+    "applied_to_live_weights": false
+  },
+  "roles": {
+    "CRYPTO-01": "AG-04",
+    "CRYPTO-02": "AG-07",
+    "CRYPTO-03": "AG-10",
+    "CRYPTO-04": "AG-06",
+    "CRYPTO-05": "AG-16"
+  },
+  "pids": {"soak": 2356, "trader_before": 6900, "trader": 15916, "listener": 14040},
+  "window_started_utc": "2026-11-01T04:58:28Z",
+  "free_ram_mb": 946.8,
+  "total_ram_mb": 8116,
+  "digest_line": "مسیر واقعی میز رمزارز: یک معامله کامل شد",
+  "lane_a": "OK_36",
+  "decides": false
+}

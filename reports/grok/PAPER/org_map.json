@@ -75,6 +75,11 @@
   "EU-01": "AG-30",
   "ASIA-01": "AG-31",
   "ONCHAIN-01": "AG-06",
+  "CRYPTO-01": "AG-04",
+  "CRYPTO-02": "AG-07",
+  "CRYPTO-03": "AG-10",
+  "CRYPTO-04": "AG-06",
+  "CRYPTO-05": "AG-16",
   "NEWS-01": "AG-33",
   "SEC-05": "AG-09",
   "UNI-05": "AG-41",
@@ -152,7 +157,7 @@
   "RDI-05",
   "BRAIN-01"
  ],
- "filled_count": 20,
- "empty_count": 47,
+ "filled_count": 25,
+ "empty_count": 42,
  "role_count": 67
 }

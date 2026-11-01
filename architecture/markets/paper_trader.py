@@ -1272,21 +1272,9 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     except Exception:
         pass
     try:
-        from architecture.mission.us_desk_chain import run_us_desk_chain
+        from architecture.mission.desk_chain_template import run_configured_chains
 
-        run_us_desk_chain(
-            root,
-            [
-                {
-                    "symbol": sym,
-                    "price": (quotes.get(sym) or {}).get("price"),
-                    "source": (quotes.get(sym) or {}).get("source"),
-                    "market_time": (quotes.get(sym) or {}).get("market_time") or (quotes.get(sym) or {}).get("source_timestamp"),
-                }
-                for sym in ("SPX", "QQQ", "NDX")
-            ],
-            [row for row in events if row.get("desk") == "US_EQUITIES"],
-        )
+        run_configured_chains(root, quotes)
     except Exception:
         pass
     return status

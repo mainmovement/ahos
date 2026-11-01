@@ -244,11 +244,13 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
         soak_line = f"آزمون پیوسته حدود {_fa(hours, 1)} ساعت از {_fa_int(int(SOAK_GOAL_H))} ساعت را آمده است."
         problem = "سود کاغذی هنوز پایدار نشده و به پول واقعی نمی‌رسیم."
     pct_text = _fa(float(pct), 0) if isinstance(pct, (int, float)) and not isinstance(pct, bool) else "نامشخص"
+    from architecture.mission.desk_chain_template import desk_line
     from architecture.mission.us_desk_chain import real_us_line, us_desk_line
     from architecture.research.nightly_science import science_line
 
     us_line = us_desk_line(root)
     real_line = real_us_line(root)
+    crypto_line = desk_line(root, "CRYPTO")
     science_digest = science_line(root)
     return "\n".join([
         f"مهراد جان، {_greeting(moment)}.",
@@ -271,6 +273,7 @@ def compose_mehrdad_digest(root: Path, *, now: datetime | None = None) -> str:
         "پنجرهٔ آزمون قبلی بسته شد و پنجرهٔ تازه هیچ وزنی را زنده نکرد.",
         us_line,
         real_line,
+        crypto_line,
         science_digest,
         "فرمان گفتگو فقط گزارش و توقف ورود کاغذی را می‌پذیرد و پول واقعی از آنجا عوض نمی‌شود.",
         _helping(root),
