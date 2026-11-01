@@ -43,8 +43,8 @@
   },
   "BRAIN-01": {
    "agent": "AG-01",
-   "on_path": false,
-   "note": "registry seat, not implemented"
+   "on_path": true,
+   "note": "rank-and-veto module only"
   }
  },
  "us_equity": {

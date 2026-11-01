@@ -717,3 +717,11 @@
 **Choice:** No. Free RAM was 1349.5 MB. BRAIN-01 is a small rank-and-veto module on AG-01. The cap is one paper ticket. It does not write weights and it does not touch the live switch. Trader 15668 was replaced by 13256 so the module would load. Soak 2356 and listener 14040 stayed up. At 2026-11-01T09:04:22Z the running trader called it once. The rank had no allowable ticket. The no-trade example was GOLD with SESSION_CLOSED. Oil stayed paused. The empty support roles were mapped onto existing agents. SEC-01 stays INSUFFICIENT_EVIDENCE. Nothing was promoted.
 
 **Reason:** A rank is an ordering, not permission to loosen a pause or to trade through a closed session.
+
+## 2026-11-01: Role scorecard measures only
+
+**Question:** Should an OVERLOADED or NAME_ONLY flag change a desk weight or remove a mapped agent?
+
+**Choice:** No. Free RAM was above 1 GB. The scorecard reads the charter bus and paper closes, writes reports/grok/PAPER/role_scorecard.json each cycle, and does not touch weights or the live switch. Soak 2356 and listener 14040 stayed up. Trader 13256 was replaced by 9708 so the measure would load. At 2026-11-01T10:40:14Z the running trader wrote active 39, name-only 28, overloaded 23, harmful 0. Nothing was promoted.
+
+**Reason:** A scorecard is a measurement. Changing a weight from a flag would invent authority the measure does not have.

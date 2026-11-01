@@ -1,0 +1,27 @@
+{
+  "schema": "ahos.mega23_role_scorecard.v1",
+  "paper_only": true,
+  "promoted": false,
+  "applied_to_live_weights": false,
+  "free_ram_before_mb": 1424.5,
+  "free_ram_after_mb": 1796.8,
+  "total_ram_mb": 8116,
+  "scorecard": "reports/grok/PAPER/role_scorecard.json",
+  "generated_at": "2026-11-01T10:40:14Z",
+  "pid": 9708,
+  "active": 39,
+  "name_only": 28,
+  "overloaded": 23,
+  "harmful": 0,
+  "role_count": 67,
+  "examples": {
+    "name_only": "NEWS-05",
+    "overloaded": "US-03",
+    "proven_wrong": {"role": "CRYPTO-05", "wrong": 1, "right": 0},
+    "proven_right": {"role": "UNI-03", "wrong": 0, "right": 1}
+  },
+  "pids": {"soak": 2356, "trader_before": 13256, "trader": 9708, "listener": 14040},
+  "digest_line": "نقش‌های فعال ۳۹ از ۶۷، فقط‌اسم ۲۸، پرکار ۲۳",
+  "lane_a": "OK_36",
+  "decides": false
+}

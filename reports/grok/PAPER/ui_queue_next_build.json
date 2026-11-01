@@ -72,6 +72,10 @@
    "change": "Answer what AHOS is doing from the paper status. Do not paint the chat engine flag as the paper cycle."
   },
   {
+   "id": "role_scorecard",
+   "change": "Show the 67-role scorecard with message counts and NAME_ONLY, OVERLOADED, or HARMFUL flags. Do not turn a flag into a weight change."
+  },
+  {
    "id": "brain01_rank",
    "change": "Show the central brain rank and the no-trade reason. Do not paint a veto or a zero-ticket rank as a promotion."
   },

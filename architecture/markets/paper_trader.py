@@ -1274,9 +1274,11 @@ def run_cycle(root: Path, *, fetch: Callable[[], dict[str, Any]] | None = None,
     try:
         from architecture.mission.brain01 import run_brain
         from architecture.mission.desk_chain_template import run_configured_chains
+        from architecture.mission.role_scorecard import run_role_scorecard
 
         run_brain(root)
         run_configured_chains(root, quotes)
+        run_role_scorecard(root)
     except Exception:
         pass
     return status
