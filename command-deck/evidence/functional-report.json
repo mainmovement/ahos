@@ -1,0 +1,251 @@
+{
+  "passCount": 49,
+  "total": 49,
+  "results": [
+    {
+      "name": "route /fa",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /fa/desks",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /fa/desks/gold",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /fa/desks/onchain",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /fa/positions",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /fa/intelligence",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /fa/readiness",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /fa/health",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /fa/settings",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en/desks",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en/desks/gold",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en/desks/onchain",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en/positions",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en/intelligence",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en/readiness",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en/health",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "route /en/settings",
+      "pass": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "root redirects to /fa",
+      "pass": true,
+      "detail": "http://127.0.0.1:3300/fa"
+    },
+    {
+      "name": "fa → dir=rtl lang=fa",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "en → dir=ltr lang=en",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "language toggle fa→en keeps /readiness",
+      "pass": true,
+      "detail": "http://127.0.0.1:3300/en/readiness"
+    },
+    {
+      "name": "theme → light applies .light",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "theme persists after reload",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "search filters to XAU",
+      "pass": true,
+      "detail": "10→7"
+    },
+    {
+      "name": "side filter applies",
+      "pass": true,
+      "detail": "10 SHORT rows"
+    },
+    {
+      "name": "net-P&L sort flips order",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "CSV export downloads",
+      "pass": true,
+      "detail": "15 lines"
+    },
+    {
+      "name": "position drawer opens",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "drawer shows accounting identity",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "empty state appears",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "clear filters restores rows",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "pagination advances",
+      "pass": {},
+      "detail": ""
+    },
+    {
+      "name": "demo mode reveals demonstration PASS states",
+      "pass": true,
+      "detail": "5→9"
+    },
+    {
+      "name": "verdict stays NOT READY / NOT AUTHORIZED",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "palette navigates to settings",
+      "pass": true,
+      "detail": "http://127.0.0.1:3300/fa/settings"
+    },
+    {
+      "name": "notifications popover shows alerts",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "scene off → 2D fallback",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "scene on → canvas mounts",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "no order/close/trade actions",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "room dock offers three views",
+      "pass": true,
+      "detail": "count 3"
+    },
+    {
+      "name": "live weather chip present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "weather chip stays honest when offline",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "role chips on desks ≥ 12",
+      "pass": true,
+      "detail": "count 13"
+    },
+    {
+      "name": "role chip opens workstation panel",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Escape closes workstation panel",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "commander FPV view stays alive",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "room stage renders a single WebGL canvas with GPU screen textures",
+      "pass": true,
+      "detail": "count 1"
+    },
+    {
+      "name": "zero page errors across interactions",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

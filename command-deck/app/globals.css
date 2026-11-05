@@ -1,0 +1,408 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ */
+/* Local fonts (no remote loading, OFL-licensed, bundled in /public)    */
+/* ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-arabic-400-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-arabic-500-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-latin-500-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-arabic-600-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-arabic-700-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-arabic-800-normal.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/fonts/vazirmatn-latin-800-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "InterVar";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------------------------------------------ */
+/* Design tokens                                                       */
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  :root {
+    /* dark (default) */
+    --background: 11 16 32;        /* #0B1020 deep navy */
+    --foreground: 214 226 244;
+    --card: 17 26 46;              /* #111A2E */
+    --card-foreground: 214 226 244;
+    --panel: 14 21 38;             /* #0E1526 */
+    --muted: 21 32 58;
+    --muted-foreground: 148 163 184;
+    --subtle: 100 116 139;
+    --border: 36 52 88;
+    --border-strong: 52 72 116;
+    --panel-edge: 212 175 55;
+    --primary: 212 175 55;         /* gold */
+    --primary-soft: 212 175 55;
+    --primary-foreground: 11 16 32;
+    --accent: 34 211 238;          /* cyan */
+    --accent-soft: 34 211 238;
+    --ring: 34 211 238;
+    --success: 34 197 94;
+    --danger: 239 68 68;
+    --warning: 245 158 11;
+    --violet: 139 92 246;
+    --chart-1: 34 211 238;
+    --chart-2: 212 175 55;
+    --chart-3: 139 92 246;
+    --chart-4: 34 197 94;
+    --chart-5: 100 116 139;
+
+    --pad-card: 1.25rem;
+    --pad-section: 1.5rem;
+  }
+
+  .light {
+    --background: 247 245 240;     /* warm near-white */
+    --foreground: 15 23 42;
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
+    --panel: 252 251 247;
+    --muted: 238 235 227;
+    --muted-foreground: 71 85 105;
+    --subtle: 100 116 139;
+    --border: 226 221 209;
+    --border-strong: 203 196 180;
+    --panel-edge: 140 106 31;
+    --primary: 140 106 31;         /* restrained gold on light */
+    --primary-soft: 212 175 55;
+    --primary-foreground: 255 255 255;
+    --accent: 8 145 178;           /* darker cyan for contrast */
+    --accent-soft: 34 211 238;
+    --ring: 8 145 178;
+    --success: 22 163 74;
+    --danger: 220 38 38;
+    --warning: 180 83 9;
+    --violet: 109 40 217;
+    --chart-1: 8 145 178;
+    --chart-2: 140 106 31;
+    --chart-3: 109 40 217;
+    --chart-4: 22 163 74;
+    --chart-5: 100 116 139;
+  }
+
+  [data-density="compact"] {
+    --pad-card: 0.75rem;
+    --pad-section: 1rem;
+  }
+
+  * {
+    border-color: rgb(var(--border));
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+  html.light {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    font-feature-settings: "ss01" on, "tnum" off;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: rgb(var(--primary) / 0.3);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--border-strong));
+    border-radius: 8px;
+    border: 2px solid rgb(var(--background));
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  .panel {
+    background:
+      linear-gradient(180deg, rgb(var(--card) / 0.92) 0%, rgb(var(--panel) / 0.96) 100%);
+    border: 1px solid rgb(var(--border));
+    border-radius: 1rem;
+    box-shadow: 0 1px 0 0 rgb(var(--panel-edge) / 0.06), 0 8px 24px -16px rgb(0 0 0 / 0.5);
+  }
+  .panel-pad {
+    padding: var(--pad-card);
+  }
+  .eyebrow {
+    @apply text-[11px] font-semibold text-primary/90;
+  }
+  html.light .eyebrow {
+    color: rgb(var(--primary));
+  }
+  .eyebrow--latin {
+    font-family: InterVar, Inter, system-ui, sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .gold-text {
+    background: linear-gradient(120deg, #F6E7B8 0%, #D4AF37 45%, #B08F2A 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  html.light .gold-text {
+    background: linear-gradient(120deg, #8C6A1F 0%, #B08F2A 60%, #8C6A1F 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(rgb(var(--foreground) / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--foreground) / 0.045) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 30%, transparent 75%);
+  }
+  .hatch-excluded {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgb(var(--danger) / 0.55) 0px,
+      rgb(var(--danger) / 0.55) 4px,
+      transparent 4px,
+      transparent 9px
+    );
+  }
+  .hatch-quarantined {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgb(var(--warning) / 0.6) 0px,
+      rgb(var(--warning) / 0.6) 4px,
+      transparent 4px,
+      transparent 9px
+    );
+  }
+  .watermark-stripes {
+    background-image: repeating-linear-gradient(
+      -30deg,
+      transparent 0px,
+      transparent 22px,
+      rgb(var(--foreground) / 0.025) 22px,
+      rgb(var(--foreground) / 0.025) 24px
+    );
+  }
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  .palette-item {
+    @apply flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-foreground;
+  }
+  .palette-item[data-selected="true"] {
+    @apply bg-primary/15 text-primary;
+  }
+  /* floating asset chips anchored inside the 3D scene */
+  .scene-chip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    border: 1px solid rgb(34 211 238 / 0.35);
+    background: rgb(4 8 18 / 0.72);
+    backdrop-filter: blur(4px);
+    color: #d6e6f2;
+    font-family: InterVar, Inter, system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    transition: opacity 0.25s ease;
+    will-change: transform, opacity;
+    text-shadow: 0 0 8px rgb(34 211 238 / 0.45);
+    box-shadow: 0 0 14px -4px rgb(34 211 238 / 0.5);
+  }
+  .scene-chip span {
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    box-shadow: 0 0 6px currentColor;
+  }
+  /* HUD cards floating over the stage */
+  .hud-card {
+    position: relative;
+    background: linear-gradient(160deg, rgb(17 26 46 / 0.88), rgb(11 16 32 / 0.86));
+    backdrop-filter: blur(10px);
+  }
+  .light .hud-card {
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.94), rgb(244 246 251 / 0.9));
+  }
+  .light .hud-card::before {
+    background: linear-gradient(135deg, rgb(212 175 55 / 0.06), transparent 40%);
+  }
+  .hud-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgb(212 175 55 / 0.09), transparent 40%);
+    pointer-events: none;
+  }
+  .scanlines {
+    background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.012) 0 1px, transparent 1px 3px);
+  }
+  .vignette {
+    background: radial-gradient(ellipse 80% 74% at 50% 44%, transparent 52%, rgb(4 6 13 / 0.5) 100%);
+  }
+  /* HUD cards float with cut corners and a periodic scanner sweep */
+  .hud-cut {
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  }
+  .hud-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -45%;
+    width: 45%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgb(212 175 55 / 0.55), transparent);
+    animation: hud-scan 7s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes hud-scan {
+    to {
+      left: 145%;
+    }
+  }
+  /* recent-events marquee along the stage floor */
+  .ticker-track {
+    animation: ticker-scroll 38s linear infinite;
+    will-change: transform;
+  }
+  @keyframes ticker-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .tech {
+    font-family: InterVar, Inter, system-ui, sans-serif;
+    unicode-bidi: isolate;
+    direction: ltr;
+  }
+}
+
+@layer utilities {
+  .anim {
+    animation: none;
+  }
+  [data-motion="reduce"] *,
+  [data-motion="reduce"] *::before,
+  [data-motion="reduce"] *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001s !important;
+    scroll-behavior: auto !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001s !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

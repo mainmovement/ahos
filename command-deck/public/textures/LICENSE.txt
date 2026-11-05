@@ -1,0 +1,17 @@
+Texture licenses for the command-stage globe (bundled locally, no CDN):
+
+- earth-day-2048.jpg   — derived from "earth-blue-marble.jpg" in the three-globe
+                         repository (MIT), original imagery: NASA Blue Marble
+                         (public domain, NASA Earth Observatory).
+- earth-night-2048.jpg — derived from "earth-night.jpg" in the three-globe
+                         repository (MIT), original imagery: NASA "Black Marble"
+                         night lights (public domain, NASA Earth Observatory).
+- earth-water-2048.png — derived from "earth-water.png" (three-globe, MIT) —
+                         land/water mask used for ocean specular only.
+- clouds-2048.png      — derived from "clouds.png" (three-globe example assets, MIT),
+                         resized. Decorative simulated cloud layer.
+
+three-globe is distributed under the MIT license (https://github.com/vasturiano/three-globe).
+NASA imagery is in the public domain (courtesy of NASA Earth Observatory).
+No real-time or external data source is used at runtime; these are static,
+bundled decorative textures for a simulation-labeled visualization.
